@@ -1,5 +1,7 @@
 #include "Application.h"
 
+#include "InputSystemEditor.h"
+
 namespace Dusk
 {
     /**
@@ -19,9 +21,10 @@ namespace Dusk
     /**
     *@return if initialisation of the ogre core <br> - true initialisation successfull  <br> - false init failed
     */
-    bool Application::initialise()
+    bool Application::initialise(std::string pluginFileName)
     {
-        m_Root = new Ogre::Root();
+        std::cout << pluginFileName;
+        m_Root = new Ogre::Root(pluginFileName);
 
         // add resource locations
         addResourceLocations();
@@ -47,11 +50,14 @@ namespace Dusk
 
         // Create the FrameListener
         createFrameListener();
+
+        //create the console //TODO: rausnehmen und ordentlich wegsortieren hier nur als TEST!
+        InputSystemEditor* ise = new InputSystemEditor(m_Root);
         return true;
     }
-    void Application::go()
+    void Application::go(std::string pluginFileName)
     {
-        if (!initialise())
+        if (!initialise(pluginFileName))
             return;
         m_Root->startRendering();
 

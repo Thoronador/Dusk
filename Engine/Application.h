@@ -11,10 +11,10 @@ namespace Dusk
     public:
         Application();
         virtual ~Application();
-        virtual void go();
+        virtual void go(std::string pluginFileName);
 
     protected:
-        virtual bool initialise();
+        virtual bool initialise(std::string pluginFileName);
         virtual bool initOgreCore();
 
         virtual void createSceneManager();

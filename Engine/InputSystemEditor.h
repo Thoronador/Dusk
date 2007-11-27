@@ -3,6 +3,13 @@
 
 #include "InputSystem.h"
 
+#include <string>
+#include <deque>
+#include <OgreFrameListener.h>
+#include <Ogre.h>
+
+#include "Script.h"
+
 namespace Dusk
 {
     /**
@@ -11,12 +18,14 @@ namespace Dusk
      * keystrokes from the user. It also provides all information for the
      * graphical output.
      */
-    class InputSystemEditor : public InputSystem {
+    class InputSystemEditor : public InputSystem, Ogre::FrameListener {
     public:
         /**
          * Standard konstructor
+         *
+         * @param root              Pointer to the instance of the ogre root object.
          */
-        InputSystemEditor();
+        InputSystemEditor(Ogre::Root *root);
         /**
          * Destructer. Declared virtual so that extending classes destructors
          * will also be called.
@@ -34,6 +43,90 @@ namespace Dusk
          *                          Otherwise null.
          */
         virtual Dusk::Script* handleEvent(Dusk::InputEvent inputEvent);
+
+        /**
+         * Implements the frameStarted event for the FrameListener. Here the rendering is done.
+         *
+         * @param evt           The event that will be passed.
+         * @return              Always true.
+         */
+        virtual bool frameStarted(const Ogre::FrameEvent &evt);
+
+        /**
+         * Implements the frameEnded event for the FrameListener.
+         *
+         * @param evt           The event that will be passed.
+         * @return              Always true.
+         */
+        virtual bool frameEnded(const Ogre::FrameEvent &evt);
+
+        /**
+         * Toggles the console for rendering.
+         *
+         * @return              The visibility state.
+         */
+        virtual bool toggle();
+
+    private:
+        /**
+         * Holds the current input line.
+         */
+        std::string myInputLine;
+
+        /**
+         * Holds the script history.
+         */
+        std::deque<Dusk::Script> myScriptHistory;
+
+        /**
+         * Holds the pointer to the currently selected script history item.
+         */
+        std::deque<Dusk::Script>::iterator myScriptHistoryIterator;
+
+        /**
+         * Holds the output lines.
+         */
+        std::deque<std::string> myOutput;
+
+        /**
+         * Holds the page offset vor viewing.
+         */
+        int myOutputPageOffset;
+
+        /**
+         * Holds the lines per page.
+         */
+        static const int myLinesPerPage = 16;
+
+        /**
+         * Holds the visbility state.
+         */
+        bool visible;
+
+        /**
+         * Holds the background overlay for the whole scene.
+         */
+        Ogre::Rectangle2D *myBackgroundRect;
+
+        /**
+         * Holds the scene node for the console.
+         */
+        Ogre::SceneNode *mySceneNode;
+
+        /**
+         * Holds the textbox.
+         */
+        Ogre::OverlayElement *myTextbox;
+
+        /**
+         * Holds the overlay.
+         */
+        Ogre::Overlay *myOverlay;
+
+        /**
+         * Holds the height.
+         */
+        int height;
     };
 }
 #endif // INPUTSYSTEMEDITOR_H_INCLUDED
