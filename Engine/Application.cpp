@@ -160,7 +160,7 @@ namespace Dusk
 //-------------------------------------------------------------------------------------
     void Application::createFrameListener()
     {
-        m_FrameListener = new Dusk::FrameListener();
+        m_FrameListener = new Dusk::FrameListener(m_Window,m_Camera,false);
         m_Root->addFrameListener(m_FrameListener);
     }
 }
