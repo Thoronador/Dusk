@@ -10,6 +10,8 @@ namespace Dusk
     public:
         FrameListener();
         virtual ~FrameListener();
+        virtual bool frameStarted(const Ogre::FrameEvent& evt);
+        virtual bool frameEnded(const Ogre::FrameEvent& evt);
     protected:
     private:
         class InputHandler

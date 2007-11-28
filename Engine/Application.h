@@ -6,7 +6,7 @@
 #include <string>
 namespace Dusk
 {
-    class Application : Dusk::FrameListener
+    class Application
     {
     public:
         Application();
@@ -29,8 +29,7 @@ namespace Dusk
         virtual void createScene() = 0; // I am pure virtual, override me!
         virtual void destroyScene();
         // FrameListener overrides
-        virtual bool frameStarted(const Ogre::FrameEvent& evt);
-        virtual bool frameEnded(const Ogre::FrameEvent& evt);
+
 
         Ogre::Root* m_Root;
         Ogre::Camera* m_Camera;

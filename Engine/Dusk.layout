@@ -4,4 +4,13 @@
 	<File name="AnimatedObject.h" open="0" top="0" tabpos="0">
 		<Cursor position="161" topLine="0" />
 	</File>
+	<File name="Application.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="1178" topLine="0" />
+	</File>
+	<File name="Application.h" open="0" top="0" tabpos="0">
+		<Cursor position="0" topLine="1" />
+	</File>
+	<File name="InputEvent.h" open="0" top="0" tabpos="0">
+		<Cursor position="0" topLine="7" />
+	</File>
 </CodeBlocks_layout_file>

@@ -156,21 +156,11 @@ namespace Dusk
     void Application::destroyScene()
     {
     }
-//-------------------------------------------------------------------------------------
-    bool Application::frameStarted(const Ogre::FrameEvent& evt)
-    {
-        return true;
-    }
-
-//-------------------------------------------------------------------------------------
-    bool Application::frameEnded(const Ogre::FrameEvent& evt)
-    {
-        return true;
-    }
 
 //-------------------------------------------------------------------------------------
     void Application::createFrameListener()
     {
-        m_Root->addFrameListener(this);
+        m_FrameListener = new Dusk::FrameListener();
+        m_Root->addFrameListener(m_FrameListener);
     }
 }
