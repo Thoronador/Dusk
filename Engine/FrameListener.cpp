@@ -62,10 +62,9 @@ bool FrameListener::handleUnbufferdInput()
     m_Keyboard->capture();
 
     if(m_Keyboard->isKeyDown(OIS::KC_ESCAPE)) m_Continue = false;
-    if(m_Keyboard->isKeyDown(OIS::KC_1))
+    if(m_Keyboard->isKeyDown(OIS::KC_GRAVE))
     {
-        m_EditorIsVisible = !m_EditorIsVisible;
-        m_InputSystemEditor->toggle();
+        m_EditorIsVisible = m_InputSystemEditor->toggle();
 
         if(m_InputHandler.getInputSystem() == m_InputSystemBinding)
             m_InputHandler.setInputSystem(m_InputSystemEditor);

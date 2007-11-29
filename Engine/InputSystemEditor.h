@@ -126,7 +126,7 @@ namespace Dusk
         /**
          * Holds the height.
          */
-        int height;
+        double height;
     };
 }
 #endif // INPUTSYSTEMEDITOR_H_INCLUDED

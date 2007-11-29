@@ -8,7 +8,7 @@ InputSystemEditor::InputSystemEditor(Ogre::Root *root)
    Ogre::SceneManager* scene = root->getSceneManagerIterator().getNext();
    root->addFrameListener(this);
 
-   height=1;
+   height = 0;
 
    // Create background rectangle covering the whole screen
    myBackgroundRect = new Ogre::Rectangle2D(true);
@@ -51,11 +51,23 @@ Dusk::Script* InputSystemEditor::handleEvent(Dusk::InputEvent inputEvent)
 
 bool InputSystemEditor::frameStarted(const Ogre::FrameEvent &evt)
 {
-    if (visible)
-    {
-    }
-
-    return true;
+   if(visible && height < 1){
+      height += evt.timeSinceLastFrame * 2.0;
+      myTextbox->show();
+      if(height >= 1){
+         height = 1;
+      }
+   }
+   else if(!visible && height > 0){
+      height -= evt.timeSinceLastFrame * 2.0;
+      if(height <= 0){
+         height = 0;
+         myTextbox->hide();
+      }
+   }
+   myTextbox->setPosition(0, (height - 1) * 0.5);
+   myBackgroundRect->setCorners(-1, 1 + height, 1 , 1 - height);
+   return true;
 }
 
 bool InputSystemEditor::frameEnded(const Ogre::FrameEvent &evt)
