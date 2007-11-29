@@ -32,7 +32,7 @@ InputSystemEditor::InputSystemEditor(Ogre::Root *root)
    myOverlay->add2D((Ogre::OverlayContainer*)myTextbox);
    myOverlay->show();
 
-   visible = true;
+   visible = false;
 }
 
 InputSystemEditor::~InputSystemEditor()

@@ -51,8 +51,6 @@ namespace Dusk
         // Create the FrameListener
         createFrameListener();
 
-        //create the console //TODO: rausnehmen und ordentlich wegsortieren hier nur als TEST!
-        InputSystemEditor* ise = new InputSystemEditor(m_Root);
         return true;
     }
     void Application::go(std::string pluginFileName)
@@ -160,7 +158,7 @@ namespace Dusk
 //-------------------------------------------------------------------------------------
     void Application::createFrameListener()
     {
-        m_FrameListener = new Dusk::FrameListener(m_Window,m_Camera,false);
+        m_FrameListener = new Dusk::FrameListener(m_Window,m_Camera,m_Root,false);
         m_Root->addFrameListener(m_FrameListener);
     }
 }
