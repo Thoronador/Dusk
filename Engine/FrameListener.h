@@ -43,9 +43,9 @@ namespace Dusk
         Dusk::InputSystemBinding* m_InputSystemBinding;
 
         //Movement factors
-        Real m_MoveSpeed;
-        Real m_RotateSpeed;
-        Real m_StrafeSpeed;
+        Ogre::Real m_MoveSpeed;
+        Ogre::Real m_RotateSpeed;
+        Ogre::Real m_StrafeSpeed;
 
         class InputHandler
         {
