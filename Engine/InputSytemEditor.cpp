@@ -75,6 +75,24 @@ bool InputSystemEditor::frameEnded(const Ogre::FrameEvent &evt)
     return true;
 }
 
+bool InputSystemEditor::keyPressed (const OIS::KeyEvent &arg)
+{
+    switch(arg.key)
+    {
+        case OIS::KC_GRAVE :
+        {
+            InputSystem::toggleInput();
+            break;
+        }
+    }
+    return true;
+}
+
+bool InputSystemEditor::keyReleased (const OIS::KeyEvent &arg)
+{
+    return true;
+}
+
 bool InputSystemEditor::toggle()
 {
     visible = !visible;

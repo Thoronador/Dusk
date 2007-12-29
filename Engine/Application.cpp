@@ -1,6 +1,6 @@
 #include "Application.h"
 
-#include "InputSystemEditor.h"
+#include "InputSystem.h"
 
 namespace Dusk
 {
@@ -50,6 +50,9 @@ namespace Dusk
 
         // Create the FrameListener
         createFrameListener();
+
+        //Initialize Input
+        InputSystem::initializeInput(m_Window, m_Root);
 
         return true;
     }
@@ -158,7 +161,7 @@ namespace Dusk
 //-------------------------------------------------------------------------------------
     void Application::createFrameListener()
     {
-        m_FrameListener = new Dusk::FrameListener(m_Window,m_Camera,m_Root,true);
+        m_FrameListener = new Dusk::FrameListener();
         m_Root->addFrameListener(m_FrameListener);
     }
 }

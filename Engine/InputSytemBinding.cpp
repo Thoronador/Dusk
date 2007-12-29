@@ -21,4 +21,23 @@ Dusk::Script* InputSystemBinding::handleEvent(Dusk::InputEvent inputEvent)
     return script;
 }
 
+bool InputSystemBinding::keyPressed (const OIS::KeyEvent &arg)
+{
+    switch(arg.key)
+    {
+        case OIS::KC_GRAVE :
+        {
+            InputSystem::toggleInput();
+            break;
+        }
+    }
+    return true;
+}
+
+bool InputSystemBinding::keyReleased (const OIS::KeyEvent &arg)
+{
+    return true;
+}
+
+
 } // end namespace

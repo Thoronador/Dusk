@@ -61,6 +61,20 @@ namespace Dusk
         virtual bool frameEnded(const Ogre::FrameEvent &evt);
 
         /**
+         * Implements the keyPressed event to receive notifications if an key has been pressed.
+         *
+         * @param arg           The KeyEvent that holds the information which butten has been pressed.
+         */
+        virtual bool keyPressed (const OIS::KeyEvent &arg);
+
+        /**
+         * Implements the keyReleased event to receive notifications if an key has been released.
+         *
+         * @param arg           The KeyEvent that holds the information which butten has been released.
+         */
+        virtual bool keyReleased (const OIS::KeyEvent &arg);
+
+        /**
          * Toggles the console for rendering.
          *
          * @return              The visibility state.

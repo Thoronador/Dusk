@@ -1,25 +1,46 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_layout_file>
 	<ActiveTarget name="Win-Debug" />
-	<File name="Application.cpp" open="1" top="0" tabpos="7">
-		<Cursor position="3822" topLine="121" />
+	<File name="Application.cpp" open="0" top="0" tabpos="7">
+		<Cursor position="3896" topLine="125" />
 	</File>
-	<File name="Application.h" open="1" top="0" tabpos="2">
-		<Cursor position="170" topLine="0" />
+	<File name="Application.h" open="0" top="0" tabpos="2">
+		<Cursor position="1068" topLine="0" />
 	</File>
-	<File name="Command.h" open="1" top="0" tabpos="3">
+	<File name="Command.h" open="0" top="0" tabpos="3">
 		<Cursor position="0" topLine="0" />
 	</File>
-	<File name="Console.h" open="1" top="0" tabpos="4">
+	<File name="Console.h" open="0" top="0" tabpos="4">
 		<Cursor position="0" topLine="0" />
 	</File>
-	<File name="FrameListener.cpp" open="1" top="1" tabpos="6">
-		<Cursor position="9449" topLine="431" />
+	<File name="FrameListener.cpp" open="0" top="0" tabpos="6">
+		<Cursor position="886" topLine="0" />
 	</File>
-	<File name="FrameListener.h" open="1" top="0" tabpos="5">
-		<Cursor position="948" topLine="6" />
+	<File name="FrameListener.h" open="1" top="1" tabpos="4">
+		<Cursor position="464" topLine="0" />
 	</File>
-	<File name="main.cpp" open="1" top="0" tabpos="1">
+	<File name="InputSystem.h" open="1" top="0" tabpos="1">
+		<Cursor position="2124" topLine="46" />
+	</File>
+	<File name="InputSystemBinding.h" open="0" top="0" tabpos="0">
+		<Cursor position="1754" topLine="15" />
+	</File>
+	<File name="InputSystemEditor.h" open="0" top="0" tabpos="0">
+		<Cursor position="2764" topLine="46" />
+	</File>
+	<File name="InputSytem.cpp" open="1" top="0" tabpos="3">
+		<Cursor position="1046" topLine="32" />
+	</File>
+	<File name="InputSytemBinding.cpp" open="1" top="0" tabpos="2">
+		<Cursor position="452" topLine="0" />
+	</File>
+	<File name="InputSytemEditor.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="375" topLine="0" />
+	</File>
+	<File name="Script.h" open="0" top="0" tabpos="0">
+		<Cursor position="395" topLine="0" />
+	</File>
+	<File name="main.cpp" open="0" top="0" tabpos="1">
 		<Cursor position="580" topLine="0" />
 	</File>
 </CodeBlocks_layout_file>
