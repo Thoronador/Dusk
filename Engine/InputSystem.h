@@ -43,14 +43,6 @@ namespace Dusk
         virtual ~InputSystem();
 
         /**
-         * Interface function for handling InputEvents and transforming them into a Script.
-         *
-         * @param inputEvent        The InputEvent which should be used to generate the Script.
-         * @return                  If a Script is generated it will be returned otherwise null.
-         */
-        virtual Dusk::Script* handleEvent(Dusk::InputEvent inputEvent) = 0;
-
-        /**
          * Initialises the complete input system. The instance for the binding input and the
          * graphical console will be created. The current Input system will be set to the
          * binding class.
@@ -77,6 +69,8 @@ namespace Dusk
          */
         static eActiveInputClass s_activeInputClass;
 
+        static OIS::Keyboard* s_keyboard;
+
     private:
         /**
          * Holds the instance of the binding input class
@@ -88,7 +82,7 @@ namespace Dusk
          */
         static InputSystemEditor* s_inputSystemEditor;
 
-        static OIS::Keyboard* s_keyboard;
+    //    static OIS::Keyboard* s_keyboard;
     };
 }
 #endif // INPUTSYSTEM_H_INCLUDED

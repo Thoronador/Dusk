@@ -33,18 +33,6 @@ namespace Dusk
         virtual ~InputSystemEditor();
 
         /**
-         * Generates a console script by the given input event.
-         * The internal line buffer will be filled by the given keystrokes.
-         * If an enter event is sent the script is ready and will be returned.
-         *
-         * @param inputEvent        InputEvent to generate the Script with.
-         * @return                  If the given InputEvent is Enter and the buffer
-         *                          is not empty it will be returned as a script.
-         *                          Otherwise null.
-         */
-        virtual Dusk::Script* handleEvent(Dusk::InputEvent inputEvent);
-
-        /**
          * Implements the frameStarted event for the FrameListener. Here the rendering is done.
          *
          * @param evt           The event that will be passed.

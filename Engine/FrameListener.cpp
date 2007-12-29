@@ -22,6 +22,7 @@ FrameListener::~FrameListener()
 bool FrameListener::frameStarted(const Ogre::FrameEvent& evt)
 {
     InputSystem::captureInput();
+    Console::getInstance()->processScripts();
     return m_Continue;
 }
 //-----------------------------------------------------------------------------------

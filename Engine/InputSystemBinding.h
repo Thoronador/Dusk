@@ -27,16 +27,6 @@ namespace Dusk
         virtual ~InputSystemBinding();
 
         /**
-         * Generates a console script by the given input event.
-         * A lookup on the bind list will be performed and the corresponding script
-         * will be returned.
-         *
-         * @param inputEvent        InputEvent to lookup for the Script.
-         * @return                  The script from the bind list. If none is founf null.
-         */
-        virtual Dusk::Script* handleEvent(Dusk::InputEvent inputEvent);
-
-        /**
          * Implements the keyPressed event to receive notifications if an key has been pressed.
          *
          * @param arg           The KeyEvent that holds the information which butten has been pressed.
@@ -53,8 +43,22 @@ namespace Dusk
     private:
         /**
          * Holds the bind list where an input event is associated with a console script.
+         * This list holds all durating scripts, which means that an action is done each frame.
          */
-        std::map<Dusk::InputEvent, Dusk::Script> myBindList;
+        std::map<OIS::KeyCode, Dusk::Script> myBindListHold;
+
+        /**
+         * Holds the bind list where an input event is associated with a console script.
+         * This list holds all scripts that should be executed when the coressponding button is pressed
+         */
+        std::map<OIS::KeyCode, Dusk::Script> myBindListPress;
+
+        /**
+         * Holds the bind list where an input event is associated with a console script.
+         * This list holds all scripts that should be executed when the coressponding button is pressed
+         */
+        std::map<OIS::KeyCode, Dusk::Script> myBindListRelease;
+
     };
 }
 #endif // INPUTSYSTEMBINDING_H_INCLUDED
