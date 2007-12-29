@@ -14,7 +14,7 @@ namespace Dusk
     class InputSystemEditor;
     class InputEvent;
 
-    class FrameListener : public Ogre::FrameListener
+    class FrameListener : public Ogre::FrameListener, OIS::MouseListener, OIS::KeyListener
     {
     public:
         FrameListener(Ogre::RenderWindow* win,Ogre::Camera* cam,Ogre::Root* root,bool bufferdInput = true);
@@ -22,6 +22,16 @@ namespace Dusk
         virtual bool frameStarted(const Ogre::FrameEvent& evt);
         virtual bool frameEnded(const Ogre::FrameEvent& evt);
         bool handleUnbufferdInput();
+
+        //Mouse events
+        virtual bool mouseMoved( const OIS::MouseEvent &arg );
+		virtual bool mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
+		virtual bool mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
+
+        //Keyboard events
+		virtual bool keyPressed( const OIS::KeyEvent &arg );
+		virtual bool keyReleased( const OIS::KeyEvent &arg );
+
     protected:
     private:
         //local variables
@@ -35,10 +45,12 @@ namespace Dusk
         OIS::Mouse*    m_Mouse;
         OIS::Keyboard* m_Keyboard;
 
+        // Ogre Objects
         Ogre::RenderWindow* m_Window;
         Ogre::Camera* m_Camera;
         Ogre::Root* m_Root;
 
+        // Dusk Objects
         Dusk::InputSystemEditor* m_InputSystemEditor;
         Dusk::InputSystemBinding* m_InputSystemBinding;
 
