@@ -6,12 +6,14 @@
 #include <string>
 namespace Dusk
 {
+    class API;
     class Application
     {
     public:
         Application();
         virtual ~Application();
         virtual void go(std::string pluginFileName);
+        Dusk::FrameListener* getFrameListener();
 
     protected:
         virtual bool initialise(std::string pluginFileName);
@@ -37,6 +39,7 @@ namespace Dusk
         Ogre::RenderWindow* m_Window;
         Ogre::FrameListener* m_FrameListener;
         Dusk::Scene* m_Scene;
+        Dusk::API* m_API;
     };
 }
 

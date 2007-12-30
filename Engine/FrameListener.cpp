@@ -30,6 +30,11 @@ bool FrameListener::frameEnded(const Ogre::FrameEvent& evt)
 {
     return m_Continue;
 }
+//-----------------------------------------------------------------------------------
+void FrameListener::exit()
+{
+    m_Continue = false;
+}
 
 //-----------------------------------------------------------------------------------
 //Keyboard events

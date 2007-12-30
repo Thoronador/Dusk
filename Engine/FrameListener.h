@@ -12,6 +12,7 @@ namespace Dusk
         virtual ~FrameListener();
         virtual bool frameStarted(const Ogre::FrameEvent& evt);
         virtual bool frameEnded(const Ogre::FrameEvent& evt);
+        void exit();
     protected:
     private:
         //local variables

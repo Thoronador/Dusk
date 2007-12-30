@@ -1,6 +1,6 @@
 #include "Application.h"
-
 #include "InputSystem.h"
+#include "API.h"
 
 namespace Dusk
 {
@@ -12,11 +12,13 @@ namespace Dusk
             : m_Root(0)
     {
         //ctor
+        m_API = new Dusk::API(this);
     }
 
     Application::~Application()
     {
         delete m_Root;
+        delete m_API;
     }
     /**
     *@return if initialisation of the ogre core <br> - true initialisation successfull  <br> - false init failed
@@ -53,6 +55,7 @@ namespace Dusk
 
         //Initialize Input
         InputSystem::initializeInput(m_Window, m_Root);
+        m_API->setOgreObjects(m_Root,m_Camera,m_Window,m_SceneManager);
 
         return true;
     }
@@ -163,5 +166,10 @@ namespace Dusk
     {
         m_FrameListener = new Dusk::FrameListener();
         m_Root->addFrameListener(m_FrameListener);
+    }
+//-------------------------------------------------------------------------------------
+    Dusk::FrameListener* Application::getFrameListener()
+    {
+        return static_cast<Dusk::FrameListener*>(m_FrameListener);
     }
 }
