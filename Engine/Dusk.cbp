@@ -58,9 +58,9 @@
 					<Add option="-g" />
 				</Compiler>
 				<Linker>
+					<Add option="`pkg-config --libs OGRE`" />
 					<Add library="OgreMain" />
 					<Add library="OIS" />
-					<Add option="`pkg-config --libs OGRE`" />
 					<Add library="GL" />
 					<Add directory="\bin\Debug" />
 					<Add directory="\bin\Release" />
@@ -77,8 +77,8 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add library="OgreMain" />
 					<Add option="`pkg-config --libs OGRE`" />
+					<Add library="OgreMain" />
 					<Add library="GL" />
 					<Add directory="\bin\Debug" />
 					<Add directory="\bin\Release" />
@@ -89,14 +89,18 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Linker>
-		</Linker>
+		<Unit filename="API.cpp" />
+		<Unit filename="API.h" />
 		<Unit filename="AnimatedObject.cpp" />
 		<Unit filename="AnimatedObject.h" />
 		<Unit filename="Application.cpp" />
 		<Unit filename="Application.h" />
 		<Unit filename="Command.cpp" />
 		<Unit filename="Command.h" />
+		<Unit filename="CommandCreateObject.cpp" />
+		<Unit filename="CommandCreateObject.h" />
+		<Unit filename="CommandQuit.cpp" />
+		<Unit filename="CommandQuit.h" />
 		<Unit filename="Console.cpp" />
 		<Unit filename="Console.h" />
 		<Unit filename="Dispatcher.cpp" />
