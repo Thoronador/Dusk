@@ -5,12 +5,27 @@ Sound::Sound()
 {
   pDevice = NULL;
   AL_Ready = false;
+  InitInProgress = false;
 }
 
 //destructor
 Sound::~Sound()
 {
 
+}
+
+//returns true, if initialization of OpenAL was successful; false otherwise
+bool Sound::Init()
+{
+
+  return false;
+}
+
+//returns true, if deinitialization of OpenAL was successful; false otherwise
+bool Sound::Exit()
+{
+
+  return false;
 }
 
 bool Sound::Play(std::string FileName)
