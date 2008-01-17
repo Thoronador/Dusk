@@ -1,5 +1,8 @@
 #include "Console.h"
 #include "API.h"
+#include "Dispatcher.h"
+#include "Command.h"
+#include "CommandQuit.h"
 #include <iostream>
 
 namespace Dusk
@@ -10,6 +13,7 @@ Console* Console::s_console = 0;
 Console::Console()
 {
     getAPI().setConsole(this);
+    m_Dispatcher = getAPI().getDispatcher();
 }
 
 Console::~Console()
@@ -63,6 +67,7 @@ int Console::executeCommand (std::string p_string)
     if (command == "quit")
     {
         std::cout << "Thee wants to quit?" << std::endl;
+        m_Dispatcher->executeCommand(new CommandQuit()); // Object will be destroyed after being executed by the Dispatcher
     }
     else if (command == "bind")
     {

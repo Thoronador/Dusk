@@ -10,7 +10,7 @@ namespace Dusk
         Command();
         virtual ~Command();
 
-        virtual bool execute(Dusk::Scene* scene, int count = 1) = 0 ;
+        virtual bool execute(Dusk::Scene* scene, int count = 1) = 0;
 
 
     protected:

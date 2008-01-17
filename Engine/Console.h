@@ -45,7 +45,7 @@ namespace Dusk
          * Standard constructor
          */
         Console();
-
+        Console(const Console& op){}
         /**
          * Standard destructor.
          */

@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "InputSystem.h"
+#include "Dispatcher.h"
 #include "API.h"
 
 namespace Dusk
@@ -13,11 +14,15 @@ namespace Dusk
     {
         //ctor
         getAPI().setApplication(this);
+        getAPI().setScene(new Scene());
+        getAPI().setDispatcher(new Dispatcher()); // Dispatcher gets Scene Object in its constructor
     }
 
     Application::~Application()
     {
+        delete getAPI().getDispatcher();
         delete m_Root;
+        delete getAPI().getScene();
     }
     /**
     *@return if initialisation of the ogre core <br> - true initialisation successfull  <br> - false init failed

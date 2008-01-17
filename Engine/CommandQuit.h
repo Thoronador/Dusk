@@ -5,7 +5,7 @@
 namespace Dusk
 {
     class Scene;
-    class CommandQuit
+    class CommandQuit : public Dusk::Command
     {
         public:
             CommandQuit();
