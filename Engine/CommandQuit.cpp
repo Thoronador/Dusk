@@ -1,5 +1,6 @@
 #include "CommandQuit.h"
-
+#include "API.h"
+#include "FrameListener.h"
 namespace Dusk
 {
     CommandQuit::CommandQuit()
@@ -14,7 +15,7 @@ namespace Dusk
 
     bool CommandQuit::execute(Dusk::Scene* scene, int count)
     {
-
+        getAPI().getFrameListener()->exit();
     }
 
 }

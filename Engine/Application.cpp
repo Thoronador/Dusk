@@ -12,13 +12,12 @@ namespace Dusk
             : m_Root(0)
     {
         //ctor
-        m_API = new Dusk::API(this);
+        getAPI().setApplication(this);
     }
 
     Application::~Application()
     {
         delete m_Root;
-        delete m_API;
     }
     /**
     *@return if initialisation of the ogre core <br> - true initialisation successfull  <br> - false init failed
@@ -55,8 +54,7 @@ namespace Dusk
 
         //Initialize Input
         InputSystem::initializeInput(m_Window, m_Root);
-        m_API->setOgreObjects(m_Root,m_Camera,m_Window,m_SceneManager);
-
+        getAPI().setOgreObjects(m_Root,m_Camera,m_Window,m_SceneManager);
         return true;
     }
     void Application::go(std::string pluginFileName)

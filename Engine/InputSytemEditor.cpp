@@ -1,6 +1,7 @@
 #include "InputSystemEditor.h"
 
 #include "Console.h"
+#include "API.h"
 
 namespace Dusk
 {
@@ -35,6 +36,7 @@ InputSystemEditor::InputSystemEditor(Ogre::Root *root)
    myOverlay->show();
 
    visible = false;
+   getAPI().setInputSystemEditor(this);
 }
 
 InputSystemEditor::~InputSystemEditor()

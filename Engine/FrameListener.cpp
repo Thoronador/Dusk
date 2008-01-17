@@ -5,6 +5,7 @@
 #include "InputSystemEditor.h"
 #include "InputSystemBinding.h"
 #include "InputSystem.h"
+#include "API.h"
 
 namespace Dusk
 {
@@ -12,6 +13,7 @@ namespace Dusk
 FrameListener::FrameListener()
 {
     m_Continue = true;
+    getAPI().setFrameListener(this);
 }
 //-----------------------------------------------------------------------------------
 FrameListener::~FrameListener()

@@ -39,7 +39,6 @@ namespace Dusk
         Ogre::RenderWindow* m_Window;
         Ogre::FrameListener* m_FrameListener;
         Dusk::Scene* m_Scene;
-        Dusk::API* m_API;
     };
 }
 

@@ -15,14 +15,38 @@ namespace Dusk
     class API
     {
         public:
-            API(Dusk::Application* app);
-            virtual ~API();
+            ~API(){}
+            static API& getSingelton();
+            //set functions
             void setOgreObjects(Ogre::Root* root,Ogre::Camera* camera,Ogre::RenderWindow* window,Ogre::SceneManager* mgr);
+            void setApplication(Dusk::Application* app);
 
+            void setFrameListener(Dusk::FrameListener* op);
+            void setConsole(Dusk::Console* op);
+            void setDispatcher(Dusk::Dispatcher* op);
+            void setInputSystemBinding(Dusk::InputSystemBinding* op);
+            void setInputSystemEditor(Dusk::InputSystemEditor* op);
+            void setScene(Dusk::Scene* op);
+
+            //basic get functions
+            Ogre::Root* getOgreRoot();
+            Ogre::Camera* getOgreCamera();
+            Ogre::RenderWindow* getOgreRenderWindow();
+            Ogre::SceneManager* getOgreSceneManager();
+
+            Dusk::Application* getApplication();
+            Dusk::FrameListener* getFrameListener();
+            Dusk::Console* getConsole();
+            Dusk::Dispatcher* getDispatcher();
+            Dusk::InputSystemBinding* getInputSystemBinding();
+            Dusk::InputSystemEditor* getInputSystemEditor();
+            Dusk::Scene* getScene();
 
 
         protected:
         private:
+        API();
+        API(const API& op){}
         //Ogre Objects
         Ogre::Root* m_Root;
         Ogre::Camera* m_Camera;
@@ -38,6 +62,7 @@ namespace Dusk
         Dusk::InputSystemEditor* m_InputSystemEditor;
         Dusk::Scene* m_Scene;
     };
+    inline API& getAPI() { return API::getSingelton(); }
 }
 
 #endif // API_H

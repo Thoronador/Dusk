@@ -1,5 +1,5 @@
 #include "Console.h"
-
+#include "API.h"
 #include <iostream>
 
 namespace Dusk
@@ -9,6 +9,7 @@ Console* Console::s_console = 0;
 
 Console::Console()
 {
+    getAPI().setConsole(this);
 }
 
 Console::~Console()
