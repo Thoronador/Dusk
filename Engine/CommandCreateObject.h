@@ -18,6 +18,4 @@ namespace Dusk
         private:
     };
 }
-
-
 #endif // CREATEOBJECT_H

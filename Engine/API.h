@@ -42,7 +42,6 @@ namespace Dusk
             Dusk::InputSystemEditor* getInputSystemEditor();
             Dusk::Scene* getScene();
 
-
         protected:
         private:
         API();
