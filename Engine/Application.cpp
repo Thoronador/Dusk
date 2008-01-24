@@ -14,13 +14,11 @@ namespace Dusk
     {
         //ctor
         getAPI().setApplication(this);
-        getAPI().setDispatcher(new Dispatcher()); // Dispatcher gets Scene Object in its constructor
     }
 
     Application::~Application()
     {
-        delete getAPI().getDispatcher();
-        delete m_Root;
+        if(m_Root) delete m_Root;
     }
     /**
     *@return if initialisation of the ogre core <br> - true initialisation successfull  <br> - false init failed

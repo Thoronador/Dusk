@@ -7,12 +7,14 @@ namespace Dusk
     class Dispatcher
     {
     public:
-        Dispatcher();
+        Dispatcher& get();
         virtual ~Dispatcher();
         bool executeCommand(Dusk::Command* command);
     protected:
     private:
         Dusk::Scene* m_Scene;
+        Dispatcher();
+        Dispatcher(const Dispatcher& op){}
     };
 }
 

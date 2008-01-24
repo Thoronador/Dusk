@@ -21,4 +21,9 @@ bool Dispatcher::executeCommand(Dusk::Command* command)
     delete command;
     return ret;
 }
+Dispatcher& Dispatcher::get()
+{
+    static Dispatcher Instance;
+    return Instance;
+}
 }
