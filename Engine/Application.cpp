@@ -14,7 +14,6 @@ namespace Dusk
     {
         //ctor
         getAPI().setApplication(this);
-        getAPI().setScene(new Scene());
         getAPI().setDispatcher(new Dispatcher()); // Dispatcher gets Scene Object in its constructor
     }
 
@@ -22,7 +21,6 @@ namespace Dusk
     {
         delete getAPI().getDispatcher();
         delete m_Root;
-        delete getAPI().getScene();
     }
     /**
     *@return if initialisation of the ogre core <br> - true initialisation successfull  <br> - false init failed

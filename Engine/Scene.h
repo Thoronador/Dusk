@@ -6,10 +6,13 @@ namespace Dusk
     class Scene
     {
     public:
-        Scene();
+
         virtual ~Scene();
+        static Scene& get();
     protected:
     private:
+    Scene();
+    Scene(const Scene& op){}
     };
 }
 

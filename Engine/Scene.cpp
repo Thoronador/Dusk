@@ -4,9 +4,7 @@ namespace Dusk
 {
 
 Scene::Scene()
-{
-
-    //ctor
+{    //ctor
     getAPI().setScene(this);
 }
 
@@ -14,5 +12,9 @@ Scene::~Scene()
 {
     //dtor
 }
-
+Scene& Scene::get()
+{
+    static Scene Instance;
+    return Instance;
+}
 }
