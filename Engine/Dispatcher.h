@@ -7,7 +7,7 @@ namespace Dusk
     class Dispatcher
     {
     public:
-        Dispatcher& get();
+        static Dispatcher& get();
         virtual ~Dispatcher();
         bool executeCommand(Dusk::Command* command);
     protected:

@@ -14,6 +14,8 @@ namespace Dusk
     {
         //ctor
         getAPI().setApplication(this);
+        Dispatcher::get();
+        Scene::get();
     }
 
     Application::~Application()
