@@ -12,19 +12,14 @@ namespace Dusk
     {
         //ctor
         m_Application = NULL;
-
         m_Root = NULL;
         m_Camera = NULL;
         m_Window = NULL;
         m_SceneManager = NULL;
-
         m_Application = NULL;
         m_FrameListener = NULL;
-        m_Console = NULL;
-        m_Dispatcher = NULL;
         m_InputSystemBinding = NULL;
         m_InputSystemEditor = NULL;
-        m_Scene = NULL;
     }
     void API::setOgreObjects(Ogre::Root* root,Ogre::Camera* camera,Ogre::RenderWindow* window,Ogre::SceneManager* mgr)
     {
@@ -41,14 +36,7 @@ namespace Dusk
     {
         m_FrameListener = op;
     }
-    void API::setConsole(Dusk::Console* op)
-    {
-        m_Console = op;
-    }
-    void API::setDispatcher(Dusk::Dispatcher* op)
-    {
-        m_Dispatcher = op;
-    }
+
     void API::setInputSystemBinding(Dusk::InputSystemBinding* op)
     {
         m_InputSystemBinding = op;
@@ -57,10 +45,7 @@ namespace Dusk
     {
         m_InputSystemEditor = op;
     }
-    void API::setScene(Dusk::Scene* op)
-    {
-        m_Scene = op;
-    }
+
 
     //basic get functions
     Ogre::Root* API::getOgreRoot()
@@ -88,14 +73,7 @@ namespace Dusk
     {
         return m_FrameListener;
     }
-    Dusk::Console* API::getConsole()
-    {
-        return m_Console;
-    }
-    Dusk::Dispatcher* API::getDispatcher()
-    {
-        return m_Dispatcher;
-    }
+
     Dusk::InputSystemBinding* API::getInputSystemBinding()
     {
         return m_InputSystemBinding;
@@ -103,9 +81,5 @@ namespace Dusk
     Dusk::InputSystemEditor* API::getInputSystemEditor()
     {
         return m_InputSystemEditor;
-    }
-    Dusk::Scene* API::getScene()
-    {
-        return m_Scene;
     }
 }

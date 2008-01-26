@@ -12,8 +12,7 @@ Console* Console::s_console = 0;
 
 Console::Console()
 {
-    getAPI().setConsole(this);
-    m_Dispatcher = getAPI().getDispatcher();
+    m_Dispatcher = &(Dispatcher::get());
 }
 
 Console::~Console()

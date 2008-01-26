@@ -36,12 +36,8 @@ namespace Dusk
 
             Dusk::Application* getApplication();
             Dusk::FrameListener* getFrameListener();
-            Dusk::Console* getConsole();
-            Dusk::Dispatcher* getDispatcher();
             Dusk::InputSystemBinding* getInputSystemBinding();
             Dusk::InputSystemEditor* getInputSystemEditor();
-            Dusk::Scene* getScene();
-
         protected:
         private:
         API();
@@ -55,11 +51,8 @@ namespace Dusk
         //Dusk Objects
         Dusk::Application* m_Application;
         Dusk::FrameListener* m_FrameListener;
-        Dusk::Console* m_Console;
-        Dusk::Dispatcher* m_Dispatcher;
         Dusk::InputSystemBinding* m_InputSystemBinding;
         Dusk::InputSystemEditor* m_InputSystemEditor;
-        Dusk::Scene* m_Scene;
     };
     inline API& getAPI() { return API::getSingelton(); }
 }

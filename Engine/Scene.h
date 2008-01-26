@@ -1,5 +1,6 @@
 #ifndef SCENE_H
 #define SCENE_H
+#include <Ogre.h>
 
 namespace Dusk
 {
@@ -9,10 +10,17 @@ namespace Dusk
 
         virtual ~Scene();
         static Scene& get();
+
+        void createScene();
+        void destroyScene();
     protected:
     private:
+    void createGrassMesh();
     Scene();
     Scene(const Scene& op){}
+
+    Ogre::SceneManager* m_SceneManager;
+    Ogre::Camera* m_Camera;
     };
 }
 

@@ -1,14 +1,14 @@
 #include "Dispatcher.h"
 #include "API.h"
 #include "Command.h"
+#include "Scene.h"
 namespace Dusk
 {
 
 Dispatcher::Dispatcher()
 {
     //ctor
-    getAPI().setDispatcher(this);
-    m_Scene = getAPI().getScene();
+    m_Scene = &(Scene::get());
 }
 
 Dispatcher::~Dispatcher()

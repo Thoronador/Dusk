@@ -28,7 +28,6 @@ namespace Dusk
         virtual void addResourceLocations();
         virtual void initResources();
 
-        virtual void createScene() = 0; // I am pure virtual, override me!
         virtual void destroyScene();
         // FrameListener overrides
 
@@ -38,7 +37,6 @@ namespace Dusk
         Ogre::SceneManager* m_SceneManager;
         Ogre::RenderWindow* m_Window;
         Ogre::FrameListener* m_FrameListener;
-        Dusk::Scene* m_Scene;
     };
 }
 

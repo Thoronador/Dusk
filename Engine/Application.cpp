@@ -14,8 +14,6 @@ namespace Dusk
     {
         //ctor
         getAPI().setApplication(this);
-        Dispatcher::get();
-        Scene::get();
     }
 
     Application::~Application()
@@ -39,7 +37,8 @@ namespace Dusk
         createSceneManager();
         createCamera();
         createViewports();
-
+        //Register Ogre Objects in API class
+        getAPI().setOgreObjects(m_Root,m_Camera,m_Window,m_SceneManager);
         // Set default mipmap level (NB some APIs ignore this)
         Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
 
@@ -50,14 +49,14 @@ namespace Dusk
         initResources();
 
         // Create the scene
-        createScene();
+        Scene::get().createScene();
 
         // Create the FrameListener
         createFrameListener();
 
         //Initialize Input
         InputSystem::initializeInput(m_Window, m_Root);
-        getAPI().setOgreObjects(m_Root,m_Camera,m_Window,m_SceneManager);
+
         return true;
     }
     void Application::go(std::string pluginFileName)
@@ -67,7 +66,7 @@ namespace Dusk
         m_Root->startRendering();
 
         // clean up
-        destroyScene();
+        Scene::get().destroyScene();
     }
 
     void Application::addResourceLocations()
