@@ -20,12 +20,8 @@ namespace Dusk
      */
     class InputSystemEditor : public InputSystem, Ogre::FrameListener {
     public:
-        /**
-         * Standard konstructor
-         *
-         * @param root              Pointer to the instance of the ogre root object.
-         */
-        InputSystemEditor(Ogre::Root *root);
+        static InputSystemEditor& get();
+
         /**
          * Destructer. Declared virtual so that extending classes destructors
          * will also be called.
@@ -70,6 +66,13 @@ namespace Dusk
         virtual bool toggle();
 
     private:
+        /**
+         * Standard konstructor
+         *
+         */
+        InputSystemEditor();
+        InputSystemEditor(const InputSystemEditor& op){}
+
         /**
          * Holds the current input line.
          */

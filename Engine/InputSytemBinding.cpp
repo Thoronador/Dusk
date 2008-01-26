@@ -53,6 +53,10 @@ bool InputSystemBinding::keyReleased (const OIS::KeyEvent &arg)
 
     return true;
 }
-
+InputSystemBinding& InputSystemBinding::get()
+{
+    static InputSystemBinding Instance;
+    return Instance;
+}
 
 } // end namespace

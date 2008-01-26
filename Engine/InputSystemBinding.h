@@ -15,10 +15,7 @@ namespace Dusk
      */
     class InputSystemBinding : public InputSystem {
     public:
-        /**
-         * Standard konstructor
-         */
-        InputSystemBinding();
+        static InputSystemBinding& get();
 
         /**
          * Destructer. Declared virtual so that extending classes destructors
@@ -41,6 +38,12 @@ namespace Dusk
         virtual bool keyReleased (const OIS::KeyEvent &arg);
 
     private:
+        /**
+         * Standard konstructor
+         */
+        InputSystemBinding();
+        InputSystemBinding(const InputSystemBinding& op){}
+
         /**
          * Holds the bind list where an input event is associated with a console script.
          * This list holds all durating scripts, which means that an action is done each frame.

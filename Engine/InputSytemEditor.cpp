@@ -6,8 +6,9 @@
 namespace Dusk
 {
 
-InputSystemEditor::InputSystemEditor(Ogre::Root *root)
+InputSystemEditor::InputSystemEditor()
 {
+   Ogre::Root* root = getAPI().getOgreRoot();
    Ogre::SceneManager* scene = root->getSceneManagerIterator().getNext();
    root->addFrameListener(this);
 
@@ -111,6 +112,12 @@ bool InputSystemEditor::toggle()
 {
     visible = !visible;
     return visible;
+}
+InputSystemEditor& InputSystemEditor::get()
+{
+    static InputSystemEditor Instance;
+    return Instance;
+
 }
 
 } // namespace

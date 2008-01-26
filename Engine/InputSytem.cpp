@@ -34,8 +34,8 @@ bool InputSystem::initializeInput(Ogre::RenderWindow* win, Ogre::Root* root)
     s_keyboard = static_cast<OIS::Keyboard*>(inputManager->createInputObject( OIS::OISKeyboard, true ));
 
     //Input systems
-    s_inputSystemBinding = new InputSystemBinding();
-    s_inputSystemEditor = new InputSystemEditor(root);
+    s_inputSystemBinding =  &(InputSystemBinding::get());
+    s_inputSystemEditor = &(InputSystemEditor::get());
 
     //current input system is binding input system
     s_keyboard->setEventCallback(s_inputSystemBinding);
