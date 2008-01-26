@@ -13,7 +13,6 @@ InputSystemBinding::InputSystemBinding()
     myBindListHold[OIS::KC_A] = Script("step_left");
     myBindListHold[OIS::KC_D] = Script("step_right");
     myBindListHold[OIS::KC_SPACE] = Script("jump");
-    getAPI().setInputSystemBinding(this);
 }
 
 InputSystemBinding::~InputSystemBinding()

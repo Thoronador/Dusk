@@ -37,7 +37,6 @@ InputSystemEditor::InputSystemEditor()
    myOverlay->show();
 
    visible = false;
-   getAPI().setInputSystemEditor(this);
 }
 
 InputSystemEditor::~InputSystemEditor()

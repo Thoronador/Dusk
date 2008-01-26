@@ -22,13 +22,7 @@ namespace Dusk
             void setApplication(Dusk::Application* app);
 
             void setFrameListener(Dusk::FrameListener* op);
-            void setConsole(Dusk::Console* op);
-            void setDispatcher(Dusk::Dispatcher* op);
-            void setInputSystemBinding(Dusk::InputSystemBinding* op);
-            void setInputSystemEditor(Dusk::InputSystemEditor* op);
-            void setScene(Dusk::Scene* op);
-
-            //basic get functions
+                        //basic get functions
             Ogre::Root* getOgreRoot();
             Ogre::Camera* getOgreCamera();
             Ogre::RenderWindow* getOgreRenderWindow();
@@ -36,8 +30,6 @@ namespace Dusk
 
             Dusk::Application* getApplication();
             Dusk::FrameListener* getFrameListener();
-            Dusk::InputSystemBinding* getInputSystemBinding();
-            Dusk::InputSystemEditor* getInputSystemEditor();
         protected:
         private:
         API();
@@ -51,8 +43,7 @@ namespace Dusk
         //Dusk Objects
         Dusk::Application* m_Application;
         Dusk::FrameListener* m_FrameListener;
-        Dusk::InputSystemBinding* m_InputSystemBinding;
-        Dusk::InputSystemEditor* m_InputSystemEditor;
+
     };
     inline API& getAPI() { return API::getSingelton(); }
 }
