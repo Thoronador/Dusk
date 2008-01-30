@@ -95,6 +95,8 @@
 		<Unit filename="AnimatedObject.h" />
 		<Unit filename="Application.cpp" />
 		<Unit filename="Application.h" />
+		<Unit filename="Camera.cpp" />
+		<Unit filename="Camera.h" />
 		<Unit filename="Command.cpp" />
 		<Unit filename="Command.h" />
 		<Unit filename="CommandCreateObject.cpp" />

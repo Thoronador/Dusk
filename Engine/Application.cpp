@@ -2,6 +2,7 @@
 #include "InputSystem.h"
 #include "Dispatcher.h"
 #include "API.h"
+#include "Camera.h"
 
 namespace Dusk
 {
@@ -123,13 +124,16 @@ namespace Dusk
     void Application::createCamera()
     {
         // Create the camera
+        m_DuskCamera = new Dusk::Camera(m_SceneManager);
+        m_Camera = m_DuskCamera->getOgreCamera();
+        /*
         m_Camera = m_SceneManager->createCamera("PlayerCam");
 
         // Position it at 500 in Z direction
         m_Camera->setPosition(Ogre::Vector3(0,0,500));
         // Look back along -Z
         m_Camera->lookAt(Ogre::Vector3(0,0,-300));
-        m_Camera->setNearClipDistance(5);
+        m_Camera->setNearClipDistance(5);*/
     }
 
 //-------------------------------------------------------------------------------------

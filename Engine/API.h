@@ -10,6 +10,7 @@ namespace Dusk
     class InputSystemBinding;
     class InputSystemEditor;
     class Scene;
+    class Camera;
 
     // This class contains pointers to every single object
     class API
@@ -43,6 +44,7 @@ namespace Dusk
         //Dusk Objects
         Dusk::Application* m_Application;
         Dusk::FrameListener* m_FrameListener;
+        Dusk::Camera* m_DuskCamera;
 
     };
     inline API& getAPI() { return API::getSingelton(); }

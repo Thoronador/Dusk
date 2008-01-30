@@ -7,6 +7,7 @@
 namespace Dusk
 {
     class API;
+    class Camera;
     class Application
     {
     public:
@@ -37,6 +38,8 @@ namespace Dusk
         Ogre::SceneManager* m_SceneManager;
         Ogre::RenderWindow* m_Window;
         Ogre::FrameListener* m_FrameListener;
+
+        Dusk::Camera* m_DuskCamera;
     };
 }
 
