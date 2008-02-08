@@ -35,9 +35,10 @@ namespace Dusk
     {
         m_FrameListener = op;
     }
-
-
-
+    void API::setDuskCamera(Dusk::Camera* cam)
+    {
+        m_DuskCamera = cam;
+    }
 
     //basic get functions
     Ogre::Root* API::getOgreRoot()
@@ -64,6 +65,10 @@ namespace Dusk
     Dusk::FrameListener* API::getFrameListener()
     {
         return m_FrameListener;
+    }
+    Dusk::Camera* API::getDuskCamera()
+    {
+        return m_DuskCamera;
     }
 
 }

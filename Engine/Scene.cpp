@@ -1,5 +1,6 @@
 #include "Scene.h"
 #include "API.h"
+#include "Camera.h"
 namespace Dusk
 {
 
@@ -58,9 +59,9 @@ void Scene::createGrassMesh()
     {
         createGrassMesh();
         m_SceneManager->setAmbientLight(Ogre::ColourValue(1, 1, 1));
-
-        m_Camera->setPosition(150, 50, 150);
-        m_Camera->lookAt(0, 0, 0);
+        Dusk::Camera* cam = getAPI().getDuskCamera();
+        cam->setPosition(Ogre::Vector3(150, 50, 150));
+        cam->lookAt(Ogre::Vector3(0, 0, 0));
 
         Ogre::Entity *robot = m_SceneManager->createEntity("robot", "robot.mesh");
         m_SceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(robot);

@@ -21,6 +21,7 @@ namespace Dusk
             //set functions
             void setOgreObjects(Ogre::Root* root,Ogre::Camera* camera,Ogre::RenderWindow* window,Ogre::SceneManager* mgr);
             void setApplication(Dusk::Application* app);
+            void setDuskCamera(Dusk::Camera* cam);
 
             void setFrameListener(Dusk::FrameListener* op);
                         //basic get functions
@@ -31,6 +32,7 @@ namespace Dusk
 
             Dusk::Application* getApplication();
             Dusk::FrameListener* getFrameListener();
+            Dusk::Camera* getDuskCamera();
         protected:
         private:
         API();
