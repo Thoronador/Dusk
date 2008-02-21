@@ -365,7 +365,7 @@ typedef void ALvoid;
 #define AL_EXPONENT_DISTANCE_CLAMPED              0xD006
 
 
-#if !defined(AL_NO_PROTOTYPES)
+// #if !defined(AL_NO_PROTOTYPES) //auskommentiert zu Testzwecken
 
 /*
  * Renderer State management
@@ -643,7 +643,7 @@ AL_API void AL_APIENTRY alSpeedOfSound( ALfloat value );
 
 AL_API void AL_APIENTRY alDistanceModel( ALenum distanceModel );
 
-#else /* AL_NO_PROTOTYPES */
+//#else /* AL_NO_PROTOTYPES */  //auskommentiert zu Testzwecken
 
 typedef void           (AL_APIENTRY *LPALENABLE)( ALenum capability );
 typedef void           (AL_APIENTRY *LPALDISABLE)( ALenum capability ); 
@@ -719,7 +719,7 @@ typedef void           (AL_APIENTRY *LPALDOPPLERVELOCITY)( ALfloat value );
 typedef void           (AL_APIENTRY *LPALSPEEDOFSOUND)( ALfloat value );
 typedef void           (AL_APIENTRY *LPALDISTANCEMODEL)( ALenum distanceModel );
 
-#endif /* AL_NO_PROTOTYPES */
+// #endif /* AL_NO_PROTOTYPES */  //auskommentiert zu Testzwecken
 
 #if TARGET_OS_MAC
  #pragma export off

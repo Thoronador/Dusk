@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <cstdlib>
 #if defined(_WIN32)
   #include <windows.h>
 #else
@@ -12,7 +13,7 @@
 #include "openal/al.h" //OpenAL header
 #include "openal/alc.h"  //OpenAL header
 
-/*//Types for wave format:
+//Types for wave format:
 typedef struct riff_chunk
 {
   char Riff[4];
@@ -39,8 +40,18 @@ typedef struct data_chunk
 };
 typedef data_chunk TDataChunk;
 
-bool ReadChunksFromFile(std::string FileName, TRiffChunk * rc, TFmtChunk * fc, TDataChunk *dc);*/
+//Type for internal file&buffer/source management
+typedef struct bufsrc_rec
+{
+  std::string FileName;
+  ALuint sourceID;
+  ALuint num_buffers;
+  ALuint * buffers;
+  bufsrc_rec * next;
+};
+typedef bufsrc_rec TBufSrcRecord;
 
+//Klasse Sound
 class Sound
 {
   public:
@@ -49,12 +60,15 @@ class Sound
     bool Init(std::string PathToLibrary = "NULL");//initializes OpenAL
     bool Exit();//deinitializes OpenAL
     bool Play(std::string FileName);
+    bool IsPlaying(std::string FileName);
   protected:
 
   private:
     bool PlayWAV(std::string WAV_FileName);
     bool PlayOgg(std::string Ogg_FileName);
     void AllFuncPointersToNULL(void); //never ever call this one manually!
+    
+    TBufSrcRecord * pFileList;//pointer to list
     
     ALCdevice *pDevice;
     ALCcontext *pContext;
@@ -104,7 +118,7 @@ class Sound
     
     //**** State retrieval
     LPALGETSTRING alGetString;
-    LPAPGETBOOLEANV alGetBooleanv;
+    LPALGETBOOLEANV alGetBooleanv;
     LPALGETINTEGERV alGetIntegerv;
     LPALGETFLOATV alGetFloatv;
     LPALGETDOUBLEV alGetDoublev;
@@ -129,7 +143,7 @@ class Sound
     LPALLISTENERFV alListenerfv;
     LPALLISTENERI alListeneri;
     LPALLISTENER3I alListener3i;
-    LPALISTENERIV alListeneriv;
+    LPALLISTENERIV alListeneriv;
     
     //**** Get Listener parameters
     LPALGETLISTENERF alGetListenerf;
@@ -137,7 +151,7 @@ class Sound
     LPALGETLISTENERFV alGetListenerfv;
     LPALGETLISTENERI alGetListeneri;
     LPALGETLISTENER3I alGetListener3i;
-    LPALGESTLISTENERIV alGetListeneriv;
+    LPALGETLISTENERIV alGetListeneriv;
     
     //**** Create Source objects
     LPALGENSOURCES alGenSources;

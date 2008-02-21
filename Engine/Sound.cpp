@@ -1,33 +1,5 @@
 #include "Sound.h"
 
-
-/*//Hilfsfunktion
-bool ReadChunksFromFile(std::string FileName, TRiffChunk * rc, TFmtChunk * fc, TDataChunk *dc)
-{
-  ifstream dat;
-  dat.open(FileName.c_str(), ios::in | ios::binary);
-  if(!dat)
-  {
-   std::cout << "ReadCunksFromFile: Error opening input stream.\n";
-   return false;
-  }
-  dat.read(rc->Riff, 4);
-  dat.read((char*) &(rc->len), 4);
-  dat.read(rc->Wave, 4);
-  dat.read(fc->fmt_, 4);
-  dat.read((char*) &(fc->chunk_size), 4);
-  dat.read((char*) &(fc->FormatTag), 2);
-  dat.read((char*) &(fc->Channels), 2);
-  dat.read((char*) &(fc->SamplesPerSecond), 4);
-  dat.read((char*) &(fc->BytesPerSecond), 4);
-  dat.read((char*) &(fc->BlockAlign), 2);
-  dat.read((char*) &(fc->BitsPerSample), 2);
-  dat.read(dc->data, 4);
-  dat.read((char*) &(dc->length_of_data), 4);
-  dat.close();
-  return true;
-}*/
-
 //functions for class Sound:
 //constructor
 Sound::Sound()
@@ -37,6 +9,7 @@ Sound::Sound()
   AL_Ready = false;
   InitInProgress = false;
   libHandle = NULL;
+  pFileList = NULL;
   //init function pointers
   AllFuncPointersToNULL();
 }
@@ -153,7 +126,7 @@ bool Sound::Init(std::string PathToLibrary)
   alcCloseDevice = (LPALCCLOSEDEVICE) GetProcAddress(libHandle, "alcCloseDevice");
   alcGetError = (LPALCGETERROR) GetProcAddress(libHandle, "alcGetError");
   alcGetString = (LPALCGETSTRING) GetProcAddress(libHandle, "alcGetString");
-  alcGetIntegerv = (LPALCGETINTEGERV) GetProcAdress(libHandle, "alcGetIntegerv");
+  alcGetIntegerv = (LPALCGETINTEGERV) GetProcAddress(libHandle, "alcGetIntegerv");
   #else
   //Linux
   alcOpenDevice = (LPALCOPENDEVICE) dlsym(libHandle, "alcOpenDevice");
@@ -569,25 +542,25 @@ bool Sound::Init(std::string PathToLibrary)
   alSourceRewindv = (LPALSOURCEREWINDV) dlysm(libHandle, "alSourceRewindv");
   alSourcePausev = (LPALSOURCEPAUSEV) dlysm(libHandle, "alSourcePausev");
   #endif
-  if (alGetSourcePlayv == NULL)
+  if (alSourcePlayv == NULL)
   {
     std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetSourcePlayv\" address.\n";
     InitInProgress = false;
     return false;
   }
-  if (alGetSourceStopv == NULL)
+  if (alSourceStopv == NULL)
   {
     std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetSourceStopv\" address.\n";
     InitInProgress = false;
     return false;
   }
-  if (alGetSourceRewindv == NULL)
+  if (alSourceRewindv == NULL)
   {
     std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetSourceRewindv\" address.\n";
     InitInProgress = false;
     return false;
   }
-  if (alGetSourcePausev == NULL)
+  if (alSourcePausev == NULL)
   {
     std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetSourcePausev\" address.\n";
     InitInProgress = false;
@@ -606,25 +579,25 @@ bool Sound::Init(std::string PathToLibrary)
   alSourceRewind = (LPALSOURCEREWIND) dlysm(libHandle, "alSourceRewind");
   alSourcePause = (LPALSOURCEPAUSE) dlysm(libHandle, "alSourcePause");
   #endif
-  if (alGetSourcePlay == NULL)
+  if (alSourcePlay == NULL)
   {
     std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetSourcePlay\" address.\n";
     InitInProgress = false;
     return false;
   }
-  if (alGetSourceStop == NULL)
+  if (alSourceStop == NULL)
   {
     std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetSourceStop\" address.\n";
     InitInProgress = false;
     return false;
   }
-  if (alGetSourceRewind == NULL)
+  if (alSourceRewind == NULL)
   {
     std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetSourceRewind\" address.\n";
     InitInProgress = false;
     return false;
   }
-  if (alGetSourcePause == NULL)
+  if (alSourcePause == NULL)
   {
     std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetSourcePause\" address.\n";
     InitInProgress = false;
@@ -657,7 +630,7 @@ bool Sound::Init(std::string PathToLibrary)
   alGenBuffers = (LPALGENBUFFERS) GetProcAddress(libHandle, "alGenBuffers");
   alDeleteBuffers = (LPALDELETEBUFFERS) GetProcAddress(libHandle, "alDeleteBuffers");
   alIsBuffer = (LPALISBUFFER) GetProcAddress(libHandle, "alIsBuffer");
-  alBufferData = (LPBUFFERDATA) GetProcAddress(libHandle, "alBufferData");
+  alBufferData = (LPALBUFFERDATA) GetProcAddress(libHandle, "alBufferData");
   #else
   //Linux
   alGenBuffers = (LPALGENBUFFERS) dlsym(libHandle, "alGenBuffers");
@@ -826,7 +799,7 @@ bool Sound::Init(std::string PathToLibrary)
              std::cout << "Unknown error while creating context. Error code: " << error << "\n";
              break;
     }//swi
-    InitInProgess = false;
+    InitInProgress = false;
     return false;    
   }
   //try to set current context
@@ -867,7 +840,7 @@ bool Sound::Exit()
   }
   if (InitInProgress)
   {
-    std::cout << "Sound::Exit: Warning: (De-)Initialization of OpenAL is ";
+    std::cout << "Sound::Exit: Warning: (De-)Initialization of OpenAL is "
               << "already in progress, thus we quit here.\n";
     return false;
   }
@@ -915,6 +888,18 @@ bool Sound::Exit()
 
 bool Sound::Play(std::string FileName)
 {
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::Play: Warning: OpenAL is not initialized, thus we can "
+              << "not play a file yet.\n";
+    return false;
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::Play: Warning: (De-)Initialization of OpenAL is in "
+              << "progress, thus we cannot play a file and quit here.\n";
+    return false;
+  }
   if (FileName.substr(FileName.length()-4)==".wav")
   {
     return PlayWAV(FileName);
@@ -928,12 +913,356 @@ bool Sound::Play(std::string FileName)
 
 bool Sound::PlayWAV(std::string WAV_FileName)
 {
+  TRiffChunk riff_c;
+  TFmtChunk fmt_c;
+  TDataChunk data_c;
+  ifstream dat;
+  char * temp_buf;
+  
+  dat.open(WAV_FileName.c_str(), ios::in | ios::binary);
+  if(!dat)
+  {
+    std::cout << "Sound::PlayWAV: ERROR: Unable to open stream for reading.\n"
+              << "       File: \"" <<WAV_FileName<<"\".\n\n";
+    return false;
+  }
+  dat.read(riff_c.Riff, 4); // "RIFF"
+  if ((riff_c.Riff[0]!='R') || (riff_c.Riff[1]!='I') || (riff_c.Riff[2]!='F')
+       || (riff_c.Riff[3]!='F'))
+  {
+    std::cout << "Sound::PlayWAV: ERROR: File \""<<WAV_FileName<<"\" has incorrect"
+              <<" RIFF header.\n";
+    dat.close();
+    return false;
+  }
+  dat.read((char*) &(riff_c.len), 4); //file size - 8 (in Bytes)
+  dat.read(riff_c.Wave, 4); // "WAVE"
+  if ((riff_c.Wave[0]!='W') || (riff_c.Wave[1]!='A') || (riff_c.Wave[2]!='V')
+       || (riff_c.Wave[3]!='E'))
+  {
+    std::cout << "Sound::PlayWAV: ERROR: File \""<<WAV_FileName<<"\" has incorrect"
+              <<" WAVE header.\n";
+    dat.close();
+    return false;
+  }
+  //Format chunk
+  dat.read(fmt_c.fmt_, 4); // "fmt "
+  if ((fmt_c.fmt_[0]!='f') || (fmt_c.fmt_[1]!='m') || (fmt_c.fmt_[2]!='t')
+       || (fmt_c.fmt_[3]!='_'))
+  {
+    std::cout << "Sound::PlayWAV: ERROR: File \""<<WAV_FileName<<"\" has incorrect"
+              <<" format chunk header signature.\n";
+    dat.close();
+    return false;
+  }
+  dat.read((char*) &(fmt_c.chunk_size), 4); //should have value of 16
+  if (fmt_c.chunk_size!=16)
+  {
+    std::cout << "Sound::PlayWAV: ERROR: Format chunk of file \""<<WAV_FileName
+              <<"\" has incorrect size of "<<fmt_c.chunk_size
+              <<" bytes. (Should be 16 instead.)\n";
+    dat.close();
+    return false;
+  }
+  dat.read((char*) &(fmt_c.FormatTag), 2); //should have value of 1 for PCM
+                                        //(this is what we have for typical .wav)
+  if (fmt_c.FormatTag!=1)
+  {
+    std::cout << "Sound::PlayWAV: ERROR: File \""<<WAV_FileName<<"\" is not of "
+              << "PCM format. Format index: " <<fmt_c.FormatTag<<".\n";
+    dat.close();
+  }
+  dat.read((char*) &(fmt_c.Channels), 2);  // 1 for mono, 2 for stereo
+  dat.read((char*) &(fmt_c.SamplesPerSecond), 4);
+  dat.read((char*) &(fmt_c.BytesPerSecond), 4);
+  dat.read((char*) &(fmt_c.BlockAlign), 2);
+  dat.read((char*) &(fmt_c.BitsPerSample), 2);
+  //data chunk
+  dat.read(data_c.data, 4); // "data"
+  if ((data_c.data[0]!='d') || (data_c.data[1]!='a') || (data_c.data[2]!='t')
+       || (data_c.data[3]!='a'))
+  {
+    std::cout << "Sound::PlayWAV: ERROR: File \""<<WAV_FileName<<"\" has incorrect"
+              <<" data chunk header signature.\n";
+    dat.close();
+    return false;
+  }
+  dat.read((char*) &(data_c.length_of_data), 4); //Länge des folgenden Datenblocks
+                                                 //bzw. der restlichen Datei
 
-  return false;
+  unsigned long buffer_size=0, buffer_num=0, i=0;
+  unsigned long last_buffer_size=0;
+  TBufSrcRecord * buff_rec;
+  char * temp;
+  ALenum error_state;
+  //format of data
+  ALenum format_type;
+  
+  //Not sure about what is a good buffer size for WAVE/PCM file
+  //Following line may need to be adjusted :?
+  buffer_size =  32* fmt_c.BlockAlign *1024;
+  //aassure that buffer is not larger than amount of available data
+  if (buffer_size>data_c.length_of_data)
+  {
+    buffer_size = data_c.length_of_data;
+  }
+  //buffer size needs to be an exact multiple of block align
+  if ((buffer_size % fmt_c.BlockAlign)!=0)
+  {
+    //decrease buffer size to next lowest multiple of block align
+    buffer_size = (buffer_size/fmt_c.BlockAlign) * fmt_c.BlockAlign;
+    if (buffer_size==0)
+    {
+      buffer_size = fmt_c.BlockAlign;
+    }
+  }
+  last_buffer_size = buffer_size;
+  
+  //check if data length is valid
+  if (data_c.length_of_data<fmt_c.BlockAlign)
+  {
+     std::cout << "Sound::PlayWAV: ERROR: Data chunk is to short to contain "
+               << "valid data. Exiting.\n";
+     dat.close();
+     return false;
+  }
+  
+  //determine number of buffers
+  buffer_num = data_c.length_of_data/ buffer_size;
+  if ((data_c.length_of_data % buffer_size)!=0)
+  {
+    buffer_num = buffer_num +1; //increase number of buffers
+    last_buffer_size = data_c.length_of_data % buffer_size; //size of last buffer
+                                                    //is diff. from regular size
+  }
+  //allocate memory for new record
+  buff_rec = new TBufSrcRecord;
+  buff_rec->FileName = WAV_FileName;
+  buff_rec->num_buffers = buffer_num;
+  //allocate memory for buffer_num ALuint variables
+  buff_rec->buffers = (ALunit*) malloc(sizeof(ALuint)*buffer_num);
+  alGetError();//clear error state
+  alGenBuffers(buffer_num, buff_rec->buffers);
+  error_state = alGetError();
+  if (error_state !=AL_NO_ERROR) //error occured
+  {
+    std::cout << "Sound::Play: ERROR while generating buffers for \""
+              <<WAV_FileName <<"\".\n";
+    switch (error_state)
+    {
+      case AL_INVALID_VALUE:
+           std::cout << "    The provided buffer array is not large enough to "
+                     << "hold the requested number of buffers.\n";
+           break;
+      case AL_OUT_OF_MEMORY:
+           std::cout << "    Not enough memory to generate the buffers.\n";
+           break;
+      default:
+           std::cout<<"    Unknown error occured. Error code: "<<error_state<<".\n";
+           break;
+    }//swi
+    dat.close();
+    return false;
+  }
+  //determine format, (unsecure yet, since it does not check for channel values
+  //   unequal to 1 ot 2 and for sample sizes unequal to 8 or 16)
+  if (fmt_c.BitsPerSample==16)
+  {
+    if (fmt_c.Channels==2)
+    {
+      format_type = AL_FORMAT_STEREO16;
+    }
+    else
+    {
+      format_type = AL_FORMAT_MONO16;
+    }
+  }
+  else if (fmt_c.BitsPerSample==8)
+  {
+    if (fmt_c.Channels==2)
+    {
+      format_type = AL_FORMAT_STEREO8;
+    }
+    else
+    {
+      format_type = AL_FORMAT_MONO8;
+    }
+  }
+  temp = (char*) malloc(buffer_size);
+  for (i=0; i<buffer_num-1; i=i+1)
+  {
+    dat.read(temp, buffer_size);
+    alGetError(); //clear error state
+    alBufferData(buff_rec->buffers[i], format_type, temp, buffer_size, fmt_c.SamplesPerSecond);
+    error_state = alGetError();
+    if (error_state!= AL_NO_ERROR)
+    {
+      std::cout << "Sound::Play: ERROR while buffering data.\n";
+      switch (error_state)
+      {
+        case AL_INVALID_ENUM:
+             std::cout <<"    The specified format does not exist.\n"; break;
+        case AL_INVALID_VALUE:
+             std::cout <<"    The sie parameter is not valid for the given format"
+                       <<" or the buffer is already in use.\n"; break;
+        case AL_OUT_OF_MEMORY:
+             std::cout <<"    Not enough memory to create the buffer.\n"; break;
+        default:
+             std::cout <<"    Unknown error. Error code: "<<error_state<<".\n";
+             break;
+      }//swi
+      dat.close();
+      free(temp);
+      return false;
+    }//if
+  }//for
+  
+  //read last buffer
+  dat.read(temp, last_buffer_size);
+  alGetError(); //clear error state
+  alBufferData(buff_rec->buffers[buffer_num-1], format_type, temp, last_buffer_size, fmt_c.SamplesPerSecond);
+  error_state = alGetError();
+  if (error_state!= AL_NO_ERROR)
+  {
+    std::cout << "Sound::Play: ERROR while buffering data.\n";
+    switch (error_state)
+    {
+      case AL_INVALID_ENUM:
+           std::cout <<"    The specified format does not exist.\n"; break;
+      case AL_INVALID_VALUE:
+           std::cout <<"    The size parameter is not valid for the given format"
+                     <<" or the buffer is already in use.\n"; break;
+      case AL_OUT_OF_MEMORY:
+           std::cout <<"    Not enough memory to create the buffer.\n"; break;
+      default:
+           std::cout <<"    Unknown error. Error code: "<<error_state<<".\n";
+           break;
+    }//swi
+    dat.close();
+    free(temp);
+    return false;
+  }//if
+  else
+  { //in case of no error we still need to close the stream and free the pointer
+    dat.close();
+    free(temp);
+  }//else
+  
+  //Source generation
+  alGetError();
+  alGenSources(1, &(buff_rec->sourceID));
+  error_state = alGetError();
+  if (error_state!= AL_NO_ERROR)
+  {
+    std::cout << "Sound::Play: ERROR while generating source.\n";
+    switch (error_state)
+    {
+      case AL_INVALID_OPERATION:
+           std::cout <<"    There is no context to create a source in.\n"; break;
+      case AL_INVALID_VALUE:
+           std::cout <<"    The array pointer is not valid or there are not "
+                     <<"enough resources to create a source.\n"; break;
+      case AL_OUT_OF_MEMORY:
+           std::cout <<"    Not enough memory to create the source.\n"; break;
+      default:
+           std::cout <<"    Unknown error. Error code: "<<error_state<<".\n";
+           break;
+    }//swi
+    return false;
+  }//if
+  
+  //Queue all buffers to the source
+  alSourceQueueBuffers(buff_rec->sourceID, buff_rec->num_buffers, buff_rec->buffers);
+  error_state = alGetError();
+  if (error_state!= AL_NO_ERROR)
+  {
+    std::cout << "Sound::Play: ERROR while queueing buffers to source.\n";
+    switch (error_state)
+    {
+      case AL_INVALID_NAME:
+           std::cout <<"    The source name or one of the buffer names is not "
+                     <<"valid.\n"; break;
+      case AL_INVALID_OPERATION:
+           std::cout <<"    There is no context, the source has already a static"
+                     <<" buffer attached or the new buffer has not the same "
+                     <<"format as the other buffers in the queue.\n"; break;
+      default:
+           std::cout <<"    Unknown error. Error code: "<<error_state<<".\n";
+           break;
+    }//swi
+    return false;
+  }//if
+  alSourcePlay(buff_rec->sourceID); //finally play it
+  //add file to list of playing files
+  buff_rec->next = pFileList;
+  pFileList = buff_rec;
+  
+  return true; //this is what we want :)
 }
 
 bool Sound::PlayOgg(std::string Ogg_FileName)
 {
+  return false;
+}
+
+//returns true if the specified file is currently playing
+bool Sound::IsPlaying(std::string FileName)
+{
+  TBufSrcRecord * pTemp;
+  ALint source_state;
+  ALenum error_state;
+
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::IsPlaying: Warning: OpenAL is not initialized, thus we"
+              << " can not have a playing file yet.\n";
+    return false;
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::IsPlaying: ERROR: (De-)Initialization of OpenAL is "
+              << "in progress, thus we cannot determine file state here.\n";
+    return false;
+  }
+  
+  //search file list for matching file name
+  pTemp = pFileList;
+  while (pTemp!=NULL)
+  {
+    if (pTemp->FileName == FileName)
+    {
+      alGetError();//clear error state
+      alGetSourcei(pTemp->sourceID, AL_SOURCE_STATE, &source_state);
+      error_state = alGetError();
+      if (error_state != AL_NO_ERROR)
+      {
+        std::cout <<"Sound::IsPlaying: ERROR while querying source state.\n";
+        switch (error_state)
+        {
+          case AL_INVALID_VALUE:
+               std::cout << "    The given pointer to ALint is not valid.\n";
+               break;
+          case AL_INVALID_ENUM:
+               //this one should never occur here, since AL_SOURCE_STATE is valid
+               std::cout << "    The source parameter is not valid.\n"; break;
+          case AL_INVALID_NAME:
+               std::cout << "    The specified source name is not vailid. "
+                         << "Corrupt file list?\n"; break;
+          case AL_INVALID_OPERATION:
+               //should normally never occur
+               std::cout << "    There is no current context.\n"; break;
+          default:
+               std::cout << "    Unknown error. Error code: "<<error_state<<".\n";
+               break;
+        }//swi
+      }
+      else if (source_state == AL_PLAYING)
+      {
+        return true;
+      }
+    }
+    pTemp = pTemp->next;
+  };
   return false;
 }
 
