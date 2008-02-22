@@ -37,6 +37,7 @@ InputSystemEditor::InputSystemEditor()
    myOverlay->show();
 
    visible = false;
+    m_continue = true;
 }
 
 InputSystemEditor::~InputSystemEditor()
@@ -68,12 +69,12 @@ bool InputSystemEditor::frameStarted(const Ogre::FrameEvent &evt)
 
     // now, put all contents on the textbox
     myTextbox->setCaption("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n> " + myInputLine);
-    return true;
+    return m_continue;
 }
 
 bool InputSystemEditor::frameEnded(const Ogre::FrameEvent &evt)
 {
-    return true;
+    return m_continue;
 }
 
 bool InputSystemEditor::keyPressed (const OIS::KeyEvent &arg)

@@ -8,6 +8,7 @@
 namespace Dusk
 {
 
+
 Console* Console::s_console = 0;
 
 Console::Console()
@@ -56,58 +57,90 @@ int Console::processScripts (int maxEntries)
     return size;
 }
 
-int Console::executeCommand (std::string p_string)
+int Console::executeCommand(std::string p_string)
 {
-    long posSpace = p_string.find(" ");
-    std::string command = p_string;
-    if (posSpace != std::string::npos)
-        command = p_string.substr(0, posSpace);
-    //this is going to get big :/
-    if (command == "quit")
+    std::vector< std::string> command;
+    std::string::iterator iter;
+    std::string tmp;
+    Command* com = NULL;
+
+    if(p_string != "")
     {
-        std::cout << "Thee wants to quit?" << std::endl;
-        m_Dispatcher->executeCommand(new CommandQuit()); // Object will be destroyed after being executed by the Dispatcher
-    }
-    else if (command == "bind")
-    {
-        std::cout << "Bind a key!" << std::endl;
-    }
-    else if (command == "set")
-    {
-        std::cout << "A variable to set" << std::endl;
-    }
-    else if (command == "start")
-    {
-        std::cout << "Starting something" << std::endl;
-    }
-    else if (command == "stop")
-    {
-        std::cout << "Bring it to an end" << std::endl;
-    }
-    else if (command == "move_forward")
-    {
-        std::cout << "One step forward" << std::endl;
-    }
-    else if (command == "move_backward")
-    {
-        std::cout << "One step back" << std::endl;
-    }
-    else if (command == "step_left")
-    {
-        std::cout << "to the left" << std::endl;
-    }
-    else if (command == "step_right")
-    {
-        std::cout << "to the right" << std::endl;
-    }
-    else if (command == "jump")
-    {
-        std::cout << "up up!" << std::endl;
+        for(iter = p_string.begin();iter != p_string.end();iter++)
+        {
+            if(*iter != ' ')
+                tmp += *iter;
+            else
+            {
+                command.push_back(tmp);
+                tmp = "";
+            }
+        }
+        command.push_back(tmp);
     }
     else
     {
-        std::cout << "Parser error" << std::endl;
+        return 1; // Error
     }
+    if(command.size())
+    {
+        //this is going to get big :/
+        if (command[0] == "quit")
+        {
+            std::cout << "Thee wants to quit?" << std::endl;
+            com = new CommandQuit();
+            m_Dispatcher->executeCommand(com); // Object will be destroyed after being executed by the Dispatcher
+        }
+        else if (command[0] == "bind")
+        {
+            std::cout << "Bind a key!" << std::endl;
+        }
+        else if (command[0] == "set")
+        {
+            std::cout << "A variable to set" << std::endl;
+        }
+        else if (command[0] == "start")
+        {
+            std::cout << "Starting something" << std::endl;
+        }
+        else if (command[0] == "stop")
+        {
+            std::cout << "Bring it to an end" << std::endl;
+        }
+        else if (command[0] == "move_forward")
+        {
+            std::cout << "One step forward" << std::endl;
+        }
+        else if (command[0] == "move_backward")
+        {
+            std::cout << "One step back" << std::endl;
+        }
+        else if (command[0] == "step_left")
+        {
+            std::cout << "to the left" << std::endl;
+        }
+        else if (command[0] == "step_right")
+        {
+            std::cout << "to the right" << std::endl;
+        }
+        else if (command[0] == "jump")
+        {
+            std::cout << "up up!" << std::endl;
+        }
+        else if (command[0] == "PlaySound")
+        {
+            if(command.size()< 2)
+            {
+                std::cout<<"No Params Error";
+            }
+
+        }
+        else
+        {
+            std::cout << "Parser error" << std::endl;
+        }
+    }
+    if(com) delete com;
 }
 
 }

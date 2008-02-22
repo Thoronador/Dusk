@@ -65,6 +65,8 @@ namespace Dusk
          */
         virtual bool toggle();
 
+        void exit(){m_continue = false;}
+
     private:
         /**
          * Standard konstructor
@@ -132,6 +134,10 @@ namespace Dusk
          * Holds the height.
          */
         double height;
+        /**
+         *
+         */
+        bool m_continue;
     };
 }
 #endif // INPUTSYSTEMEDITOR_H_INCLUDED

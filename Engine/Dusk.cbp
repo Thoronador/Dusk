@@ -124,6 +124,8 @@
 		<Unit filename="Script.cpp" />
 		<Unit filename="Script.h" />
 		<Unit filename="Settings.h" />
+		<Unit filename="Sound.cpp" />
+		<Unit filename="Sound.h" />
 		<Unit filename="StaticObject.cpp" />
 		<Unit filename="StaticObject.h" />
 		<Unit filename="main.cpp" />

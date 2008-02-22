@@ -18,7 +18,6 @@ Dispatcher::~Dispatcher()
 bool Dispatcher::executeCommand(Dusk::Command* command)
 {
     bool ret = command->execute(m_Scene,0);
-    delete command;
     return ret;
 }
 Dispatcher& Dispatcher::get()
