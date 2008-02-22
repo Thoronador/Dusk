@@ -3,6 +3,7 @@
 #include "Dispatcher.h"
 #include "API.h"
 #include "Camera.h"
+#include "Sound.h"
 
 namespace Dusk
 {
@@ -57,6 +58,9 @@ namespace Dusk
 
         //Initialize Input
         InputSystem::initializeInput(m_Window, m_Root);
+
+        //Initialize Soundsystem
+        Sound::getInstance().Init();
 
         return true;
     }

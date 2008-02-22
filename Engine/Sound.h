@@ -55,26 +55,28 @@ typedef bufsrc_rec TBufSrcRecord;
 class Sound
 {
   public:
-    Sound();
     virtual ~Sound();
     bool Init(std::string PathToLibrary = "NULL");//initializes OpenAL
     bool Exit();//deinitializes OpenAL
     bool Play(std::string FileName);
     bool IsPlaying(std::string FileName);
+    static Sound& getInstance();
   protected:
 
   private:
+    Sound();
+    Sound(const Sound& op){}
     bool PlayWAV(std::string WAV_FileName);
     bool PlayOgg(std::string Ogg_FileName);
     void AllFuncPointersToNULL(void); //never ever call this one manually!
-    
+
     TBufSrcRecord * pFileList;//pointer to list
-    
+
     ALCdevice *pDevice;
     ALCcontext *pContext;
     bool AL_Ready;
     bool InitInProgress;
-    
+
     #if defined(_WIN32)
       HINSTANCE libHandle;
     #else
@@ -95,27 +97,27 @@ class Sound
     //**** Device Management
     LPALCOPENDEVICE alcOpenDevice;
     LPALCCLOSEDEVICE alcCloseDevice;
-    
+
     //**** Error handling
     LPALCGETERROR alcGetError;
-    
+
     //**** Extension handling functions (ALC)
     /* Disabled for now
     LPALCISEXTENSIONPRESENT alcIsExtensionPresent;
     LPALCGETPROCADDRESS alcGetProcAddress;
     LPALCGETENUMVALUE alcGetEnumValue;
     */
-    
+
     //**** Query functions
     LPALCGETSTRING alcGetString;
     LPALCGETINTEGERV alcGetIntegerv;
-    
+
     //****al.h: AL functions
     //**** Renderer State management
     LPALENABLE alEnable;
     LPALDISABLE alDisable;
     LPALISENABLED alIsEnabled;
-    
+
     //**** State retrieval
     LPALGETSTRING alGetString;
     LPALGETBOOLEANV alGetBooleanv;
@@ -129,14 +131,14 @@ class Sound
 
     //***** Error handling
     LPALGETERROR alGetError;
-    
+
     //**** Extension handling func (AL)
     /* Disable for now
     LPALISEXTENSIONPRESENT alIsExtensionPresent;
     LPALGETPROCADDRESS alGetProcAddress;
     LPALGETENUMVALUE alGetEnumValue;
     */
-    
+
     //**** Set Listener parameters
     LPALLISTENERF alListenerf;
     LPALLISTENER3F alListener3f;
@@ -144,7 +146,7 @@ class Sound
     LPALLISTENERI alListeneri;
     LPALLISTENER3I alListener3i;
     LPALLISTENERIV alListeneriv;
-    
+
     //**** Get Listener parameters
     LPALGETLISTENERF alGetListenerf;
     LPALGETLISTENER3F alGetListener3f;
@@ -152,7 +154,7 @@ class Sound
     LPALGETLISTENERI alGetListeneri;
     LPALGETLISTENER3I alGetListener3i;
     LPALGETLISTENERIV alGetListeneriv;
-    
+
     //**** Create Source objects
     LPALGENSOURCES alGenSources;
     //**** Delete Source objects
@@ -175,13 +177,13 @@ class Sound
     LPALGETSOURCEI alGetSourcei;
     LPALGETSOURCE3I alGetSource3i;
     LPALGETSOURCEIV alGetSourceiv;
-    
+
     //**** Source vector based playback calls
     LPALSOURCEPLAYV alSourcePlayv; // Play, replay, or resume (if paused) a list of Sources
     LPALSOURCESTOPV alSourceStopv; // Stop a list of Sources
     LPALSOURCEREWINDV alSourceRewindv; // Rewind a list of Sources
     LPALSOURCEPAUSEV alSourcePausev; // Pause a list of Sources
-    
+
     //**** Source based playback calls
     LPALSOURCEPLAY alSourcePlay; // Play, replay, or resume a Source
     LPALSOURCESTOP alSourceStop; // Stop a Source
@@ -191,7 +193,7 @@ class Sound
     //**** Source Queuing
     LPALSOURCEQUEUEBUFFERS alSourceQueueBuffers;
     LPALSOURCEUNQUEUEBUFFERS alSourceUnqueueBuffers;
-    
+
     //**** Create Buffer objects
     LPALGENBUFFERS alGenBuffers;
     //**** Delete Buffer objects
@@ -208,7 +210,7 @@ class Sound
     LPALBUFFERI alBufferi;
     LPALBUFFER3I alBuffer3i;
     LPALBUFFERIV alBufferiv;
-    
+
     //**** Get Buffer parameters
     LPALGETBUFFERF alGetBufferf;
     LPALGETBUFFER3F alGetBuffer3f;
@@ -216,7 +218,7 @@ class Sound
     LPALGETBUFFERI alGetBufferi;
     LPALGETBUFFER3I alGetBuffer3i;
     LPALGETBUFFERIV alGetBufferiv;
-    
+
     //**** Global Parameters
     /* Disabled for now
     LPALDOPPLERFACTOR alDopplerFactor;

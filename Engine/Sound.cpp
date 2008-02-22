@@ -23,6 +23,12 @@ Sound::~Sound()
   }
 }
 
+Sound& Sound::getInstance()
+{
+    static Sound Instance;
+    return Instance;
+}
+
 //Initializes OpenAL, device and context for our application;
 //returns: true, if initialization of OpenAL was successful; false otherwise
 bool Sound::Init(std::string PathToLibrary)
@@ -76,7 +82,7 @@ bool Sound::Init(std::string PathToLibrary)
   alcDestroyContext = (LPALCDESTROYCONTEXT) dlsym(libHandle, "alcDestroyContext");
   alcGetCurrentContext = (LPALCGETCURRENTCONTEXT) dlsym(libHandle, "alcGetCurrentContext");
   alcGetContextsDevice = (LPALCGETCONTEXTSDEVICE) dlsym(libHandle, "alcFetContextsDevice");
-  #endif  
+  #endif
   if (alcCreateContext == NULL)
   {
     std::cout << "Sound::Init: ERROR: Could not retrieve \"alcCreateContext\" address.\n";
@@ -119,7 +125,7 @@ bool Sound::Init(std::string PathToLibrary)
     InitInProgress = false;
     return false;
   }
-  
+
   #if defined(_WIN32)
   //Windows
   alcOpenDevice = (LPALCOPENDEVICE) GetProcAddress(libHandle, "alcOpenDevice");
@@ -135,7 +141,7 @@ bool Sound::Init(std::string PathToLibrary)
   alcGetString = (LPALCGETSTRING) dlsym(libHandle, "alcGetString");
   alcGetIntegerv = (LPALCGETINTEGERV) dlsym(libHandle, "alcGetIntegerv");
   #endif
-  
+
   if (alcOpenDevice == NULL)
   {
     std::cout << "Sound::Init: ERROR: Could not retrieve \"alcOpenDevice\" address.\n";
@@ -392,7 +398,7 @@ bool Sound::Init(std::string PathToLibrary)
     InitInProgress = false;
     return false;
   }
-  
+
   #if defined(_WIN32)
   //Windows
   alGenSources = (LPALGENSOURCES) GetProcAddress(libHandle, "alGenSources");
@@ -402,7 +408,7 @@ bool Sound::Init(std::string PathToLibrary)
   //Linux
   alGenSources = (LPALGENSOURCES) dlsym(libHandle, "alGenSources");
   alDeleteSources = (LPALDELETESOURCES) dlsym(libHandle, "alDeleteSources");
-  alIsSource = (LPALISSOURCE) dlsym(libHandle, "alIsSource");  
+  alIsSource = (LPALISSOURCE) dlsym(libHandle, "alIsSource");
   #endif
   if (alGenSources == NULL)
   {
@@ -437,7 +443,7 @@ bool Sound::Init(std::string PathToLibrary)
   alSourcefv = (LPALSOURCEFV) dlsym(libHandle, "alSourcefv");
   alSourcei = (LPALSOURCEI) dlsym(libHandle, "alSourcei");
   alSource3i = (LPALSOURCE3I) dlsym(libHandle, "alSource3i");
-  alSourceiv = (LPALSOURCEIV) dlsym(libHandle, "alSourceiv");  
+  alSourceiv = (LPALSOURCEIV) dlsym(libHandle, "alSourceiv");
   #endif
   if (alSourcef == NULL)
   {
@@ -490,7 +496,7 @@ bool Sound::Init(std::string PathToLibrary)
   alGetSourcefv = (LPALGETSOURCEFV) dlsym(libHandle, "alGetSourcefv");
   alGetSourcei = (LPALGETSOURCEI) dlsym(libHandle, "alGetSourcei");
   alGetSource3i = (LPALGETSOURCE3I) dlsym(libHandle, "alGetSource3i");
-  alGetSourceiv = (LPALGETSOURCEIV) dlsym(libHandle, "alGetSourceiv");  
+  alGetSourceiv = (LPALGETSOURCEIV) dlsym(libHandle, "alGetSourceiv");
   #endif
   if (alGetSourcef == NULL)
   {
@@ -528,7 +534,7 @@ bool Sound::Init(std::string PathToLibrary)
     InitInProgress = false;
     return false;
   }
-  
+
   #if defined(_WIN32)
   //Windows
   alSourcePlayv = (LPALSOURCEPLAYV) GetProcAddress(libHandle, "alSourcePlayv");
@@ -624,7 +630,7 @@ bool Sound::Init(std::string PathToLibrary)
     InitInProgress = false;
     return false;
   }
-  
+
   #if defined(_WIN32)
   //Windows
   alGenBuffers = (LPALGENBUFFERS) GetProcAddress(libHandle, "alGenBuffers");
@@ -636,7 +642,7 @@ bool Sound::Init(std::string PathToLibrary)
   alGenBuffers = (LPALGENBUFFERS) dlsym(libHandle, "alGenBuffers");
   alDeleteBuffers = (LPALDELETEBUFFERS) dlsym(libHandle, "alDeleteBuffers");
   alIsBuffer = (LPALISBUFFER) dlsym(libHandle, "alIsBuffer");
-  alBufferData = (LPBUFFERDATA) dlsym(libHandle, "alBufferData");  
+  alBufferData = (LPBUFFERDATA) dlsym(libHandle, "alBufferData");
   #endif
   if (alGenBuffers == NULL)
   {
@@ -677,7 +683,7 @@ bool Sound::Init(std::string PathToLibrary)
   alBufferfv = (LPALBUFFERFV) dlsym(libHandle, "alBufferfv");
   alBufferi = (LPALBUFFERI) dlsym(libHandle, "alBufferi");
   alBuffer3i = (LPALBUFFER3I) dlsym(libHandle, "alBuffer3i");
-  alBufferiv = (LPALBUFFERIV) dlsym(libHandle, "alBufferiv");  
+  alBufferiv = (LPALBUFFERIV) dlsym(libHandle, "alBufferiv");
   #endif
   if (alBufferf == NULL)
   {
@@ -730,7 +736,7 @@ bool Sound::Init(std::string PathToLibrary)
   alGetBufferfv = (LPALGETBUFFERFV) dlsym(libHandle, "alGetBufferfv");
   alGetBufferi = (LPALGETBUFFERI) dlsym(libHandle, "alGetBufferi");
   alGetBuffer3i = (LPGETALBUFFER3I) dlsym(libHandle, "alGetBuffer3i");
-  alGetBufferiv = (LPGETALBUFFERIV) dlsym(libHandle, "alGetBufferiv");  
+  alGetBufferiv = (LPGETALBUFFERIV) dlsym(libHandle, "alGetBufferiv");
   #endif
   if (alGetBufferf == NULL)
   {
@@ -800,7 +806,7 @@ bool Sound::Init(std::string PathToLibrary)
              break;
     }//swi
     InitInProgress = false;
-    return false;    
+    return false;
   }
   //try to set current context
   if (alcMakeContextCurrent(pContext) == ALC_FALSE)
@@ -849,7 +855,7 @@ bool Sound::Exit()
                                //cannot get an error here
   alcDestroyContext(pContext);
   alcCloseDevice(pDevice);
-  
+
   //release library
   #if defined(_WIN32)
   if (libHandle != NULL)
@@ -877,10 +883,10 @@ bool Sound::Exit()
   }
   #endif
   libHandle = NULL;
-  
+
   //de-init pointers
   AllFuncPointersToNULL();//wrapped into private function
-  
+
   AL_Ready = false;
   InitInProgress = false;
   return true;
@@ -916,10 +922,10 @@ bool Sound::PlayWAV(std::string WAV_FileName)
   TRiffChunk riff_c;
   TFmtChunk fmt_c;
   TDataChunk data_c;
-  ifstream dat;
+  std::ifstream dat;
   char * temp_buf;
-  
-  dat.open(WAV_FileName.c_str(), ios::in | ios::binary);
+
+  dat.open(WAV_FileName.c_str(), std::ios::in | std::ios::binary);
   if(!dat)
   {
     std::cout << "Sound::PlayWAV: ERROR: Unable to open stream for reading.\n"
@@ -997,7 +1003,7 @@ bool Sound::PlayWAV(std::string WAV_FileName)
   ALenum error_state;
   //format of data
   ALenum format_type;
-  
+
   //Not sure about what is a good buffer size for WAVE/PCM file
   //Following line may need to be adjusted :?
   buffer_size =  32* fmt_c.BlockAlign *1024;
@@ -1017,7 +1023,7 @@ bool Sound::PlayWAV(std::string WAV_FileName)
     }
   }
   last_buffer_size = buffer_size;
-  
+
   //check if data length is valid
   if (data_c.length_of_data<fmt_c.BlockAlign)
   {
@@ -1026,7 +1032,7 @@ bool Sound::PlayWAV(std::string WAV_FileName)
      dat.close();
      return false;
   }
-  
+
   //determine number of buffers
   buffer_num = data_c.length_of_data/ buffer_size;
   if ((data_c.length_of_data % buffer_size)!=0)
@@ -1040,7 +1046,7 @@ bool Sound::PlayWAV(std::string WAV_FileName)
   buff_rec->FileName = WAV_FileName;
   buff_rec->num_buffers = buffer_num;
   //allocate memory for buffer_num ALuint variables
-  buff_rec->buffers = (ALunit*) malloc(sizeof(ALuint)*buffer_num);
+  buff_rec->buffers = (ALuint*) malloc(sizeof(ALuint)*buffer_num);
   alGetError();//clear error state
   alGenBuffers(buffer_num, buff_rec->buffers);
   error_state = alGetError();
@@ -1116,7 +1122,7 @@ bool Sound::PlayWAV(std::string WAV_FileName)
       return false;
     }//if
   }//for
-  
+
   //read last buffer
   dat.read(temp, last_buffer_size);
   alGetError(); //clear error state
@@ -1147,7 +1153,7 @@ bool Sound::PlayWAV(std::string WAV_FileName)
     dat.close();
     free(temp);
   }//else
-  
+
   //Source generation
   alGetError();
   alGenSources(1, &(buff_rec->sourceID));
@@ -1170,7 +1176,7 @@ bool Sound::PlayWAV(std::string WAV_FileName)
     }//swi
     return false;
   }//if
-  
+
   //Queue all buffers to the source
   alSourceQueueBuffers(buff_rec->sourceID, buff_rec->num_buffers, buff_rec->buffers);
   error_state = alGetError();
@@ -1196,7 +1202,7 @@ bool Sound::PlayWAV(std::string WAV_FileName)
   //add file to list of playing files
   buff_rec->next = pFileList;
   pFileList = buff_rec;
-  
+
   return true; //this is what we want :)
 }
 
@@ -1224,7 +1230,7 @@ bool Sound::IsPlaying(std::string FileName)
               << "in progress, thus we cannot determine file state here.\n";
     return false;
   }
-  
+
   //search file list for matching file name
   pTemp = pFileList;
   while (pTemp!=NULL)
@@ -1287,7 +1293,7 @@ void Sound::AllFuncPointersToNULL(void)
   //****Query functions
   alcGetString = NULL;
   alcGetIntegerv = NULL;
-  
+
   //**** Renderer State management
   alEnable = NULL;
   alDisable = NULL;
@@ -1304,14 +1310,14 @@ void Sound::AllFuncPointersToNULL(void)
   alGetDouble = NULL;
   //***** Error handling
   alGetError = NULL;
-  
+
   //**** Extension handling func (AL)
   /* Disable for now
   alIsExtensionPresent = NULL;
   alGetProcAddress = NULL;
   alGetEnumValue = NULL;
   */
-  
+
   //**** Set Listener parameters
   alListenerf = NULL;
   alListener3f = NULL;
@@ -1319,7 +1325,7 @@ void Sound::AllFuncPointersToNULL(void)
   alListeneri = NULL;
   alListener3i = NULL;
   alListeneriv = NULL;
-    
+
   //**** Get Listener parameters
   alGetListenerf = NULL;
   alGetListener3f = NULL;
@@ -1350,13 +1356,13 @@ void Sound::AllFuncPointersToNULL(void)
   alGetSourcei = NULL;
   alGetSource3i = NULL;
   alGetSourceiv = NULL;
-  
+
   //**** Source vector based playback calls
   alSourcePlayv = NULL;
   alSourceStopv = NULL;
   alSourceRewindv = NULL;
   alSourcePausev = NULL;
-  
+
   //**** Source based playback calls
   alSourcePlay = NULL;
   alSourceStop = NULL;
@@ -1366,7 +1372,7 @@ void Sound::AllFuncPointersToNULL(void)
   //**** Source Queuing
   alSourceQueueBuffers = NULL;
   alSourceUnqueueBuffers = NULL;
-  
+
   //**** Create Buffer objects
   alGenBuffers = NULL;
   //**** Delete Buffer objects
@@ -1383,7 +1389,7 @@ void Sound::AllFuncPointersToNULL(void)
   alBufferi = NULL;
   alBuffer3i = NULL;
   alBufferiv = NULL;
-    
+
   //**** Get Buffer parameters
   alGetBufferf = NULL;
   alGetBuffer3f = NULL;
@@ -1391,7 +1397,7 @@ void Sound::AllFuncPointersToNULL(void)
   alGetBufferi = NULL;
   alGetBuffer3i = NULL;
   alGetBufferiv = NULL;
-    
+
   //**** Global Parameters
   /* Disabled for now
   alDopplerFactor = NULL;
