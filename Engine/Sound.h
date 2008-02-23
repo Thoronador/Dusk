@@ -60,7 +60,7 @@ class Sound
     bool Exit();//deinitializes OpenAL
     bool Play(std::string FileName);
     bool IsPlaying(std::string FileName);
-    static Sound& getInstance();
+    static Sound& get();
   protected:
 
   private:

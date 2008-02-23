@@ -23,7 +23,7 @@ Sound::~Sound()
   }
 }
 
-Sound& Sound::getInstance()
+Sound& Sound::get()
 {
     static Sound Instance;
     return Instance;
@@ -44,7 +44,7 @@ bool Sound::Init(std::string PathToLibrary)
   {
     //if no path to the OpenAL library is given, try default value
     #if defined(_WIN32)
-      PathToLibrary = "C:\\Windows\\System\\OpenAL32.dll";
+      PathToLibrary = "C:\\Windows\\System32\\OpenAL32.dll";
     #else
       PathToLibrary = "/usr/lib/libopenal.so";
     #endif
@@ -923,7 +923,7 @@ bool Sound::PlayWAV(std::string WAV_FileName)
   TFmtChunk fmt_c;
   TDataChunk data_c;
   std::ifstream dat;
-  char * temp_buf;
+  char * temp_buf; // could that be deleted ?
 
   dat.open(WAV_FileName.c_str(), std::ios::in | std::ios::binary);
   if(!dat)

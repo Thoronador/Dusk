@@ -3,6 +3,7 @@
 #include "Dispatcher.h"
 #include "Command.h"
 #include "CommandQuit.h"
+#include "CommandPlaySound.h"
 #include <iostream>
 
 namespace Dusk
@@ -131,9 +132,13 @@ int Console::executeCommand(std::string p_string)
         {
             if(command.size()< 2)
             {
-                std::cout<<"No Params Error";
+                std::cout<<"No Params Error"<<std::endl;
             }
-
+            else
+            {
+                com  = new CommandPlaySound(command[1]);
+                m_Dispatcher->executeCommand(com);
+            }
         }
         else
         {

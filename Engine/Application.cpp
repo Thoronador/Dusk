@@ -60,7 +60,7 @@ namespace Dusk
         InputSystem::initializeInput(m_Window, m_Root);
 
         //Initialize Soundsystem
-        Sound::getInstance().Init();
+        Sound::get().Init();
 
         return true;
     }
