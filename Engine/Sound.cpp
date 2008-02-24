@@ -851,6 +851,15 @@ bool Sound::Exit()
     return false;
   }
   InitInProgress = true;
+  //try to free all file resources
+  while (pFileList != NULL)
+  {
+    //frees resources of first file and sets pointer pFileList to next file,
+    //  so we will reach NULL (end of list) sooner or later
+    FreeFileResources(pFileList->FileName);
+  }//while
+
+  //standard clean-up
   alcMakeContextCurrent(NULL); //NULL is valid for alcMakeContextCurrent, so we
                                //cannot get an error here
   alcDestroyContext(pContext);
@@ -923,7 +932,7 @@ bool Sound::PlayWAV(std::string WAV_FileName)
   TFmtChunk fmt_c;
   TDataChunk data_c;
   std::ifstream dat;
-  char * temp_buf; // could that be deleted ?
+  char * temp;
 
   dat.open(WAV_FileName.c_str(), std::ios::in | std::ios::binary);
   if(!dat)
@@ -999,7 +1008,6 @@ bool Sound::PlayWAV(std::string WAV_FileName)
   unsigned long buffer_size=0, buffer_num=0, i=0;
   unsigned long last_buffer_size=0;
   TBufSrcRecord * buff_rec;
-  char * temp;
   ALenum error_state;
   //format of data
   ALenum format_type;
@@ -1269,6 +1277,219 @@ bool Sound::IsPlaying(std::string FileName)
     }
     pTemp = pTemp->next;
   };
+  return false;
+}
+
+//Pauses a playing file;
+//    -pausing a file that is either paused or stopped is a legal no-op
+//    -trying to pause a non-existing file is an "expensive no-op" and will
+//     result in false and a warning/hint
+bool Sound::Pause(std::string FileName)
+{
+  TBufSrcRecord * temp;
+  ALenum error_state;
+  
+  temp = pFileList;
+  while (temp!=NULL)
+  {
+    if (temp->FileName == FileName)
+    { //we found the appropriate file and it's source
+      alGetError();//clear error state
+      alSourcePause(temp->sourceID);
+      error_state = alGetError();
+      if (error_state != AL_NO_ERROR)
+      {
+        std::cout << "Sound::Pause: ERROR while trying to pause file.\n";
+        switch (error_state)
+        {
+          case AL_INVALID_NAME:
+               std::cout << "    The specified source name is not valid.\n";
+               break;
+          case AL_INVALID_OPERATION:
+               std::cout << "    There is no current context.\n"; break;
+          default:
+               std::cout << "    Unknown error occured. Error code: "
+                         <<error_state<<"\n."; break;
+        }//swi
+        return false; //shit happens, source was not paused
+      }//if
+      else
+      { //no error occured
+        return true; //what we want :)
+      }      
+    }//if
+    temp = temp->next;
+  }//while
+  std::cout << "Sound::Pause: Hint: Could not pause \""<<FileName<<"\". There "
+            << "is no such file.\n";
+  return false;
+}
+
+//Resumes a previously; unpausing a playing or stopped file is legal no-op
+bool Sound::UnPause(std::string FileName)
+{
+  TBufSrcRecord * temp;
+  ALint state;
+  ALenum error_state;
+  
+  temp = pFileList;
+  while (temp != NULL)
+  {
+    if (temp->FileName == FileName)
+    { //we found the appropriate file
+      alGetError();//clear error state
+      alGetSourcei(temp->sourceID, AL_SOURCE_STATE, &state);
+      error_state = alGetError();
+      if (error_state != AL_NO_ERROR)
+      {
+        std::cout << "Sound::UnPause: ERROR: Could not check for source state.\n";
+        switch (error_state)
+        {
+          case AL_INVALID_VALUE:
+               std::cout << "    The pointer to ALint is invalid.\n"; break;
+          case AL_INVALID_ENUM: //shouldn't occure, since AL_SOURCE STATE is valid
+               std::cout << "    Invalid parameter given.\n"; break;
+          case AL_INVALID_NAME: //shouldn't occur, if pFileList is not corrupt
+               std::cout << "    Invalid source name.\n"; break;
+          case AL_INVALID_OPERATION:
+               std::cout << "    There is no current context.\n"; break;
+          default:
+               std::cout << "    Unknown error occured. Error code: "
+                         <<error_state<<"\n."; break;
+        }//swi
+        return false;
+      }//if
+      else
+      { //no error so far
+        if (state == AL_PLAYING)
+        { //legal no-op
+          std::cout << "Sound::UnPause: Hint: File \""<<FileName<<"\"is already"
+                    << " playing. No need to UnPause.\n"; 
+          return true;
+        }
+        else if (state == AL_STOPPED || state == AL_INITIAL)
+        { //legal no-op
+          return true;
+        }
+        else
+        { //state is AL_PAUSED
+          alGetError();//clear error state
+          alSourcePlay(temp->sourceID);//resume to playing
+          error_state = alGetError();
+          if (error_state != AL_NO_ERROR)
+          {
+            //scheiﬂe war's :P
+            std::cout << "Sound::UnPause: ERROR: Couldn't unpause file \""
+                      << FileName << "\".\n";
+            switch (error_state)
+            {
+              case AL_INVALID_NAME: //shouldn't happen
+                   std::cout << "    The source name is invalid.\n"; break;
+              case AL_INVALID_OPERATION:
+                   std::cout << "    There is no current context.\n"; break;
+              default:
+                   std::cout << "    Unknown error occured. Error code: "
+                             <<error_state<<"\n."; break;
+            }//swi
+            return false;
+          }
+          return true;//luckily we managed to unpause
+        }//else
+      }//else
+    }//if
+    temp = temp->next;
+  }//while
+  std::cout << "Sound::UnPause: Hint: Could not resume \""<<FileName<<"\" to "
+            << "playing. There is no such file.\n";
+  return false;
+}
+
+//Stops a playing file; stopping an already stopped file is legal no-op
+bool Sound::Stop(std::string FileName)
+{
+  TBufSrcRecord * temp;
+  ALenum error_state;
+  
+  temp = pFileList;
+  while (temp!=NULL)
+  {
+    if (temp->FileName == FileName)
+    { //we found the appropriate file and it's source
+      alGetError();//clear error state
+      alSourceStop(temp->sourceID);
+      error_state = alGetError();
+      if (error_state != AL_NO_ERROR)
+      {
+        std::cout << "Sound::Stop: ERROR while trying to stop file.\n";
+        switch (error_state)
+        {
+          case AL_INVALID_NAME:
+               std::cout << "    The specified source name is not valid.\n";
+               break;
+          case AL_INVALID_OPERATION:
+               std::cout << "    There is no current context.\n"; break;
+          default:
+               std::cout << "    Unknown error occured. Error code: "
+                         <<error_state<<"\n."; break;
+        }//swi
+        return false; //shit happens, source was not stopped
+      }//if
+      else
+      { //no error occured
+        return true; //what we want :)
+      }      
+    }//if
+    temp = temp->next;
+  }//while
+  std::cout << "Sound::Stop: Hint: Could not stop \""<<FileName<<"\". There "
+            << "is no such file.\n";
+  return false;
+}
+
+//Frees all buffers of a file - if present.
+//  freeing a not buffered file is a legal no-op, but should result in false
+bool Sound::FreeFileResources(std::string FileName)
+{
+  TBufSrcRecord * temp;
+  TBufSrcRecord * temp2;
+  ALenum error_state;
+  
+  if (pFileList == NULL)
+  {
+    std::cout << "Sound::FreeFileResources: Hint: Couldn't free resources for "
+              << "file \""<<FileName<<"\". There are no resources.\n";
+    return false;
+  }
+  if (pFileList->FileName == FileName)
+  { //first entry is to be removed
+    alSourceStop(pFileList->sourceID);
+    alSourceUnqueueBuffers(pFileList->sourceID, pFileList->num_buffers,
+                           pFileList->buffers);
+    alDeleteBuffers(pFileList->num_buffers, pFileList->buffers);
+    temp = pFileList;
+    pFileList = pFileList->next;
+    delete temp;
+    return true;
+  }
+  temp = pFileList;
+  while (temp->next != NULL)
+  {
+    //here needs work to be done
+    if (temp->next->FileName == FileName)
+    {
+      alSourceStop(temp->next->sourceID);
+      alSourceUnqueueBuffers(temp->next->sourceID, temp->next->num_buffers,
+                             temp->next->buffers);
+      alDeleteBuffers(temp->next->num_buffers, temp->next->buffers);
+      temp2 = temp->next;
+      temp->next = temp->next->next;
+      delete temp2;
+      return true;
+    }
+    temp = temp->next;
+  }
+  std::cout << "Sound::FreeFileResources: Hint: Couldn't free resources for \""
+            << FileName << "\". There are no resources for such a file.\n";
   return false;
 }
 

@@ -60,6 +60,10 @@ class Sound
     bool Exit();//deinitializes OpenAL
     bool Play(std::string FileName);
     bool IsPlaying(std::string FileName);
+    bool Pause(std::string FileName);
+    bool UnPause(std::string FileName);
+    bool Stop(std::string FileName);
+    bool FreeFileResources(std::string FileName);//should possibly be private?
     static Sound& get();
   protected:
 
