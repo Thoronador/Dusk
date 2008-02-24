@@ -101,6 +101,8 @@
 		<Unit filename="Command.h" />
 		<Unit filename="CommandCreateObject.cpp" />
 		<Unit filename="CommandCreateObject.h" />
+		<Unit filename="CommandPlaySound.cpp" />
+		<Unit filename="CommandPlaySound.h" />
 		<Unit filename="CommandQuit.cpp" />
 		<Unit filename="CommandQuit.h" />
 		<Unit filename="Console.cpp" />
