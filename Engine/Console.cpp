@@ -60,7 +60,7 @@ int Console::processScripts (int maxEntries)
 
 int Console::executeCommand(std::string p_string)
 {
-    std::vector< std::string> command;
+    std::vector<std::string> command;
     std::string::iterator iter;
     std::string tmp;
     Command* com = NULL;
@@ -132,7 +132,8 @@ int Console::executeCommand(std::string p_string)
         {
             if(command.size()< 2)
             {
-                std::cout<<"No Params Error"<<std::endl;
+                std::cout<<"Console::executeCommand: Error: No file parameter "
+                         <<"for PlaySound."<<std::endl;
             }
             else
             {
@@ -140,9 +141,61 @@ int Console::executeCommand(std::string p_string)
                 m_Dispatcher->executeCommand(com);
             }
         }
+        else if (command[0] == "PauseSound")
+        {
+            if(command.size()< 2)
+            {
+                std::cout<<"Console::executeCommand: Error: No file parameter "
+                         <<"for PauseSound."<<std::endl;
+            }
+            else
+            {
+                com  = new CommandPauseSound(command[1]);
+                m_Dispatcher->executeCommand(com);
+            }
+        }
+        else if (command[0] == "StopSound")
+        {
+            if(command.size()< 2)
+            {
+                std::cout<<"Console::executeCommand: Error: No file parameter "
+                         <<"for StopSound."<<std::endl;
+            }
+            else
+            {
+                com  = new CommandStopSound(command[1]);
+                m_Dispatcher->executeCommand(com);
+            }
+        }
+        else if (command[0] == "UnPauseSound" || command[0] == "ResumeSound")
+        {
+            if(command.size()< 2)
+            {
+                std::cout<<"Console::executeCommand: Error: No file parameter "
+                         <<"for UnPauseSound."<<std::endl;
+            }
+            else
+            {
+                com  = new CommandUnPauseSound(command[1]);
+                m_Dispatcher->executeCommand(com);
+            }
+        }
+        else if (command[0] == "ReplaySound")
+        {
+            if(command.size()< 2)
+            {
+                std::cout<<"Console::executeCommand: Error: No file parameter "
+                         <<"for ReplaySound."<<std::endl;
+            }
+            else
+            {
+                com  = new CommandReplaySound(command[1]);
+                m_Dispatcher->executeCommand(com);
+            }
+        }
         else
         {
-            std::cout << "Parser error" << std::endl;
+            std::cout << "Console::executeCommand: Parser error." << std::endl;
         }
     }
     if(com) delete com;
