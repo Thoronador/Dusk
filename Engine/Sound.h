@@ -63,6 +63,7 @@ class Sound
     bool Pause(std::string FileName);
     bool UnPause(std::string FileName);
     bool Stop(std::string FileName);
+    bool Replay(std::string FileName);
     bool FreeFileResources(std::string FileName);//should possibly be private?
     static Sound& get();
   protected:

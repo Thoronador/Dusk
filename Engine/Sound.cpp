@@ -550,25 +550,25 @@ bool Sound::Init(std::string PathToLibrary)
   #endif
   if (alSourcePlayv == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetSourcePlayv\" address.\n";
+    std::cout << "Sound::Init: ERROR: Could not retrieve \"alSourcePlayv\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alSourceStopv == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetSourceStopv\" address.\n";
+    std::cout << "Sound::Init: ERROR: Could not retrieve \"alSourceStopv\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alSourceRewindv == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetSourceRewindv\" address.\n";
+    std::cout << "Sound::Init: ERROR: Could not retrieve \"alSourceRewindv\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alSourcePausev == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetSourcePausev\" address.\n";
+    std::cout << "Sound::Init: ERROR: Could not retrieve \"alSourcePausev\" address.\n";
     InitInProgress = false;
     return false;
   }
@@ -587,25 +587,25 @@ bool Sound::Init(std::string PathToLibrary)
   #endif
   if (alSourcePlay == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetSourcePlay\" address.\n";
+    std::cout << "Sound::Init: ERROR: Could not retrieve \"alSourcePlay\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alSourceStop == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetSourceStop\" address.\n";
+    std::cout << "Sound::Init: ERROR: Could not retrieve \"alSourceStop\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alSourceRewind == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetSourceRewind\" address.\n";
+    std::cout << "Sound::Init: ERROR: Could not retrieve \"alSourceRewind\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alSourcePause == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetSourcePause\" address.\n";
+    std::cout << "Sound::Init: ERROR: Could not retrieve \"alSourcePause\" address.\n";
     InitInProgress = false;
     return false;
   }
@@ -923,7 +923,12 @@ bool Sound::Play(std::string FileName)
   {
     return PlayOgg(FileName);
   }
-  else return false;
+  else
+  {
+    std::cout << "Sound::Play: Error: File \""<<FileName<<"\" does not seem to "
+              << "be a Wave or a Ogg-Vorbis file. File cannot be played.\n";
+    return false;
+  }
 }
 
 bool Sound::PlayWAV(std::string WAV_FileName)
@@ -1286,6 +1291,19 @@ bool Sound::IsPlaying(std::string FileName)
 //     result in false and a warning/hint
 bool Sound::Pause(std::string FileName)
 {
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::Pause: Warning: OpenAL is not initialized, thus we can"
+              << " not have a playing file to pause yet.\n";
+    return false;
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::Pause: ERROR: (De-)Initialization of OpenAL is in "
+              << "progress, thus we cannot pause a file here.\n";
+    return false;
+  }
+  
   TBufSrcRecord * temp;
   ALenum error_state;
   
@@ -1328,8 +1346,21 @@ bool Sound::Pause(std::string FileName)
 //Resumes a previously; unpausing a playing or stopped file is legal no-op
 bool Sound::UnPause(std::string FileName)
 {
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::UnPause: Warning: OpenAL is not initialized, thus we "
+              << "can not have a paused file to resume to playing yet.\n";
+    return false;
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::UnPause: ERROR: (De-)Initialization of OpenAL is in "
+              << "progress, thus we cannot resume a file to playing here.\n";
+    return false;
+  }
+  
   TBufSrcRecord * temp;
-  ALint state;
+  ALint source_state;
   ALenum error_state;
   
   temp = pFileList;
@@ -1338,7 +1369,7 @@ bool Sound::UnPause(std::string FileName)
     if (temp->FileName == FileName)
     { //we found the appropriate file
       alGetError();//clear error state
-      alGetSourcei(temp->sourceID, AL_SOURCE_STATE, &state);
+      alGetSourcei(temp->sourceID, AL_SOURCE_STATE, &source_state);
       error_state = alGetError();
       if (error_state != AL_NO_ERROR)
       {
@@ -1347,10 +1378,11 @@ bool Sound::UnPause(std::string FileName)
         {
           case AL_INVALID_VALUE:
                std::cout << "    The pointer to ALint is invalid.\n"; break;
-          case AL_INVALID_ENUM: //shouldn't occure, since AL_SOURCE STATE is valid
+          case AL_INVALID_ENUM://shouldn't occur, since AL_SOURCE STATE is valid
                std::cout << "    Invalid parameter given.\n"; break;
           case AL_INVALID_NAME: //shouldn't occur, if pFileList is not corrupt
-               std::cout << "    Invalid source name.\n"; break;
+               std::cout << "    Invalid source name("<< temp->sourceID
+                         <<").\n"; break;
           case AL_INVALID_OPERATION:
                std::cout << "    There is no current context.\n"; break;
           default:
@@ -1361,13 +1393,13 @@ bool Sound::UnPause(std::string FileName)
       }//if
       else
       { //no error so far
-        if (state == AL_PLAYING)
+        if (source_state == AL_PLAYING)
         { //legal no-op
           std::cout << "Sound::UnPause: Hint: File \""<<FileName<<"\"is already"
                     << " playing. No need to UnPause.\n"; 
           return true;
         }
-        else if (state == AL_STOPPED || state == AL_INITIAL)
+        else if (source_state == AL_STOPPED || source_state == AL_INITIAL)
         { //legal no-op
           return true;
         }
@@ -1378,13 +1410,13 @@ bool Sound::UnPause(std::string FileName)
           error_state = alGetError();
           if (error_state != AL_NO_ERROR)
           {
-            //scheiße war's :P
             std::cout << "Sound::UnPause: ERROR: Couldn't unpause file \""
                       << FileName << "\".\n";
             switch (error_state)
             {
               case AL_INVALID_NAME: //shouldn't happen
-                   std::cout << "    The source name is invalid.\n"; break;
+                   std::cout << "    The source name("<< temp->sourceID
+                             <<") is invalid.\n"; break;
               case AL_INVALID_OPERATION:
                    std::cout << "    There is no current context.\n"; break;
               default:
@@ -1407,6 +1439,19 @@ bool Sound::UnPause(std::string FileName)
 //Stops a playing file; stopping an already stopped file is legal no-op
 bool Sound::Stop(std::string FileName)
 {
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::Stop: Warning: OpenAL is not initialized, thus we can"
+              << " not have a playing file to stop yet.\n";
+    return false;
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::Stop: ERROR: (De-)Initialization of OpenAL is in "
+              << "progress, thus we cannot stop a file here.\n";
+    return false;
+  }
+     
   TBufSrcRecord * temp;
   ALenum error_state;
   
@@ -1446,6 +1491,109 @@ bool Sound::Stop(std::string FileName)
   return false;
 }
 
+//Rewinds a file and starts to play it again from the beginning
+bool Sound::Replay(std::string FileName)
+{
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::Replay: Warning: OpenAL is not initialized, thus we "
+              << "can not replay file yet.\n";
+    return false;
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::Replay: ERROR: (De-)Initialization of OpenAL is in "
+              << "progress, thus we cannot replay a file here.\n";
+    return false;
+  }
+  
+  TBufSrcRecord * temp;
+  ALenum error_state;
+  ALint source_state;
+  
+  temp = pFileList;
+  while (temp != NULL)
+  {
+    if (temp->FileName == FileName)
+    { //got it
+      alGetError(); //clear error state
+      alGetSourcei(temp->sourceID, AL_SOURCE_STATE, &source_state);
+      error_state = alGetError();
+      if (error_state != AL_NO_ERROR)
+      {
+        std::cout << "Sound::Replay: ERROR: Could not retrieve source state.\n";
+        switch(error_state)
+        {
+          case AL_INVALID_VALUE:
+               std::cout << "    The pointer to ALint is invalid.\n"; break;
+          case AL_INVALID_ENUM://shouldn't occur, since AL_SOURCE STATE is valid
+               std::cout << "    Invalid parameter given.\n"; break;
+          case AL_INVALID_NAME: //shouldn't occur, if pFileList is not corrupted
+               std::cout << "    Invalid source name("<< temp->sourceID
+                         <<").\n"; break;
+          case AL_INVALID_OPERATION:
+               std::cout << "    There is no current context.\n"; break;
+          default:
+               std::cout << "    Unknown error occured. Error code: "
+                         <<error_state<<"\n."; break;
+        }//swi
+        return false;
+      }//if
+      else
+      {
+        //we got the state, so go on
+        if (source_state != AL_INITIAL) //a AL_INITIAL source is already rewound
+        {
+          alGetError();
+          alSourceRewind(temp->sourceID);
+          error_state = alGetError();
+          if (error_state != AL_NO_ERROR)
+          {
+            std::cout << "Sound::Replay: ERROR: Could not rewind source.\n";
+            switch(error_state)
+            {
+              case AL_INVALID_OPERATION:
+                   std::cout << "    There is no current context.\n"; break;
+              case AL_INVALID_NAME: //shouldn't happen, if pFileList is not corrupted
+                   std::cout << "    Invalid source name(" << temp->sourceID
+                             << ").\n"; break;
+              default:
+                   std::cout << "    Unknown error. Error code: " << error_state
+                             << ".\n"; break;
+            }//swi
+            return false;
+          }//if
+        }//if
+        //source state is now AL_INITIAL
+        alGetError();
+        alSourcePlay(temp->sourceID);
+        error_state = alGetError();
+        if (error_state != AL_NO_ERROR)
+        {
+          std::cout << "Sound::Replay: ERROR: Could not play source.\n";
+          switch(error_state)
+          {
+            case AL_INVALID_OPERATION:
+                 std::cout << "    There is no current context.\n"; break;
+            case AL_INVALID_NAME:
+                 std::cout << "    Invalid source name(" << temp->sourceID
+                           << ").\n"; break;
+            default:
+                 std::cout << "    Unknown error. Error code: " << error_state
+                           << ".\n"; break;
+          }//swi
+          return false;
+        }//if
+        return true;
+      }//else
+    }//if
+    temp = temp->next;
+  }//while
+  std::cout << "Sound::Replay: Hint: Could not replay \""<<FileName<<"\". There"
+            << " is no such file.\n";
+  return false;
+}
+
 //Frees all buffers of a file - if present.
 //  freeing a not buffered file is a legal no-op, but should result in false
 bool Sound::FreeFileResources(std::string FileName)
@@ -1457,7 +1605,7 @@ bool Sound::FreeFileResources(std::string FileName)
   if (pFileList == NULL)
   {
     std::cout << "Sound::FreeFileResources: Hint: Couldn't free resources for "
-              << "file \""<<FileName<<"\". There are no resources.\n";
+              << "file \""<<FileName<<"\". There are no resources at all.\n";
     return false;
   }
   if (pFileList->FileName == FileName)
