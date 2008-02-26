@@ -8,7 +8,8 @@ Sound::Sound()
   pContext = NULL;
   AL_Ready = false;
   InitInProgress = false;
-  libHandle = NULL;
+  libHandleAL = NULL;
+  libHandleOV = NULL;
   pFileList = NULL;
   //init function pointers
   AllFuncPointersToNULL();
@@ -51,12 +52,12 @@ bool Sound::Init(std::string PathToLibrary)
   }
   #if defined(_WIN32)
   //Windows
-  libHandle = LoadLibrary(PathToLibrary.c_str());
+  libHandleAL = LoadLibrary(PathToLibrary.c_str());
   #else
   //Linux goes here
-  libHandle = dlopen(PathToLibrary.c_str(), RTLD_LOCAL | RTLD_LAZY);
+  libHandleAL = dlopen(PathToLibrary.c_str(), RTLD_LOCAL | RTLD_LAZY);
   #endif
-  if (libHandle == NULL)
+  if (libHandleAL == NULL)
   {
     std::cout << "Sound::Init: ERROR: Could not open library in \""
               << PathToLibrary << "\". Exiting.";
@@ -66,22 +67,22 @@ bool Sound::Init(std::string PathToLibrary)
 
   #if defined(_WIN32)
   //Windows
-  alcCreateContext = (LPALCCREATECONTEXT)GetProcAddress(libHandle, "alcCreateContext");
-  alcMakeContextCurrent = (LPALCMAKECONTEXTCURRENT) GetProcAddress(libHandle, "alcMakeContextCurrent");
-  alcProcessContext = (LPALCPROCESSCONTEXT) GetProcAddress(libHandle, "alcProcessContext");
-  alcSuspendContext = (LPALCSUSPENDCONTEXT) GetProcAddress(libHandle, "alcSuspendContext");
-  alcDestroyContext = (LPALCDESTROYCONTEXT) GetProcAddress(libHandle, "alcDestroyContext");
-  alcGetCurrentContext = (LPALCGETCURRENTCONTEXT) GetProcAddress(libHandle, "alcGetCurrentContext");
-  alcGetContextsDevice = (LPALCGETCONTEXTSDEVICE) GetProcAddress(libHandle, "alcFetContextsDevice");
+  alcCreateContext = (LPALCCREATECONTEXT)GetProcAddress(libHandleAL, "alcCreateContext");
+  alcMakeContextCurrent = (LPALCMAKECONTEXTCURRENT) GetProcAddress(libHandleAL, "alcMakeContextCurrent");
+  alcProcessContext = (LPALCPROCESSCONTEXT) GetProcAddress(libHandleAL, "alcProcessContext");
+  alcSuspendContext = (LPALCSUSPENDCONTEXT) GetProcAddress(libHandleAL, "alcSuspendContext");
+  alcDestroyContext = (LPALCDESTROYCONTEXT) GetProcAddress(libHandleAL, "alcDestroyContext");
+  alcGetCurrentContext = (LPALCGETCURRENTCONTEXT) GetProcAddress(libHandleAL, "alcGetCurrentContext");
+  alcGetContextsDevice = (LPALCGETCONTEXTSDEVICE) GetProcAddress(libHandleAL, "alcFetContextsDevice");
   #else
   //Linux
-  alcCreateContext = (LPALCCREATECONTEXT) dlsym(libHandle, "alcCreateContext");
-  alcMakeContextCurrent = (LPALCMAKECONTEXTCURRENT) dlsym(libHandle, "alcMakeContextCurrent");
-  alcProcessContext = (LPALCPROCESSCONTEXT) dlsym(libHandle, "alcProcessContext");
-  alcSuspendContext = (LPALCSUSPENDCONTEXT) dlsym(libHandle, "alcSuspendContext");
-  alcDestroyContext = (LPALCDESTROYCONTEXT) dlsym(libHandle, "alcDestroyContext");
-  alcGetCurrentContext = (LPALCGETCURRENTCONTEXT) dlsym(libHandle, "alcGetCurrentContext");
-  alcGetContextsDevice = (LPALCGETCONTEXTSDEVICE) dlsym(libHandle, "alcFetContextsDevice");
+  alcCreateContext = (LPALCCREATECONTEXT) dlsym(libHandleAL, "alcCreateContext");
+  alcMakeContextCurrent = (LPALCMAKECONTEXTCURRENT) dlsym(libHandleAL, "alcMakeContextCurrent");
+  alcProcessContext = (LPALCPROCESSCONTEXT) dlsym(libHandleAL, "alcProcessContext");
+  alcSuspendContext = (LPALCSUSPENDCONTEXT) dlsym(libHandleAL, "alcSuspendContext");
+  alcDestroyContext = (LPALCDESTROYCONTEXT) dlsym(libHandleAL, "alcDestroyContext");
+  alcGetCurrentContext = (LPALCGETCURRENTCONTEXT) dlsym(libHandleAL, "alcGetCurrentContext");
+  alcGetContextsDevice = (LPALCGETCONTEXTSDEVICE) dlsym(libHandleAL, "alcFetContextsDevice");
   #endif
   if (alcCreateContext == NULL)
   {
@@ -128,18 +129,18 @@ bool Sound::Init(std::string PathToLibrary)
 
   #if defined(_WIN32)
   //Windows
-  alcOpenDevice = (LPALCOPENDEVICE) GetProcAddress(libHandle, "alcOpenDevice");
-  alcCloseDevice = (LPALCCLOSEDEVICE) GetProcAddress(libHandle, "alcCloseDevice");
-  alcGetError = (LPALCGETERROR) GetProcAddress(libHandle, "alcGetError");
-  alcGetString = (LPALCGETSTRING) GetProcAddress(libHandle, "alcGetString");
-  alcGetIntegerv = (LPALCGETINTEGERV) GetProcAddress(libHandle, "alcGetIntegerv");
+  alcOpenDevice = (LPALCOPENDEVICE) GetProcAddress(libHandleAL, "alcOpenDevice");
+  alcCloseDevice = (LPALCCLOSEDEVICE) GetProcAddress(libHandleAL, "alcCloseDevice");
+  alcGetError = (LPALCGETERROR) GetProcAddress(libHandleAL, "alcGetError");
+  alcGetString = (LPALCGETSTRING) GetProcAddress(libHandleAL, "alcGetString");
+  alcGetIntegerv = (LPALCGETINTEGERV) GetProcAddress(libHandleAL, "alcGetIntegerv");
   #else
   //Linux
-  alcOpenDevice = (LPALCOPENDEVICE) dlsym(libHandle, "alcOpenDevice");
-  alcCloseDevice = (LPALCCLOSEDEVICE) dlsym(libHandle, "alcCloseDevice");
-  alcGetError = (LPALCGETERROR) dlsym(libHandle, "alcGetError");
-  alcGetString = (LPALCGETSTRING) dlsym(libHandle, "alcGetString");
-  alcGetIntegerv = (LPALCGETINTEGERV) dlsym(libHandle, "alcGetIntegerv");
+  alcOpenDevice = (LPALCOPENDEVICE) dlsym(libHandleAL, "alcOpenDevice");
+  alcCloseDevice = (LPALCCLOSEDEVICE) dlsym(libHandleAL, "alcCloseDevice");
+  alcGetError = (LPALCGETERROR) dlsym(libHandleAL, "alcGetError");
+  alcGetString = (LPALCGETSTRING) dlsym(libHandleAL, "alcGetString");
+  alcGetIntegerv = (LPALCGETINTEGERV) dlsym(libHandleAL, "alcGetIntegerv");
   #endif
 
   if (alcOpenDevice == NULL)
@@ -175,14 +176,14 @@ bool Sound::Init(std::string PathToLibrary)
   //al.h-function pointers
   #if defined(_WIN32)
   //Windows
-  alEnable = (LPALENABLE) GetProcAddress(libHandle, "alEnable");
-  alDisable = (LPALDISABLE) GetProcAddress(libHandle, "alDisable");
-  alIsEnabled = (LPALISENABLED) GetProcAddress(libHandle, "alIsEnabled");
+  alEnable = (LPALENABLE) GetProcAddress(libHandleAL, "alEnable");
+  alDisable = (LPALDISABLE) GetProcAddress(libHandleAL, "alDisable");
+  alIsEnabled = (LPALISENABLED) GetProcAddress(libHandleAL, "alIsEnabled");
   #else
   //Linux
-  alEnable = (LPALENABLE) dlsym(libHandle, "alEnable");
-  alDisable = (LPALDISABLE) dlsym(libHandle, "alDisable");
-  alIsEnabled = (LPALISENABLED) dlsym(libHandle, "alIsEnabled");
+  alEnable = (LPALENABLE) dlsym(libHandleAL, "alEnable");
+  alDisable = (LPALDISABLE) dlsym(libHandleAL, "alDisable");
+  alIsEnabled = (LPALISENABLED) dlsym(libHandleAL, "alIsEnabled");
   #endif
   if (alEnable == NULL)
   {
@@ -204,26 +205,26 @@ bool Sound::Init(std::string PathToLibrary)
   }
   #if defined(_WIN32)
   //Windows
-  alGetString = (LPALGETSTRING) GetProcAddress(libHandle, "alGetString");
-  alGetBooleanv = (LPALGETBOOLEANV) GetProcAddress(libHandle, "alGetBooleanv");
-  alGetIntegerv = (LPALGETINTEGERV) GetProcAddress(libHandle, "alGetIntegerv");
-  alGetFloatv = (LPALGETFLOATV) GetProcAddress(libHandle, "alGetFloatv");
-  alGetDoublev = (LPALGETDOUBLEV) GetProcAddress(libHandle, "alGetDoublev");
-  alGetBoolean = (LPALGETBOOLEAN) GetProcAddress(libHandle, "alGetBoolean");
-  alGetInteger = (LPALGETINTEGER) GetProcAddress(libHandle, "alGetInteger");
-  alGetFloat = (LPALGETFLOAT) GetProcAddress(libHandle, "alGetFloat");
-  alGetDouble = (LPALGETDOUBLE) GetProcAddress(libHandle, "alGetDouble");
+  alGetString = (LPALGETSTRING) GetProcAddress(libHandleAL, "alGetString");
+  alGetBooleanv = (LPALGETBOOLEANV) GetProcAddress(libHandleAL, "alGetBooleanv");
+  alGetIntegerv = (LPALGETINTEGERV) GetProcAddress(libHandleAL, "alGetIntegerv");
+  alGetFloatv = (LPALGETFLOATV) GetProcAddress(libHandleAL, "alGetFloatv");
+  alGetDoublev = (LPALGETDOUBLEV) GetProcAddress(libHandleAL, "alGetDoublev");
+  alGetBoolean = (LPALGETBOOLEAN) GetProcAddress(libHandleAL, "alGetBoolean");
+  alGetInteger = (LPALGETINTEGER) GetProcAddress(libHandleAL, "alGetInteger");
+  alGetFloat = (LPALGETFLOAT) GetProcAddress(libHandleAL, "alGetFloat");
+  alGetDouble = (LPALGETDOUBLE) GetProcAddress(libHandleAL, "alGetDouble");
   #else
   //Linux
-  alGetString = (LPALGETSTRING) dlsym(libHandle, "alGetString");
-  alGetBooleanv = (LPALGETBOOLEANV) dlsym(libHandle, "alGetBooleanv");
-  alGetIntegerv = (LPALGETINTEGERV) dlsym(libHandle, "alGetIntegerv");
-  alGetFloatv = (LPALGETFLOATV) dlsym(libHandle, "alGetFloatv");
-  alGetDoublev = (LPALGETDOUBLEV) dlsym(libHandle, "alGetDoublev");
-  alGetBoolean = (LPALGETBOOLEAN) dlsym(libHandle, "alGetBoolean");
-  alGetInteger = (LPALGETINTEGER) dlsym(libHandle, "alGetInteger");
-  alGetFloat = (LPALGETFLOAT) dlsym(libHandle, "alGetFloat");
-  alGetDouble = (LPALGETDOUBLE) dlsym(libHandle, "alGetDouble");
+  alGetString = (LPALGETSTRING) dlsym(libHandleAL, "alGetString");
+  alGetBooleanv = (LPALGETBOOLEANV) dlsym(libHandleAL, "alGetBooleanv");
+  alGetIntegerv = (LPALGETINTEGERV) dlsym(libHandleAL, "alGetIntegerv");
+  alGetFloatv = (LPALGETFLOATV) dlsym(libHandleAL, "alGetFloatv");
+  alGetDoublev = (LPALGETDOUBLEV) dlsym(libHandleAL, "alGetDoublev");
+  alGetBoolean = (LPALGETBOOLEAN) dlsym(libHandleAL, "alGetBoolean");
+  alGetInteger = (LPALGETINTEGER) dlsym(libHandleAL, "alGetInteger");
+  alGetFloat = (LPALGETFLOAT) dlsym(libHandleAL, "alGetFloat");
+  alGetDouble = (LPALGETDOUBLE) dlsym(libHandleAL, "alGetDouble");
   #endif
   if (alGetString == NULL)
   {
@@ -281,10 +282,10 @@ bool Sound::Init(std::string PathToLibrary)
   }
   #if defined(_WIN32)
   //Windows
-  alGetError = (LPALGETERROR) GetProcAddress(libHandle, "alGetError");
+  alGetError = (LPALGETERROR) GetProcAddress(libHandleAL, "alGetError");
   #else
   //Linux
-  alGetError = (LPALGETERROR) dlsym(libHandle, "alGetError");
+  alGetError = (LPALGETERROR) dlsym(libHandleAL, "alGetError");
   #endif
   if (alGetError == NULL)
   {
@@ -294,20 +295,20 @@ bool Sound::Init(std::string PathToLibrary)
   }
   #if defined(_WIN32)
   //Windows
-  alListenerf = (LPALLISTENERF) GetProcAddress(libHandle, "alListenerf");
-  alListener3f = (LPALLISTENER3F) GetProcAddress(libHandle, "alListener3f");
-  alListenerfv = (LPALLISTENERFV) GetProcAddress(libHandle, "alListenerfv");
-  alListeneri = (LPALLISTENERI) GetProcAddress(libHandle, "alListeneri");
-  alListener3i = (LPALLISTENER3I) GetProcAddress(libHandle, "alListener3i");
-  alListeneriv = (LPALLISTENERIV) GetProcAddress(libHandle, "alListeneriv");
+  alListenerf = (LPALLISTENERF) GetProcAddress(libHandleAL, "alListenerf");
+  alListener3f = (LPALLISTENER3F) GetProcAddress(libHandleAL, "alListener3f");
+  alListenerfv = (LPALLISTENERFV) GetProcAddress(libHandleAL, "alListenerfv");
+  alListeneri = (LPALLISTENERI) GetProcAddress(libHandleAL, "alListeneri");
+  alListener3i = (LPALLISTENER3I) GetProcAddress(libHandleAL, "alListener3i");
+  alListeneriv = (LPALLISTENERIV) GetProcAddress(libHandleAL, "alListeneriv");
   #else
   //Linux
-  alListenerf = (LPALLISTENERF) dlsym(libHandle, "alListenerf");
-  alListener3f = (LPALLISTENER3F) dlsym(libHandle, "alListener3f");
-  alListenerfv = (LPALLISTENERFV) dlsym(libHandle, "alListenerfv");
-  alListeneri = (LPALLISTENERI) dlsym(libHandle, "alListeneri");
-  alListener3i = (LPALLISTENER3I) dlsym(libHandle, "alListener3i");
-  alListeneriv = (LPALLISTENERIV) dlsym(libHandle, "alListeneriv");
+  alListenerf = (LPALLISTENERF) dlsym(libHandleAL, "alListenerf");
+  alListener3f = (LPALLISTENER3F) dlsym(libHandleAL, "alListener3f");
+  alListenerfv = (LPALLISTENERFV) dlsym(libHandleAL, "alListenerfv");
+  alListeneri = (LPALLISTENERI) dlsym(libHandleAL, "alListeneri");
+  alListener3i = (LPALLISTENER3I) dlsym(libHandleAL, "alListener3i");
+  alListeneriv = (LPALLISTENERIV) dlsym(libHandleAL, "alListeneriv");
   #endif
   if (alListenerf == NULL)
   {
@@ -347,20 +348,20 @@ bool Sound::Init(std::string PathToLibrary)
   }
   #if defined(_WIN32)
   //Windows
-  alGetListenerf = (LPALGETLISTENERF) GetProcAddress(libHandle, "alGetListenerf");
-  alGetListener3f = (LPALGETLISTENER3F) GetProcAddress(libHandle, "alGetListener3f");
-  alGetListenerfv = (LPALGETLISTENERFV) GetProcAddress(libHandle, "alGetListenerfv");
-  alGetListeneri = (LPALGETLISTENERI) GetProcAddress(libHandle, "alGetListeneri");
-  alGetListener3i = (LPALGETLISTENER3I) GetProcAddress(libHandle, "alGetListener3i");
-  alGetListeneriv = (LPALGETLISTENERIV) GetProcAddress(libHandle, "alGetListeneriv");
+  alGetListenerf = (LPALGETLISTENERF) GetProcAddress(libHandleAL, "alGetListenerf");
+  alGetListener3f = (LPALGETLISTENER3F) GetProcAddress(libHandleAL, "alGetListener3f");
+  alGetListenerfv = (LPALGETLISTENERFV) GetProcAddress(libHandleAL, "alGetListenerfv");
+  alGetListeneri = (LPALGETLISTENERI) GetProcAddress(libHandleAL, "alGetListeneri");
+  alGetListener3i = (LPALGETLISTENER3I) GetProcAddress(libHandleAL, "alGetListener3i");
+  alGetListeneriv = (LPALGETLISTENERIV) GetProcAddress(libHandleAL, "alGetListeneriv");
   #else
   //Linux
-  alGetListenerf = (LPALGETLISTENERF) dlsym(libHandle, "alGetListenerf");
-  alGetListener3f = (LPALGETLISTENER3F) dlsym(libHandle, "alGetListener3f");
-  alGetListenerfv = (LPALGETLISTENERFV) dlsym(libHandle, "alGetListenerfv");
-  alGetListeneri = (LPALGETLISTENERI) dlsym(libHandle, "alGetListeneri");
-  alGetListener3i = (LPALGETLISTENER3I) dlsym(libHandle, "alGetListener3i");
-  alGetListeneriv = (LPALGETLISTENERIV) dlsym(libHandle, "alGetListeneriv");
+  alGetListenerf = (LPALGETLISTENERF) dlsym(libHandleAL, "alGetListenerf");
+  alGetListener3f = (LPALGETLISTENER3F) dlsym(libHandleAL, "alGetListener3f");
+  alGetListenerfv = (LPALGETLISTENERFV) dlsym(libHandleAL, "alGetListenerfv");
+  alGetListeneri = (LPALGETLISTENERI) dlsym(libHandleAL, "alGetListeneri");
+  alGetListener3i = (LPALGETLISTENER3I) dlsym(libHandleAL, "alGetListener3i");
+  alGetListeneriv = (LPALGETLISTENERIV) dlsym(libHandleAL, "alGetListeneriv");
   #endif
   if (alGetListenerf == NULL)
   {
@@ -401,14 +402,14 @@ bool Sound::Init(std::string PathToLibrary)
 
   #if defined(_WIN32)
   //Windows
-  alGenSources = (LPALGENSOURCES) GetProcAddress(libHandle, "alGenSources");
-  alDeleteSources = (LPALDELETESOURCES) GetProcAddress(libHandle, "alDeleteSources");
-  alIsSource = (LPALISSOURCE) GetProcAddress(libHandle, "alIsSource");
+  alGenSources = (LPALGENSOURCES) GetProcAddress(libHandleAL, "alGenSources");
+  alDeleteSources = (LPALDELETESOURCES) GetProcAddress(libHandleAL, "alDeleteSources");
+  alIsSource = (LPALISSOURCE) GetProcAddress(libHandleAL, "alIsSource");
   #else
   //Linux
-  alGenSources = (LPALGENSOURCES) dlsym(libHandle, "alGenSources");
-  alDeleteSources = (LPALDELETESOURCES) dlsym(libHandle, "alDeleteSources");
-  alIsSource = (LPALISSOURCE) dlsym(libHandle, "alIsSource");
+  alGenSources = (LPALGENSOURCES) dlsym(libHandleAL, "alGenSources");
+  alDeleteSources = (LPALDELETESOURCES) dlsym(libHandleAL, "alDeleteSources");
+  alIsSource = (LPALISSOURCE) dlsym(libHandleAL, "alIsSource");
   #endif
   if (alGenSources == NULL)
   {
@@ -430,20 +431,20 @@ bool Sound::Init(std::string PathToLibrary)
   }
   #if defined(_WIN32)
   //Windows
-  alSourcef = (LPALSOURCEF) GetProcAddress(libHandle, "alSourcef");
-  alSource3f = (LPALSOURCE3F) GetProcAddress(libHandle, "alSource3f");
-  alSourcefv = (LPALSOURCEFV) GetProcAddress(libHandle, "alSourcefv");
-  alSourcei = (LPALSOURCEI) GetProcAddress(libHandle, "alSourcei");
-  alSource3i = (LPALSOURCE3I) GetProcAddress(libHandle, "alSource3i");
-  alSourceiv = (LPALSOURCEIV) GetProcAddress(libHandle, "alSourceiv");
+  alSourcef = (LPALSOURCEF) GetProcAddress(libHandleAL, "alSourcef");
+  alSource3f = (LPALSOURCE3F) GetProcAddress(libHandleAL, "alSource3f");
+  alSourcefv = (LPALSOURCEFV) GetProcAddress(libHandleAL, "alSourcefv");
+  alSourcei = (LPALSOURCEI) GetProcAddress(libHandleAL, "alSourcei");
+  alSource3i = (LPALSOURCE3I) GetProcAddress(libHandleAL, "alSource3i");
+  alSourceiv = (LPALSOURCEIV) GetProcAddress(libHandleAL, "alSourceiv");
   #else
   //Linux
-  alSourcef = (LPALSOURCEF) dlsym(libHandle, "alSourcef");
-  alSource3f = (LPALSOURCE3F) dlsym(libHandle, "alSource3f");
-  alSourcefv = (LPALSOURCEFV) dlsym(libHandle, "alSourcefv");
-  alSourcei = (LPALSOURCEI) dlsym(libHandle, "alSourcei");
-  alSource3i = (LPALSOURCE3I) dlsym(libHandle, "alSource3i");
-  alSourceiv = (LPALSOURCEIV) dlsym(libHandle, "alSourceiv");
+  alSourcef = (LPALSOURCEF) dlsym(libHandleAL, "alSourcef");
+  alSource3f = (LPALSOURCE3F) dlsym(libHandleAL, "alSource3f");
+  alSourcefv = (LPALSOURCEFV) dlsym(libHandleAL, "alSourcefv");
+  alSourcei = (LPALSOURCEI) dlsym(libHandleAL, "alSourcei");
+  alSource3i = (LPALSOURCE3I) dlsym(libHandleAL, "alSource3i");
+  alSourceiv = (LPALSOURCEIV) dlsym(libHandleAL, "alSourceiv");
   #endif
   if (alSourcef == NULL)
   {
@@ -483,20 +484,20 @@ bool Sound::Init(std::string PathToLibrary)
   }
   #if defined(_WIN32)
   //Windows
-  alGetSourcef = (LPALGETSOURCEF) GetProcAddress(libHandle, "alGetSourcef");
-  alGetSource3f = (LPALGETSOURCE3F) GetProcAddress(libHandle, "alGetSource3f");
-  alGetSourcefv = (LPALGETSOURCEFV) GetProcAddress(libHandle, "alGetSourcefv");
-  alGetSourcei = (LPALGETSOURCEI) GetProcAddress(libHandle, "alGetSourcei");
-  alGetSource3i = (LPALGETSOURCE3I) GetProcAddress(libHandle, "alGetSource3i");
-  alGetSourceiv = (LPALGETSOURCEIV) GetProcAddress(libHandle, "alGetSourceiv");
+  alGetSourcef = (LPALGETSOURCEF) GetProcAddress(libHandleAL, "alGetSourcef");
+  alGetSource3f = (LPALGETSOURCE3F) GetProcAddress(libHandleAL, "alGetSource3f");
+  alGetSourcefv = (LPALGETSOURCEFV) GetProcAddress(libHandleAL, "alGetSourcefv");
+  alGetSourcei = (LPALGETSOURCEI) GetProcAddress(libHandleAL, "alGetSourcei");
+  alGetSource3i = (LPALGETSOURCE3I) GetProcAddress(libHandleAL, "alGetSource3i");
+  alGetSourceiv = (LPALGETSOURCEIV) GetProcAddress(libHandleAL, "alGetSourceiv");
   #else
   //Linux
-  alGetSourcef = (LPALGETSOURCEF) dlsym(libHandle, "alGetSourcef");
-  alGetSource3f = (LPALGETSOURCE3F) dlsym(libHandle, "alGetSource3f");
-  alGetSourcefv = (LPALGETSOURCEFV) dlsym(libHandle, "alGetSourcefv");
-  alGetSourcei = (LPALGETSOURCEI) dlsym(libHandle, "alGetSourcei");
-  alGetSource3i = (LPALGETSOURCE3I) dlsym(libHandle, "alGetSource3i");
-  alGetSourceiv = (LPALGETSOURCEIV) dlsym(libHandle, "alGetSourceiv");
+  alGetSourcef = (LPALGETSOURCEF) dlsym(libHandleAL, "alGetSourcef");
+  alGetSource3f = (LPALGETSOURCE3F) dlsym(libHandleAL, "alGetSource3f");
+  alGetSourcefv = (LPALGETSOURCEFV) dlsym(libHandleAL, "alGetSourcefv");
+  alGetSourcei = (LPALGETSOURCEI) dlsym(libHandleAL, "alGetSourcei");
+  alGetSource3i = (LPALGETSOURCE3I) dlsym(libHandleAL, "alGetSource3i");
+  alGetSourceiv = (LPALGETSOURCEIV) dlsym(libHandleAL, "alGetSourceiv");
   #endif
   if (alGetSourcef == NULL)
   {
@@ -537,16 +538,16 @@ bool Sound::Init(std::string PathToLibrary)
 
   #if defined(_WIN32)
   //Windows
-  alSourcePlayv = (LPALSOURCEPLAYV) GetProcAddress(libHandle, "alSourcePlayv");
-  alSourceStopv = (LPALSOURCESTOPV) GetProcAddress(libHandle, "alSourceStopv");
-  alSourceRewindv = (LPALSOURCEREWINDV) GetProcAddress(libHandle, "alSourceRewindv");
-  alSourcePausev = (LPALSOURCEPAUSEV) GetProcAddress(libHandle, "alSourcePausev");
+  alSourcePlayv = (LPALSOURCEPLAYV) GetProcAddress(libHandleAL, "alSourcePlayv");
+  alSourceStopv = (LPALSOURCESTOPV) GetProcAddress(libHandleAL, "alSourceStopv");
+  alSourceRewindv = (LPALSOURCEREWINDV) GetProcAddress(libHandleAL, "alSourceRewindv");
+  alSourcePausev = (LPALSOURCEPAUSEV) GetProcAddress(libHandleAL, "alSourcePausev");
   #else
   //Linux
-  alSourcePlayv = (LPALSOURCEPLAYV) dlysm(libHandle, "alSourcePlayv");
-  alSourceStopv = (LPALSOURCESTOPV) dlysm(libHandle, "alSourceStopv");
-  alSourceRewindv = (LPALSOURCEREWINDV) dlysm(libHandle, "alSourceRewindv");
-  alSourcePausev = (LPALSOURCEPAUSEV) dlysm(libHandle, "alSourcePausev");
+  alSourcePlayv = (LPALSOURCEPLAYV) dlysm(libHandleAL, "alSourcePlayv");
+  alSourceStopv = (LPALSOURCESTOPV) dlysm(libHandleAL, "alSourceStopv");
+  alSourceRewindv = (LPALSOURCEREWINDV) dlysm(libHandleAL, "alSourceRewindv");
+  alSourcePausev = (LPALSOURCEPAUSEV) dlysm(libHandleAL, "alSourcePausev");
   #endif
   if (alSourcePlayv == NULL)
   {
@@ -574,16 +575,16 @@ bool Sound::Init(std::string PathToLibrary)
   }
   #if defined(_WIN32)
   //Windows
-  alSourcePlay = (LPALSOURCEPLAY) GetProcAddress(libHandle, "alSourcePlay");
-  alSourceStop = (LPALSOURCESTOP) GetProcAddress(libHandle, "alSourceStop");
-  alSourceRewind = (LPALSOURCEREWIND) GetProcAddress(libHandle, "alSourceRewind");
-  alSourcePause = (LPALSOURCEPAUSE) GetProcAddress(libHandle, "alSourcePause");
+  alSourcePlay = (LPALSOURCEPLAY) GetProcAddress(libHandleAL, "alSourcePlay");
+  alSourceStop = (LPALSOURCESTOP) GetProcAddress(libHandleAL, "alSourceStop");
+  alSourceRewind = (LPALSOURCEREWIND) GetProcAddress(libHandleAL, "alSourceRewind");
+  alSourcePause = (LPALSOURCEPAUSE) GetProcAddress(libHandleAL, "alSourcePause");
   #else
   //Linux
-  alSourcePlay = (LPALSOURCEPLAY) dlysm(libHandle, "alSourcePlay");
-  alSourceStop = (LPALSOURCESTOP) dlysm(libHandle, "alSourceStop");
-  alSourceRewind = (LPALSOURCEREWIND) dlysm(libHandle, "alSourceRewind");
-  alSourcePause = (LPALSOURCEPAUSE) dlysm(libHandle, "alSourcePause");
+  alSourcePlay = (LPALSOURCEPLAY) dlysm(libHandleAL, "alSourcePlay");
+  alSourceStop = (LPALSOURCESTOP) dlysm(libHandleAL, "alSourceStop");
+  alSourceRewind = (LPALSOURCEREWIND) dlysm(libHandleAL, "alSourceRewind");
+  alSourcePause = (LPALSOURCEPAUSE) dlysm(libHandleAL, "alSourcePause");
   #endif
   if (alSourcePlay == NULL)
   {
@@ -611,12 +612,12 @@ bool Sound::Init(std::string PathToLibrary)
   }
   #if defined(_WIN32)
   //Windows
-  alSourceQueueBuffers = (LPALSOURCEQUEUEBUFFERS) GetProcAddress(libHandle, "alSourceQueueBuffers");
-  alSourceUnqueueBuffers = (LPALSOURCEUNQUEUEBUFFERS) GetProcAddress(libHandle, "alSourceUnqueueBuffers");
+  alSourceQueueBuffers = (LPALSOURCEQUEUEBUFFERS) GetProcAddress(libHandleAL, "alSourceQueueBuffers");
+  alSourceUnqueueBuffers = (LPALSOURCEUNQUEUEBUFFERS) GetProcAddress(libHandleAL, "alSourceUnqueueBuffers");
   #else
   //Linux
-  alSourceQueueBuffers = (LPALSOURCEQUEUEBUFFERS) dlsym(libHandle, "alSourceQueueBuffers");
-  alSourceUnqueueBuffers = (LPALSOURCEUNQUEUEBUFFERS) dlsym(libHandle, "alSourceUnqueueBuffers");
+  alSourceQueueBuffers = (LPALSOURCEQUEUEBUFFERS) dlsym(libHandleAL, "alSourceQueueBuffers");
+  alSourceUnqueueBuffers = (LPALSOURCEUNQUEUEBUFFERS) dlsym(libHandleAL, "alSourceUnqueueBuffers");
   #endif
   if (alSourceQueueBuffers == NULL)
   {
@@ -633,16 +634,16 @@ bool Sound::Init(std::string PathToLibrary)
 
   #if defined(_WIN32)
   //Windows
-  alGenBuffers = (LPALGENBUFFERS) GetProcAddress(libHandle, "alGenBuffers");
-  alDeleteBuffers = (LPALDELETEBUFFERS) GetProcAddress(libHandle, "alDeleteBuffers");
-  alIsBuffer = (LPALISBUFFER) GetProcAddress(libHandle, "alIsBuffer");
-  alBufferData = (LPALBUFFERDATA) GetProcAddress(libHandle, "alBufferData");
+  alGenBuffers = (LPALGENBUFFERS) GetProcAddress(libHandleAL, "alGenBuffers");
+  alDeleteBuffers = (LPALDELETEBUFFERS) GetProcAddress(libHandleAL, "alDeleteBuffers");
+  alIsBuffer = (LPALISBUFFER) GetProcAddress(libHandleAL, "alIsBuffer");
+  alBufferData = (LPALBUFFERDATA) GetProcAddress(libHandleAL, "alBufferData");
   #else
   //Linux
-  alGenBuffers = (LPALGENBUFFERS) dlsym(libHandle, "alGenBuffers");
-  alDeleteBuffers = (LPALDELETEBUFFERS) dlsym(libHandle, "alDeleteBuffers");
-  alIsBuffer = (LPALISBUFFER) dlsym(libHandle, "alIsBuffer");
-  alBufferData = (LPBUFFERDATA) dlsym(libHandle, "alBufferData");
+  alGenBuffers = (LPALGENBUFFERS) dlsym(libHandleAL, "alGenBuffers");
+  alDeleteBuffers = (LPALDELETEBUFFERS) dlsym(libHandleAL, "alDeleteBuffers");
+  alIsBuffer = (LPALISBUFFER) dlsym(libHandleAL, "alIsBuffer");
+  alBufferData = (LPBUFFERDATA) dlsym(libHandleAL, "alBufferData");
   #endif
   if (alGenBuffers == NULL)
   {
@@ -670,20 +671,20 @@ bool Sound::Init(std::string PathToLibrary)
   }
   #if defined(_WIN32)
   //Windows
-  alBufferf = (LPALBUFFERF) GetProcAddress(libHandle, "alBufferf");
-  alBuffer3f = (LPALBUFFER3F) GetProcAddress(libHandle, "alBuffer3f");
-  alBufferfv = (LPALBUFFERFV) GetProcAddress(libHandle, "alBufferfv");
-  alBufferi = (LPALBUFFERI) GetProcAddress(libHandle, "alBufferi");
-  alBuffer3i = (LPALBUFFER3I) GetProcAddress(libHandle, "alBuffer3i");
-  alBufferiv = (LPALBUFFERIV) GetProcAddress(libHandle, "alBufferiv");
+  alBufferf = (LPALBUFFERF) GetProcAddress(libHandleAL, "alBufferf");
+  alBuffer3f = (LPALBUFFER3F) GetProcAddress(libHandleAL, "alBuffer3f");
+  alBufferfv = (LPALBUFFERFV) GetProcAddress(libHandleAL, "alBufferfv");
+  alBufferi = (LPALBUFFERI) GetProcAddress(libHandleAL, "alBufferi");
+  alBuffer3i = (LPALBUFFER3I) GetProcAddress(libHandleAL, "alBuffer3i");
+  alBufferiv = (LPALBUFFERIV) GetProcAddress(libHandleAL, "alBufferiv");
   #else
   //Linux
-  alBufferf = (LPALBUFFERF) dlsym(libHandle, "alBufferf");
-  alBuffer3f = (LPALBUFFER3F) dlsym(libHandle, "alBuffer3f");
-  alBufferfv = (LPALBUFFERFV) dlsym(libHandle, "alBufferfv");
-  alBufferi = (LPALBUFFERI) dlsym(libHandle, "alBufferi");
-  alBuffer3i = (LPALBUFFER3I) dlsym(libHandle, "alBuffer3i");
-  alBufferiv = (LPALBUFFERIV) dlsym(libHandle, "alBufferiv");
+  alBufferf = (LPALBUFFERF) dlsym(libHandleAL, "alBufferf");
+  alBuffer3f = (LPALBUFFER3F) dlsym(libHandleAL, "alBuffer3f");
+  alBufferfv = (LPALBUFFERFV) dlsym(libHandleAL, "alBufferfv");
+  alBufferi = (LPALBUFFERI) dlsym(libHandleAL, "alBufferi");
+  alBuffer3i = (LPALBUFFER3I) dlsym(libHandleAL, "alBuffer3i");
+  alBufferiv = (LPALBUFFERIV) dlsym(libHandleAL, "alBufferiv");
   #endif
   if (alBufferf == NULL)
   {
@@ -723,20 +724,20 @@ bool Sound::Init(std::string PathToLibrary)
   }
   #if defined(_WIN32)
   //Windows
-  alGetBufferf = (LPALGETBUFFERF) GetProcAddress(libHandle, "alGetBufferf");
-  alGetBuffer3f = (LPALGETBUFFER3F) GetProcAddress(libHandle, "alGetBuffer3f");
-  alGetBufferfv = (LPALGETBUFFERFV) GetProcAddress(libHandle, "alGetBufferfv");
-  alGetBufferi = (LPALGETBUFFERI) GetProcAddress(libHandle, "alGetBufferi");
-  alGetBuffer3i = (LPALGETBUFFER3I) GetProcAddress(libHandle, "alGetBuffer3i");
-  alGetBufferiv = (LPALGETBUFFERIV) GetProcAddress(libHandle, "alGetBufferiv");
+  alGetBufferf = (LPALGETBUFFERF) GetProcAddress(libHandleAL, "alGetBufferf");
+  alGetBuffer3f = (LPALGETBUFFER3F) GetProcAddress(libHandleAL, "alGetBuffer3f");
+  alGetBufferfv = (LPALGETBUFFERFV) GetProcAddress(libHandleAL, "alGetBufferfv");
+  alGetBufferi = (LPALGETBUFFERI) GetProcAddress(libHandleAL, "alGetBufferi");
+  alGetBuffer3i = (LPALGETBUFFER3I) GetProcAddress(libHandleAL, "alGetBuffer3i");
+  alGetBufferiv = (LPALGETBUFFERIV) GetProcAddress(libHandleAL, "alGetBufferiv");
   #else
   //Linux
-  alGetBufferf = (LPALGETBUFFERF) dlsym(libHandle, "alGetBufferf");
-  alGetBuffer3f = (LPALGETBUFFER3F) dlsym(libHandle, "alGetBuffer3f");
-  alGetBufferfv = (LPALGETBUFFERFV) dlsym(libHandle, "alGetBufferfv");
-  alGetBufferi = (LPALGETBUFFERI) dlsym(libHandle, "alGetBufferi");
-  alGetBuffer3i = (LPGETALBUFFER3I) dlsym(libHandle, "alGetBuffer3i");
-  alGetBufferiv = (LPGETALBUFFERIV) dlsym(libHandle, "alGetBufferiv");
+  alGetBufferf = (LPALGETBUFFERF) dlsym(libHandleAL, "alGetBufferf");
+  alGetBuffer3f = (LPALGETBUFFER3F) dlsym(libHandleAL, "alGetBuffer3f");
+  alGetBufferfv = (LPALGETBUFFERFV) dlsym(libHandleAL, "alGetBufferfv");
+  alGetBufferi = (LPALGETBUFFERI) dlsym(libHandleAL, "alGetBufferi");
+  alGetBuffer3i = (LPGETALBUFFER3I) dlsym(libHandleAL, "alGetBuffer3i");
+  alGetBufferiv = (LPGETALBUFFERIV) dlsym(libHandleAL, "alGetBufferiv");
   #endif
   if (alGetBufferf == NULL)
   {
@@ -867,9 +868,9 @@ bool Sound::Exit()
 
   //release library
   #if defined(_WIN32)
-  if (libHandle != NULL)
+  if (libHandleAL != NULL)
   {
-    if (!FreeLibrary(libHandle))
+    if (!FreeLibrary(libHandleAL))
     {
       std::cout << "Sound::Exit: Error while closing library object.\n"
                 << "Error code is " << GetLastError() <<".\n";
@@ -878,9 +879,9 @@ bool Sound::Exit()
   #else
   char * err_str;
   dlerror(); //clear error state
-  if (libHandle != NULL)
+  if (libHandleAL != NULL)
   {
-    if (dlclose(libHandle) != 0)
+    if (dlclose(libHandleAL) != 0)
     {
       std::cout << "\nSound::Exit: Error while closing library object.\n";
       err_str = dlerror();
@@ -891,7 +892,7 @@ bool Sound::Exit()
     }
   }
   #endif
-  libHandle = NULL;
+  libHandleAL = NULL;
 
   //de-init pointers
   AllFuncPointersToNULL();//wrapped into private function
@@ -1225,7 +1226,7 @@ bool Sound::PlayOgg(std::string Ogg_FileName)
 }
 
 //returns true if the specified file is currently playing
-bool Sound::IsPlaying(std::string FileName)
+bool Sound::IsPlaying(std::string FileName) const
 {
   TBufSrcRecord * pTemp;
   ALint source_state;
@@ -1641,6 +1642,22 @@ bool Sound::FreeFileResources(std::string FileName)
   return false;
 }
 
+//retrieves vector of all currently buffered files
+std::vector<std::string> Sound::GetBufferedFiles() const
+{
+  std::vector<std::string> result;
+  TBufSrcRecord * temp;
+  
+  temp = pFileList;
+  while (temp != NULL)
+  {
+    result.push_back(temp->FileName);
+    temp = temp->next;
+  }//while
+  return result;
+}
+
+//sets all AL function pointers to NULL
 void Sound::AllFuncPointersToNULL(void)
 {
   alcCreateContext = NULL;

@@ -2,6 +2,7 @@
 #define SOUND_H
 
 #include <string>
+#include <vector>
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
@@ -12,6 +13,7 @@
 #endif
 #include "openal/al.h" //OpenAL header
 #include "openal/alc.h"  //OpenAL header
+//#include "oggvorbis/vorbisfile.h" //Vorbis header
 
 //Types for wave format:
 typedef struct riff_chunk
@@ -59,12 +61,13 @@ class Sound
     bool Init(std::string PathToLibrary = "NULL");//initializes OpenAL
     bool Exit();//deinitializes OpenAL
     bool Play(std::string FileName);
-    bool IsPlaying(std::string FileName);
+    bool IsPlaying(std::string FileName) const;
     bool Pause(std::string FileName);
     bool UnPause(std::string FileName);
     bool Stop(std::string FileName);
     bool Replay(std::string FileName);
     bool FreeFileResources(std::string FileName);//should possibly be private?
+    std::vector<std::string> GetBufferedFiles() const;
     static Sound& get();
   protected:
 
@@ -83,9 +86,11 @@ class Sound
     bool InitInProgress;
 
     #if defined(_WIN32)
-      HINSTANCE libHandle;
+      HINSTANCE libHandleAL; //handle to OpenAL dynamic library
+      HINSTANCE libHandleOV; //handle to OggVorbis dynamic library
     #else
-      void * libHandle;
+      void * libHandleAL; //handle to OpenAL dynamic library
+      void * libHandleOV; //handle to OggVorbis dynamic library
     #endif
     //****
     //**OpenAL function pointers

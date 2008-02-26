@@ -3,7 +3,11 @@
 #include "Dispatcher.h"
 #include "Command.h"
 #include "CommandQuit.h"
+#include "CommandPauseSound.h"
 #include "CommandPlaySound.h"
+#include "CommandReplaySound.h"
+#include "CommandStopSound.h"
+#include "CommandUnPauseSound.h"
 #include <iostream>
 
 namespace Dusk
