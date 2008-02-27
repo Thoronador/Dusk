@@ -32,7 +32,7 @@ Sound& Sound::get()
 
 //Initializes OpenAL, device and context for our application;
 //returns: true, if initialization of OpenAL was successful; false otherwise
-bool Sound::Init(std::string PathToLibrary)
+bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile)
 {
   if (AL_Ready || InitInProgress)
   {
@@ -41,26 +41,26 @@ bool Sound::Init(std::string PathToLibrary)
     return false;
   }
   InitInProgress = true;
-  if ((PathToLibrary== "") || (PathToLibrary == "NULL"))
+  if ((PathToLib_AL== "") || (PathToLib_AL == "NULL"))
   {
     //if no path to the OpenAL library is given, try default value
     #if defined(_WIN32)
-      PathToLibrary = "C:\\Windows\\System32\\OpenAL32.dll";
+      PathToLib_AL = "C:\\Windows\\System32\\OpenAL32.dll";
     #else
-      PathToLibrary = "/usr/lib/libopenal.so";
+      PathToLib_AL = "/usr/lib/libopenal.so";
     #endif
   }
   #if defined(_WIN32)
   //Windows
-  libHandleAL = LoadLibrary(PathToLibrary.c_str());
+  libHandleAL = LoadLibrary(PathToLib_AL.c_str());
   #else
   //Linux goes here
-  libHandleAL = dlopen(PathToLibrary.c_str(), RTLD_LOCAL | RTLD_LAZY);
+  libHandleAL = dlopen(PathToLib_AL.c_str(), RTLD_LOCAL | RTLD_LAZY);
   #endif
   if (libHandleAL == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not open library in \""
-              << PathToLibrary << "\". Exiting.";
+    std::cout << "Sound::Init: ERROR: Could not open OpenAL dynamic library in \""
+              << PathToLib_AL << "\". Exiting.";
     InitInProgress = false;
     return false;
   }
@@ -73,7 +73,7 @@ bool Sound::Init(std::string PathToLibrary)
   alcSuspendContext = (LPALCSUSPENDCONTEXT) GetProcAddress(libHandleAL, "alcSuspendContext");
   alcDestroyContext = (LPALCDESTROYCONTEXT) GetProcAddress(libHandleAL, "alcDestroyContext");
   alcGetCurrentContext = (LPALCGETCURRENTCONTEXT) GetProcAddress(libHandleAL, "alcGetCurrentContext");
-  alcGetContextsDevice = (LPALCGETCONTEXTSDEVICE) GetProcAddress(libHandleAL, "alcFetContextsDevice");
+  alcGetContextsDevice = (LPALCGETCONTEXTSDEVICE) GetProcAddress(libHandleAL, "alcGetContextsDevice");
   #else
   //Linux
   alcCreateContext = (LPALCCREATECONTEXT) dlsym(libHandleAL, "alcCreateContext");
@@ -82,7 +82,7 @@ bool Sound::Init(std::string PathToLibrary)
   alcSuspendContext = (LPALCSUSPENDCONTEXT) dlsym(libHandleAL, "alcSuspendContext");
   alcDestroyContext = (LPALCDESTROYCONTEXT) dlsym(libHandleAL, "alcDestroyContext");
   alcGetCurrentContext = (LPALCGETCURRENTCONTEXT) dlsym(libHandleAL, "alcGetCurrentContext");
-  alcGetContextsDevice = (LPALCGETCONTEXTSDEVICE) dlsym(libHandleAL, "alcFetContextsDevice");
+  alcGetContextsDevice = (LPALCGETCONTEXTSDEVICE) dlsym(libHandleAL, "alcGetContextsDevice");
   #endif
   if (alcCreateContext == NULL)
   {
@@ -830,9 +830,23 @@ bool Sound::Init(std::string PathToLibrary)
     InitInProgress = false;
     return false;
   }
+  
+  //now load the OggVorbis lib
+  if ((PathToLib_Vorbisfile== "") || (PathToLib_Vorbisfile == "NULL"))
+  {
+    //if no path to the OpenAL library is given, try default value
+    #if defined(_WIN32)
+      PathToLib_Vorbisfile = "C:\\Windows\\System32\\vorbisfile.dll";
+    #else
+      PathToLib_Vorbisfile = "/usr/lib/libvorbisfile.so";
+    #endif
+  }
+  
+  
   //the basic initialization is done here, we can return true (for now,
   //  more will be done later)
   AL_Ready = true;
+  InitInProgress = false;
   return true; //this is the result we want
 }
 
@@ -916,6 +930,22 @@ bool Sound::Play(std::string FileName)
               << "progress, thus we cannot play a file and quit here.\n";
     return false;
   }
+
+  //check whether file is already buffered
+  TBufSrcRecord * temp;
+  temp = pFileList;
+  while (temp != NULL)
+  {
+    if (temp->FileName == FileName)
+    {
+      std::cout << "Sound::Play: Hint: File \"" <<FileName<< "\" is already "
+                << "buffered. Hence we try to replay it.\n";
+      return Replay(FileName);
+    }//if
+    temp = temp ->next;
+  }//while
+  
+  //check file for extension (and so for the implied file format)
   if (FileName.substr(FileName.length()-4)==".wav")
   {
     return PlayWAV(FileName);
@@ -969,7 +999,7 @@ bool Sound::PlayWAV(std::string WAV_FileName)
   //Format chunk
   dat.read(fmt_c.fmt_, 4); // "fmt "
   if ((fmt_c.fmt_[0]!='f') || (fmt_c.fmt_[1]!='m') || (fmt_c.fmt_[2]!='t')
-       || (fmt_c.fmt_[3]!='_'))
+       || (fmt_c.fmt_[3]!=' '))
   {
     std::cout << "Sound::PlayWAV: ERROR: File \""<<WAV_FileName<<"\" has incorrect"
               <<" format chunk header signature.\n";

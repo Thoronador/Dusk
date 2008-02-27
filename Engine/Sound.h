@@ -58,7 +58,7 @@ class Sound
 {
   public:
     virtual ~Sound();
-    bool Init(std::string PathToLibrary = "NULL");//initializes OpenAL
+    bool Init(std::string PathToLib_AL = "NULL", std::string PathToLib_Vorbisfile = "NULL");//initializes OpenAL
     bool Exit();//deinitializes OpenAL
     bool Play(std::string FileName);
     bool IsPlaying(std::string FileName) const;
