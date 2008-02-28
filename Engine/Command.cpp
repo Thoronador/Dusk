@@ -3,14 +3,14 @@
 namespace Dusk
 {
 
-Command::Command()
-{
-    //ctor
-}
+    Command::Command()
+    {
+        //ctor
+    }
 
-Command::~Command()
-{
-    //dtor
-}
+    Command::~Command()
+    {
+        //dtor
+    }
 
 }

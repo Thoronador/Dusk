@@ -544,10 +544,10 @@ bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile)
   alSourcePausev = (LPALSOURCEPAUSEV) GetProcAddress(libHandleAL, "alSourcePausev");
   #else
   //Linux
-  alSourcePlayv = (LPALSOURCEPLAYV) dlysm(libHandleAL, "alSourcePlayv");
-  alSourceStopv = (LPALSOURCESTOPV) dlysm(libHandleAL, "alSourceStopv");
-  alSourceRewindv = (LPALSOURCEREWINDV) dlysm(libHandleAL, "alSourceRewindv");
-  alSourcePausev = (LPALSOURCEPAUSEV) dlysm(libHandleAL, "alSourcePausev");
+  alSourcePlayv = (LPALSOURCEPLAYV) dlsym(libHandleAL, "alSourcePlayv");
+  alSourceStopv = (LPALSOURCESTOPV) dlsym(libHandleAL, "alSourceStopv");
+  alSourceRewindv = (LPALSOURCEREWINDV) dlsym(libHandleAL, "alSourceRewindv");
+  alSourcePausev = (LPALSOURCEPAUSEV) dlsym(libHandleAL, "alSourcePausev");
   #endif
   if (alSourcePlayv == NULL)
   {
@@ -581,10 +581,10 @@ bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile)
   alSourcePause = (LPALSOURCEPAUSE) GetProcAddress(libHandleAL, "alSourcePause");
   #else
   //Linux
-  alSourcePlay = (LPALSOURCEPLAY) dlysm(libHandleAL, "alSourcePlay");
-  alSourceStop = (LPALSOURCESTOP) dlysm(libHandleAL, "alSourceStop");
-  alSourceRewind = (LPALSOURCEREWIND) dlysm(libHandleAL, "alSourceRewind");
-  alSourcePause = (LPALSOURCEPAUSE) dlysm(libHandleAL, "alSourcePause");
+  alSourcePlay = (LPALSOURCEPLAY) dlsym(libHandleAL, "alSourcePlay");
+  alSourceStop = (LPALSOURCESTOP) dlsym(libHandleAL, "alSourceStop");
+  alSourceRewind = (LPALSOURCEREWIND) dlsym(libHandleAL, "alSourceRewind");
+  alSourcePause = (LPALSOURCEPAUSE) dlsym(libHandleAL, "alSourcePause");
   #endif
   if (alSourcePlay == NULL)
   {
@@ -643,7 +643,7 @@ bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile)
   alGenBuffers = (LPALGENBUFFERS) dlsym(libHandleAL, "alGenBuffers");
   alDeleteBuffers = (LPALDELETEBUFFERS) dlsym(libHandleAL, "alDeleteBuffers");
   alIsBuffer = (LPALISBUFFER) dlsym(libHandleAL, "alIsBuffer");
-  alBufferData = (LPBUFFERDATA) dlsym(libHandleAL, "alBufferData");
+  alBufferData = (LPALBUFFERDATA) dlsym(libHandleAL, "alBufferData");
   #endif
   if (alGenBuffers == NULL)
   {
@@ -736,8 +736,8 @@ bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile)
   alGetBuffer3f = (LPALGETBUFFER3F) dlsym(libHandleAL, "alGetBuffer3f");
   alGetBufferfv = (LPALGETBUFFERFV) dlsym(libHandleAL, "alGetBufferfv");
   alGetBufferi = (LPALGETBUFFERI) dlsym(libHandleAL, "alGetBufferi");
-  alGetBuffer3i = (LPGETALBUFFER3I) dlsym(libHandleAL, "alGetBuffer3i");
-  alGetBufferiv = (LPGETALBUFFERIV) dlsym(libHandleAL, "alGetBufferiv");
+  alGetBuffer3i = (LPALGETBUFFER3I) dlsym(libHandleAL, "alGetBuffer3i");
+  alGetBufferiv = (LPALGETBUFFERIV) dlsym(libHandleAL, "alGetBufferiv");
   #endif
   if (alGetBufferf == NULL)
   {
@@ -830,7 +830,7 @@ bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile)
     InitInProgress = false;
     return false;
   }
-  
+
   //now load the OggVorbis lib
   if ((PathToLib_Vorbisfile== "") || (PathToLib_Vorbisfile == "NULL"))
   {
@@ -841,8 +841,8 @@ bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile)
       PathToLib_Vorbisfile = "/usr/lib/libvorbisfile.so";
     #endif
   }
-  
-  
+
+
   //the basic initialization is done here, we can return true (for now,
   //  more will be done later)
   AL_Ready = true;
@@ -944,7 +944,7 @@ bool Sound::Play(std::string FileName)
     }//if
     temp = temp ->next;
   }//while
-  
+
   //check file for extension (and so for the implied file format)
   if (FileName.substr(FileName.length()-4)==".wav")
   {
@@ -1334,10 +1334,10 @@ bool Sound::Pause(std::string FileName)
               << "progress, thus we cannot pause a file here.\n";
     return false;
   }
-  
+
   TBufSrcRecord * temp;
   ALenum error_state;
-  
+
   temp = pFileList;
   while (temp!=NULL)
   {
@@ -1365,7 +1365,7 @@ bool Sound::Pause(std::string FileName)
       else
       { //no error occured
         return true; //what we want :)
-      }      
+      }
     }//if
     temp = temp->next;
   }//while
@@ -1389,11 +1389,11 @@ bool Sound::UnPause(std::string FileName)
               << "progress, thus we cannot resume a file to playing here.\n";
     return false;
   }
-  
+
   TBufSrcRecord * temp;
   ALint source_state;
   ALenum error_state;
-  
+
   temp = pFileList;
   while (temp != NULL)
   {
@@ -1427,7 +1427,7 @@ bool Sound::UnPause(std::string FileName)
         if (source_state == AL_PLAYING)
         { //legal no-op
           std::cout << "Sound::UnPause: Hint: File \""<<FileName<<"\"is already"
-                    << " playing. No need to UnPause.\n"; 
+                    << " playing. No need to UnPause.\n";
           return true;
         }
         else if (source_state == AL_STOPPED || source_state == AL_INITIAL)
@@ -1482,10 +1482,10 @@ bool Sound::Stop(std::string FileName)
               << "progress, thus we cannot stop a file here.\n";
     return false;
   }
-     
+
   TBufSrcRecord * temp;
   ALenum error_state;
-  
+
   temp = pFileList;
   while (temp!=NULL)
   {
@@ -1513,7 +1513,7 @@ bool Sound::Stop(std::string FileName)
       else
       { //no error occured
         return true; //what we want :)
-      }      
+      }
     }//if
     temp = temp->next;
   }//while
@@ -1537,11 +1537,11 @@ bool Sound::Replay(std::string FileName)
               << "progress, thus we cannot replay a file here.\n";
     return false;
   }
-  
+
   TBufSrcRecord * temp;
   ALenum error_state;
   ALint source_state;
-  
+
   temp = pFileList;
   while (temp != NULL)
   {
@@ -1632,7 +1632,7 @@ bool Sound::FreeFileResources(std::string FileName)
   TBufSrcRecord * temp;
   TBufSrcRecord * temp2;
   ALenum error_state;
-  
+
   if (pFileList == NULL)
   {
     std::cout << "Sound::FreeFileResources: Hint: Couldn't free resources for "
@@ -1677,7 +1677,7 @@ std::vector<std::string> Sound::GetBufferedFiles() const
 {
   std::vector<std::string> result;
   TBufSrcRecord * temp;
-  
+
   temp = pFileList;
   while (temp != NULL)
   {
