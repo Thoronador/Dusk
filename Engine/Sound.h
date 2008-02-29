@@ -13,7 +13,7 @@
 #endif
 #include "openal/al.h" //OpenAL header
 #include "openal/alc.h"  //OpenAL header
-//#include "oggvorbis/vorbisfile.h" //Vorbis header
+#include "oggvorbis/vorbisfile.h" //Vorbis header
 
 //Types for wave format:
 typedef struct riff_chunk
@@ -53,12 +53,21 @@ typedef struct bufsrc_rec
 };
 typedef bufsrc_rec TBufSrcRecord;
 
+//type declaration for OggVorbis function pointers
+typedef int (*P_ov_clear)(OggVorbis_File *vf);
+typedef vorbis_comment* (*P_ov_comment)(OggVorbis_File *vf,int link);
+typedef int (*P_ov_fopen)(char *path,OggVorbis_File *vf);
+typedef vorbis_info* (*P_ov_info)(OggVorbis_File *vf,int link);
+typedef ogg_int64_t (*P_ov_pcm_total)(OggVorbis_File *vf,int i);
+typedef long (*P_ov_read)(OggVorbis_File *vf, char *buffer, int length, int bigendianp, int word, int sgned, int *bitstream);
+typedef int (*P_ov_test)(FILE *f,OggVorbis_File *vf,char *initial,long ibytes);
+
 //Klasse Sound
 class Sound
 {
   public:
     virtual ~Sound();
-    bool Init(std::string PathToLib_AL = "NULL", std::string PathToLib_Vorbisfile = "NULL");//initializes OpenAL
+    bool Init(std::string PathToLib_AL = "NULL", std::string PathToLib_Vorbisfile = "NULL", bool needVorbis = false);//initializes OpenAL
     bool Exit();//deinitializes OpenAL
     bool Play(std::string FileName);
     bool IsPlaying(std::string FileName) const;
@@ -83,6 +92,7 @@ class Sound
     ALCdevice *pDevice;
     ALCcontext *pContext;
     bool AL_Ready;
+    bool Vorbis_Ready;
     bool InitInProgress;
 
     #if defined(_WIN32)
@@ -143,11 +153,9 @@ class Sound
     LPALGETERROR alGetError;
 
     //**** Extension handling func (AL)
-    /* Disable for now
     LPALISEXTENSIONPRESENT alIsExtensionPresent;
     LPALGETPROCADDRESS alGetProcAddress;
     LPALGETENUMVALUE alGetEnumValue;
-    */
 
     //**** Set Listener parameters
     LPALLISTENERF alListenerf;
@@ -236,6 +244,16 @@ class Sound
     LPALSPEEDOFSOUND alSpeedOfSound;
     LPALDISTANCEMODEL alDistanceModel;
     */
+    
+    //**** OggVorbis function pointers
+    P_ov_clear ov_clear;
+    P_ov_comment ov_comment;
+    P_ov_fopen ov_fopen;
+    P_ov_info ov_info;
+    P_ov_pcm_total ov_pcm_total;
+    P_ov_read ov_read;
+    P_ov_test ov_test;
+    
 };
 
 #endif // SOUND_H

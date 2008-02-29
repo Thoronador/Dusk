@@ -7,6 +7,7 @@ Sound::Sound()
   pDevice = NULL;
   pContext = NULL;
   AL_Ready = false;
+  Vorbis_Ready = false;
   InitInProgress = false;
   libHandleAL = NULL;
   libHandleOV = NULL;
@@ -32,7 +33,7 @@ Sound& Sound::get()
 
 //Initializes OpenAL, device and context for our application;
 //returns: true, if initialization of OpenAL was successful; false otherwise
-bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile)
+bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, bool needVorbis)
 {
   if (AL_Ready || InitInProgress)
   {
@@ -290,6 +291,35 @@ bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile)
   if (alGetError == NULL)
   {
     std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetError\" address.\n";
+    InitInProgress = false;
+    return false;
+  }
+  #if defined(_WIN32)
+  //Windows
+  alIsExtensionPresent = (LPALISEXTENSIONPRESENT) GetProcAddress(libHandleAL, "alIsExtensionPresent");
+  alGetProcAddress = (LPALGETPROCADDRESS) GetProcAddress(libHandleAL, "alGetProcAddress");
+  alGetEnumValue = (LPALGETENUMVALUE) GetProcAddress(libHandleAL, "alGetEnumValue");
+  #else
+  //Linux
+  alIsExtensionPresent = (LPALISEXTENSIONPRESENT) dlsym(libHandleAL, "alIsExtensionPresent");
+  alGetProcAddress = (LPALGETPROCADDRESS) dlsym(libHandleAL, "alGetProcAddress");
+  alGetEnumValue = (LPALGETENUMVALUE) dlsym(libHandleAL, "alGetEnumValue");
+  #endif
+  if (alIsExtensionPresent == NULL)
+  {
+    std::cout << "Sound::Init: ERROR: Could not retrieve \"alIsExtensionPresent\" address.\n";
+    InitInProgress = false;
+    return false;
+  }
+  if (alGetProcAddress == NULL)
+  {
+    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetProcAddress\" address.\n";
+    InitInProgress = false;
+    return false;
+  }
+  if (alGetEnumValue == NULL)
+  {
+    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetEnumValue\" address.\n";
     InitInProgress = false;
     return false;
   }
@@ -830,7 +860,10 @@ bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile)
     InitInProgress = false;
     return false;
   }
+  //the AL part is done here, so we can already set AL_Ready to true
+  AL_Ready = true;
 
+  //however, the OggVorbis part still needs to be done
   //now load the OggVorbis lib
   if ((PathToLib_Vorbisfile== "") || (PathToLib_Vorbisfile == "NULL"))
   {
@@ -841,11 +874,91 @@ bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile)
       PathToLib_Vorbisfile = "/usr/lib/libvorbisfile.so";
     #endif
   }
+  
+  //vorbisfile.dll (or libvorbisfile.so) tries to load ogg.dll and vorbis.dll
+  //(or libogg.so and libvorbis.so), too. If these files are not found, then the
+  // call to LoadLibrary/dlopen of vorbisfile will fail!
+  #if defined(_WIN32)
+  //Windows
+  libHandleOV = LoadLibrary(PathToLib_Vorbisfile.c_str());
+  #else
+  //Linux goes here
+  libHandleOV = dlopen(PathToLib_Vorbisfile.c_str(), RTLD_LOCAL | RTLD_LAZY);
+  #endif
+  if (libHandleOV == NULL)
+  {
+    std::cout << "Sound::Init: ERROR: Could not open OggVorbis dynamic library in \""
+              << PathToLib_Vorbisfile << "\". Exiting.";
+    InitInProgress = false;
+    return (!needVorbis);
+  }
 
-
+  //get function addresses for OggVorbis (vorbisfile.dll/libvorbisfile.so)
+  #if defined(_WIN32)
+  //Windows
+  ov_clear = (P_ov_clear) GetProcAddress(libHandleOV, "ov_clear");
+  ov_comment = (P_ov_comment) GetProcAddress(libHandleOV, "ov_comment");
+  ov_fopen = (P_ov_fopen) GetProcAddress(libHandleOV, "ov_fopen");
+  ov_info = (P_ov_info) GetProcAddress(libHandleOV, "ov_info");
+  ov_pcm_total = (P_ov_pcm_total) GetProcAddress(libHandleOV, "ov_pcm_total");
+  ov_read = (P_ov_read) GetProcAddress(libHandleOV, "ov_read");
+  ov_test = (P_ov_test) GetProcAddress(libHandleOV, "ov_test");
+  #else
+  //Linux goes here
+  ov_clear = (P_ov_clear) dlsym(libHandleOV, "ov_clear");
+  ov_comment = (P_ov_comment) dlsym(libHandleOV, "ov_comment");
+  ov_fopen = (P_ov_fopen) dlsym(libHandleOV, "ov_fopen");
+  ov_info = (P_ov_info) dlsym(libHandleOV, "ov_info");
+  ov_pcm_total = (P_ov_pcm_total) dlsym(libHandleOV, "ov_pcm_total");
+  ov_read = (P_ov_read) dlsym(libHandleOV, "ov_read");
+  ov_test = (P_ov_test) dlsym(libHandleOV, "ov_test");
+  #endif
+  if (ov_clear == NULL)
+  {
+    std::cout << "Sound::Init: ERROR: Could not retrieve \"ov_clear\" address.\n";
+    InitInProgress = false;
+    return (!needVorbis);
+  }
+  if (ov_comment == NULL)
+  {
+    std::cout << "Sound::Init: ERROR: Could not retrieve \"ov_comment\" address.\n";
+    InitInProgress = false;
+    return (!needVorbis);
+  }
+  if (ov_fopen == NULL)
+  {
+    std::cout << "Sound::Init: ERROR: Could not retrieve \"ov_fopen\" address.\n";
+    InitInProgress = false;
+    return (!needVorbis);
+  }
+  if (ov_info == NULL)
+  {
+    std::cout << "Sound::Init: ERROR: Could not retrieve \"ov_info\" address.\n";
+    InitInProgress = false;
+    return (!needVorbis);
+  }
+  if (ov_pcm_total == NULL)
+  {
+    std::cout << "Sound::Init: ERROR: Could not retrieve \"ov_pcm_total\" address.\n";
+    InitInProgress = false;
+    return (!needVorbis);
+  }
+  if (ov_read == NULL)
+  {
+    std::cout << "Sound::Init: ERROR: Could not retrieve \"ov_read\" address.\n";
+    InitInProgress = false;
+    return (!needVorbis);
+  }
+  if (ov_test == NULL)
+  {
+    std::cout << "Sound::Init: ERROR: Could not retrieve \"ov_test\" address.\n";
+    InitInProgress = false;
+    return (!needVorbis);
+  }
+  //all (up to this point) neccessary Vorbis functions are initialized
+  Vorbis_Ready = true;
   //the basic initialization is done here, we can return true (for now,
   //  more will be done later)
-  AL_Ready = true;
   InitInProgress = false;
   return true; //this is the result we want
 }
@@ -880,13 +993,13 @@ bool Sound::Exit()
   alcDestroyContext(pContext);
   alcCloseDevice(pDevice);
 
-  //release library
+  //release OpenAL library
   #if defined(_WIN32)
   if (libHandleAL != NULL)
   {
     if (!FreeLibrary(libHandleAL))
     {
-      std::cout << "Sound::Exit: Error while closing library object.\n"
+      std::cout << "Sound::Exit: Error while closing OpenAL library object.\n"
                 << "Error code is " << GetLastError() <<".\n";
     }
   }
@@ -897,7 +1010,7 @@ bool Sound::Exit()
   {
     if (dlclose(libHandleAL) != 0)
     {
-      std::cout << "\nSound::Exit: Error while closing library object.\n";
+      std::cout << "\nSound::Exit: Error while closing OpenAL library object.\n";
       err_str = dlerror();
       if (err_str!=NULL)
       {
@@ -907,11 +1020,40 @@ bool Sound::Exit()
   }
   #endif
   libHandleAL = NULL;
+  
+  //release OggVorbis library
+  #if defined(_WIN32)
+  if (libHandleOV != NULL)
+  {
+    if (!FreeLibrary(libHandleOV))
+    {
+      std::cout << "Sound::Exit: Error while closing Vorbis library object.\n"
+                << "Error code is " << GetLastError() <<".\n";
+    }
+  }
+  #else
+  char * err_str;
+  dlerror(); //clear error state
+  if (libHandleOV != NULL)
+  {
+    if (dlclose(libHandleOV) != 0)
+    {
+      std::cout << "\nSound::Exit: Error while closing Vorbis library object.\n";
+      err_str = dlerror();
+      if (err_str!=NULL)
+      {
+        std::cout << "Error description: " << err_str <<"\n";
+      }
+    }
+  }
+  #endif
+  libHandleOV = NULL;
 
   //de-init pointers
   AllFuncPointersToNULL();//wrapped into private function
 
   AL_Ready = false;
+  Vorbis_Ready = false;
   InitInProgress = false;
   return true;
 }
@@ -1118,25 +1260,67 @@ bool Sound::PlayWAV(std::string WAV_FileName)
   //   unequal to 1 ot 2 and for sample sizes unequal to 8 or 16)
   if (fmt_c.BitsPerSample==16)
   {
+    if (fmt_c.Channels==4)
+    {
+      format_type = alGetEnumValue("AL_FORMAT_QUAD16");
+    }
     if (fmt_c.Channels==2)
     {
       format_type = AL_FORMAT_STEREO16;
     }
-    else
+    else if (fmt_c.Channels == 1)
     {
       format_type = AL_FORMAT_MONO16;
+    }
+    else
+    {
+      std::cout << "Sound::Play: ERROR: File \"" <<WAV_FileName<<"\" seems to "
+                << "have "<<fmt_c.Channels<<" channels. However, only four, two"
+                << " (stereo) or one (mono) channels are supported.\n";
+      dat.close();
+      return false;
     }
   }
   else if (fmt_c.BitsPerSample==8)
   {
-    if (fmt_c.Channels==2)
+    if (fmt_c.Channels==4)
+    {
+      format_type = alGetEnumValue("AL_FORMAT_QUAD8");
+    }
+    else if (fmt_c.Channels==2)
     {
       format_type = AL_FORMAT_STEREO8;
     }
-    else
+    else if (fmt_c.Channels == 1)
     {
       format_type = AL_FORMAT_MONO8;
     }
+    else
+    {
+      std::cout << "Sound::Play: ERROR: File \"" <<WAV_FileName<<"\" seems to "
+                << "have "<<fmt_c.Channels<<" channels. However, only four, two"
+                << " (stereo) or one (mono) channels are supported.\n";
+      dat.close();
+      return false;
+    }
+  }
+  else //Bits per Sample neither 16 nor 8, thus unsupported by OpenAL
+  {
+    std::cout << "Sound::Play: ERROR: The sample rate of \"" <<WAV_FileName
+              <<"\" (" << fmt_c.BitsPerSample << " bits per sample) is not "
+              <<"supported. OpenAL supports only 8 and 16 bit samples.\n";
+    dat.close();
+    return false;
+  }
+  //check for valid format enumeration value
+  if (format_type == 0) //call to alGetEnumValue could not get a proper result
+  {
+    std::cout << "Sound::Play: ERROR: Could not find a valid OpenAL format "
+              << "enumeration value. Most likely the format of \""<<WAV_FileName
+              << "\" (channels: "<<fmt_c.Channels<<"; bits per sample: "
+              <<fmt_c.BitsPerSample<<") is not supported.\n";
+    dat.close();
+    return false;
   }
   temp = (char*) malloc(buffer_size);
   for (i=0; i<buffer_num-1; i=i+1)
@@ -1252,6 +1436,13 @@ bool Sound::PlayWAV(std::string WAV_FileName)
 
 bool Sound::PlayOgg(std::string Ogg_FileName)
 {
+  if (!Vorbis_Ready)
+  {
+    std::cout << "Sound::PlayOgg: ERROR: OggVorbis was not initialized, so we "
+              << "cannot play an OggVorbis file here.\n";
+    return false;
+  }
+  //more to come
   return false;
 }
 
@@ -1728,11 +1919,9 @@ void Sound::AllFuncPointersToNULL(void)
   alGetError = NULL;
 
   //**** Extension handling func (AL)
-  /* Disable for now
   alIsExtensionPresent = NULL;
   alGetProcAddress = NULL;
   alGetEnumValue = NULL;
-  */
 
   //**** Set Listener parameters
   alListenerf = NULL;
@@ -1821,4 +2010,13 @@ void Sound::AllFuncPointersToNULL(void)
   alSpeedOfSound = NULL;
   alDistanceModel = NULL;
   */
+  
+  //**** OggVorbis function pointers
+  ov_clear = NULL;
+  ov_comment = NULL;
+  ov_fopen = NULL;
+  ov_info = NULL;
+  ov_pcm_total = NULL;
+  ov_read = NULL;
+  ov_test = NULL;
 }
