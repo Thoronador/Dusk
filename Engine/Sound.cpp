@@ -898,8 +898,9 @@ bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, boo
   //Windows
   ov_clear = (P_ov_clear) GetProcAddress(libHandleOV, "ov_clear");
   ov_comment = (P_ov_comment) GetProcAddress(libHandleOV, "ov_comment");
-  ov_fopen = (P_ov_fopen) GetProcAddress(libHandleOV, "ov_fopen");
+  //ov_fopen = (P_ov_fopen) GetProcAddress(libHandleOV, "ov_fopen");
   ov_info = (P_ov_info) GetProcAddress(libHandleOV, "ov_info");
+  ov_open_callbacks = (P_ov_open_callbacks) GetProcAddress(libHandleOV, "ov_open_callbacks");
   ov_pcm_total = (P_ov_pcm_total) GetProcAddress(libHandleOV, "ov_pcm_total");
   ov_read = (P_ov_read) GetProcAddress(libHandleOV, "ov_read");
   ov_test = (P_ov_test) GetProcAddress(libHandleOV, "ov_test");
@@ -907,8 +908,9 @@ bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, boo
   //Linux goes here
   ov_clear = (P_ov_clear) dlsym(libHandleOV, "ov_clear");
   ov_comment = (P_ov_comment) dlsym(libHandleOV, "ov_comment");
-  ov_fopen = (P_ov_fopen) dlsym(libHandleOV, "ov_fopen");
+  //ov_fopen = (P_ov_fopen) dlsym(libHandleOV, "ov_fopen");
   ov_info = (P_ov_info) dlsym(libHandleOV, "ov_info");
+  ov_open_callbacks = (P_ov_open_callbacks) dlsym(libHandleOV, "ov_open_callbacks");
   ov_pcm_total = (P_ov_pcm_total) dlsym(libHandleOV, "ov_pcm_total");
   ov_read = (P_ov_read) dlsym(libHandleOV, "ov_read");
   ov_test = (P_ov_test) dlsym(libHandleOV, "ov_test");
@@ -925,15 +927,21 @@ bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, boo
     InitInProgress = false;
     return (!needVorbis);
   }
-  if (ov_fopen == NULL)
+  /*if (ov_fopen == NULL)
   {
     std::cout << "Sound::Init: ERROR: Could not retrieve \"ov_fopen\" address.\n";
     InitInProgress = false;
     return (!needVorbis);
-  }
+  }*/
   if (ov_info == NULL)
   {
     std::cout << "Sound::Init: ERROR: Could not retrieve \"ov_info\" address.\n";
+    InitInProgress = false;
+    return (!needVorbis);
+  }
+  if (ov_open_callbacks == NULL)
+  {
+    std::cout << "Sound::Init: ERROR: Could not retrieve \"ov_open_callbacks\" address.\n";
     InitInProgress = false;
     return (!needVorbis);
   }
@@ -1148,14 +1156,22 @@ bool Sound::PlayWAV(std::string WAV_FileName)
     dat.close();
     return false;
   }
-  dat.read((char*) &(fmt_c.chunk_size), 4); //should have value of 16
-  if (fmt_c.chunk_size!=16)
+  dat.read((char*) &(fmt_c.chunk_size), 4); //should have value of exactly 16
+  //In case the format chunk is larger than that, everything after the 16th byte
+  // will be ignored.
+  if (fmt_c.chunk_size<16)
   {
     std::cout << "Sound::PlayWAV: ERROR: Format chunk of file \""<<WAV_FileName
               <<"\" has incorrect size of "<<fmt_c.chunk_size
               <<" bytes. (Should be 16 instead.)\n";
     dat.close();
     return false;
+  }
+  else if (fmt_c.chunk_size>16)
+  {
+    std::cout << "Sound::PlayWAV: Warning: Format chunk of file \""<<WAV_FileName
+              <<"\" is larger than 16 bytes. Actual size is "<<fmt_c.chunk_size
+              <<" bytes. Everything after 16th byte will be ignored.\n";
   }
   dat.read((char*) &(fmt_c.FormatTag), 2); //should have value of 1 for PCM
                                         //(this is what we have for typical .wav)
@@ -1170,7 +1186,27 @@ bool Sound::PlayWAV(std::string WAV_FileName)
   dat.read((char*) &(fmt_c.BytesPerSecond), 4);
   dat.read((char*) &(fmt_c.BlockAlign), 2);
   dat.read((char*) &(fmt_c.BitsPerSample), 2);
-  //data chunk
+  
+  //for larger format chunks: read rest of chunk into temp buffer and discard it
+  if (fmt_c.chunk_size > 16)
+  {
+    //check for size, again, to avoid to allocate immense amount of memory
+    if (fmt_c.chunk_size <= 1024)
+    {
+      temp = (char*) malloc(fmt_c.chunk_size -16);
+      dat.read(temp, fmt_c.chunk_size -16);
+      free(temp);
+    }
+    else //chunk is larger than 1 KB; quite unnormal
+    {
+      std::cout << "Sound::PlayWAV: ERROR: Format chunk is much too big ("
+                << fmt_c.chunk_size << " bytes). Exiting.\n";
+      dat.close();
+      return false;
+    }
+  }//if
+
+  //read the data chunk
   dat.read(data_c.data, 4); // "data"
   if ((data_c.data[0]!='d') || (data_c.data[1]!='a') || (data_c.data[2]!='t')
        || (data_c.data[3]!='a'))
@@ -1256,8 +1292,7 @@ bool Sound::PlayWAV(std::string WAV_FileName)
     dat.close();
     return false;
   }
-  //determine format, (unsecure yet, since it does not check for channel values
-  //   unequal to 1 ot 2 and for sample sizes unequal to 8 or 16)
+  //determine format
   if (fmt_c.BitsPerSample==16)
   {
     if (fmt_c.Channels==4)
@@ -1442,7 +1477,80 @@ bool Sound::PlayOgg(std::string Ogg_FileName)
               << "cannot play an OggVorbis file here.\n";
     return false;
   }
+  
+  OggVorbis_File * pOggFile;
+  FILE * file_handle;
+  vorbis_info * pVorbisInfo;
+  int result;
+  
+  file_handle = fopen(Ogg_FileName.c_str(), "rb");
+  if (file_handle == NULL)
+  {
+    std::cout << "Sound::PlayOgg: ERROR: Could not open file \""<<Ogg_FileName
+              << "\" for reading.\n";
+    return false;
+  }
+
+  std::cout << "Sound::PlayOgg: Debug: file \""<<Ogg_FileName<< "\" opened for "
+            <<"reading with fopen.\n";
+  
+  result = ov_open_callbacks(file_handle, pOggFile, NULL, 0, OV_CALLBACKS_DEFAULT);
+  if (result !=0)
+  {
+    std::cout << "Sound::PlayOgg: Error while opening file \"" <<Ogg_FileName
+              << "\".\n";
+    switch (result)
+    {
+      case OV_EREAD:
+           std::cout << "    Could not read from file.\n"; break;
+      case OV_ENOTVORBIS:
+           std::cout << "    Bitstream does not contain any Vorbis data.\n";
+           break;
+      case OV_EVERSION:
+           std::cout << "    Version mismatch.\n"; break;
+      case OV_EBADHEADER:
+           std::cout << "    Invalid Vorbis header.\n"; break;
+      case OV_EFAULT:
+           std::cout << "    Internal logic error/ bug.\n"; break;
+      default:
+           std::cout << "    Unknown error. Code: " << result <<".\n"; break;
+    }//swi
+    ov_clear(pOggFile);
+    if (file_handle != NULL)
+    {
+      fclose(file_handle);
+    }
+    return false;
+  }//if
+  
+  std::cout << "Sound::PlayOgg: Debug: file \""<<Ogg_FileName<< "\" opened for "
+            <<"reading with ov_open_callbacks.\n";
+  
+  pVorbisInfo = ov_info(pOggFile, -1);
+  if (pVorbisInfo == NULL)
+  {
+    std::cout << "Sound::PlayOgg: Warning: Could not get file information for "
+              << "\"" << Ogg_FileName << "\".\n";
+  }
+  else
+  {
+    std::cout << "Sound::PlayOgg: Information for \"" << Ogg_FileName <<"\":\n"
+              << "    Vorbis encoder version: " << pVorbisInfo->version <<"\n"
+              << "    Channels: " << pVorbisInfo->channels << "\n"
+              << "    Sampling rate: " << pVorbisInfo->rate <<"\n    Bitrate:\n"
+              << "    Nominal: " << pVorbisInfo->bitrate_nominal <<"\n"
+              << "    Upper: " << pVorbisInfo->bitrate_upper <<"\n"
+              << "    Lower: " << pVorbisInfo->bitrate_lower <<"\n";
+  }
+  
   //more to come
+
+  //clean up
+  ov_clear(pOggFile);
+  if (file_handle != NULL)
+  {
+    fclose(file_handle);
+  }
   return false;
 }
 
@@ -2014,8 +2122,9 @@ void Sound::AllFuncPointersToNULL(void)
   //**** OggVorbis function pointers
   ov_clear = NULL;
   ov_comment = NULL;
-  ov_fopen = NULL;
+  //ov_fopen = NULL;
   ov_info = NULL;
+  ov_open_callbacks = NULL;
   ov_pcm_total = NULL;
   ov_read = NULL;
   ov_test = NULL;

@@ -43,6 +43,53 @@ typedef struct {
   long   (*tell_func)  (void *datasource);
 } ov_callbacks;
 
+/* a few sets of convenient callbacks, especially for use under
+ * Windows where ov_open_callbacks() should always be used instead of
+ * ov_open() to avoid problems with incompatable crt.o version linking
+ * issues. */
+
+static int _ov_header_fseek_wrap(FILE *f,ogg_int64_t off,int whence){
+  if(f==NULL)return(-1);
+  return fseek(f,off,whence);
+}
+
+/* These structs below (OV_CALLBACKS_DEFAULT etc) are defined here as
+ * static data. That means that every file which includes this header
+ * will get its own copy of these structs whether it uses them or
+ * not. This is essential on platforms such as Windows on which
+ * several different versions of stdio support may be linked to by
+ * different DLLs, and we need to be certain we know which one we're
+ * using (the same one as the main application).
+ */
+
+static ov_callbacks OV_CALLBACKS_DEFAULT = {
+  (size_t (*)(void *, size_t, size_t, void *))  fread,
+  (int (*)(void *, ogg_int64_t, int))           _ov_header_fseek_wrap,
+  (int (*)(void *))                             fclose,
+  (long (*)(void *))                            ftell
+};
+
+static ov_callbacks OV_CALLBACKS_NOCLOSE = {
+  (size_t (*)(void *, size_t, size_t, void *))  fread,
+  (int (*)(void *, ogg_int64_t, int))           _ov_header_fseek_wrap,
+  (int (*)(void *))                             NULL,
+  (long (*)(void *))                            ftell
+};
+
+static ov_callbacks OV_CALLBACKS_STREAMONLY = {
+  (size_t (*)(void *, size_t, size_t, void *))  fread,
+  (int (*)(void *, ogg_int64_t, int))           NULL,
+  (int (*)(void *))                             fclose,
+  (long (*)(void *))                            NULL
+};
+
+static ov_callbacks OV_CALLBACKS_STREAMONLY_NOCLOSE = {
+  (size_t (*)(void *, size_t, size_t, void *))  fread,
+  (int (*)(void *, ogg_int64_t, int))           NULL,
+  (int (*)(void *))                             NULL,
+  (long (*)(void *))                            NULL
+};
+
 #define  NOTOPEN   0
 #define  PARTOPEN  1
 #define  OPENED    2
