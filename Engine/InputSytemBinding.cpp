@@ -8,11 +8,14 @@ namespace Dusk{
 InputSystemBinding::InputSystemBinding()
 {
     myBindListPress[OIS::KC_ESCAPE] = Script("quit");
-    myBindListHold[OIS::KC_W] = Script("move_forward");
-    myBindListHold[OIS::KC_S] = Script("move_backward");
-    myBindListHold[OIS::KC_A] = Script("step_left");
-    myBindListHold[OIS::KC_D] = Script("step_right");
-    myBindListHold[OIS::KC_SPACE] = Script("jump");
+    myBindListPress[OIS::KC_W] = Script("move_forward");
+    myBindListPress[OIS::KC_S] = Script("move_backward");
+    myBindListPress[OIS::KC_A] = Script("step_left");
+    myBindListPress[OIS::KC_D] = Script("step_right");
+    myBindListPress[OIS::KC_SPACE] = Script("jump");
+
+    myBindListRelease[OIS::KC_W] = Script("move_backward");
+    myBindListRelease[OIS::KC_S] = Script("move_forward");
 }
 
 InputSystemBinding::~InputSystemBinding()

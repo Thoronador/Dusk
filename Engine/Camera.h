@@ -13,6 +13,8 @@ namespace Dusk
             Ogre::Camera* getOgreCamera();
             void setPosition(const Ogre::Vector3& position);
             void lookAt(const Ogre::Vector3& direction);
+            void move(const Ogre::FrameEvent& evt);
+            void translate(const Ogre::Vector3& translationVector);
         protected:
         private:
             Ogre::Camera* m_Camera;

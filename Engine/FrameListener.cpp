@@ -6,6 +6,7 @@
 #include "InputSystemBinding.h"
 #include "InputSystem.h"
 #include "API.h"
+#include "Camera.h"
 
 namespace Dusk
 {
@@ -25,6 +26,7 @@ bool FrameListener::frameStarted(const Ogre::FrameEvent& evt)
 {
     InputSystem::captureInput();
     Console::getInstance()->processScripts();
+    getAPI().getDuskCamera()->move(evt);
     return m_Continue;
 }
 //-----------------------------------------------------------------------------------

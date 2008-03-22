@@ -29,5 +29,8 @@ namespace Dusk
     {
         m_Camera->lookAt(direction);
     }
+    void Camera::move(const Ogre::FrameEvent& evt)
+    {
+    }
 }
 
