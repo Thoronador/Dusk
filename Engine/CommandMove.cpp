@@ -1,5 +1,6 @@
 #include "CommandMove.h"
 #include "Camera.h"
+#include "DuskTypes.h"
 namespace Dusk
 {
     int CommandMove::moveConstant = 200;
@@ -18,6 +19,7 @@ namespace Dusk
         Dusk::Camera* m_Camera = getAPI().getDuskCamera();
         switch(m_Direction)
         {
+            /*
             case DIRECTION::FORWARD:
                 m_Camera->translate(Ogre::Vector3(0,moveConstant,0); // my be the wrong direction
                 break;
@@ -33,7 +35,7 @@ namespace Dusk
             case DIRECTION::UP:
 
                 break;
-            case DIRECTION::DOWN:
+            case DIRECTION::DOWN:*/
 
                 break;
             default:
