@@ -7,8 +7,8 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Win-Debug">
-				<Option output="bin/Debug/DuskTest" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/Debug/" />
+				<Option output="bin\Debug\DuskTest" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Debug\" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Option parameters="plugins-windows-debug.cfg" />
@@ -17,19 +17,19 @@
 					<Add option="-D_DEBUG" />
 					<Add option="-DWIN32" />
 					<Add option="-D_WINDOWS" />
-					<Add directory="$(OGRE_HOME)/include" />
+					<Add directory="$(OGRE_HOME)\include" />
 				</Compiler>
 				<Linker>
 					<Add library="OgreMain_d" />
 					<Add library="OIS_D" />
-					<Add directory="$(OGRE_HOME)/lib" />
-					<Add directory="$(OGRE_HOME)/bin/Debug" />
-					<Add directory="$(OGRE_HOME)/bin/Release" />
+					<Add directory="$(OGRE_HOME)\lib" />
+					<Add directory="$(OGRE_HOME)\bin\Debug" />
+					<Add directory="$(OGRE_HOME)\bin\Release" />
 				</Linker>
 			</Target>
 			<Target title="Win-Release">
-				<Option output="bin/Release/DuskTest" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/Release/" />
+				<Option output="bin\Release\DuskTest" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Release\" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Option parameters="plugins-windows-debug.cfg" />
@@ -38,19 +38,19 @@
 					<Add option="-D_DEBUG" />
 					<Add option="-DWIN32" />
 					<Add option="-D_WINDOWS" />
-					<Add directory="$(OGRE_HOME)/include" />
+					<Add directory="$(OGRE_HOME)\include" />
 				</Compiler>
 				<Linker>
 					<Add library="OgreMain_d" />
 					<Add library="OIS_D" />
-					<Add directory="$(OGRE_HOME)/lib" />
-					<Add directory="$(OGRE_HOME)/bin/Debug" />
-					<Add directory="$(OGRE_HOME)/bin/Release" />
+					<Add directory="$(OGRE_HOME)\lib" />
+					<Add directory="$(OGRE_HOME)\bin\Debug" />
+					<Add directory="$(OGRE_HOME)\bin\Release" />
 				</Linker>
 			</Target>
 			<Target title="Linux-Debug">
 				<Option output="Dusk" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/Debug/" />
+				<Option object_output="obj\Debug\" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Option parameters="plugins-linux.cfg" />
@@ -63,13 +63,13 @@
 					<Add library="OgreMain" />
 					<Add library="OIS" />
 					<Add library="GL" />
-					<Add directory="/bin/Debug" />
-					<Add directory="/bin/Release" />
+					<Add directory="\bin\Debug" />
+					<Add directory="\bin\Release" />
 				</Linker>
 			</Target>
 			<Target title="Linux-Release">
 				<Option output="Dusk" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/Release/" />
+				<Option object_output="obj\Release\" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Option parameters="plugins-linux.cfg" />
@@ -81,8 +81,8 @@
 					<Add option="`pkg-config --libs OGRE`" />
 					<Add library="OgreMain" />
 					<Add library="GL" />
-					<Add directory="/bin/Debug" />
-					<Add directory="/bin/Release" />
+					<Add directory="\bin\Debug" />
+					<Add directory="\bin\Release" />
 				</Linker>
 			</Target>
 		</Build>
@@ -102,6 +102,8 @@
 		<Unit filename="Command.h" />
 		<Unit filename="CommandCreateObject.cpp" />
 		<Unit filename="CommandCreateObject.h" />
+		<Unit filename="CommandMove.cpp" />
+		<Unit filename="CommandMove.h" />
 		<Unit filename="CommandPauseSound.cpp" />
 		<Unit filename="CommandPauseSound.h" />
 		<Unit filename="CommandPlaySound.cpp" />
@@ -118,6 +120,8 @@
 		<Unit filename="Console.h" />
 		<Unit filename="Dispatcher.cpp" />
 		<Unit filename="Dispatcher.h" />
+		<Unit filename="Dusk.h" />
+		<Unit filename="DuskTypes.h" />
 		<Unit filename="FrameListener.cpp" />
 		<Unit filename="FrameListener.h" />
 		<Unit filename="InputEvent.cpp" />

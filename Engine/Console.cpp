@@ -9,6 +9,7 @@
 #include "CommandStopSound.h"
 #include "CommandUnPauseSound.h"
 #include "CommandMove.h"
+#include "DuskTypes.h"
 #include <iostream>
 
 namespace Dusk
@@ -115,13 +116,13 @@ int Console::executeCommand(std::string p_string)
         }
         else if (command[0] == "move_forward")
         {
-            //com = new CommandMove(CommandMove::Direction::forward);
+            //com = new CommandMove(DIRECTION::FORWARD);    //error I dont know why, can anybody help ?
             m_Dispatcher->executeCommand(com);
             std::cout << "One step forward" << std::endl;
         }
         else if (command[0] == "move_backward")
         {
-            //com = new CommandMove(CommandMove::Direction::backward);
+            com = new CommandMove();
             m_Dispatcher->executeCommand(com);
             std::cout << "One step back" << std::endl;
         }
