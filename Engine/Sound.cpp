@@ -874,7 +874,7 @@ bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, boo
       PathToLib_Vorbisfile = "/usr/lib/libvorbisfile.so";
     #endif
   }
-  
+
   //vorbisfile.dll (or libvorbisfile.so) tries to load ogg.dll and vorbis.dll
   //(or libogg.so and libvorbis.so), too. If these files are not found, then the
   // call to LoadLibrary/dlopen of vorbisfile will fail!
@@ -1028,7 +1028,7 @@ bool Sound::Exit()
   }
   #endif
   libHandleAL = NULL;
-  
+
   //release OggVorbis library
   #if defined(_WIN32)
   if (libHandleOV != NULL)
@@ -1186,7 +1186,7 @@ bool Sound::PlayWAV(std::string WAV_FileName)
   dat.read((char*) &(fmt_c.BytesPerSecond), 4);
   dat.read((char*) &(fmt_c.BlockAlign), 2);
   dat.read((char*) &(fmt_c.BitsPerSample), 2);
-  
+
   //for larger format chunks: read rest of chunk into temp buffer and discard it
   if (fmt_c.chunk_size > 16)
   {
@@ -1477,12 +1477,12 @@ bool Sound::PlayOgg(std::string Ogg_FileName)
               << "cannot play an OggVorbis file here.\n";
     return false;
   }
-  
+
   OggVorbis_File * pOggFile;
   FILE * file_handle;
   vorbis_info * pVorbisInfo;
   int result;
-  
+
   file_handle = fopen(Ogg_FileName.c_str(), "rb");
   if (file_handle == NULL)
   {
@@ -1493,7 +1493,7 @@ bool Sound::PlayOgg(std::string Ogg_FileName)
 
   std::cout << "Sound::PlayOgg: Debug: file \""<<Ogg_FileName<< "\" opened for "
             <<"reading with fopen.\n";
-  
+
   result = ov_open_callbacks(file_handle, pOggFile, NULL, 0, OV_CALLBACKS_DEFAULT);
   if (result !=0)
   {
@@ -1522,10 +1522,10 @@ bool Sound::PlayOgg(std::string Ogg_FileName)
     }
     return false;
   }//if
-  
+
   std::cout << "Sound::PlayOgg: Debug: file \""<<Ogg_FileName<< "\" opened for "
             <<"reading with ov_open_callbacks.\n";
-  
+
   pVorbisInfo = ov_info(pOggFile, -1);
   if (pVorbisInfo == NULL)
   {
@@ -1542,7 +1542,7 @@ bool Sound::PlayOgg(std::string Ogg_FileName)
               << "    Upper: " << pVorbisInfo->bitrate_upper <<"\n"
               << "    Lower: " << pVorbisInfo->bitrate_lower <<"\n";
   }
-  
+
   //more to come
 
   //clean up
@@ -1940,10 +1940,32 @@ bool Sound::FreeFileResources(std::string FileName)
   }
   if (pFileList->FileName == FileName)
   { //first entry is to be removed
+    alGetError();//clear error state
     alSourceStop(pFileList->sourceID);
+    error_state = alGetError();
+    if (error_state != AL_NO_ERROR)
+    {
+      std::cout << "Sound::FreeFileResources: Error: Could not stop source for"
+                << " file \""<<FileName<<"\". Aborting.\n";
+      return false;
+    }
     alSourceUnqueueBuffers(pFileList->sourceID, pFileList->num_buffers,
                            pFileList->buffers);
+    error_state = alGetError();
+    if (error_state != AL_NO_ERROR)
+    {
+      std::cout << "Sound::FreeFileResources: Error: Could not unqueue buffers"
+                << " of file \""<<FileName<<"\". Aborting.\n";
+      return false;
+    }
     alDeleteBuffers(pFileList->num_buffers, pFileList->buffers);
+    error_state = alGetError();
+    if (error_state != AL_NO_ERROR)
+    {
+      std::cout << "Sound::FreeFileResources: Error: Could not delete buffers"
+                << " of file \""<<FileName<<"\". Aborting.\n";
+      return false;
+    }
     temp = pFileList;
     pFileList = pFileList->next;
     delete temp;
@@ -1956,16 +1978,37 @@ bool Sound::FreeFileResources(std::string FileName)
     if (temp->next->FileName == FileName)
     {
       alSourceStop(temp->next->sourceID);
+      error_state = alGetError();
+      if (error_state != AL_NO_ERROR)
+      {
+        std::cout << "Sound::FreeFileResources: Error: Could not stop source "
+                  << " for file \""<<FileName<<"\". Aborting.\n";
+        return false;
+      }
       alSourceUnqueueBuffers(temp->next->sourceID, temp->next->num_buffers,
                              temp->next->buffers);
+      error_state = alGetError();
+      if (error_state != AL_NO_ERROR)
+      {
+        std::cout << "Sound::FreeFileResources: Error: Could not unqueue "
+                  << "buffers of file \""<<FileName<<"\". Aborting.\n";
+        return false;
+      }
       alDeleteBuffers(temp->next->num_buffers, temp->next->buffers);
+      error_state = alGetError();
+      if (error_state != AL_NO_ERROR)
+      {
+        std::cout << "Sound::FreeFileResources: Error: Could not delete buffers"
+                  << " of file \""<<FileName<<"\". Aborting.\n";
+        return false;
+      }
       temp2 = temp->next;
       temp->next = temp->next->next;
       delete temp2;
       return true;
     }
     temp = temp->next;
-  }
+  }//while
   std::cout << "Sound::FreeFileResources: Hint: Couldn't free resources for \""
             << FileName << "\". There are no resources for such a file.\n";
   return false;
@@ -2118,7 +2161,7 @@ void Sound::AllFuncPointersToNULL(void)
   alSpeedOfSound = NULL;
   alDistanceModel = NULL;
   */
-  
+
   //**** OggVorbis function pointers
   ov_clear = NULL;
   ov_comment = NULL;

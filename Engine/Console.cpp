@@ -116,7 +116,7 @@ int Console::executeCommand(std::string p_string)
         }
         else if (command[0] == "move_forward")
         {
-            //com = new CommandMove(DIRECTION::FORWARD);    //error I dont know why, can anybody help ?
+            com = new CommandMove(FORWARD);
             m_Dispatcher->executeCommand(com);
             std::cout << "One step forward" << std::endl;
         }
@@ -209,6 +209,8 @@ int Console::executeCommand(std::string p_string)
         }
     }
     if(com) delete com;
+
+    // we should still return true; or return false; here
 }
 
 }

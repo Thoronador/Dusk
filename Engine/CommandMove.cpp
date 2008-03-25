@@ -19,27 +19,29 @@ namespace Dusk
         Dusk::Camera* m_Camera = getAPI().getDuskCamera();
         switch(m_Direction)
         {
-            /*
-            case DIRECTION::FORWARD:
-                m_Camera->translate(Ogre::Vector3(0,moveConstant,0); // my be the wrong direction
+            case FORWARD:
+                //m_Camera->translate(Ogre::Vector3(0,moveConstant,0)); // may be the wrong direction
+                //I still get a linking error here, so I've put it into comments. :(
                 break;
-            case DIRECTION::BACKWARD:
-                m_Camera->translate(Ogre::Vector3(0,-moveConstant,0);
+            case BACKWARD:
+                //m_Camera->translate(Ogre::Vector3(0,-moveConstant,0));
+                //I still get a linking error here, so I've put into comments. :(
                 break;
-            case DIRECTION::LEFT:
+            case LEFT:
 
                 break;
-            case DIRECTION::RIGHT:
+            case RIGHT:
 
                 break;
-            case DIRECTION::UP:
+            case UP:
 
                 break;
-            case DIRECTION::DOWN:*/
+            case DOWN:
 
                 break;
             default:
             break;
         }
+        //we should do "return true;" or "return false;" here
     }
 }
