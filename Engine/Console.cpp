@@ -122,20 +122,26 @@ int Console::executeCommand(std::string p_string)
         }
         else if (command[0] == "move_backward")
         {
-            com = new CommandMove();
+            com = new CommandMove(BACKWARD);
             m_Dispatcher->executeCommand(com);
             std::cout << "One step back" << std::endl;
         }
         else if (command[0] == "step_left")
         {
+            com = new CommandMove(LEFT);
+            m_Dispatcher->executeCommand(com);
             std::cout << "to the left" << std::endl;
         }
         else if (command[0] == "step_right")
         {
+            com = new CommandMove(RIGHT);
+            m_Dispatcher->executeCommand(com);
             std::cout << "to the right" << std::endl;
         }
         else if (command[0] == "jump")
         {
+            com = new CommandMove(UP);
+            m_Dispatcher->executeCommand(com);
             std::cout << "up up!" << std::endl;
         }
         else if (command[0] == "PlaySound")

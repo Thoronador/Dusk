@@ -20,6 +20,7 @@ namespace Dusk
             Ogre::Camera* m_Camera;
             Ogre::SceneNode* m_Primary;
             Ogre::SceneNode* m_Secondary;
+            Ogre::Vector3 m_translationVector;
     };
 }
 

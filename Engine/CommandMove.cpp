@@ -3,7 +3,7 @@
 #include "DuskTypes.h"
 namespace Dusk
 {
-    int CommandMove::moveConstant = 200;
+    int CommandMove::moveConstant = 20;
 
     CommandMove::CommandMove(DIRECTION dir) : m_Direction(dir)
     {
@@ -20,24 +20,24 @@ namespace Dusk
         switch(m_Direction)
         {
             case FORWARD:
-                //m_Camera->translate(Ogre::Vector3(0,moveConstant,0)); // may be the wrong direction
+                m_Camera->translate(Ogre::Vector3(0,0,-moveConstant));
                 //I still get a linking error here, so I've put it into comments. :(
                 break;
             case BACKWARD:
-                //m_Camera->translate(Ogre::Vector3(0,-moveConstant,0));
+                m_Camera->translate(Ogre::Vector3(0,0,moveConstant));
                 //I still get a linking error here, so I've put into comments. :(
                 break;
             case LEFT:
-
+                m_Camera->translate(Ogre::Vector3(-moveConstant,0,0));
                 break;
             case RIGHT:
-
+                m_Camera->translate(Ogre::Vector3(moveConstant,0,0));
                 break;
             case UP:
-
+                m_Camera->translate(Ogre::Vector3(0,moveConstant,0));
                 break;
             case DOWN:
-
+                m_Camera->translate(Ogre::Vector3(0,-moveConstant,0));
                 break;
             default:
             break;
