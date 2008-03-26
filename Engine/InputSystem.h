@@ -29,7 +29,7 @@ namespace Dusk
      * one or more InputEvents. It extends the OIS KeyListener to receive the KeyEvents
      * and generate the Script.
      */
-    class InputSystem : public OIS::KeyListener{
+    class InputSystem : public OIS::KeyListener, OIS::MouseListener{
     public:
         /**
          * Standard konstructor
@@ -70,6 +70,8 @@ namespace Dusk
         static eActiveInputClass s_activeInputClass;
 
         static OIS::Keyboard* s_keyboard;
+
+        static OIS::Mouse* s_mouse;
 
 
 

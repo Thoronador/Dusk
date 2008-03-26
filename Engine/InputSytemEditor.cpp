@@ -119,5 +119,19 @@ InputSystemEditor& InputSystemEditor::get()
     return Instance;
 
 }
+bool InputSystemEditor::mouseMoved( const OIS::MouseEvent &arg )
+{
+
+return true;
+}
+bool InputSystemEditor::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
+{
+
+return true;
+}
+bool InputSystemEditor::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
+{
+return true;
+}
 
 } // namespace

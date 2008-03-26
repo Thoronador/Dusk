@@ -11,6 +11,7 @@ eActiveInputClass InputSystem::s_activeInputClass = AIC_NONE;
 InputSystemBinding* InputSystem::s_inputSystemBinding = 0;
 InputSystemEditor* InputSystem::s_inputSystemEditor = 0;
 OIS::Keyboard* InputSystem::s_keyboard = 0;
+OIS::Mouse* InputSystem::s_mouse = 0;
 
 InputSystem::InputSystem()
 {
@@ -32,6 +33,7 @@ bool InputSystem::initializeInput(Ogre::RenderWindow* win, Ogre::Root* root)
 
     //Input devicesa
     s_keyboard = static_cast<OIS::Keyboard*>(inputManager->createInputObject( OIS::OISKeyboard, true ));
+    s_mouse = static_cast<OIS::Mouse*>(inputManager->createInputObject( OIS::OISMouse, true ));
 
     //Input systems
     s_inputSystemBinding =  &(InputSystemBinding::get());
@@ -39,6 +41,7 @@ bool InputSystem::initializeInput(Ogre::RenderWindow* win, Ogre::Root* root)
 
     //current input system is binding input system
     s_keyboard->setEventCallback(s_inputSystemBinding);
+    s_mouse->setEventCallback(s_inputSystemBinding);
     s_activeInputClass = AIC_BINDING;
 
     return true;
@@ -53,11 +56,13 @@ bool InputSystem::toggleInput()
         case AIC_BINDING:
             s_activeInputClass = AIC_EDITOR;
             s_keyboard->setEventCallback(s_inputSystemEditor);
+            s_mouse->setEventCallback(s_inputSystemEditor);
             s_inputSystemEditor->toggle();
             break;
         case AIC_EDITOR:
             s_activeInputClass = AIC_BINDING;
             s_keyboard->setEventCallback(s_inputSystemBinding);
+            s_mouse->setEventCallback(s_inputSystemBinding);
             s_inputSystemEditor->toggle();
             break;
     }
@@ -68,6 +73,8 @@ bool InputSystem::captureInput()
 {
     if (s_keyboard != 0)
         s_keyboard->capture();
+    if(s_mouse != 0)
+        s_mouse->capture();
     return true;
 }
 

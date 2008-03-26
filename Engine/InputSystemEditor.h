@@ -67,6 +67,10 @@ namespace Dusk
 
         void exit(){m_continue = false;}
 
+        virtual bool mouseMoved( const OIS::MouseEvent &arg );
+		virtual bool mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
+		virtual bool mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
+
     private:
         /**
          * Standard konstructor

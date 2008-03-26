@@ -63,4 +63,19 @@ InputSystemBinding& InputSystemBinding::get()
     return Instance;
 }
 
+bool InputSystemBinding::mouseMoved( const OIS::MouseEvent &arg )
+{
+    return true;
+}
+
+bool InputSystemBinding::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
+{
+    return true;
+}
+
+bool InputSystemBinding::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
+{
+    return true;
+}
+
 } // end namespace
