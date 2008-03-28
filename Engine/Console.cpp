@@ -9,6 +9,8 @@
 #include "CommandStopSound.h"
 #include "CommandUnPauseSound.h"
 #include "CommandMove.h"
+#include "CommandLoopSound.h"
+#include "CommandSoundVolume.h"
 #include "DuskTypes.h"
 #include <iostream>
 
@@ -206,6 +208,37 @@ int Console::executeCommand(std::string p_string)
             else
             {
                 com  = new CommandReplaySound(command[1]);
+                m_Dispatcher->executeCommand(com);
+            }
+        }
+        else if (command[0] == "LoopSound")
+        {
+            if(command.size()< 3)
+            {
+                std::cout<<"Console::executeCommand: Error: Not enough "
+                         <<"parameters for LoopSound (2 needed)."<<std::endl;
+            }
+            else
+            {
+                /*Note on second parameter (bool): all strings except "1" will
+                  be interpreted as false. Maybe we should change that later.*/
+                com  = new CommandLoopSound(command[1], command[2].compare("1")==0);
+                m_Dispatcher->executeCommand(com);
+            }
+        }
+        
+        else if (command[0] == "SoundVolume")
+        {
+            if(command.size()< 3)
+            {
+                std::cout<<"Console::executeCommand: Error: Not enough "
+                         <<"parameters for SoundVolume (2 needed)."<<std::endl;
+            }
+            else
+            {
+                /*Note on second parameter (float): volume is set to 1.0 until
+                  someone knows a good and safe way to convert string to float*/
+                com  = new CommandSoundVolume(command[1], 1.0f);
                 m_Dispatcher->executeCommand(com);
             }
         }
