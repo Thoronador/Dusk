@@ -13,6 +13,7 @@
 #include "CommandSoundVolume.h"
 #include "DuskTypes.h"
 #include <iostream>
+#include <sstream>
 
 namespace Dusk
 {
@@ -236,9 +237,14 @@ int Console::executeCommand(std::string p_string)
             }
             else
             {
-                /*Note on second parameter (float): volume is set to 1.0 until
-                  someone knows a good and safe way to convert string to float*/
-                com  = new CommandSoundVolume(command[1], 1.0f);
+                //predefined volume value
+                float vol = 1.0f;
+                //convert string into float via string stream
+                std::istringstream str_stream;
+                str_stream.str(command[2]);
+                str_stream >> vol;
+                
+                com  = new CommandSoundVolume(command[1], vol);
                 m_Dispatcher->executeCommand(com);
             }
         }

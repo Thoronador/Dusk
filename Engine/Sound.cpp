@@ -2412,6 +2412,12 @@ bool Sound::SetVolume(std::string FileName, const float volume)
         }//swi
         return false;
       }//if
+      if (volume >1.0f)
+      {
+        std::cout << "Sound::SetVolume: Warning: Some OpenAL implementations"
+                  << " cut volume values larger than 1.0 down to 1.0.\n";
+      }//if
+      return true;
     }//if
     temp = temp->next;
   }//while
