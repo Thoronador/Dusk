@@ -1917,6 +1917,7 @@ bool Sound::IsPlaying(std::string FileName) const
                std::cout << "    Unknown error. Error code: "<<error_state<<".\n";
                break;
         }//swi
+        return false;
       }
       else if (source_state == AL_PLAYING)
       {
@@ -2236,6 +2237,251 @@ bool Sound::Replay(std::string FileName)
             << " is no such file.\n";
   return false;
 }
+
+/*Sets an audio file into looping mode if DoLoop==true, otherwise it gets the
+   file out of looping mode. Returns true on success, false otherwise.*/
+bool Sound::Loop(std::string FileName, bool DoLoop)
+{
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::Loop: Warning: OpenAL is not initialized, thus we "
+              << "can not have any (looping) files yet.\n";
+    return false;
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::Loop: ERROR: (De-)Initialization of OpenAL is in "
+              << "progress, thus we cannot have a looping file here.\n";
+    return false;
+  }
+  ALenum error_state;
+  TBufSrcRecord * temp;
+  temp = pFileList;
+  while (temp!=NULL)
+  {
+    if (temp->FileName == FileName)
+    { //found it
+      alGetError();
+      if (DoLoop)
+      {
+        alSourcei(temp->sourceID, AL_LOOPING, AL_TRUE);
+      }
+      else
+      {
+        alSourcei(temp->sourceID, AL_LOOPING, AL_FALSE);
+      }
+      error_state = alGetError();
+      if (error_state != AL_NO_ERROR)
+      {
+        std::cout << "Sound::Loop: ERROR: Could not set loop mode for file \""
+                  << FileName << "\".\n";
+        switch (error_state)
+        {
+          case AL_INVALID_VALUE:
+               std::cout << "    The given value is out of range.\n"; break;
+          case AL_INVALID_ENUM: //should never occur here
+               std::cout << "    The specified parameter is not valid.\n";
+               break;
+          case AL_INVALID_NAME:
+               std::cout << "    The source name("<<temp->sourceID<<") is not "
+                         << "valid. Corrupt internal file list?\n"; break;
+          case AL_INVALID_OPERATION:
+               std::cout << "    There is no current context.\n"; break;
+          default:
+               std::cout << "    Unknown error. Error code: "<<(int)error_state
+                         << ".\n"; break;
+        }//swi
+        return false;
+      }//if
+      return true;
+    }//if
+    temp = temp->next;
+  }//while
+  //there is no such file
+  return false;
+}
+
+/*Determines, whether a sound file is in loop mode
+   return value: true if file is looping, false otherwise*/
+bool Sound::IsLooping(std::string FileName) const
+{ 
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::IsLooping: Warning: OpenAL is not initialized, thus we "
+              << "can not have any looping files yet.\n";
+    return false;
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::IsLooping: ERROR: (De-)Initialization of OpenAL is in "
+              << "progress, thus we cannot have a looping file here.\n";
+    return false;
+  }
+  TBufSrcRecord * temp;
+  temp = pFileList;
+  
+  ALint loop_state;
+  ALenum error_state;
+  
+  while (temp!=NULL)
+  {
+    if (temp->FileName == FileName)
+    { //found file
+      alGetError(); //clear error state
+      alGetSourcei(temp->sourceID, AL_LOOPING, &loop_state);
+      error_state = alGetError();
+      if (error_state != AL_NO_ERROR)
+      {
+        std::cout << "Sound::IsLooping: ERROR: Could not retrieve source state "
+                  << "for file \""<<FileName<<"\".\n";
+        switch(error_state)
+        {
+          case AL_INVALID_VALUE:
+               std::cout << "    The pointer to ALint is invalid.\n"; break;
+          case AL_INVALID_ENUM://shouldn't occur, since AL_SOURCE STATE is valid
+               std::cout << "    Invalid parameter given.\n"; break;
+          case AL_INVALID_NAME: //shouldn't occur, if pFileList is not corrupted
+               std::cout << "    Invalid source name("<< temp->sourceID
+                         <<"). Corrupt file list?\n"; break;
+          case AL_INVALID_OPERATION:
+               std::cout << "    There is no current context.\n"; break;
+          default:
+               std::cout << "    Unknown error occured. Error code: "
+                         <<error_state<<"\n."; break;
+        }//swi
+        return false; //assume source is not in loop mode, though we can't know
+      }//if
+      return (loop_state == AL_TRUE);
+    }//if
+    temp = temp->next;
+  }//while
+  return false;
+}
+
+/* Sets the volume for a file and returns true on success, false otherwise.
+   Default volume for every file is 1.0f, a value of zero means muted.
+   Some implementations cut values >1.0f down to 1.0f, due to optimization. */
+bool Sound::SetVolume(std::string FileName, const float volume)
+{
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::SetVolume: Warning: OpenAL is not initialized, thus we"
+              << "cannot set any files volumes yet.\n";
+    return false;
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::SetVolume: ERROR: (De-)Initialization of OpenAL is in "
+              << "progress, thus we cannot have a file here.\n";
+    return false;
+  }
+  if (volume<0.0f)
+  {
+    std::cout << "Sound::SetVolume: ERROR: No volume values below zero allowed."
+              << "Skipping command.\n";
+    return false;
+  }
+  ALenum error_state;
+  TBufSrcRecord * temp;
+  temp = pFileList;
+  while (temp!=NULL)
+  {
+    if (temp->FileName == FileName)
+    { //got it
+      alGetError(); //clear error state
+      alSourcef(temp->sourceID, AL_GAIN, volume);
+      error_state = alGetError();
+      if (error_state != AL_NO_ERROR)
+      {
+        std::cout << "Sound::SetVolume: ERROR: Could not set volume for file \""
+                  <<FileName<<"\".\n";
+        switch(error_state)
+        {
+          case AL_INVALID_VALUE:
+               std::cout << "    Value out of range.\n"; break;
+          case AL_INVALID_ENUM: //should never occur here
+               std::cout << "    Invalid parameter.\n"; break;
+          case AL_INVALID_NAME:
+               std::cout << "    Invalid source("<<temp->sourceID<<"). Corrupt "
+                         << "file list?\n"; break;
+          case AL_INVALID_OPERATION:
+               std::cout << "    There is no current context.\n"; break;
+          default:
+               std::cout << "    Unknown error. Error code: "<<(int)error_state
+                         << ".\n"; break;
+        }//swi
+        return false;
+      }//if
+    }//if
+    temp = temp->next;
+  }//while
+  //file not found
+  std::cout << "Sound::SetVolume: Warning: File \""<<FileName<<"\" was not "
+            <<"found.\n";
+  return false;
+}
+
+/*Determines the volume of a file. A value of 1.0f is default volume, zero means
+  muted. Values >1.0f can be clamped to 1.0f due to performance reasons by
+  several implementations.
+  Returns volume of file. On error or if file isn't found, return value is zero.
+*/
+float Sound::GetVolume(std::string FileName) const
+{
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::GetVolume: Warning: OpenAL is not initialized, thus we"
+              << "cannot retrieve any files volumes yet.\n";
+    return 0.0;
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::GetVolume: ERROR: (De-)Initialization of OpenAL is in "
+              << "progress, thus we cannot have a file here.\n";
+    return 0.0;
+  }
+  
+  ALfloat volume_info;
+  ALenum error_state;
+  TBufSrcRecord * temp;
+  temp = pFileList;
+  while(temp!=NULL)
+  {
+    if (temp->FileName == FileName)
+    { //file found
+      alGetError(); //clear error state
+      alGetSourcef(temp->sourceID, AL_GAIN, &volume_info);
+      error_state = alGetError();
+      if (error_state != AL_NO_ERROR)
+      {
+        std::cout << "Sound::GetVolume: ERROR: Could not retrieve source state "
+                  << "for file \""<<FileName<<"\".\n";
+        switch(error_state)
+        {
+          case AL_INVALID_VALUE:
+               std::cout << "    Invalid value pointer.\n"; break;
+          case AL_INVALID_ENUM: //should never occur here
+               std::cout << "    Invalid enumeration parameter.\n"; break;
+          case AL_INVALID_NAME:
+               std::cout << "    The specified source ("<<temp->sourceID<<") is"
+                         << " not valid. Corrupt file list?\n"; break;
+          case AL_INVALID_OPERATION:
+               std::cout << "    There is no current context.\n"; break;
+          default:
+               std::cout << "    Unknown error. Error code: "<<(int)error_state
+                         << ".\n"; break;
+        }//swi
+        return 0.0f; //assume something
+      }//if
+      return volume_info;
+    }//if
+    temp = temp->next;
+  }//while
+  std::cout << "Sound::GetVolume: Warning: File \""<<FileName<<"\" was not "
+            <<"found. Assuming zero volume.\n";
+  return 0.0f; //no file found, hence it is "muted", i.e. volume zero
+}
+
 
 //Frees all buffers of a file - if present.
 //  freeing a not buffered file is a legal no-op, but should result in false

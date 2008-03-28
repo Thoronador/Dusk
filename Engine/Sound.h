@@ -78,6 +78,10 @@ class Sound
     bool UnPause(std::string FileName);
     bool Stop(std::string FileName);
     bool Replay(std::string FileName);
+    bool Loop(std::string FileName, bool DoLoop = true);
+    bool IsLooping(std::string FileName) const;
+    bool SetVolume(std::string FileName, const float volume = 1.0f);
+    float GetVolume(std::string FileName) const;
     bool FreeFileResources(std::string FileName);//should possibly be private?
     std::vector<std::string> GetBufferedFiles() const;
     static Sound& get();
