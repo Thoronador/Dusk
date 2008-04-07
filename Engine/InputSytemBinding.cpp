@@ -65,6 +65,8 @@ InputSystemBinding& InputSystemBinding::get()
 
 bool InputSystemBinding::mouseMoved( const OIS::MouseEvent &arg )
 {
+    const std::string mouseMoveCommand = "MoveMouse ";
+    Console::getInstance()->addScript(Script());
     return true;
 }
 

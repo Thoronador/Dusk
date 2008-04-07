@@ -74,6 +74,7 @@ int Console::executeCommand(std::string p_string)
     std::string tmp;
     Command* com = NULL;
 
+    //divide string into vector of strings
     if(p_string != "")
     {
         for(iter = p_string.begin();iter != p_string.end();iter++)
@@ -117,6 +118,8 @@ int Console::executeCommand(std::string p_string)
         {
             std::cout << "Bring it to an end" << std::endl;
         }
+        //---------------------------------------------------------
+        //Movement Commands
         else if (command[0] == "move_forward")
         {
             com = new CommandMove(FORWARD);
@@ -147,6 +150,14 @@ int Console::executeCommand(std::string p_string)
             m_Dispatcher->executeCommand(com);
             std::cout << "up up!" << std::endl;
         }
+        else if (command[0] == "MoveMouse")
+        {
+
+            std::cout<<"Move Mouse"<<std::endl;
+        }
+        //-------------------------------------------------------
+        // Sound Commands
+
         else if (command[0] == "PlaySound")
         {
             if(command.size()< 2)
@@ -227,7 +238,7 @@ int Console::executeCommand(std::string p_string)
                 m_Dispatcher->executeCommand(com);
             }
         }
-        
+
         else if (command[0] == "SoundVolume")
         {
             if(command.size()< 3)
@@ -243,7 +254,7 @@ int Console::executeCommand(std::string p_string)
                 std::istringstream str_stream;
                 str_stream.str(command[2]);
                 str_stream >> vol;
-                
+
                 com  = new CommandSoundVolume(command[1], vol);
                 m_Dispatcher->executeCommand(com);
             }

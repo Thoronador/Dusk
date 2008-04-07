@@ -122,16 +122,17 @@ InputSystemEditor& InputSystemEditor::get()
 bool InputSystemEditor::mouseMoved( const OIS::MouseEvent &arg )
 {
 
-return true;
+    return true;
 }
 bool InputSystemEditor::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
 {
 
-return true;
+    return true;
 }
 bool InputSystemEditor::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
 {
-return true;
+
+    return true;
 }
 
 } // namespace
