@@ -5,7 +5,6 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
-//#include <cstdlib>
 #if defined(_WIN32)
   #include <windows.h>
 #else
@@ -70,8 +69,10 @@ class Sound
 {
   public:
     virtual ~Sound();
+    //(de-)initialization routines
     bool Init(std::string PathToLib_AL = "NULL", std::string PathToLib_Vorbisfile = "NULL", bool needVorbis = false);//initializes OpenAL
     bool Exit();//deinitializes OpenAL
+    //routines for managing sound state
     bool Play(std::string FileName);
     bool IsPlaying(std::string FileName) const;
     bool Pause(std::string FileName);
@@ -80,8 +81,20 @@ class Sound
     bool Replay(std::string FileName);
     bool Loop(std::string FileName, bool DoLoop = true);
     bool IsLooping(std::string FileName) const;
+    //volume functions
     bool SetVolume(std::string FileName, const float volume = 1.0f);
-    float GetVolume(std::string FileName) const;
+    float GetVolume(std::string FileName, bool consider_MinMax = false) const;
+    //listener attributes
+    bool SetListenerPostion(const float x, const float y, const float z);
+    std::vector<float> GetListenerPosition() const;
+    bool ListenerTranslatePostion(const float delta_x, const float delta_y, const float delta_z);
+    std::vector<float> GetListenerOrientation() const;
+    bool ListenerRotate(const float x_axis, const float y_axis=0.0f, const float z_axis=0.0f);
+
+    //source postioning
+    bool SetSoundPosition(const std::string FileName, const float x, const float y, const float z);
+    std::vector<float> GetSoundPosition(const std::string FileName) const;
+    //file management
     bool FreeFileResources(std::string FileName);//should possibly be private?
     std::vector<std::string> GetBufferedFiles() const;
     static Sound& get();
@@ -92,7 +105,8 @@ class Sound
     Sound(const Sound& op){}
     bool PlayWAV(std::string WAV_FileName);
     bool PlayOgg(std::string Ogg_FileName);
-    void AllFuncPointersToNULL(void); //never ever call this one manually!
+    void AllFuncPointersToNULL(void); //never ever call this one manually,
+    // or you might render the whole class inoperative!
 
     TBufSrcRecord * pFileList;//pointer to list
 
@@ -263,7 +277,6 @@ class Sound
     P_ov_pcm_total ov_pcm_total;
     P_ov_read ov_read;
     P_ov_test ov_test;
-    
 };
 
 #endif // SOUND_H
