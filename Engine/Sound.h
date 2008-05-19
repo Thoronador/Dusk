@@ -84,16 +84,24 @@ class Sound
     //volume functions
     bool SetVolume(std::string FileName, const float volume = 1.0f);
     float GetVolume(std::string FileName, bool consider_MinMax = false) const;
+    //general state query/set functions
+    float GetSpeedOfSound() const;
+    bool SetSpeedOfSound(const float new_value);
     //listener attributes
     bool SetListenerPostion(const float x, const float y, const float z);
     std::vector<float> GetListenerPosition() const;
     bool ListenerTranslatePostion(const float delta_x, const float delta_y, const float delta_z);
     std::vector<float> GetListenerOrientation() const;
     bool ListenerRotate(const float x_axis, const float y_axis=0.0f, const float z_axis=0.0f);
-
+    //listener velocity
+    bool SetListenerVelocity(const float x, const float y, const float z);
+    std::vector<float> GetListenerVelocity() const;
     //source postioning
     bool SetSoundPosition(const std::string FileName, const float x, const float y, const float z);
     std::vector<float> GetSoundPosition(const std::string FileName) const;
+    //source velocity
+    bool SetSoundVelocity(const std::string FileName, const float x, const float y, const float z);
+    std::vector<float> GetSoundVelocity(const std::string FileName) const;
     //file management
     bool FreeFileResources(std::string FileName);//should possibly be private?
     std::vector<std::string> GetBufferedFiles() const;
@@ -259,11 +267,11 @@ class Sound
     LPALGETBUFFERIV alGetBufferiv;
 
     //**** Global Parameters
-    /* Disabled for now
+    /* Partially disabled for now
     LPALDOPPLERFACTOR alDopplerFactor;
-    LPALDOPPLERVELOCITY alDopplerVelocity;
+    LPALDOPPLERVELOCITY alDopplerVelocity;*/
     LPALSPEEDOFSOUND alSpeedOfSound;
-    LPALDISTANCEMODEL alDistanceModel;
+    /*LPALDISTANCEMODEL alDistanceModel;
     */
     
     //**** OggVorbis function pointers

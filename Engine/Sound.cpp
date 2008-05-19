@@ -812,7 +812,21 @@ bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, boo
     InitInProgress = false;
     return false;
   }
-
+  
+  #if defined(_WIN32)
+  //Windows
+  alSpeedOfSound = (LPALSPEEDOFSOUND) GetProcAddress(libHandleAL, "alSpeedOfSound");
+  #else
+  //Linux
+  alSpeedOfSound = (LPALSPEEDOFSOUND) dlsym(libHandleAL, "alSpeedOfSound");
+  #endif
+  if (alSpeedOfSound == NULL)
+  {
+    std::cout << "Sound::Init: ERROR: Could not retrieve \"alSpeedOfSound\" address.\n";
+    InitInProgress = false;
+    return false;
+  }
+  
   //Initialization of device (finally)
   pDevice = alcOpenDevice(NULL); //opens default device
   //later: should possibly be modified to open a selected device instead of default
@@ -1520,8 +1534,8 @@ bool Sound::PlayWAV(std::string WAV_FileName)
       case AL_INVALID_OPERATION: //should not occur either
            std::cout << "    There is no current context."; break;
       default:
-           std::cout << "    Unknown error. Error code: "<<error_state<<".\n";
-           break;
+           std::cout << "    Unknown error. Error code: "<<(int)error_state
+           <<".\n"; break;
     }//swi
     /*We should delete previously generated (and now not needed) buffers and
      source here. I'm not completely sure whether buffers need to be unqueued
@@ -1915,8 +1929,8 @@ bool Sound::IsPlaying(std::string FileName) const
                //should normally never occur
                std::cout << "    There is no current context.\n"; break;
           default:
-               std::cout << "    Unknown error. Error code: "<<error_state<<".\n";
-               break;
+               std::cout << "    Unknown error. Error code: "<<(int)error_state
+               <<".\n"; break;
         }//swi
         return false;
       }
@@ -1972,7 +1986,7 @@ bool Sound::Pause(std::string FileName)
                std::cout << "    There is no current context.\n"; break;
           default:
                std::cout << "    Unknown error occured. Error code: "
-                         <<error_state<<"\n."; break;
+                         <<(int)error_state<<"\n."; break;
         }//swi
         return false; //shit happens, source was not paused
       }//if
@@ -2032,7 +2046,7 @@ bool Sound::UnPause(std::string FileName)
                std::cout << "    There is no current context.\n"; break;
           default:
                std::cout << "    Unknown error occured. Error code: "
-                         <<error_state<<"\n."; break;
+                         <<(int)error_state<<"\n."; break;
         }//swi
         return false;
       }//if
@@ -2066,7 +2080,7 @@ bool Sound::UnPause(std::string FileName)
                    std::cout << "    There is no current context.\n"; break;
               default:
                    std::cout << "    Unknown error occured. Error code: "
-                             <<error_state<<"\n."; break;
+                             <<(int)error_state<<"\n."; break;
             }//swi
             return false;
           }
@@ -2120,7 +2134,7 @@ bool Sound::Stop(std::string FileName)
                std::cout << "    There is no current context.\n"; break;
           default:
                std::cout << "    Unknown error occured. Error code: "
-                         <<error_state<<"\n."; break;
+                         <<(int)error_state<<"\n."; break;
         }//swi
         return false; //shit happens, source was not stopped
       }//if
@@ -2180,7 +2194,7 @@ bool Sound::Replay(std::string FileName)
                std::cout << "    There is no current context.\n"; break;
           default:
                std::cout << "    Unknown error occured. Error code: "
-                         <<error_state<<"\n."; break;
+                         <<(int)error_state<<"\n."; break;
         }//swi
         return false;
       }//if
@@ -2348,7 +2362,7 @@ bool Sound::IsLooping(std::string FileName) const
                std::cout << "    There is no current context.\n"; break;
           default:
                std::cout << "    Unknown error occured. Error code: "
-                         <<error_state<<"\n."; break;
+                         <<(int)error_state<<"\n."; break;
         }//swi
         return false; //assume source is not in loop mode, though we can't know
       }//if
@@ -2555,6 +2569,91 @@ float Sound::GetVolume(std::string FileName, bool consider_MinMax) const
             <<"found. Assuming zero volume.\n";
   return 0.0f; //no file found, hence it is "muted", i.e. volume zero
 }
+
+//returns speed of sound (for doppler and such stuff)
+//returns 0.0 on error
+float Sound::GetSpeedOfSound() const
+{
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::GetSpeedOfSound: Warning: OpenAL is not initialized "
+              << "yet, hence we cannot query anything here.\n";
+    return 0.0f;
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::GetSpeedOfSound: ERROR: (De-)Initialization of OpenAL "
+              << "is in progress. No state query possbile.\n";
+    return 0.0f;
+  }
+  ALenum error_state;
+  ALfloat result=0.0f;
+  alGetError();//clear error state
+  result = alGetFloat(AL_SPEED_OF_SOUND);
+  error_state = alGetError();
+  if (error_state!=AL_NO_ERROR)
+  {
+    std::cout << "Sound::GetSpeedOfSound: ERROR: Could not query state var.\n";
+    switch(error_state)
+    {
+      case AL_INVALID_ENUM: //unlikely (as in impossible) to happen
+           std::cout << "    Invalid enumeration token.\n"; break;
+      case AL_INVALID_OPERATION: //shouldn't happen, since we always have a valid
+                                 // context after initialization of Sound class
+           std::cout << "    There is no current context.\n"; break;
+      default:
+           std::cout << "    Unknown error. Error code: "<<(int)error_state
+                     <<".\n"; break;
+    }//swi
+    return 0.0f;
+  }//if
+  return result;
+}
+
+//sets speed of sound (for doppler and such stuff)
+// -returns: false on error, true otherwise
+bool Sound::SetSpeedOfSound(const float new_value)
+{
+  //values equal to or lesser than zero are rated "not funny"
+  if (new_value<=0.0f)
+  {
+    std::cout<<"Sound::SetSpeedOfSound: ERROR: Only positive values allowed!\n";
+    return false;
+  }
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::SetSpeedOfSound: Warning: OpenAL is not initialized "
+              << "yet, hence we cannot set any values here.\n";
+    return false;
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::SetSpeedOfSound: ERROR: (De-)Initialization of OpenAL "
+              << "is in progress. No state changes possbile.\n";
+    return false;
+  }
+  
+  ALenum error_state;
+  alGetError();//clear error state
+  alSpeedOfSound(new_value);
+  error_state = alGetError();
+  if (error_state!=AL_NO_ERROR)
+  {
+    std::cout << "Sound::SetSpeedOfSound: ERROR: Could not set new value.\n";
+    switch(error_state)
+    {
+      case AL_INVALID_VALUE:
+           std::cout << "    Invalid value given ("<<new_value<<").\n"; break;
+      case AL_INVALID_OPERATION:
+           std::cout << "    There is no current context.\n"; break;
+      default:
+           std::cout << "    Unknown error. Error code: "<<(int)error_state
+                     <<".\n"; break;
+    }//swi
+    return false;
+  }//if
+  return true;
+}//function SetSpeedOfSound
 
 //Sets position of the listener
 bool Sound::SetListenerPostion(const float x, const float y, const float z)
@@ -2858,6 +2957,97 @@ bool Sound::ListenerRotate(const float x_axis, const float y_axis, const float z
   return true; //seems like wie made it :)
 }
 
+//sets listener's velocity and returns true on success, false on error
+bool Sound::SetListenerVelocity(const float x, const float y, const float z)
+{
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::SetListenerVelocity: Warning: OpenAL is not "
+              << "initialized, we cannot set the listener velocity yet.\n";
+    return false;
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::SetListenerVelocity: ERROR: (De-)Initialization of "
+              << "OpenAL is in progress, thus we cannot set a velocity here.\n";
+    return false;
+  }
+  
+  ALenum error_state;
+  
+  alGetError(); //clear error state
+  alListener3f(AL_VELOCITY, x, y, z);
+  error_state = alGetError();
+  if (error_state != AL_NO_ERROR)
+  {
+    std::cout << "Sound::SetListenerVelocity: ERROR: Could not set velocity!\n";
+    switch(error_state)
+    {
+      case AL_INVALID_ENUM: //unlikely to happen
+           std::cout << "    Invalid enumeration token.\n"; break;
+      case AL_INVALID_OPERATION:
+           std::cout << "    There is no current context.\n"; break;
+      case AL_INVALID_VALUE:
+           std::cout << "    Invalid value given, possibly NaN? (Values: x: "<<x
+                     << "; y: "<<y<<"; z: "<<z<<")\n"; break;
+      default:
+           std::cout << "    Unknown error. Error code: "<<(int)error_state
+                     << ".\n"; break;
+    }//swi
+    return false;
+  }//if
+  return true;
+}//function SetListenerVelocity
+
+/*retrieves listener's velocity,
+  returns (0.0, 0.0, 0.0), if velocity could not be determined. However, a return
+  value of (0.0, 0.0, 0.0) does not necessarily indicate an error, since this
+  is also a legal return value for a non-moving listener.*/
+std::vector<float> Sound::GetListenerVelocity() const
+{
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::GetListenerVelocity: Warning: OpenAL is not "
+              << "initialized, we cannot have a listener velocity yet.\n";
+    return std::vector<float>(3, 0.0f);
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::GetListenerVelocity: ERROR: (De-)Initialization of "
+              << "OpenAL is in progress, thus we cannot get a velocity here.\n";
+    return std::vector<float>(3, 0.0f);
+  }
+  
+  ALenum error_state;
+  std::vector<float> result(3, 0.0f);
+  
+  alGetError();//clears error state
+  alGetListener3f(AL_VELOCITY, &result[0], &result[1], &result[2]);
+  error_state = alGetError();
+  if (error_state != AL_NO_ERROR)
+  {
+    std::cout << "Sound::GetListenerVelocity: ERROR: Could not retrieve "
+              << "velocity value of listener!\n";
+    switch(error_state)
+    {
+      case AL_INVALID_ENUM: //unlikely
+           std::cout << "    Invalid enumeration token.\n"; break;
+      case AL_INVALID_OPERATION:
+           std::cout << "    There is no current context.\n"; break;
+      case AL_INVALID_VALUE:
+           std::cout << "    Invalid pointer value(s) given.\n"; break;
+      default:
+           std::cout << "    Unknown error. Error code: "<<(int)error_state
+                     << ".\n"; break;
+    }//swi
+    return std::vector<float>(3, 0.0f);
+  }//if
+  return result;
+}//function GetListenerVelocity
+
+
+// ***** source attributes/ positioning *****
+
 //sets the postion of a sound source
 bool Sound::SetSoundPosition(const std::string FileName, const float x, const float y, const float z)
 {
@@ -2975,6 +3165,126 @@ std::vector<float> Sound::GetSoundPosition(const std::string FileName) const
   return result;
 }
 
+//sets velocity of sound source and returns true on success, false on error
+bool Sound::SetSoundVelocity(const std::string FileName, const float x, const float y, const float z)
+{
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::SetSoundVelocity: Warning: OpenAL is not initialized, "
+              << "thus we cannot set the sound position yet.\n";
+    return false;
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::SetSoundVelocity: ERROR: (De-)Initialization of OpenAL"
+              << " is in progress, thus we cannot set a position here.\n";
+    return false;
+  }
+  
+  ALenum error_state;
+  TBufSrcRecord * temp;
+  
+  temp = pFileList;
+  while (temp!=NULL)
+  {
+    if (temp->FileName == FileName)
+    {
+      alGetError();//clear error state
+      alSource3f(temp->sourceID, AL_VELOCITY, x, y, z);
+      error_state = alGetError();
+      if (error_state!=AL_NO_ERROR)
+      {
+        std::cout << "Sound::SetSoundVelocity: ERROR: Could not set new "
+                  << "velocity.\n"; break;
+        switch(error_state)
+        {
+          case AL_INVALID_ENUM: //unlikely to happen
+               std::cout << "    Invalid parameter token.\n"; break;
+          case AL_INVALID_NAME:
+               std::cout << "    Invalid source name("<<(int)(temp->sourceID)
+                         << "). Corrupt file list?\n"; break;
+          case AL_INVALID_OPERATION:
+               std::cout << "    There is no current context.\n"; break;
+          case AL_INVALID_VALUE:
+               std::cout << "    Invalid value given, possibly NaN? Values: x: "
+                         << x << "; y: "<<y<<"; z: "<<z<<"\n"; break;
+          default:
+               std::cout << "    Unknown error. Error code: "<<(int)error_state
+                         << ".\n"; break;
+        }//swi
+        return false;
+      }//if
+      return true;
+    }//if
+    temp = temp->next;
+  }//while
+  std::cout << "Sound::SetSoundVelocity: Hint: Could not find file \""<<FileName
+            << "\" in file list.\n";
+  return false;
+}//function SetSoundVelocity
+
+/*retrieve current velocity of a sound source;
+  returns (0.0, 0.0, 0.0), if velocity could not be determined. However, a return
+  value of (0.0, 0.0, 0.0) does not necessarily indicate an error, since this
+  is also a legal return value for a non-moving source.*/
+std::vector<float> Sound::GetSoundVelocity(const std::string FileName) const
+{
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::GetSoundVelocity: Warning: OpenAL is not initialized, "
+              << "thus we cannot set the sound position yet.\n";
+    return std::vector<float>(3, 0.0);
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::GetSoundVelocity: ERROR: (De-)Initialization of OpenAL"
+              << " is in progress, thus we cannot set a position here.\n";
+    return std::vector<float>(3, 0.0);
+  }
+  ALenum error_state;
+  TBufSrcRecord * temp;
+  std::vector<float> result(3, 0.0f);
+  
+  temp = pFileList;
+  while (temp!=NULL)
+  {
+    if (temp->FileName == FileName)
+    {
+      alGetError();//clear error state
+      alGetSource3f(temp->sourceID, AL_VELOCITY, &result[0], &result[1], &result[2]);
+      error_state = alGetError();
+      if (error_state != AL_NO_ERROR)
+      {
+        std::cout << "Sound::GetSoundVelocity: ERROR: Could not retrieve "
+                  << "velocity value!\n";
+        switch(error_state)
+        {
+          case AL_INVALID_ENUM: //unlikely to happen
+               std::cout << "    Invalid enumeration token!\n"; break;
+          case AL_INVALID_NAME:
+               std::cout << "    Invalid source name("<<(int)temp->sourceID
+                         << "). Corrupt file list?\n"; break;
+          case AL_INVALID_OPERATION:
+               std::cout << "    There is no current context.\n"; break;
+          case AL_INVALID_VALUE:
+               std::cout << "    Invalid pointer values given.\n"; break;
+          default:
+               std::cout << "    Unknown error. Error code: "<<(int)error_state
+                         << ".\n"; break;
+        }//swi
+        return std::vector<float>(3, 0.0);
+      }//if
+      return result;
+    }//if
+    temp = temp->next;
+  }//while
+  std::cout << "Sound::GetSoundVelocity: Could not find file \""<<FileName
+            << "\" in file list. No value has been set.\n";
+  return result;
+}//end of function GetSoundVelocity
+
+// ***** file management *****
+
 //Frees all buffers of a file - if present.
 //  freeing a not buffered file is a legal no-op, but should result in false
 bool Sound::FreeFileResources(std::string FileName)
@@ -3015,8 +3325,13 @@ bool Sound::FreeFileResources(std::string FileName)
     {
       std::cout << "Sound::FreeFileResources: Error: Could not delete buffers"
                 << " of file \""<<FileName<<"\". Aborting.\n";
+      //try to delete
       return false;
     }
+    alDeleteSources(1, &(pFileList->sourceID));
+    /*no error checks here - buffers are already deleted, and a lonely source
+      with no buffers to play would be rather useless, so just do the internal
+      clean-up and finish*/
     temp = pFileList;
     pFileList = pFileList->next;
     delete temp;
@@ -3053,6 +3368,10 @@ bool Sound::FreeFileResources(std::string FileName)
                   << " of file \""<<FileName<<"\". Aborting.\n";
         return false;
       }
+      //delete source
+      alDeleteSources(1, &(temp->next->sourceID));
+      //no error checks here - buffers are already deleted, and a lonely source
+      // would be rather useless, so just do the internal clean-up
       temp2 = temp->next;
       temp->next = temp->next->next;
       delete temp2;
@@ -3206,11 +3525,11 @@ void Sound::AllFuncPointersToNULL(void)
   alGetBufferiv = NULL;
 
   //**** Global Parameters
-  /* Disabled for now
+  /* Disabled (partially) for now
   alDopplerFactor = NULL;
-  alDopplerVelocity = NULL;
+  alDopplerVelocity = NULL;*/
   alSpeedOfSound = NULL;
-  alDistanceModel = NULL;
+  /*alDistanceModel = NULL;
   */
 
   //**** OggVorbis function pointers
