@@ -1027,18 +1027,22 @@ bool Sound::Exit()
   }
   InitInProgress = true;
 
+  int i;
+  std::vector<std::string> object_list;
   //try to free all AL sources
-  while (pNoiseList != NULL)
+  object_list = GetNoiseList(false);
+  for(i=0; i<object_list.size(); i++)
   {
-    DestroyNoise(pNoiseList->NoiseName);
+    DestroyNoise(object_list.at(i));
   }
   //try to free all file resources
-  while (pMediaList != NULL)
+  object_list = GetMediaList(false);
+  for(i=0; i<object_list.size(); i++)
   {
-    //frees resources of first file and sets pointer pFileList to next file,
-    //  so we will reach NULL (end of list) sooner or later
-    DestroyMedia(pMediaList->MediaName);
-  }//while
+    //frees resources of given media
+    DestroyMedia(object_list.at(i));
+  }
+
 
   //standard clean-up
   alcMakeContextCurrent(NULL); //NULL is valid for alcMakeContextCurrent, so we
@@ -1112,14 +1116,8 @@ bool Sound::Exit()
 
 bool Sound::IsMediaPresent(const std::string MediaIdentifier) const
 {
-  if (!AL_Ready || InitInProgress)
-  {
-    std::cout << "Sound::IsMediaPresent: Warning: OpenAL is not initialized, or"
-              << "(de-)initialization is in progress; thus we can not have "
-              << "media (yet).\n";
-    return false;
-  }
-
+  //no check for AL_Ready or InitInProgress, since it should work in every state
+  //of the class instance
   TMediaRec * temp;
   temp = pMediaList;
   while (temp!=NULL)
@@ -1135,14 +1133,8 @@ bool Sound::IsMediaPresent(const std::string MediaIdentifier) const
 
 bool Sound::IsNoisePresent(const std::string NoiseIdentifier) const
 {
-  if (!AL_Ready || InitInProgress)
-  {
-    std::cout << "Sound::IsNoisePresent: Warning: OpenAL is not initialized, or"
-              << "(de-)initialization is in progress; thus we can not have a "
-              << "noise (yet).\n";
-    return false;
-  }
-
+  //no check for AL_Ready or InitInProgress, since it should work in every state
+  //of the class instance
   TNoiseRec * temp;
   temp = pNoiseList;
   while (temp!=NULL)
@@ -1154,6 +1146,65 @@ bool Sound::IsNoisePresent(const std::string NoiseIdentifier) const
     temp = temp->next;
   }
   return false;
+}
+
+//returns list of present noise names as string vector.
+// parameter:
+//     -with_attached_media: if set to true, it also returns the names of
+//           attached media for the noises, i.e. first element is noise name,
+//           second element is media name of that noise. Third element is noise
+//           name of second noise, fourth element is media name of 2nd noise,
+//           and so on. Default value is false.
+std::vector<std::string> Sound::GetNoiseList(const bool with_attached_media) const
+{
+  //no check for AL_Ready or InitInProgress, since it should work in every state
+  //of the class instance
+  std::vector<std::string> result;
+  TNoiseRec * temp;
+  temp = pNoiseList;
+  while (temp!=NULL)
+  {
+    result.push_back(temp->NoiseName);
+    if (with_attached_media)
+    {
+      if (temp->attachedMedia != NULL)
+      {
+        result.push_back(temp->attachedMedia->MediaName);
+      }//if
+      else
+      {
+        result.push_back("");
+      }//else
+    }//if with media
+    temp = temp->next;
+  }//while
+  return result;
+}
+
+//returns list of present media names as string vector.
+// parameter:
+//     -with_file_names: if set to true, it also returns the names of the files
+//           the media was created from, i.e. first element is media name,
+//           second element is file name of that media. Third element is media
+//           name of second media, fourth element is file name of 2nd media, and
+//           so on. Default value is false.
+std::vector<std::string> Sound::GetMediaList(const bool with_file_names) const
+{
+  //no check for AL_Ready or InitInProgress, since it should work in every state
+  //of the class
+  std::vector<std::string> result;
+  TMediaRec * temp;
+  temp = pMediaList;
+  while(temp!=NULL)
+  {
+    result.push_back(temp->MediaName);
+    if (with_file_names)
+    {
+      result.push_back(temp->FileName);
+    }//if
+    temp = temp->next;
+  }//while
+  return result;
 }
 
 bool Sound::CreateNoise(const std::string NoiseIdentifier)
@@ -1225,16 +1276,18 @@ bool Sound::CreateNoise(const std::string NoiseIdentifier)
 
 bool Sound::DestroyNoise(const std::string NoiseIdentifier)
 {
-  if (!AL_Ready || InitInProgress)
+  if (!AL_Ready)
   {
-    std::cout << "Sound::DestroyNoise: ERROR: OpenAL is not initialized, or"
-              << "(de-)initialization is in progress; thus we can not create a "
-              << "noise (yet).\n";
+    std::cout << "Sound::DestroyNoise: ERROR: OpenAL is not initialized, thus "
+              << "we can not destroy a noise (yet).\n";
     return false;
   }
-  if (IsNoisePresent(NoiseIdentifier))
+  //no check for InitInProgress, since this should work in every state of the
+  //class instance, where AL is ready; and it's called during Exit(), so a check
+  //would prevent proper exit.
+  if (!IsNoisePresent(NoiseIdentifier))
   {
-    std::cout << "Sound::DestroyNoise: ERROR: A noise named\""<<NoiseIdentifier
+    std::cout << "Sound::DestroyNoise: ERROR: A noise named \""<<NoiseIdentifier
               <<"\" does not exist, hence we cannot destroy it.\n";
     return false;
   }
@@ -1708,16 +1761,18 @@ bool Sound::CreateOggMedia(const std::string MediaIdentifier, const std::string 
 
 bool Sound::DestroyMedia(const std::string MediaIdentifier)
 {
-  if (!AL_Ready || InitInProgress)
+  if (!AL_Ready)
   {
-    std::cout << "Sound::DestroyMedia: ERROR: OpenAL is not initialized, or"
-              << "(de-)initialization is in progress; thus we can not destroy "
-              << "media (yet).\n";
+    std::cout << "Sound::DestroyMedia: ERROR: OpenAL is not initialized, thus "
+              << "we can not destroy any media (yet).\n";
     return false;
   }
-  if (IsMediaPresent(MediaIdentifier))
+  //no check for InitInProgress, since this should work in every state of the
+  //class instance, where AL is ready; and it's called during Exit(), so a check
+  //would prevent proper exit.
+  if (!IsMediaPresent(MediaIdentifier))
   {
-    std::cout << "Sound::DestroyMedia: ERROR: A noise named\""<<MediaIdentifier
+    std::cout << "Sound::DestroyMedia: ERROR: A noise named \""<<MediaIdentifier
               <<"\" does not exist, hence we cannot destroy it.\n";
     return false;
   }
@@ -1767,7 +1822,6 @@ bool Sound::DestroyMedia(const std::string MediaIdentifier)
     delete temp;
     return true;
   }//if
-
 
   //wanted media is second or later in list
   temp = pMediaList;
@@ -1921,12 +1975,9 @@ bool Sound::Detach(const std::string NoiseIdentifier)
               << "cannot detach media from noise yet.\n";
     return false;
   }
-  if (InitInProgress)
-  {
-    std::cout << "Sound::Detach: Warning: (De-)Initialization of OpenAL is in "
-              << "progress, thus we cannot detach media from noise here.\n";
-    return false;
-  }
+  //no check for InitInProgress, since this should work in every state if the
+  //class instance, where AL is ready; and it's called during Exit(), so a check
+  //would prevent proper exit.
   if (!IsNoisePresent(NoiseIdentifier))
   {
     std::cout << "Sound::Detach: ERROR: there is no noise named \""
@@ -2620,8 +2671,230 @@ float Sound::GetNoiseVolume(const std::string NoiseIdentifier, const bool consid
   return 0.0f; //no file found, hence it is "muted", i.e. volume zero
 }
 
+//sets the position of the noise in 3D. Returns true on success, false otherwise
+bool Sound::SetNoisePosition(const std::string NoiseIdentifier, const float x, const float y, const float z)
+{
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::SetNoisePosition: Warning: OpenAL is not initialized, "
+              << "thus we cannot set the noise position yet.\n";
+    return false;
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::SetNoisePosition: ERROR: (De-)Initialization of OpenAL"
+              << " is in progress, thus we cannot set a position here.\n";
+    return false;
+  }
 
+  TNoiseRec * temp;
+  temp = pNoiseList;
+  while((temp!=NULL) && (temp->NoiseName != NoiseIdentifier))
+  {
+    temp = temp->next;
+  }//while
+  //check for sanity/ presence
+  if (temp == NULL)
+  {
+    std::cout << "Sound::SetNoisePosition: ERROR: Could not find noise \""
+              <<NoiseIdentifier<<"\".\n";
+    return false;
+  }
 
+  ALenum error_state;
+  alGetError(); //clear error state
+  alSource3f(temp->sourceID, AL_POSITION, x, y, z);
+  error_state = alGetError();
+  if (error_state != AL_NO_ERROR)
+  {
+    std::cout << "Sound::SetNoisePosition: ERROR: could not set position.\n";
+    switch(error_state)
+    {
+      case AL_INVALID_OPERATION:
+           std::cout << "    There is no current context.\n"; break;
+      case AL_INVALID_NAME:
+           std::cout << "    Invalid source name. Data corruption?\n"; break;
+      case AL_INVALID_ENUM: //should never happen, since AL_POSITION is valid
+           std::cout << "    Invalid enumeration parameter.\n"; break;
+      case AL_INVALID_VALUE:
+           std::cout << "    Given values are out of range (x: "<<x<<"; y: "<<y
+                     << "; z: "<<z<<").\n"; break;
+      default:
+           std::cout << "    Unknown error. Error code: "<<(int)error_state
+                     << ".\n"; break;
+    }//switch
+    return false;
+  }//if
+  return true;
+}
+
+//Retrieves the position of a noise entity. Returns vector of zeroes on failure.
+// However, a zero vector does not neccessarily indicate failure, because
+// the zero vector is also a valid position for a noise placed in the origin.
+std::vector<float> Sound::GetNoisePosition(const std::string NoiseIdentifier) const
+{
+  if (!AL_Ready || InitInProgress)
+  {
+    std::cout << "Sound::GetNoisePosition: Warning: OpenAL is not initialized, "
+              << "or (de-)initialisation is in progress. Thus we cannot get the"
+              << " sound position yet.\n";
+    return std::vector<float>(3, 0.0f);
+  }
+
+  TNoiseRec * temp;
+  temp = pNoiseList;
+  while (temp!=NULL && temp->NoiseName!=NoiseIdentifier)
+  {
+    temp = temp->next;
+  }//while
+  //check for presence
+  if (temp==NULL)
+  {
+    std::cout << "Sound::GetNoisePosition: ERROR: There is no noise named \""
+              <<NoiseIdentifier<<"\".\n";
+    return std::vector<float>(3, 0.0f);
+  }//if
+
+  std::vector<float> result(3, 0.0f);
+  ALenum error_state;
+
+  alGetError(); //clear error state
+  alGetSource3f(temp->sourceID, AL_POSITION, &result[0], &result[1], &result[2]);
+  error_state = alGetError();
+  if (error_state != AL_NO_ERROR)
+  {
+    std::cout << "Sound::GetNoisePosition: ERROR: could not retrieve source "
+              << "state of noise \""<<NoiseIdentifier<<"\".\n";
+    switch(error_state)
+    {
+      case AL_INVALID_OPERATION:
+           std::cout << "    There is no current context.\n"; break;
+      case AL_INVALID_NAME:
+           std::cout << "    Invalid source name. Corrupt data?\n"; break;
+      case AL_INVALID_ENUM: //should never happen, AL_POSITION is valid
+           std::cout << "    Invalid enumeration parameter.\n"; break;
+      case AL_INVALID_VALUE:
+           std::cout << "    At least one value pointer is invalid.\n"; break;
+      default:
+           std::cout << "    Unknown error. Error code: "<<(int)error_state
+                     << ".\n"; break;
+    }//swi
+    return std::vector<float>(3, 0.0f);
+  }//if
+  return result;
+}
+
+//Sets velocity vector of noise and returns true on success.
+//Noise position is not changed after certain time intveral; position changes
+//are up to the application. Velocity is just needed for doppler calculations.
+bool Sound::SetNoiseVelocity(const std::string NoiseIdentifier, const float x, const float y, const float z)
+{
+  if (!AL_Ready || InitInProgress)
+  {
+    std::cout << "Sound::SetNoiseVelocity: Warning: OpenAL is not initialized, "
+              << "or (de-)initialisation is in progress. Thus we cannot set the"
+              << " noise position yet.\n";
+    return false;
+  }
+
+  TNoiseRec * temp;
+  temp = pNoiseList;
+  while (temp!=NULL && temp->NoiseName!=NoiseIdentifier)
+  {
+    temp = temp->next;
+  }//while
+  //check for NULL
+  if (temp==NULL)
+  {
+    std::cout << "Sound::SetNoiseVelocity: ERROR: could not find noise \""
+              <<NoiseIdentifier<<"\".\n";
+    return false;
+  }//if
+
+  ALenum error_state;
+  alGetError(); //clear error state
+  alSource3f(temp->sourceID, AL_VELOCITY, x, y, z);
+  error_state = alGetError();
+  if (error_state != AL_NO_ERROR)
+  {
+    std::cout << "Sound::SetNoiseVelocity: ERROR: could not set position for "
+              << "noise \""<<NoiseIdentifier<<"\".\n";
+    switch(error_state)
+    {
+      case AL_INVALID_OPERATION:
+           std::cout << "    There is no current context.\n"; break;
+      case AL_INVALID_NAME:
+           std::cout << "    Invalid source name. Corruption of data?\n"; break;
+      case AL_INVALID_ENUM: //should never occur, AL_VELOCITY is valid enum
+           std::cout << "    Invalid enumeration value given.\n"; break;
+      case AL_INVALID_VALUE:
+           std::cout << "    Given values are out of range (x: "<<x<<"; y: "<<y
+                     << "; z: "<<z<<").\n"; break;
+      default:
+           std::cout << "    Unknown error. Error code: "<<(int)error_state
+                     << ".\n"; break;
+    }//swi
+    return false;
+  }//if
+  return true;
+}
+
+//retrieve current velocity of a noise source;
+// returns (0.0, 0.0, 0.0), if velocity could not be determined. However, a return
+// value of (0.0, 0.0, 0.0) does not necessarily indicate an error, since this
+// is also a legal return value for a non-moving source.
+std::vector<float> Sound::GetNoiseVelocity(const std::string NoiseIdentifier) const
+{
+  if (!AL_Ready || InitInProgress)
+  {
+    std::cout << "Sound::GetNoiseVelocity: Warning: OpenAL is not initialized, "
+              << "or (de-)initialisation is in progress. Thus we cannot set the"
+              << " noise position yet.\n";
+    return std::vector<float>(3, 0.0);
+  }
+
+  TNoiseRec * temp;
+  temp = pNoiseList;
+  while (temp!=NULL && temp->NoiseName!=NoiseIdentifier)
+  {
+    temp = temp->next;
+  }//while
+  //check for presence/ sanity
+  if (temp==NULL)
+  {
+    std::cout << "Sound::GetNoiseVelocity: ERROR: could not find noise \""
+              <<NoiseIdentifier<<"\". Returning zero vector.\n";
+    return std::vector<float>(3, 0.0);
+  }//if
+
+  ALenum error_state;
+  std::vector<float> result(3, 0.0);
+
+  alGetError(); //clear error state
+  alGetSource3f(temp->sourceID, AL_VELOCITY, &result[0], &result[1], &result[2]);
+  error_state = alGetError();
+  if (error_state != AL_NO_ERROR)
+  {
+    std::cout << "Sound::GetNoiseVelocity: ERROR: could not retrieve source "
+              << "velocity for noise \""<<NoiseIdentifier<<"\".\n";
+    switch(error_state)
+    {
+      case AL_INVALID_OPERATION:
+           std::cout << "    There is no current context.\n"; break;
+      case AL_INVALID_NAME:
+           std::cout << "    Invalid source name. Corrupt data?\n"; break;
+      case AL_INVALID_ENUM: //should never occur, AL_VELOCITY is valid enum
+           std::cout << "    Invalid enumeration value.\n"; break;
+      case AL_INVALID_VALUE:
+           std::cout << "    Invalid pointer values supplied.\n"; break;
+      default:
+           std::cout << "    Unknown error. Error code: "<<(int)error_state
+                     << ".\n"; break;
+    }//switch
+    return std::vector<float>(3, 0.0);
+  }//if
+  return result;
+}
 
 //returns speed of sound (for doppler and such stuff)
 //returns 0.0 on error
@@ -3451,470 +3724,6 @@ bool Sound::PlayOgg(std::string Ogg_FileName)
   return true;
 } */
 
-
-
-
-//Rewinds a file and starts to play it again from the beginning
-bool Sound::Replay(std::string FileName)
-{
-  if (!AL_Ready)
-  {
-    std::cout << "Sound::Replay: Warning: OpenAL is not initialized, thus we "
-              << "can not replay file yet.\n";
-    return false;
-  }
-  if (InitInProgress)
-  {
-    std::cout << "Sound::Replay: ERROR: (De-)Initialization of OpenAL is in "
-              << "progress, thus we cannot replay a file here.\n";
-    return false;
-  }
-
-  TBufSrcRecord * temp;
-  ALenum error_state;
-  ALint source_state;
-
-  temp = pFileList;
-  while (temp != NULL)
-  {
-    if (temp->FileName == FileName)
-    { //got it
-      alGetError(); //clear error state
-      alGetSourcei(temp->sourceID, AL_SOURCE_STATE, &source_state);
-      error_state = alGetError();
-      if (error_state != AL_NO_ERROR)
-      {
-        std::cout << "Sound::Replay: ERROR: Could not retrieve source state.\n";
-        switch(error_state)
-        {
-          case AL_INVALID_VALUE:
-               std::cout << "    The pointer to ALint is invalid.\n"; break;
-          case AL_INVALID_ENUM://shouldn't occur, since AL_SOURCE STATE is valid
-               std::cout << "    Invalid parameter given.\n"; break;
-          case AL_INVALID_NAME: //shouldn't occur, if pFileList is not corrupted
-               std::cout << "    Invalid source name("<< temp->sourceID
-                         <<").\n"; break;
-          case AL_INVALID_OPERATION:
-               std::cout << "    There is no current context.\n"; break;
-          default:
-               std::cout << "    Unknown error occured. Error code: "
-                         <<(int)error_state<<"\n."; break;
-        }//swi
-        return false;
-      }//if
-      else
-      {
-        //we got the state, so go on
-        if (source_state != AL_INITIAL) //a AL_INITIAL source is already rewound
-        {
-          alGetError();
-          alSourceRewind(temp->sourceID);
-          error_state = alGetError();
-          if (error_state != AL_NO_ERROR)
-          {
-            std::cout << "Sound::Replay: ERROR: Could not rewind source.\n";
-            switch(error_state)
-            {
-              case AL_INVALID_OPERATION:
-                   std::cout << "    There is no current context.\n"; break;
-              case AL_INVALID_NAME: //shouldn't happen, if pFileList is not corrupted
-                   std::cout << "    Invalid source name(" << temp->sourceID
-                             << ").\n"; break;
-              default:
-                   std::cout << "    Unknown error. Error code: " << error_state
-                             << ".\n"; break;
-            }//swi
-            return false;
-          }//if
-        }//if
-        //source state is now AL_INITIAL
-        alGetError();
-        alSourcePlay(temp->sourceID);
-        error_state = alGetError();
-        if (error_state != AL_NO_ERROR)
-        {
-          std::cout << "Sound::Replay: ERROR: Could not play source.\n";
-          switch(error_state)
-          {
-            case AL_INVALID_OPERATION:
-                 std::cout << "    There is no current context.\n"; break;
-            case AL_INVALID_NAME:
-                 std::cout << "    Invalid source name(" << temp->sourceID
-                           << ").\n"; break;
-            default:
-                 std::cout << "    Unknown error. Error code: " << error_state
-                           << ".\n"; break;
-          }//swi
-          return false;
-        }//if
-        return true;
-      }//else
-    }//if
-    temp = temp->next;
-  }//while
-  std::cout << "Sound::Replay: Hint: Could not replay \""<<FileName<<"\". There"
-            << " is no such file.\n";
-  return false;
-}
-
-
-
-
-
-
-
-// ***** source attributes/ positioning *****
-
-//sets the postion of a sound source
-bool Sound::SetSoundPosition(const std::string FileName, const float x, const float y, const float z)
-{
-  if (!AL_Ready)
-  {
-    std::cout << "Sound::SetSoundPosition: Warning: OpenAL is not initialized, "
-              << "thus we cannot set the sound position yet.\n";
-    return false;
-  }
-  if (InitInProgress)
-  {
-    std::cout << "Sound::SetSoundPosition: ERROR: (De-)Initialization of OpenAL"
-              << " is in progress, thus we cannot set a position here.\n";
-    return false;
-  }
-
-  ALenum error_state;
-  TBufSrcRecord * temp;
-
-  temp = pFileList;
-  while (temp != NULL)
-  {
-    if (temp->FileName == FileName)
-    { //found it!
-      alGetError(); //clear error state
-      alSource3f(temp->sourceID, AL_POSITION, x, y, z);
-      error_state = alGetError();
-      if (error_state != AL_NO_ERROR)
-      {
-        std::cout << "Sound::SetSoundPosition: ERROR: Could not set source "
-                  << "position for file \""<<FileName<<"\".\n";
-        switch(error_state)
-        {
-          case AL_INVALID_OPERATION:
-               std::cout << "    There is no current context.\n"; break;
-          case AL_INVALID_VALUE:
-               std::cout << "    The given value is out of range.\n"; break;
-          case AL_INVALID_ENUM: //should not happen
-               std::cout << "    The specified parameter is invalid.\n"; break;
-          case AL_INVALID_NAME:
-               std::cout << "    The source name("<<temp->sourceID<<") is not "
-                         << "valid. Corrupt file list?\n"; break;
-          default:
-               std::cout << "    Unknown error. Error code: "<<(int)error_state
-                         << ".\n"; break;
-        }//swi
-        return false;
-      }//if
-      return true;
-    }//if
-    temp = temp->next;
-  }//while
-  //file does not exist in pFileList
-  std::cout << "Sound::SetSoundPosition: ERROR: Couldn't find file \""<<FileName
-            << "\" to set position.\n";
-  return false;
-}
-
-//determines the position of a sound source
-std::vector<float> Sound::GetSoundPosition(const std::string FileName) const
-{
-  if (!AL_Ready)
-  {
-    std::cout << "Sound::GetSoundPosition: Warning: OpenAL is not initialized, "
-              << "thus we cannot get the sound position yet.\n";
-    return std::vector<float>(3, 0.0f);
-  }
-  if (InitInProgress)
-  {
-    std::cout << "Sound::GetSoundPosition: ERROR: (De-)Initialization of OpenAL"
-              << " is in progress, thus we cannot get a position here.\n";
-    return std::vector<float>(3, 0.0f);
-  }
-
-  ALenum error_state;
-  TBufSrcRecord * temp;
-  std::vector<float> result(3, 0.0f);
-
-  temp = pFileList;
-  while (temp != NULL)
-  {
-    if (temp->FileName == FileName)
-    { //got it
-      alGetError(); //clear error state
-      alGetSource3f(temp->sourceID, AL_POSITION, &result[0], &result[1], &result[2]);
-      error_state = alGetError();
-      if (error_state != AL_NO_ERROR)
-      {
-        std::cout << "Sound::GetSoundPosition: ERROR: Could not get sound "
-                  << "position for file \""<<FileName<<"\".\n";
-        switch(error_state)
-        {
-          case AL_INVALID_VALUE:
-               std::cout << "    Invalid pointer values.\n"; break;
-          case AL_INVALID_ENUM: //shouldn't happen
-               std::cout << "    Invalid enumeration value.\n"; break;
-          case AL_INVALID_OPERATION:
-               std::cout << "    There is no current context.\n"; break;
-          case AL_INVALID_NAME:
-               std::cout << "    The source name ("<<temp->sourceID<<") is not "
-                         << "valid. Corrupt file list?\n"; break;
-          default:
-               std::cout << "    Unknown error. Error code: "<<(int)error_state
-                         << ".\n"; break;
-        }//swi
-        //normally we should return "false" here, but since we pass a vector, we
-        //can use the other value as well.
-      }//if
-      return result;
-    }//if
-  }//while
-  //file not found
-  std::cout << "Sound::GetSoundPosition: ERROR: Couldn't find file \""<<FileName
-            << "\" in file list.\n";
-  return result;
-}
-
-//sets velocity of sound source and returns true on success, false on error
-bool Sound::SetSoundVelocity(const std::string FileName, const float x, const float y, const float z)
-{
-  if (!AL_Ready)
-  {
-    std::cout << "Sound::SetSoundVelocity: Warning: OpenAL is not initialized, "
-              << "thus we cannot set the sound position yet.\n";
-    return false;
-  }
-  if (InitInProgress)
-  {
-    std::cout << "Sound::SetSoundVelocity: ERROR: (De-)Initialization of OpenAL"
-              << " is in progress, thus we cannot set a position here.\n";
-    return false;
-  }
-
-  ALenum error_state;
-  TBufSrcRecord * temp;
-
-  temp = pFileList;
-  while (temp!=NULL)
-  {
-    if (temp->FileName == FileName)
-    {
-      alGetError();//clear error state
-      alSource3f(temp->sourceID, AL_VELOCITY, x, y, z);
-      error_state = alGetError();
-      if (error_state!=AL_NO_ERROR)
-      {
-        std::cout << "Sound::SetSoundVelocity: ERROR: Could not set new "
-                  << "velocity.\n"; break;
-        switch(error_state)
-        {
-          case AL_INVALID_ENUM: //unlikely to happen
-               std::cout << "    Invalid parameter token.\n"; break;
-          case AL_INVALID_NAME:
-               std::cout << "    Invalid source name("<<(int)(temp->sourceID)
-                         << "). Corrupt file list?\n"; break;
-          case AL_INVALID_OPERATION:
-               std::cout << "    There is no current context.\n"; break;
-          case AL_INVALID_VALUE:
-               std::cout << "    Invalid value given, possibly NaN? Values: x: "
-                         << x << "; y: "<<y<<"; z: "<<z<<"\n"; break;
-          default:
-               std::cout << "    Unknown error. Error code: "<<(int)error_state
-                         << ".\n"; break;
-        }//swi
-        return false;
-      }//if
-      return true;
-    }//if
-    temp = temp->next;
-  }//while
-  std::cout << "Sound::SetSoundVelocity: Hint: Could not find file \""<<FileName
-            << "\" in file list.\n";
-  return false;
-}//function SetSoundVelocity
-
-/*retrieve current velocity of a sound source;
-  returns (0.0, 0.0, 0.0), if velocity could not be determined. However, a return
-  value of (0.0, 0.0, 0.0) does not necessarily indicate an error, since this
-  is also a legal return value for a non-moving source.*/
-std::vector<float> Sound::GetSoundVelocity(const std::string FileName) const
-{
-  if (!AL_Ready)
-  {
-    std::cout << "Sound::GetSoundVelocity: Warning: OpenAL is not initialized, "
-              << "thus we cannot set the sound position yet.\n";
-    return std::vector<float>(3, 0.0);
-  }
-  if (InitInProgress)
-  {
-    std::cout << "Sound::GetSoundVelocity: ERROR: (De-)Initialization of OpenAL"
-              << " is in progress, thus we cannot set a position here.\n";
-    return std::vector<float>(3, 0.0);
-  }
-  ALenum error_state;
-  TBufSrcRecord * temp;
-  std::vector<float> result(3, 0.0f);
-
-  temp = pFileList;
-  while (temp!=NULL)
-  {
-    if (temp->FileName == FileName)
-    {
-      alGetError();//clear error state
-      alGetSource3f(temp->sourceID, AL_VELOCITY, &result[0], &result[1], &result[2]);
-      error_state = alGetError();
-      if (error_state != AL_NO_ERROR)
-      {
-        std::cout << "Sound::GetSoundVelocity: ERROR: Could not retrieve "
-                  << "velocity value!\n";
-        switch(error_state)
-        {
-          case AL_INVALID_ENUM: //unlikely to happen
-               std::cout << "    Invalid enumeration token!\n"; break;
-          case AL_INVALID_NAME:
-               std::cout << "    Invalid source name("<<(int)temp->sourceID
-                         << "). Corrupt file list?\n"; break;
-          case AL_INVALID_OPERATION:
-               std::cout << "    There is no current context.\n"; break;
-          case AL_INVALID_VALUE:
-               std::cout << "    Invalid pointer values given.\n"; break;
-          default:
-               std::cout << "    Unknown error. Error code: "<<(int)error_state
-                         << ".\n"; break;
-        }//swi
-        return std::vector<float>(3, 0.0);
-      }//if
-      return result;
-    }//if
-    temp = temp->next;
-  }//while
-  std::cout << "Sound::GetSoundVelocity: Could not find file \""<<FileName
-            << "\" in file list. No value has been set.\n";
-  return result;
-}//end of function GetSoundVelocity
-
-// ***** file management *****
-
-//Frees all buffers of a file - if present.
-//  freeing a not buffered file is a legal no-op, but should result in false
-bool Sound::FreeFileResources(std::string FileName)
-{
-  TBufSrcRecord * temp;
-  TBufSrcRecord * temp2;
-  ALenum error_state;
-
-  if (pFileList == NULL)
-  {
-    std::cout << "Sound::FreeFileResources: Hint: Couldn't free resources for "
-              << "file \""<<FileName<<"\". There are no resources at all.\n";
-    return false;
-  }
-  if (pFileList->FileName == FileName)
-  { //first entry is to be removed
-    alGetError();//clear error state
-    alSourceStop(pFileList->sourceID);
-    error_state = alGetError();
-    if (error_state != AL_NO_ERROR)
-    {
-      std::cout << "Sound::FreeFileResources: Error: Could not stop source for"
-                << " file \""<<FileName<<"\". Aborting.\n";
-      return false;
-    }
-    alSourceUnqueueBuffers(pFileList->sourceID, pFileList->num_buffers,
-                           pFileList->buffers);
-    error_state = alGetError();
-    if (error_state != AL_NO_ERROR)
-    {
-      std::cout << "Sound::FreeFileResources: Error: Could not unqueue buffers"
-                << " of file \""<<FileName<<"\". Aborting.\n";
-      return false;
-    }
-    alDeleteBuffers(pFileList->num_buffers, pFileList->buffers);
-    error_state = alGetError();
-    if (error_state != AL_NO_ERROR)
-    {
-      std::cout << "Sound::FreeFileResources: Error: Could not delete buffers"
-                << " of file \""<<FileName<<"\". Aborting.\n";
-      //try to delete
-      return false;
-    }
-    alDeleteSources(1, &(pFileList->sourceID));
-    /*no error checks here - buffers are already deleted, and a lonely source
-      with no buffers to play would be rather useless, so just do the internal
-      clean-up and finish*/
-    temp = pFileList;
-    pFileList = pFileList->next;
-    delete temp;
-    return true;
-  }
-  temp = pFileList;
-  while (temp->next != NULL)
-  {
-    //here needs work to be done
-    if (temp->next->FileName == FileName)
-    {
-      alSourceStop(temp->next->sourceID);
-      error_state = alGetError();
-      if (error_state != AL_NO_ERROR)
-      {
-        std::cout << "Sound::FreeFileResources: Error: Could not stop source "
-                  << " for file \""<<FileName<<"\". Aborting.\n";
-        return false;
-      }
-      alSourceUnqueueBuffers(temp->next->sourceID, temp->next->num_buffers,
-                             temp->next->buffers);
-      error_state = alGetError();
-      if (error_state != AL_NO_ERROR)
-      {
-        std::cout << "Sound::FreeFileResources: Error: Could not unqueue "
-                  << "buffers of file \""<<FileName<<"\". Aborting.\n";
-        return false;
-      }
-      alDeleteBuffers(temp->next->num_buffers, temp->next->buffers);
-      error_state = alGetError();
-      if (error_state != AL_NO_ERROR)
-      {
-        std::cout << "Sound::FreeFileResources: Error: Could not delete buffers"
-                  << " of file \""<<FileName<<"\". Aborting.\n";
-        return false;
-      }
-      //delete source
-      alDeleteSources(1, &(temp->next->sourceID));
-      //no error checks here - buffers are already deleted, and a lonely source
-      // would be rather useless, so just do the internal clean-up
-      temp2 = temp->next;
-      temp->next = temp->next->next;
-      delete temp2;
-      return true;
-    }
-    temp = temp->next;
-  }//while
-  std::cout << "Sound::FreeFileResources: Hint: Couldn't free resources for \""
-            << FileName << "\". There are no resources for such a file.\n";
-  return false;
-}
-
-//retrieves vector of all currently buffered files
-std::vector<std::string> Sound::GetBufferedFiles() const
-{
-  std::vector<std::string> result;
-  TBufSrcRecord * temp;
-
-  temp = pFileList;
-  while (temp != NULL)
-  {
-    result.push_back(temp->FileName);
-    temp = temp->next;
-  }//while
-  return result;
-}
 
 //sets all AL function pointers to NULL
 void Sound::AllFuncPointersToNULL(void)

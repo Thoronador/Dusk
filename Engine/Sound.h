@@ -87,6 +87,8 @@ class Sound
     // **presence checks**
     bool IsMediaPresent(const std::string MediaIdentifier) const;
     bool IsNoisePresent(const std::string NoiseIdentifier) const;
+    std::vector<std::string> GetNoiseList(const bool with_attached_media = false) const;
+    std::vector<std::string> GetMediaList(const bool with_file_names = false) const;
 
     // **noise management routines**
     bool CreateNoise(const std::string NoiseIdentifier);
@@ -107,6 +109,13 @@ class Sound
     //   noise volume functions
     bool SetNoiseVolume(const std::string NoiseIdentifier, const float volume = 1.0f);
     float GetNoiseVolume(const std::string NoiseIdentifier, const bool consider_MinMax = false) const;
+    //   position of noises
+    bool SetNoisePosition(const std::string NoiseIdentifier, const float x, const float y, const float z);
+    std::vector<float> GetNoisePosition(const std::string NoiseIdentifier) const;
+    //   velocity of noises
+    bool SetNoiseVelocity(const std::string NoiseIdentifier, const float x, const float y, const float z);
+    std::vector<float> GetNoiseVelocity(const std::string NoiseIdentifier) const;
+
 
     // **media management routines**
     bool CreateMedia(const std::string MediaIdentifier, const std::string PathToMedia);
@@ -128,23 +137,7 @@ class Sound
     std::vector<float> GetListenerOrientation() const;
     bool ListenerRotate(const float x_axis, const float y_axis=0.0f, const float z_axis=0.0f);
 
-
-
-
-
-    //old or unimplemented/ non-working routines
-    //routines for managing noise state
-    bool ReplayNoise(const std::string NoiseIdentifier);
-    //source postioning
-    bool SetSoundPosition(const std::string FileName, const float x, const float y, const float z);
-    std::vector<float> GetSoundPosition(const std::string FileName) const;
-    //source velocity
-    bool SetSoundVelocity(const std::string FileName, const float x, const float y, const float z);
-    std::vector<float> GetSoundVelocity(const std::string FileName) const;
-    //file management
-    bool FreeFileResources(std::string FileName);//should possibly be private?
-    std::vector<std::string> GetBufferedMedia() const;
-    std::vector<std::string> GetNoiseList() const;
+    //singleton access method
     static Sound& get();
   protected:
 
