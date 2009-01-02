@@ -2052,6 +2052,1070 @@ bool Sound::PlayNoise(const std::string NoiseIdentifier)
 }
 
 
+//Pauses a playing noise;
+//    -pausing a noise that is either paused or stopped is a legal no-op
+//    -trying to pause a non-existing noise is an no-op and will
+//     return false and print a warning/hint
+bool Sound::PauseNoise(const std::string NoiseIdentifier)
+{
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::PauseNoise: Warning: OpenAL is not initialized, thus we"
+              << "cannot pause anything yet.\n";
+    return false;
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::PauseNoise: Warning: (De-)Initialization of OpenAL is "
+              << "in progress, thus we cannot pause anything here.\n";
+    return false;
+  }
+
+  TNoiseRec * temp;
+
+  temp = pNoiseList;
+  while ((temp!=NULL) && (temp->NoiseName!=NoiseIdentifier))
+  {
+    temp = temp->next;
+  }//while
+  if (temp==NULL)
+  {
+    std::cout << "Sound::PauseNoise: ERROR: Noise named \""<<NoiseIdentifier
+              << "\" was not found.\n";
+    return false;
+  }//if
+
+  ALenum error_state;
+
+  alGetError();//clear error state
+  alSourcePause(temp->sourceID);
+  error_state = alGetError();
+  if (error_state != AL_NO_ERROR)
+  {
+    std::cout << "Sound::PauseNoise: could not pause source object.\n";
+    switch(error_state)
+    {
+      case AL_INVALID_OPERATION:
+           std::cout << "    There is no current context.\n"; break;
+      case AL_INVALID_NAME:
+           std::cout << "    Invalid source name. Corrupt data?\n"; break;
+      default:
+           std::cout << "    Unknown error. Error code: "<<(int)error_state
+                     << ".\n"; break;
+    }//swi
+    return false;
+  }//if
+  return true;
+}
+
+//Resumes a previously paused noise.
+//Unpausing a playing or stopped noise is legal no-op, which will return true.
+bool Sound::UnPauseNoise(const std::string NoiseIdentifier)
+{
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::UnPauseNoise: Warning: OpenAL is not initialized, thus we"
+              << "cannot unpause anything yet.\n";
+    return false;
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::UnPauseNoise: Warning: (De-)Initialization of OpenAL is "
+              << "in progress, thus we cannot unpause anything here.\n";
+    return false;
+  }
+
+  TNoiseRec * temp;
+
+  temp = pNoiseList;
+  while ((temp!=NULL) && (temp->NoiseName!=NoiseIdentifier))
+  {
+    temp = temp->next;
+  }//while
+  if (temp==NULL)
+  {
+    std::cout << "Sound::UnPauseNoise: ERROR: Noise named \""<<NoiseIdentifier
+              << "\" was not found.\n";
+    return false;
+  }//if
+
+  ALenum error_state;
+  ALint source_state;
+
+  alGetError();//clear error state
+  alGetSourcei(temp->sourceID, AL_SOURCE_STATE, &source_state);
+  error_state = alGetError();
+  if (error_state != AL_NO_ERROR)
+  {
+    std::cout << "Sound::UnPauseNoise: ERROR unable to check source state.\n";
+    switch(error_state)
+    {
+      case AL_INVALID_OPERATION:
+           std::cout << "    There is no current context.\n"; break;
+      case AL_INVALID_ENUM: //should never occur, since AL_SOURCE_STATE is hardcoded
+           std::cout << "    Specified parameter is not valid.\n"; break;
+      case AL_INVALID_NAME:
+           std::cout << "    Invalid source name. Corrupt data?\n"; break;
+      case AL_INVALID_VALUE:
+           std::cout << "    Invalid pointer value.\n"; break;
+      default:
+           std::cout << "    Unknown error. Error code: "<<(int)error_state
+                     << ".\n"; break;
+    }//swi
+    return false;
+  }//if
+
+  //check state
+  if (source_state == AL_PLAYING)
+  {
+    std::cout << "Sound::UnPauseNoise: Hint: Noise \""<<NoiseIdentifier
+              <<"\" is already playing.\n";
+  }
+  else if (source_state == AL_PAUSED)
+  {
+    alSourcePlay(temp->sourceID);
+    error_state = alGetError();
+    if (error_state != AL_NO_ERROR)
+    {
+      std::cout << "Sound::UnPauseNoise: ERROR: unable to play source.\n";
+      switch(error_state)
+      {
+        case AL_INVALID_OPERATION:
+             std::cout << "    There is no current context.\n"; break;
+        case AL_INVALID_NAME:
+             std::cout << "    Invalid source name. Data corruption?\n"; break;
+        default:
+             std::cout << "    Unknown error. Error code: "<<(int)error_state
+                       << ".\n"; break;
+      }//swi
+      return false;
+    }//if
+  }//else if AL_PAUSED
+  else
+  {
+    std::cout << "Sound::UnPauseNoise: Hint: Noise \""<<NoiseIdentifier
+              << "\" was not paused yet, thus we do nothing here.\n";
+  }//else
+  return true;
+}
+
+//Stops a playing noise and returns true on success, false on failure/error.
+// Stopping an already stopped noise is legal no-op and will return true.
+bool Sound::StopNoise(const std::string NoiseIdentifier)
+{
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::StopNoise: Warning: OpenAL is not initialized, thus we"
+              << "cannot stop anything yet.\n";
+    return false;
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::StopNoise: Warning: (De-)Initialization of OpenAL is "
+              << "in progress, thus we cannot stop anything here.\n";
+    return false;
+  }
+
+  TNoiseRec * temp;
+
+  temp = pNoiseList;
+  while ((temp!=NULL) && (temp->NoiseName!=NoiseIdentifier))
+  {
+    temp = temp->next;
+  }//while
+  if (temp==NULL)
+  {
+    std::cout << "Sound::StopNoise: ERROR: Noise named \""<<NoiseIdentifier
+              << "\" was not found.\n";
+    return false;
+  }//if
+
+  ALenum error_state;
+
+  alGetError();//clear error state
+  alSourceStop(temp->sourceID);
+  error_state = alGetError();
+  if (error_state != AL_NO_ERROR)
+  {
+    std::cout << "Sound::StopNoise: could not stop source object.\n";
+    switch(error_state)
+    {
+      case AL_INVALID_OPERATION:
+           std::cout << "    There is no current context.\n"; break;
+      case AL_INVALID_NAME:
+           std::cout << "    Invalid source name. Corrupt data?\n"; break;
+      default:
+           std::cout << "    Unknown error. Error code: "<<(int)error_state
+                     << ".\n"; break;
+    }//swi
+    return false;
+  }//if
+  return true;
+}
+
+//Sets a noise into looping mode if DoLoop==true, otherwise it gets the noise
+// out of looping mode. Returns true on success, false otherwise.
+bool Sound::LoopNoise(const std::string NoiseIdentifier, const bool DoLoop)
+{
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::LoopNoise: Warning: OpenAL is not initialized, thus we"
+              << "cannot loop anything yet.\n";
+    return false;
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::LoopNoise: Warning: (De-)Initialization of OpenAL is "
+              << "in progress, thus we cannot loop anything here.\n";
+    return false;
+  }
+
+  TNoiseRec * temp;
+
+  temp = pNoiseList;
+  while ((temp!=NULL) && (temp->NoiseName!=NoiseIdentifier))
+  {
+    temp = temp->next;
+  }//while
+  if (temp==NULL)
+  {
+    std::cout << "Sound::LoopNoise: ERROR: Noise named \""<<NoiseIdentifier
+              << "\" was not found.\n";
+    return false;
+  }//if
+
+  ALenum error_state;
+  alGetError();//clear error state
+  if (DoLoop)
+  {
+    alSourcei(temp->sourceID, AL_LOOPING, AL_TRUE);
+  }
+  else
+  {
+    alSourcei(temp->sourceID, AL_LOOPING, AL_FALSE);
+  }
+  error_state = alGetError();
+  if (error_state != AL_NO_ERROR)
+  {
+    std::cout << "Sound::LoopNoise: ERROR: unable to set loop mode for noise \""
+              << NoiseIdentifier << "\".\n";
+    switch(error_state)
+    {
+      case AL_INVALID_OPERATION:
+           std::cout << "    There is no current context.\n"; break;
+      case AL_INVALID_NAME:
+           std::cout << "    Invalid source name. Data corruption?\n"; break;
+      case AL_INVALID_ENUM: //should never occur, AL_LOOPING is allowed enum type
+           std::cout << "    Invalid enumeration parameter.\n"; break;
+      case AL_INVALID_VALUE: //should never occur, since AL_TRUE/AL_FALSE is valid
+           std::cout << "    Given value is out of range.\n"; break;
+      default:
+           std::cout << "    Unknown error. Error code: "<<(int)error_state
+                     << ".\n"; break;
+    }//swi
+    return false;
+  }//if
+  return true;
+}
+
+bool Sound::IsPlayingNoise(const std::string NoiseIdentifier) const
+{
+  if (!AL_Ready || InitInProgress)
+  {
+    std::cout << "Sound::IsPlayingNoise: Warning: OpenAL is not initialized, or"
+              << " (de-)initialisation is in progress. Thus we cannot check for"
+              << " playback state.\n";
+    return false;
+  }
+
+  TNoiseRec * temp;
+
+  temp = pNoiseList;
+  while ((temp!=NULL) && (temp->NoiseName!=NoiseIdentifier))
+  {
+    temp = temp->next;
+  }//while
+  if (temp==NULL)
+  {
+    std::cout << "Sound::IsPlayingNoise: ERROR: Noise named \""<<NoiseIdentifier
+              << "\" was not found.\n";
+    return false;
+  }//if
+
+  ALenum error_state;
+  ALint source_state;
+
+  alGetError(); //clear error state
+  alGetSourcei(temp->sourceID, AL_SOURCE_STATE, &source_state);
+  error_state = alGetError();
+  if (error_state != AL_NO_ERROR)
+  {
+    std::cout << "Sound::IsPlayingNoise: ERROR: unable to retrieve source state.\n";
+    switch(error_state)
+    {
+      case AL_INVALID_OPERATION:
+           std::cout << "    There is no current context.\n"; break;
+      case AL_INVALID_NAME:
+           std::cout << "    Invalid source name. Data corruption?\n"; break;
+      case AL_INVALID_ENUM: //should never occur, AL_SOURCE_STATE is valid enum
+           std::cout << "    Invalid enumeration parameter.\n"; break;
+      case AL_INVALID_VALUE:
+           std::cout << "    Invalid pointer value.\n"; break;
+      default:
+           std::cout << "    Unknown error. Error code: "<<(int)error_state
+                     << ".\n"; break;
+    }//swi
+    return false;
+  }//if
+  return (source_state==AL_PLAYING);
+}//func
+
+//Determines, whether a noise is in loop mode.
+// -return value: true if noise is looping, false otherwise.
+//                false is also returned on error.
+bool Sound::IsLoopingNoise(const std::string NoiseIdentifier) const
+{
+  if (!AL_Ready || InitInProgress)
+  {
+    std::cout << "Sound::IsLoopingNoise: Warning: OpenAL is not initialized, or"
+              << " (de-)initialisation is in progress. Thus we cannot check for"
+              << " looping state.\n";
+    return false;
+  }
+
+  TNoiseRec * temp;
+
+  temp = pNoiseList;
+  while ((temp!=NULL) && (temp->NoiseName!=NoiseIdentifier))
+  {
+    temp = temp->next;
+  }//while
+  if (temp==NULL)
+  {
+    std::cout << "Sound::IsLoopingNoise: ERROR: Noise named \""<<NoiseIdentifier
+              << "\" was not found.\n";
+    return false;
+  }//if
+
+  ALenum error_state;
+  ALint loop_state;
+
+  alGetError(); //clear error state
+  alGetSourcei(temp->sourceID, AL_LOOPING, &loop_state);
+  error_state = alGetError();
+  if (error_state != AL_NO_ERROR)
+  {
+    std::cout << "Sound::IsLoopingNoise: ERROR: unable to retrieve source state.\n";
+    switch(error_state)
+    {
+      case AL_INVALID_OPERATION:
+           std::cout << "    There is no current context.\n"; break;
+      case AL_INVALID_NAME:
+           std::cout << "    Invalid source name. Data corruption?\n"; break;
+      case AL_INVALID_ENUM: //should never occur, AL_LOOPING is valid enum
+           std::cout << "    Invalid enumeration parameter.\n"; break;
+      case AL_INVALID_VALUE:
+           std::cout << "    Invalid pointer value.\n"; break;
+      default:
+           std::cout << "    Unknown error. Error code: "<<(int)error_state
+                     << ".\n"; break;
+    }//swi
+    return false;
+  }//if
+  return (loop_state==AL_TRUE);
+}
+
+
+// Sets the volume for a noise and returns true on success, false otherwise.
+// Default volume for every noise is 1.0f, a value of zero means muted.
+// Some implementations cut values >1.0f down to 1.0f, due to optimization.
+bool Sound::SetNoiseVolume(const std::string NoiseIdentifier, const float volume)
+{
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::SetNoiseVolume: Warning: OpenAL is not initialized, "
+              << "thus we cannot set any files volumes yet.\n";
+    return false;
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::SetNoiseVolume: ERROR: (De-)Initialization of OpenAL "
+              << "is in progress, thus we cannot have a file here.\n";
+    return false;
+  }
+  if (volume<0.0f)
+  {
+    std::cout << "Sound::SetNoiseVolume: ERROR: No volume values below zero "
+              << "allowed. Skipping command.\n";
+    return false;
+  }
+
+  ALenum error_state;
+  TNoiseRec * temp;
+  temp = pNoiseList;
+  while (temp!=NULL)
+  {
+    if (temp->NoiseName == NoiseIdentifier)
+    { //got it
+      alGetError(); //clear error state
+      alSourcef(temp->sourceID, AL_GAIN, volume);
+      error_state = alGetError();
+      if (error_state != AL_NO_ERROR)
+      {
+        std::cout << "Sound::SetNoiseVolume: ERROR: Could not set volume for "
+                  <<"noise \""<<NoiseIdentifier<<"\".\n";
+        switch(error_state)
+        {
+          case AL_INVALID_VALUE:
+               std::cout << "    Value out of range.\n"; break;
+          case AL_INVALID_ENUM: //should never occur, because AL_GAIN is valid
+               std::cout << "    Invalid parameter.\n"; break;
+          case AL_INVALID_NAME:
+               std::cout << "    Invalid source("<<temp->sourceID<<"). Corrupt "
+                         << "noise list?\n"; break;
+          case AL_INVALID_OPERATION:
+               std::cout << "    There is no current context.\n"; break;
+          default:
+               std::cout << "    Unknown error. Error code: "<<(int)error_state
+                         << ".\n"; break;
+        }//swi
+        return false;
+      }//if
+      if (volume >1.0f)
+      {
+        std::cout << "Sound::SetNoiseVolume: Warning: Some OpenAL "
+                  << "implementations cut volume values larger than 1.0 down to"
+                  << " 1.0.\n";
+      }//if
+      return true;
+    }//if
+    temp = temp->next;
+  }//while
+  //file not found
+  std::cout << "Sound::SetNoiseVolume: Warning: Noise \""<<NoiseIdentifier
+            <<"\" was not found.\n";
+  return false;
+}//func
+
+/*Determines the volume of a noise. A value of 1.0f is default volume, zero
+  means muted. Values >1.0f can be clamped to 1.0f due to performance reasons
+  by several implementations.
+  Returns volume of noise. On error or if file isn't found, return value is zero
+  as long as consider_MinMax == false. Otherwise, return value on error is un-
+  defined.
+
+  -parameter:
+      bool consider_MinMax: if set to true, still checks for guaranteed minimum
+                            and allowed maximum value and adjusts return value
+                            accordingly
+*/
+float Sound::GetNoiseVolume(const std::string NoiseIdentifier, const bool consider_MinMax) const
+{
+  if (!AL_Ready || InitInProgress)
+  {
+    std::cout << "Sound::GetNoiseVolume: Warning: OpenAL is not initialized, or"
+              << "(de-)initialisation of OpenAL is in progress. Thus we cannot "
+              << "retrieve any noise volumes yet.\n";
+    return 0.0;
+  }
+
+  ALfloat volume_info;
+  ALenum error_state;
+  TNoiseRec * temp;
+  temp = pNoiseList;
+  while(temp!=NULL)
+  {
+    if (temp->NoiseName == NoiseIdentifier)
+    { //noise found
+      alGetError(); //clear error state
+      alGetSourcef(temp->sourceID, AL_GAIN, &volume_info);
+      error_state = alGetError();
+      if (error_state != AL_NO_ERROR)
+      {
+        std::cout << "Sound::GetNoiseVolume: ERROR: Could not retrieve source state "
+                  << "for noise \""<<NoiseIdentifier<<"\".\n";
+        switch(error_state)
+        {
+          case AL_INVALID_VALUE:
+               std::cout << "    Invalid value pointer.\n"; break;
+          case AL_INVALID_ENUM: //should never occur here, AL_GAIN is valid
+               std::cout << "    Invalid enumeration parameter.\n"; break;
+          case AL_INVALID_NAME:
+               std::cout << "    The specified source ("<<temp->sourceID<<") is"
+                         << " not valid. Corrupt noise list?\n"; break;
+          case AL_INVALID_OPERATION:
+               std::cout << "    There is no current context.\n"; break;
+          default:
+               std::cout << "    Unknown error. Error code: "<<(int)error_state
+                         << ".\n"; break;
+        }//swi
+        return 0.0f; //assume something
+      }//if
+      //no error so far
+      if (!consider_MinMax)
+      {
+        return volume_info;
+      }
+      ALfloat bound_on_gain =0.0f;
+      alGetSourcef(temp->sourceID, AL_MIN_GAIN, &bound_on_gain);
+      error_state = alGetError();
+      if (error_state != AL_NO_ERROR)
+      {
+        std::cout << "Sound::GetNoiseVolume: ERROR: Could not retrieve minimum "
+                  << "bound on volume for noise \"" <<NoiseIdentifier<<"\".\n";
+        switch(error_state)
+        {
+          case AL_INVALID_VALUE:
+               std::cout << "    Invalid value pointer.\n"; break;
+          case AL_INVALID_ENUM: //should never occur here
+               std::cout << "    Invalid enumeration parameter.\n"; break;
+          /*AL_INVALID_NAME or AL_INVALID_OPERATION should not occur here, cause
+            they would have already occured on the last call to alGetSourcef and
+            we would not even get this far. ;)*/
+          default:
+               std::cout << "    Unknown error. Error code: "<<(int)error_state
+                         << ".\n"; break;
+        }//swi
+        return volume_info; //return the gain value, though it might be beyond
+                          // the minimum value. But we don't have a choice here.
+      }//if
+      //correct volume value, if below minimum
+      if (bound_on_gain>volume_info)
+      {
+        volume_info = bound_on_gain;
+      }//if min_gain > actual gain
+      alGetSourcef(temp->sourceID, AL_MAX_GAIN, &bound_on_gain);
+      error_state = alGetError();
+      if (error_state != AL_NO_ERROR)
+      {
+        std::cout << "Sound::GetNoiseVolume: ERROR: Could not retrieve maximum "
+                  << "bound on volume for noise \"" <<NoiseIdentifier<<"\".\n";
+        switch(error_state)
+        {
+          case AL_INVALID_VALUE:
+               std::cout << "    Invalid value pointer.\n"; break;
+          case AL_INVALID_ENUM: //should never occur here
+               std::cout << "    Invalid enumeration parameter.\n"; break;
+          /*AL_INVALID_NAME or AL_INVALID_OPERATION should not occur here, cause
+            they would have already occured on the last call to alGetSourcef and
+            we would not even get this far. ;)*/
+          default:
+               std::cout << "    Unknown error. Error code: "<<(int)error_state
+                         << ".\n"; break;
+        }//swi
+        return volume_info; //return the gain value, though it might be beyond
+                          // the maximum value. But we don't have a choice here.
+      }//if
+      //correct volume value, if above maximum
+      if (bound_on_gain<volume_info)
+      {
+        volume_info = bound_on_gain;
+      }//if max < actual gain
+      return volume_info;
+    }//if
+    temp = temp->next;
+  }//while
+  std::cout << "Sound::GetNoiseVolume: Warning: Noise \""<<NoiseIdentifier
+           <<"\" was not found. Assuming zero volume.\n";
+  return 0.0f; //no file found, hence it is "muted", i.e. volume zero
+}
+
+
+
+
+//returns speed of sound (for doppler and such stuff)
+//returns 0.0 on error
+float Sound::GetSpeedOfSound() const
+{
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::GetSpeedOfSound: Warning: OpenAL is not initialized "
+              << "yet, hence we cannot query anything here.\n";
+    return 0.0f;
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::GetSpeedOfSound: ERROR: (De-)Initialization of OpenAL "
+              << "is in progress. No state query possbile.\n";
+    return 0.0f;
+  }
+  ALenum error_state;
+  ALfloat result=0.0f;
+  alGetError();//clear error state
+  result = alGetFloat(AL_SPEED_OF_SOUND);
+  error_state = alGetError();
+  if (error_state!=AL_NO_ERROR)
+  {
+    std::cout << "Sound::GetSpeedOfSound: ERROR: Could not query state var.\n";
+    switch(error_state)
+    {
+      case AL_INVALID_ENUM: //unlikely (as in impossible) to happen
+           std::cout << "    Invalid enumeration token.\n"; break;
+      case AL_INVALID_OPERATION: //shouldn't happen, since we always have a valid
+                                 // context after initialization of Sound class
+           std::cout << "    There is no current context.\n"; break;
+      default:
+           std::cout << "    Unknown error. Error code: "<<(int)error_state
+                     <<".\n"; break;
+    }//swi
+    return 0.0f;
+  }//if
+  return result;
+}
+
+//sets speed of sound (for doppler and such stuff)
+// -returns: false on error, true otherwise
+bool Sound::SetSpeedOfSound(const float new_value)
+{
+  //values equal to or lesser than zero are rated "not funny"
+  if (new_value<=0.0f)
+  {
+    std::cout<<"Sound::SetSpeedOfSound: ERROR: Only positive values allowed!\n";
+    return false;
+  }
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::SetSpeedOfSound: Warning: OpenAL is not initialized "
+              << "yet, hence we cannot set any values here.\n";
+    return false;
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::SetSpeedOfSound: ERROR: (De-)Initialization of OpenAL "
+              << "is in progress. No state changes possbile.\n";
+    return false;
+  }
+
+  ALenum error_state;
+  alGetError();//clear error state
+  alSpeedOfSound(new_value);
+  error_state = alGetError();
+  if (error_state!=AL_NO_ERROR)
+  {
+    std::cout << "Sound::SetSpeedOfSound: ERROR: Could not set new value.\n";
+    switch(error_state)
+    {
+      case AL_INVALID_VALUE:
+           std::cout << "    Invalid value given ("<<new_value<<").\n"; break;
+      case AL_INVALID_OPERATION:
+           std::cout << "    There is no current context.\n"; break;
+      default:
+           std::cout << "    Unknown error. Error code: "<<(int)error_state
+                     <<".\n"; break;
+    }//swi
+    return false;
+  }//if
+  return true;
+}//function SetSpeedOfSound
+
+
+//****listener functions****
+
+//Sets position of the listener
+bool Sound::SetListenerPostion(const float x, const float y, const float z)
+{
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::SetListenerPostion: Warning: OpenAL is not initialized"
+              << ", thus we cannot set the listener's position yet.\n";
+    return false;
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::SetListenerPostion: ERROR: (De-)Initialization of "
+              << "OpenAL is in progress, thus we cannot set position here.\n";
+    return false;
+  }
+
+  ALenum error_state;
+  alGetError(); //clear error state
+  alListener3f(AL_POSITION, x, y, z);
+  error_state = alGetError();
+  if (error_state != AL_NO_ERROR)
+  {
+    std::cout << "Sound::SetListenerPosition: ERROR: Could not set listener's "
+              << "position!\n";
+    switch(error_state)
+    {
+      case AL_INVALID_OPERATION:
+           std::cout << "    There is no current context.\n"; break;
+      case AL_INVALID_ENUM: //should never happen here, since param is constant
+           std::cout << "    Invalid enum parameter.\n"; break;
+      case AL_INVALID_VALUE:
+           std::cout << "    Invalid value, possible NaN or Inf?\n"; break;
+      default:
+           std::cout << "    Unknown error. Error code: "<<(int)error_state
+                     <<".\n"; break;
+    }//swi
+    return false;
+  }//if
+  return true;
+}
+
+//retrieves listener's position, of possible
+//otherwise, return value is vector of zeroes
+std::vector<float> Sound::GetListenerPosition() const
+{
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::GetListenerPostion: Warning: OpenAL is not initialized"
+              << ", thus we cannot get the listener's position yet.\n";
+    return std::vector<float>(3, 0.0f);
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::GetListenerPostion: ERROR: (De-)Initialization of "
+              << "OpenAL is in progress, thus we cannot get a position here.\n";
+    return std::vector<float>(3, 0.0f);
+  }
+
+  std::vector<float> result(3, 0.0f); //declare vector and initialize it with
+                                      // three zeros (better than thrice push_b)
+  ALenum error_state;
+
+  alGetError(); //clear error state
+  alGetListener3f(AL_POSITION, &result[0], &result[1], &result[2]);
+  error_state = alGetError();
+  if (error_state != AL_NO_ERROR)
+  {
+    std::cout << "Sound::GetListenerPosition: ERROR: Could not get listener's "
+              << "position.\n";
+    switch(error_state)
+    {
+      case AL_INVALID_OPERATION:
+           std::cout << "    There is no current context.\n"; break;
+      case AL_INVALID_ENUM: //should not happen here
+           std::cout << "    Invalid enumeration value.\n"; break;
+      case AL_INVALID_VALUE:
+           std::cout << "    Invalid pointer values.\n";
+      default:
+           std::cout << "    Unknown error. Error code: "<<(int)error_state
+                     << ".\n"; break;
+    }//swi
+    //Normally we would return "false" here, but since there is no bool, we can
+    //use the content of the result vector as well.
+  }//if
+  return result;
+}
+
+//changes listener's position relative to current listener's postion, i.e.
+// simple vector addition of current pos. and parameter vector
+bool Sound::ListenerTranslatePostion(const float delta_x, const float delta_y, const float delta_z)
+{
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::ListenerTranslatePostion: Warning: OpenAL is not init"
+              << "ialized, thus we cannot set the listener's position yet.\n";
+    return false;
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::ListenerTranslatePostion: ERROR: (De-)Initialization "
+              << "of OpenAL is in progress, thus we cannot set position here.\n";
+    return false;
+  }
+
+  ALenum error_state;
+  ALfloat current_x, current_y, current_z; //will hold current listener pos.
+  alGetError(); //clear error state
+  //get current position of listener
+  alGetListener3f(AL_POSITION, &current_x, &current_y, &current_z);
+  error_state = alGetError();
+  if (error_state != AL_NO_ERROR)
+  {
+    std::cout << "Sound::ListenerTranslatePosition: ERROR: Could not get the "
+              << "current listener position.\n";
+    switch(error_state)
+    {
+      case AL_INVALID_ENUM: //should never happen here
+           std::cout << "    Invalid enumeration parameter.\n"; break;
+      case AL_INVALID_OPERATION:
+           std::cout << "    There is no current context. :(\n"; break;
+      case AL_INVALID_VALUE:
+           std::cout << "    Invalid pointer values.\n"; break;
+      default:
+           std::cout << "    Unknown error. Error code: "<<(int)error_state
+                     << ".\n"; break;
+    }//swi
+    return false;
+  }//if
+  //now set the new position
+  alListener3f(AL_POSITION, current_x+delta_x, current_y+delta_y, current_z+delta_z);
+  error_state = alGetError();
+  if (error_state != AL_NO_ERROR)
+  {
+    std::cout << "Sound::ListenerTranslatePosition: ERROR: Could not set new "
+              << "listener position. :(\n";
+    switch/*reloaded*/(error_state)
+    {
+      case AL_INVALID_ENUM: //should not happen
+           std::cout << "    Invalid enumeration parameter.\n"; break;
+      case AL_INVALID_OPERATION:
+           std::cout << "    There is no current context, so what?\n"; break;
+      case AL_INVALID_VALUE:
+           std::cout << "    Invalid position value, maybe NaN or Inf?"; break;
+      default:
+           std::cout << "    Unknown error. Error code: "<<(int)error_state
+                     <<".\n"; break;
+    }//swi
+    return false;
+  }//if
+  return true;
+}
+
+//sets listener's velocity and returns true on success, false on error
+bool Sound::SetListenerVelocity(const float x, const float y, const float z)
+{
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::SetListenerVelocity: Warning: OpenAL is not "
+              << "initialized, we cannot set the listener velocity yet.\n";
+    return false;
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::SetListenerVelocity: ERROR: (De-)Initialization of "
+              << "OpenAL is in progress, thus we cannot set a velocity here.\n";
+    return false;
+  }
+
+  ALenum error_state;
+
+  alGetError(); //clear error state
+  alListener3f(AL_VELOCITY, x, y, z);
+  error_state = alGetError();
+  if (error_state != AL_NO_ERROR)
+  {
+    std::cout << "Sound::SetListenerVelocity: ERROR: Could not set velocity!\n";
+    switch(error_state)
+    {
+      case AL_INVALID_ENUM: //unlikely to happen
+           std::cout << "    Invalid enumeration token.\n"; break;
+      case AL_INVALID_OPERATION:
+           std::cout << "    There is no current context.\n"; break;
+      case AL_INVALID_VALUE:
+           std::cout << "    Invalid value given, possibly NaN? (Values: x: "<<x
+                     << "; y: "<<y<<"; z: "<<z<<")\n"; break;
+      default:
+           std::cout << "    Unknown error. Error code: "<<(int)error_state
+                     << ".\n"; break;
+    }//swi
+    return false;
+  }//if
+  return true;
+}//function SetListenerVelocity
+
+/*retrieves listener's velocity,
+  returns (0.0, 0.0, 0.0), if velocity could not be determined. However, a return
+  value of (0.0, 0.0, 0.0) does not necessarily indicate an error, since this
+  is also a legal return value for a non-moving listener.
+
+  Note to self: Maybe we should use NaN instead of (0.0, 0.0, 0.0) in case of
+                error. However, this might cause problems if retrieved values
+                are not checked for possible occurence of NaN. */
+std::vector<float> Sound::GetListenerVelocity() const
+{
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::GetListenerVelocity: Warning: OpenAL is not "
+              << "initialized, we cannot have a listener velocity yet.\n";
+    return std::vector<float>(3, 0.0f);
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::GetListenerVelocity: ERROR: (De-)Initialization of "
+              << "OpenAL is in progress, thus we cannot get a velocity here.\n";
+    return std::vector<float>(3, 0.0f);
+  }
+
+  ALenum error_state;
+  std::vector<float> result(3, 0.0f);
+
+  alGetError();//clears error state
+  alGetListener3f(AL_VELOCITY, &result[0], &result[1], &result[2]);
+  error_state = alGetError();
+  if (error_state != AL_NO_ERROR)
+  {
+    std::cout << "Sound::GetListenerVelocity: ERROR: Could not retrieve "
+              << "velocity value of listener!\n";
+    switch(error_state)
+    {
+      case AL_INVALID_ENUM: //unlikely
+           std::cout << "    Invalid enumeration token.\n"; break;
+      case AL_INVALID_OPERATION:
+           std::cout << "    There is no current context.\n"; break;
+      case AL_INVALID_VALUE:
+           std::cout << "    Invalid pointer value(s) given.\n"; break;
+      default:
+           std::cout << "    Unknown error. Error code: "<<(int)error_state
+                     << ".\n"; break;
+    }//swi
+    return std::vector<float>(3, 0.0f);
+  }//if
+  return result;
+}//function GetListenerVelocity
+
+//Gets the direction and the "up" vector of the Listener as a pair of 3-tuples
+//returns two 3-dimensional zero vectors on failure
+std::vector<float> Sound::GetListenerOrientation() const
+{
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::GetListenerOrientation: Warning: OpenAL is not init"
+              << "ialized, thus we cannot set the listener's position yet.\n";
+    return std::vector<float>(6, 0.0f);
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::GetListenerOrientation: ERROR: (De-)Initialization "
+              << "of OpenAL is in progress, thus we cannot set position here.\n";
+    return std::vector<float>(6, 0.0f);
+  }
+
+  ALenum error_state;
+  ALfloat orientation[6];
+  std::vector<float> result;
+
+  alGetError(); //clear error state
+  alGetListenerfv(AL_ORIENTATION, &orientation[0]);
+  error_state = alGetError();
+  if (error_state != AL_NO_ERROR)
+  {
+    std::cout << "Sound::GetListenerOrientation: ERROR: Could not get listener "
+              << "orientation.\n";
+    switch(error_state)
+    {
+      case AL_INVALID_OPERATION:
+           std::cout << "    There is no current context.\n"; break;
+      case AL_INVALID_ENUM:
+           std::cout << "    The enumeration parameter is not valid.\n"; break;
+      case AL_INVALID_VALUE:
+           std::cout << "    The value pointer is invalid.\n"; break;
+      default:
+           std::cout << "    Unknown error. Error code: "<<(int)error_state
+                     << ".\n"; break;
+    }//swi
+    return std::vector<float>(6, 0.0f); //"return false"
+  }//if
+  //fill vector (ALenum directly converts to int)
+  for (error_state=0; error_state<6; error_state++)
+  {
+    result.push_back(orientation[error_state]);
+  }
+  return result;
+}
+
+//rotate Listener orientation around x-, y- or z-axis... ONLY ONE OF THEM
+// parameters: values (in radiant) indicating how far listener should rotate
+bool Sound::ListenerRotate(const float x_axis, const float y_axis, const float z_axis)
+{
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::ListenerRotate: Warning: OpenAL is not initialized, "
+              << "thus we cannot rotate the listener position yet.\n";
+    return false;
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::ListenerRotate: ERROR: (De-)Initialization of OpenAL"
+              << " is in progress, thus we cannot rotate the listener here.\n";
+    return false;
+  }
+
+  ALenum error_state;
+  ALfloat orientation[6];
+  ALfloat new_orientation[6];
+
+  alGetError(); //clear error state
+  alGetListenerfv(AL_ORIENTATION, &orientation[0]);
+  error_state = alGetError();
+  if (error_state != AL_NO_ERROR)
+  {
+    std::cout << "Sound::ListenerRotate: ERROR: Could not get listener's "
+              << "orientation, thus we cannot rotate.\n";
+    switch(error_state)
+    {
+      case AL_INVALID_OPERATION:
+           std::cout << "    There is no current context.\n"; break;
+      case AL_INVALID_ENUM:
+           std::cout << "    The enum parameter is invalid.\n"; break;
+      case AL_INVALID_VALUE:
+           std::cout << "    Invalid pointer value.\n";
+      default:
+           std::cout << "    Unknown error. Error code: "<<(int)error_state
+                     << ".\n"; break;
+    }//swi
+    return false;
+  }//if
+
+  //initialisation of new values with old values
+  //note: error_state is of ALenum, but ALenum directly converts to int
+  for (error_state=0; error_state<6; error_state++)
+  {
+    new_orientation[error_state] = orientation[error_state];
+  }//for
+
+
+  //do the rotation here
+  /* Rotation matrix (2D):
+            / cos x    -sin x \
+     R(x) = |                 |  where x is (likely to be) in [0, 2*Pi]
+            \ sin x     cos x /
+  */
+  float sinus, cosinus;
+  if (x_axis != 0.0)
+  {
+    sinus = sin(x_axis);
+    cosinus = cos(x_axis);
+    //rotate around x axis (x-coords remain)
+    new_orientation[1] = orientation[1]*cosinus - orientation[2]*sinus;//at-vector,y
+    new_orientation[2] = orientation[1]*sinus + orientation[2]*cosinus;//at-vector,z
+    new_orientation[4] = orientation[4]*cosinus - orientation[5]*sinus;//up-vector,y
+    new_orientation[5] = orientation[4]*sinus + orientation[5]*cosinus;//up-vector,z
+  }//if x_axis
+  else if (y_axis != 0.0)
+  {
+    sinus = sin(y_axis);
+    cosinus = cos(y_axis);
+    //rotate around y axis (y-coords remain untouched)
+    new_orientation[2] = orientation[2]*cosinus - orientation[0]*sinus;//at-vector,z
+    new_orientation[0] = orientation[2]*sinus + orientation[0]*cosinus;//at-vector,x
+    new_orientation[5] = orientation[5]*cosinus - orientation[3]*sinus;//up-vector,z
+    new_orientation[3] = orientation[5]*sinus + orientation[3]*cosinus;//up-vector,x
+  }//if y_axis
+  else if (z_axis != 0.0)
+  {
+    sinus = sin(z_axis);
+    cosinus = cos(z_axis);
+    //rotate around z axis (z-coords remain untouched)
+    new_orientation[0] = orientation[0]*cosinus - orientation[1]*sinus;//at_vector,x
+    new_orientation[1] = orientation[0]*sinus + orientation[1]*cosinus;//at-vector,y
+    new_orientation[3] = orientation[3]*cosinus - orientation[4]*sinus;//up-vector,x
+    new_orientation[4] = orientation[3]*sinus + orientation[4]*cosinus;//up-vector,y
+  }//if z_axis
+  //set new values for at- & up-vector
+  alListenerfv(AL_ORIENTATION, &new_orientation[0]);
+  error_state = alGetError();
+  if (error_state != AL_NO_ERROR)
+  {
+    std::cout << "Sound::ListenerRotate: ERROR: Could not set new orientation "
+              << "of listener.\n";
+    switch(error_state)
+    {
+      case AL_INVALID_OPERATION:
+           std::cout << "    There is no current context.\n"; break;
+      case AL_INVALID_ENUM:
+           std::cout << "    Invalid enum parameter.\n"; break;
+      case AL_INVALID_VALUE:
+           std::cout << "    Invalid value pointer given.\n"; break;
+      default:
+           std::cout << "    Unknown error. Error code: "<<(int)error_state
+                     << ".\n"; break;
+    }//swi
+    return false;
+  }//if
+  return true; //seems like wie made it :)
+}
 
 
 
@@ -2387,273 +3451,8 @@ bool Sound::PlayOgg(std::string Ogg_FileName)
   return true;
 } */
 
-//returns true if the specified file is currently playing
-bool Sound::IsPlaying(std::string FileName) const
-{
-  TBufSrcRecord * pTemp;
-  ALint source_state;
-  ALenum error_state;
 
-  if (!AL_Ready)
-  {
-    std::cout << "Sound::IsPlaying: Warning: OpenAL is not initialized, thus we"
-              << " can not have a playing file yet.\n";
-    return false;
-  }
-  if (InitInProgress)
-  {
-    std::cout << "Sound::IsPlaying: ERROR: (De-)Initialization of OpenAL is "
-              << "in progress, thus we cannot determine file state here.\n";
-    return false;
-  }
 
-  //search file list for matching file name
-  pTemp = pFileList;
-  while (pTemp!=NULL)
-  {
-    if (pTemp->FileName == FileName)
-    {
-      alGetError();//clear error state
-      alGetSourcei(pTemp->sourceID, AL_SOURCE_STATE, &source_state);
-      error_state = alGetError();
-      if (error_state != AL_NO_ERROR)
-      {
-        std::cout <<"Sound::IsPlaying: ERROR while querying source state.\n";
-        switch (error_state)
-        {
-          case AL_INVALID_VALUE:
-               std::cout << "    The given pointer to ALint is not valid.\n";
-               break;
-          case AL_INVALID_ENUM:
-               //this one should never occur here, since AL_SOURCE_STATE is valid
-               std::cout << "    The source parameter is not valid.\n"; break;
-          case AL_INVALID_NAME:
-               std::cout << "    The specified source name is not vailid. "
-                         << "Corrupt file list?\n"; break;
-          case AL_INVALID_OPERATION:
-               //should normally never occur
-               std::cout << "    There is no current context.\n"; break;
-          default:
-               std::cout << "    Unknown error. Error code: "<<(int)error_state
-               <<".\n"; break;
-        }//swi
-        return false;
-      }
-      else if (source_state == AL_PLAYING)
-      {
-        return true;
-      }
-    }
-    pTemp = pTemp->next;
-  };
-  return false;
-}
-
-//Pauses a playing file;
-//    -pausing a file that is either paused or stopped is a legal no-op
-//    -trying to pause a non-existing file is an "expensive no-op" and will
-//     result in false and a warning/hint
-bool Sound::Pause(std::string FileName)
-{
-  if (!AL_Ready)
-  {
-    std::cout << "Sound::Pause: Warning: OpenAL is not initialized, thus we can"
-              << " not have a playing file to pause yet.\n";
-    return false;
-  }
-  if (InitInProgress)
-  {
-    std::cout << "Sound::Pause: ERROR: (De-)Initialization of OpenAL is in "
-              << "progress, thus we cannot pause a file here.\n";
-    return false;
-  }
-
-  TBufSrcRecord * temp;
-  ALenum error_state;
-
-  temp = pFileList;
-  while (temp!=NULL)
-  {
-    if (temp->FileName == FileName)
-    { //we found the appropriate file and it's source
-      alGetError();//clear error state
-      alSourcePause(temp->sourceID);
-      error_state = alGetError();
-      if (error_state != AL_NO_ERROR)
-      {
-        std::cout << "Sound::Pause: ERROR while trying to pause file.\n";
-        switch (error_state)
-        {
-          case AL_INVALID_NAME:
-               std::cout << "    The specified source name is not valid.\n";
-               break;
-          case AL_INVALID_OPERATION:
-               std::cout << "    There is no current context.\n"; break;
-          default:
-               std::cout << "    Unknown error occured. Error code: "
-                         <<(int)error_state<<"\n."; break;
-        }//swi
-        return false; //shit happens, source was not paused
-      }//if
-      else
-      { //no error occured
-        return true; //what we want :)
-      }
-    }//if
-    temp = temp->next;
-  }//while
-  std::cout << "Sound::Pause: Hint: Could not pause \""<<FileName<<"\". There "
-            << "is no such file.\n";
-  return false;
-}
-
-//Resumes a previously; unpausing a playing or stopped file is legal no-op
-bool Sound::UnPause(std::string FileName)
-{
-  if (!AL_Ready)
-  {
-    std::cout << "Sound::UnPause: Warning: OpenAL is not initialized, thus we "
-              << "can not have a paused file to resume to playing yet.\n";
-    return false;
-  }
-  if (InitInProgress)
-  {
-    std::cout << "Sound::UnPause: ERROR: (De-)Initialization of OpenAL is in "
-              << "progress, thus we cannot resume a file to playing here.\n";
-    return false;
-  }
-
-  TBufSrcRecord * temp;
-  ALint source_state;
-  ALenum error_state;
-
-  temp = pFileList;
-  while (temp != NULL)
-  {
-    if (temp->FileName == FileName)
-    { //we found the appropriate file
-      alGetError();//clear error state
-      alGetSourcei(temp->sourceID, AL_SOURCE_STATE, &source_state);
-      error_state = alGetError();
-      if (error_state != AL_NO_ERROR)
-      {
-        std::cout << "Sound::UnPause: ERROR: Could not check for source state.\n";
-        switch (error_state)
-        {
-          case AL_INVALID_VALUE:
-               std::cout << "    The pointer to ALint is invalid.\n"; break;
-          case AL_INVALID_ENUM://shouldn't occur, since AL_SOURCE STATE is valid
-               std::cout << "    Invalid parameter given.\n"; break;
-          case AL_INVALID_NAME: //shouldn't occur, if pFileList is not corrupt
-               std::cout << "    Invalid source name("<< temp->sourceID
-                         <<").\n"; break;
-          case AL_INVALID_OPERATION:
-               std::cout << "    There is no current context.\n"; break;
-          default:
-               std::cout << "    Unknown error occured. Error code: "
-                         <<(int)error_state<<"\n."; break;
-        }//swi
-        return false;
-      }//if
-      else
-      { //no error so far
-        if (source_state == AL_PLAYING)
-        { //legal no-op
-          std::cout << "Sound::UnPause: Hint: File \""<<FileName<<"\"is already"
-                    << " playing. No need to UnPause.\n";
-          return true;
-        }
-        else if (source_state == AL_STOPPED || source_state == AL_INITIAL)
-        { //legal no-op
-          return true;
-        }
-        else
-        { //state is AL_PAUSED
-          alGetError();//clear error state
-          alSourcePlay(temp->sourceID);//resume to playing
-          error_state = alGetError();
-          if (error_state != AL_NO_ERROR)
-          {
-            std::cout << "Sound::UnPause: ERROR: Couldn't unpause file \""
-                      << FileName << "\".\n";
-            switch (error_state)
-            {
-              case AL_INVALID_NAME: //shouldn't happen
-                   std::cout << "    The source name("<< temp->sourceID
-                             <<") is invalid.\n"; break;
-              case AL_INVALID_OPERATION:
-                   std::cout << "    There is no current context.\n"; break;
-              default:
-                   std::cout << "    Unknown error occured. Error code: "
-                             <<(int)error_state<<"\n."; break;
-            }//swi
-            return false;
-          }
-          return true;//luckily we managed to unpause
-        }//else
-      }//else
-    }//if
-    temp = temp->next;
-  }//while
-  std::cout << "Sound::UnPause: Hint: Could not resume \""<<FileName<<"\" to "
-            << "playing. There is no such file.\n";
-  return false;
-}
-
-//Stops a playing file; stopping an already stopped file is legal no-op
-bool Sound::Stop(std::string FileName)
-{
-  if (!AL_Ready)
-  {
-    std::cout << "Sound::Stop: Warning: OpenAL is not initialized, thus we can"
-              << " not have a playing file to stop yet.\n";
-    return false;
-  }
-  if (InitInProgress)
-  {
-    std::cout << "Sound::Stop: ERROR: (De-)Initialization of OpenAL is in "
-              << "progress, thus we cannot stop a file here.\n";
-    return false;
-  }
-
-  TBufSrcRecord * temp;
-  ALenum error_state;
-
-  temp = pFileList;
-  while (temp!=NULL)
-  {
-    if (temp->FileName == FileName)
-    { //we found the appropriate file and it's source
-      alGetError();//clear error state
-      alSourceStop(temp->sourceID);
-      error_state = alGetError();
-      if (error_state != AL_NO_ERROR)
-      {
-        std::cout << "Sound::Stop: ERROR while trying to stop file.\n";
-        switch (error_state)
-        {
-          case AL_INVALID_NAME:
-               std::cout << "    The specified source name is not valid.\n";
-               break;
-          case AL_INVALID_OPERATION:
-               std::cout << "    There is no current context.\n"; break;
-          default:
-               std::cout << "    Unknown error occured. Error code: "
-                         <<(int)error_state<<"\n."; break;
-        }//swi
-        return false; //shit happens, source was not stopped
-      }//if
-      else
-      { //no error occured
-        return true; //what we want :)
-      }
-    }//if
-    temp = temp->next;
-  }//while
-  std::cout << "Sound::Stop: Hint: Could not stop \""<<FileName<<"\". There "
-            << "is no such file.\n";
-  return false;
-}
 
 //Rewinds a file and starts to play it again from the beginning
 bool Sound::Replay(std::string FileName)
@@ -2758,797 +3557,10 @@ bool Sound::Replay(std::string FileName)
   return false;
 }
 
-/*Sets an audio file into looping mode if DoLoop==true, otherwise it gets the
-   file out of looping mode. Returns true on success, false otherwise.*/
-bool Sound::Loop(std::string FileName, bool DoLoop)
-{
-  if (!AL_Ready)
-  {
-    std::cout << "Sound::Loop: Warning: OpenAL is not initialized, thus we "
-              << "can not have any (looping) files yet.\n";
-    return false;
-  }
-  if (InitInProgress)
-  {
-    std::cout << "Sound::Loop: ERROR: (De-)Initialization of OpenAL is in "
-              << "progress, thus we cannot have a looping file here.\n";
-    return false;
-  }
-  ALenum error_state;
-  TBufSrcRecord * temp;
-  temp = pFileList;
-  while (temp!=NULL)
-  {
-    if (temp->FileName == FileName)
-    { //found it
-      alGetError();
-      if (DoLoop)
-      {
-        alSourcei(temp->sourceID, AL_LOOPING, AL_TRUE);
-      }
-      else
-      {
-        alSourcei(temp->sourceID, AL_LOOPING, AL_FALSE);
-      }
-      error_state = alGetError();
-      if (error_state != AL_NO_ERROR)
-      {
-        std::cout << "Sound::Loop: ERROR: Could not set loop mode for file \""
-                  << FileName << "\".\n";
-        switch (error_state)
-        {
-          case AL_INVALID_VALUE:
-               std::cout << "    The given value is out of range.\n"; break;
-          case AL_INVALID_ENUM: //should never occur here
-               std::cout << "    The specified parameter is not valid.\n";
-               break;
-          case AL_INVALID_NAME:
-               std::cout << "    The source name("<<temp->sourceID<<") is not "
-                         << "valid. Corrupt internal file list?\n"; break;
-          case AL_INVALID_OPERATION:
-               std::cout << "    There is no current context.\n"; break;
-          default:
-               std::cout << "    Unknown error. Error code: "<<(int)error_state
-                         << ".\n"; break;
-        }//swi
-        return false;
-      }//if
-      return true;
-    }//if
-    temp = temp->next;
-  }//while
-  //there is no such file
-  return false;
-}
 
-/*Determines, whether a sound file is in loop mode
-   return value: true if file is looping, false otherwise*/
-bool Sound::IsLooping(std::string FileName) const
-{
-  if (!AL_Ready)
-  {
-    std::cout << "Sound::IsLooping: Warning: OpenAL is not initialized, thus we "
-              << "can not have any looping files yet.\n";
-    return false;
-  }
-  if (InitInProgress)
-  {
-    std::cout << "Sound::IsLooping: ERROR: (De-)Initialization of OpenAL is in "
-              << "progress, thus we cannot have a looping file here.\n";
-    return false;
-  }
-  TBufSrcRecord * temp;
-  temp = pFileList;
 
-  ALint loop_state;
-  ALenum error_state;
 
-  while (temp!=NULL)
-  {
-    if (temp->FileName == FileName)
-    { //found file
-      alGetError(); //clear error state
-      alGetSourcei(temp->sourceID, AL_LOOPING, &loop_state);
-      error_state = alGetError();
-      if (error_state != AL_NO_ERROR)
-      {
-        std::cout << "Sound::IsLooping: ERROR: Could not retrieve source state "
-                  << "for file \""<<FileName<<"\".\n";
-        switch(error_state)
-        {
-          case AL_INVALID_VALUE:
-               std::cout << "    The pointer to ALint is invalid.\n"; break;
-          case AL_INVALID_ENUM://shouldn't occur, since AL_SOURCE STATE is valid
-               std::cout << "    Invalid parameter given.\n"; break;
-          case AL_INVALID_NAME: //shouldn't occur, if pFileList is not corrupted
-               std::cout << "    Invalid source name("<< temp->sourceID
-                         <<"). Corrupt file list?\n"; break;
-          case AL_INVALID_OPERATION:
-               std::cout << "    There is no current context.\n"; break;
-          default:
-               std::cout << "    Unknown error occured. Error code: "
-                         <<(int)error_state<<"\n."; break;
-        }//swi
-        return false; //assume source is not in loop mode, though we can't know
-      }//if
-      return (loop_state == AL_TRUE);
-    }//if
-    temp = temp->next;
-  }//while
-  return false;
-}
 
-/* Sets the volume for a file and returns true on success, false otherwise.
-   Default volume for every file is 1.0f, a value of zero means muted.
-   Some implementations cut values >1.0f down to 1.0f, due to optimization. */
-bool Sound::SetVolume(std::string FileName, const float volume)
-{
-  if (!AL_Ready)
-  {
-    std::cout << "Sound::SetVolume: Warning: OpenAL is not initialized, thus we"
-              << "cannot set any files volumes yet.\n";
-    return false;
-  }
-  if (InitInProgress)
-  {
-    std::cout << "Sound::SetVolume: ERROR: (De-)Initialization of OpenAL is in "
-              << "progress, thus we cannot have a file here.\n";
-    return false;
-  }
-  if (volume<0.0f)
-  {
-    std::cout << "Sound::SetVolume: ERROR: No volume values below zero allowed."
-              << "Skipping command.\n";
-    return false;
-  }
-  ALenum error_state;
-  TBufSrcRecord * temp;
-  temp = pFileList;
-  while (temp!=NULL)
-  {
-    if (temp->FileName == FileName)
-    { //got it
-      alGetError(); //clear error state
-      alSourcef(temp->sourceID, AL_GAIN, volume);
-      error_state = alGetError();
-      if (error_state != AL_NO_ERROR)
-      {
-        std::cout << "Sound::SetVolume: ERROR: Could not set volume for file \""
-                  <<FileName<<"\".\n";
-        switch(error_state)
-        {
-          case AL_INVALID_VALUE:
-               std::cout << "    Value out of range.\n"; break;
-          case AL_INVALID_ENUM: //should never occur here
-               std::cout << "    Invalid parameter.\n"; break;
-          case AL_INVALID_NAME:
-               std::cout << "    Invalid source("<<temp->sourceID<<"). Corrupt "
-                         << "file list?\n"; break;
-          case AL_INVALID_OPERATION:
-               std::cout << "    There is no current context.\n"; break;
-          default:
-               std::cout << "    Unknown error. Error code: "<<(int)error_state
-                         << ".\n"; break;
-        }//swi
-        return false;
-      }//if
-      if (volume >1.0f)
-      {
-        std::cout << "Sound::SetVolume: Warning: Some OpenAL implementations"
-                  << " cut volume values larger than 1.0 down to 1.0.\n";
-      }//if
-      return true;
-    }//if
-    temp = temp->next;
-  }//while
-  //file not found
-  std::cout << "Sound::SetVolume: Warning: File \""<<FileName<<"\" was not "
-            <<"found.\n";
-  return false;
-}
-
-/*Determines the volume of a file. A value of 1.0f is default volume, zero means
-  muted. Values >1.0f can be clamped to 1.0f due to performance reasons by
-  several implementations.
-  Returns volume of file. On error or if file isn't found, return value is zero
-  as long as consider_MinMax == false. Otherwise, return value on error is un-
-  specified.
-
-  -parameter:
-      bool consider_MinMax: if set to true, still checks for guaranteed minimum
-                            and allowed maximum value and adjusts return value
-                            accordingly
-*/
-float Sound::GetVolume(std::string FileName, bool consider_MinMax) const
-{
-  if (!AL_Ready)
-  {
-    std::cout << "Sound::GetVolume: Warning: OpenAL is not initialized, thus we"
-              << "cannot retrieve any files volumes yet.\n";
-    return 0.0;
-  }
-  if (InitInProgress)
-  {
-    std::cout << "Sound::GetVolume: ERROR: (De-)Initialization of OpenAL is in "
-              << "progress, thus we cannot have a file here.\n";
-    return 0.0;
-  }
-
-  ALfloat volume_info;
-  ALenum error_state;
-  TBufSrcRecord * temp;
-  temp = pFileList;
-  while(temp!=NULL)
-  {
-    if (temp->FileName == FileName)
-    { //file found
-      alGetError(); //clear error state
-      alGetSourcef(temp->sourceID, AL_GAIN, &volume_info);
-      error_state = alGetError();
-      if (error_state != AL_NO_ERROR)
-      {
-        std::cout << "Sound::GetVolume: ERROR: Could not retrieve source state "
-                  << "for file \""<<FileName<<"\".\n";
-        switch(error_state)
-        {
-          case AL_INVALID_VALUE:
-               std::cout << "    Invalid value pointer.\n"; break;
-          case AL_INVALID_ENUM: //should never occur here
-               std::cout << "    Invalid enumeration parameter.\n"; break;
-          case AL_INVALID_NAME:
-               std::cout << "    The specified source ("<<temp->sourceID<<") is"
-                         << " not valid. Corrupt file list?\n"; break;
-          case AL_INVALID_OPERATION:
-               std::cout << "    There is no current context.\n"; break;
-          default:
-               std::cout << "    Unknown error. Error code: "<<(int)error_state
-                         << ".\n"; break;
-        }//swi
-        return 0.0f; //assume something
-      }//if
-      //no error so far
-      if (!consider_MinMax)
-      {
-        return volume_info;
-      }
-      ALfloat bound_on_gain =0.0f;
-      alGetSourcef(temp->sourceID, AL_MIN_GAIN, &bound_on_gain);
-      error_state = alGetError();
-      if (error_state != AL_NO_ERROR)
-      {
-        std::cout << "Sound::GetVolume: ERROR: Could not retrieve minimum bound"
-                  << " on volume for file \"" <<FileName<<"\".\n";
-        switch(error_state)
-        {
-          case AL_INVALID_VALUE:
-               std::cout << "    Invalid value pointer.\n"; break;
-          case AL_INVALID_ENUM: //should never occur here
-               std::cout << "    Invalid enumeration parameter.\n"; break;
-          /*AL_INVALID_NAME or AL_INVALID_OPERATION should not occur here, cause
-            they would have already occured on the last call to alGetSourcef and
-            we would not even get this far. ;)*/
-          default:
-               std::cout << "    Unknown error. Error code: "<<(int)error_state
-                         << ".\n"; break;
-        }//swi
-        return volume_info; //return the gain value, though it might be beyond
-                          // the minimum value. But we don't have a choice here.
-      }//if
-      //correct volume value, if below minimum
-      if (bound_on_gain>volume_info)
-      {
-        volume_info = bound_on_gain;
-      }//if min_gain > actual gain
-      alGetSourcef(temp->sourceID, AL_MAX_GAIN, &bound_on_gain);
-      error_state = alGetError();
-      if (error_state != AL_NO_ERROR)
-      {
-        std::cout << "Sound::GetVolume: ERROR: Could not retrieve maximum bound"
-                  << " on volume for file \"" <<FileName<<"\".\n";
-        switch(error_state)
-        {
-          case AL_INVALID_VALUE:
-               std::cout << "    Invalid value pointer.\n"; break;
-          case AL_INVALID_ENUM: //should never occur here
-               std::cout << "    Invalid enumeration parameter.\n"; break;
-          /*AL_INVALID_NAME or AL_INVALID_OPERATION should not occur here, cause
-            they would have already occured on the last call to alGetSourcef and
-            we would not even get this far. ;)*/
-          default:
-               std::cout << "    Unknown error. Error code: "<<(int)error_state
-                         << ".\n"; break;
-        }//swi
-        return volume_info; //return the gain value, though it might be beyond
-                          // the maximum value. But we don't have a choice here.
-      }//if
-      //correct volume value, if above maximum
-      if (bound_on_gain<volume_info)
-      {
-        volume_info = bound_on_gain;
-      }//if max < actual gain
-      return volume_info;
-    }//if
-    temp = temp->next;
-  }//while
-  std::cout << "Sound::GetVolume: Warning: File \""<<FileName<<"\" was not "
-            <<"found. Assuming zero volume.\n";
-  return 0.0f; //no file found, hence it is "muted", i.e. volume zero
-}
-
-//returns speed of sound (for doppler and such stuff)
-//returns 0.0 on error
-float Sound::GetSpeedOfSound() const
-{
-  if (!AL_Ready)
-  {
-    std::cout << "Sound::GetSpeedOfSound: Warning: OpenAL is not initialized "
-              << "yet, hence we cannot query anything here.\n";
-    return 0.0f;
-  }
-  if (InitInProgress)
-  {
-    std::cout << "Sound::GetSpeedOfSound: ERROR: (De-)Initialization of OpenAL "
-              << "is in progress. No state query possbile.\n";
-    return 0.0f;
-  }
-  ALenum error_state;
-  ALfloat result=0.0f;
-  alGetError();//clear error state
-  result = alGetFloat(AL_SPEED_OF_SOUND);
-  error_state = alGetError();
-  if (error_state!=AL_NO_ERROR)
-  {
-    std::cout << "Sound::GetSpeedOfSound: ERROR: Could not query state var.\n";
-    switch(error_state)
-    {
-      case AL_INVALID_ENUM: //unlikely (as in impossible) to happen
-           std::cout << "    Invalid enumeration token.\n"; break;
-      case AL_INVALID_OPERATION: //shouldn't happen, since we always have a valid
-                                 // context after initialization of Sound class
-           std::cout << "    There is no current context.\n"; break;
-      default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
-                     <<".\n"; break;
-    }//swi
-    return 0.0f;
-  }//if
-  return result;
-}
-
-//sets speed of sound (for doppler and such stuff)
-// -returns: false on error, true otherwise
-bool Sound::SetSpeedOfSound(const float new_value)
-{
-  //values equal to or lesser than zero are rated "not funny"
-  if (new_value<=0.0f)
-  {
-    std::cout<<"Sound::SetSpeedOfSound: ERROR: Only positive values allowed!\n";
-    return false;
-  }
-  if (!AL_Ready)
-  {
-    std::cout << "Sound::SetSpeedOfSound: Warning: OpenAL is not initialized "
-              << "yet, hence we cannot set any values here.\n";
-    return false;
-  }
-  if (InitInProgress)
-  {
-    std::cout << "Sound::SetSpeedOfSound: ERROR: (De-)Initialization of OpenAL "
-              << "is in progress. No state changes possbile.\n";
-    return false;
-  }
-
-  ALenum error_state;
-  alGetError();//clear error state
-  alSpeedOfSound(new_value);
-  error_state = alGetError();
-  if (error_state!=AL_NO_ERROR)
-  {
-    std::cout << "Sound::SetSpeedOfSound: ERROR: Could not set new value.\n";
-    switch(error_state)
-    {
-      case AL_INVALID_VALUE:
-           std::cout << "    Invalid value given ("<<new_value<<").\n"; break;
-      case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n"; break;
-      default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
-                     <<".\n"; break;
-    }//swi
-    return false;
-  }//if
-  return true;
-}//function SetSpeedOfSound
-
-//Sets position of the listener
-bool Sound::SetListenerPostion(const float x, const float y, const float z)
-{
-  if (!AL_Ready)
-  {
-    std::cout << "Sound::SetListenerPostion: Warning: OpenAL is not initialized"
-              << ", thus we cannot set the listener's position yet.\n";
-    return false;
-  }
-  if (InitInProgress)
-  {
-    std::cout << "Sound::SetListenerPostion: ERROR: (De-)Initialization of "
-              << "OpenAL is in progress, thus we cannot set position here.\n";
-    return false;
-  }
-
-  ALenum error_state;
-  alGetError(); //clear error state
-  alListener3f(AL_POSITION, x, y, z);
-  error_state = alGetError();
-  if (error_state != AL_NO_ERROR)
-  {
-    std::cout << "Sound::SetListenerPosition: ERROR: Could not set listener's "
-              << "position!\n";
-    switch(error_state)
-    {
-      case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n"; break;
-      case AL_INVALID_ENUM: //should never happen here, since param is constant
-           std::cout << "    Invalid enum parameter.\n"; break;
-      case AL_INVALID_VALUE:
-           std::cout << "    Invalid value, possible NaN or Inf?\n"; break;
-      default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
-                     <<".\n"; break;
-    }//swi
-    return false;
-  }//if
-  return true;
-}
-
-std::vector<float> Sound::GetListenerPosition() const
-{
-  if (!AL_Ready)
-  {
-    std::cout << "Sound::GetListenerPostion: Warning: OpenAL is not initialized"
-              << ", thus we cannot get the listener's position yet.\n";
-    return std::vector<float>(3, 0.0f);
-  }
-  if (InitInProgress)
-  {
-    std::cout << "Sound::GetListenerPostion: ERROR: (De-)Initialization of "
-              << "OpenAL is in progress, thus we cannot get a position here.\n";
-    return std::vector<float>(3, 0.0f);
-  }
-
-  std::vector<float> result(3, 0.0f); //declare vector and initialize it with
-                                      // three zeros (better than thrice push_b)
-  ALenum error_state;
-
-  alGetError(); //clear error state
-  alGetListener3f(AL_POSITION, &result[0], &result[1], &result[2]);
-  error_state = alGetError();
-  if (error_state != AL_NO_ERROR)
-  {
-    std::cout << "Sound::GetListenerPosition: ERROR: Could not get listener's "
-              << "position.\n";
-    switch(error_state)
-    {
-      case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n"; break;
-      case AL_INVALID_ENUM: //should not happen here
-           std::cout << "    Invalid enumeration value.\n"; break;
-      case AL_INVALID_VALUE:
-           std::cout << "    Invalid pointer values.\n";
-      default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
-                     << ".\n"; break;
-    }//swi
-    //Normally we would return "false" here, but since there is no bool, we can
-    //use the content of the result vector as well.
-  }//if
-  return result;
-}
-
-//changes listener's position relative to current listener's postion, i.e.
-// simple vector addition of current pos. and parameter vector
-bool Sound::ListenerTranslatePostion(const float delta_x, const float delta_y, const float delta_z)
-{
-  if (!AL_Ready)
-  {
-    std::cout << "Sound::ListenerTranslatePostion: Warning: OpenAL is not init"
-              << "ialized, thus we cannot set the listener's position yet.\n";
-    return false;
-  }
-  if (InitInProgress)
-  {
-    std::cout << "Sound::ListenerTranslatePostion: ERROR: (De-)Initialization "
-              << "of OpenAL is in progress, thus we cannot set position here.\n";
-    return false;
-  }
-
-  ALenum error_state;
-  ALfloat current_x, current_y, current_z; //will hold current listener pos.
-  alGetError(); //clear error state
-  //get current position of listener
-  alGetListener3f(AL_POSITION, &current_x, &current_y, &current_z);
-  error_state = alGetError();
-  if (error_state != AL_NO_ERROR)
-  {
-    std::cout << "Sound::ListenerTranslatePosition: ERROR: Could not get the "
-              << "current listener position.\n";
-    switch(error_state)
-    {
-      case AL_INVALID_ENUM: //should never happen here
-           std::cout << "    Invalid enumeration parameter.\n"; break;
-      case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context. :(\n"; break;
-      case AL_INVALID_VALUE:
-           std::cout << "    Invalid pointer values.\n"; break;
-      default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
-                     << ".\n"; break;
-    }//swi
-    return false;
-  }//if
-  //now set the new position
-  alListener3f(AL_POSITION, current_x+delta_x, current_y+delta_y, current_z+delta_z);
-  error_state = alGetError();
-  if (error_state != AL_NO_ERROR)
-  {
-    std::cout << "Sound::ListenerTranslatePosition: ERROR: Could not set new "
-              << "listener position. :(\n";
-    switch/*reloaded*/(error_state)
-    {
-      case AL_INVALID_ENUM: //should not happen
-           std::cout << "    Invalid enumeration parameter.\n"; break;
-      case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context, so what?\n"; break;
-      case AL_INVALID_VALUE:
-           std::cout << "    Invalid position value, maybe NaN or Inf?"; break;
-      default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
-                     <<".\n"; break;
-    }//swi
-    return false;
-  }//if
-  return true;
-}
-
-//Gets the direction and the "up" vector of the Listener as a pair of 3-tuples
-//returns to zero vectors on failure
-std::vector<float> Sound::GetListenerOrientation() const
-{
-  if (!AL_Ready)
-  {
-    std::cout << "Sound::GetListenerOrientation: Warning: OpenAL is not init"
-              << "ialized, thus we cannot set the listener's position yet.\n";
-    return std::vector<float>(6, 0.0f);
-  }
-  if (InitInProgress)
-  {
-    std::cout << "Sound::GetListenerOrientation: ERROR: (De-)Initialization "
-              << "of OpenAL is in progress, thus we cannot set position here.\n";
-    return std::vector<float>(6, 0.0f);
-  }
-
-  ALenum error_state;
-  ALfloat orientation[6];
-  std::vector<float> result;
-
-  alGetError(); //clear error state
-  alGetListenerfv(AL_ORIENTATION, &orientation[0]);
-  error_state = alGetError();
-  if (error_state != AL_NO_ERROR)
-  {
-    std::cout << "Sound::GetListenerOrientation: ERROR: Could not get listener "
-              << "orientation.\n";
-    switch(error_state)
-    {
-      case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n"; break;
-      case AL_INVALID_ENUM:
-           std::cout << "    The enumeration parameter is not valid.\n"; break;
-      case AL_INVALID_VALUE:
-           std::cout << "    The value pointer is invalid.\n"; break;
-      default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
-                     << ".\n"; break;
-    }//swi
-    return std::vector<float>(6, 0.0f); //"return false"
-  }//if
-  //fill vector (ALenum directly converts to int)
-  for (error_state=0; error_state<6; error_state++)
-  {
-    result.push_back(orientation[error_state]);
-  }
-  return result;
-}
-
-//rotate Listener orientation around x-, y- or z-axis... or all of them
-// parameters: values (in radiant) indicating how far listener should rotate
-bool Sound::ListenerRotate(const float x_axis, const float y_axis, const float z_axis)
-{
-  if (!AL_Ready)
-  {
-    std::cout << "Sound::ListenerRotate: Warning: OpenAL is not initialized, "
-              << "thus we cannot rotate the listener position yet.\n";
-    return false;
-  }
-  if (InitInProgress)
-  {
-    std::cout << "Sound::ListenerRotate: ERROR: (De-)Initialization of OpenAL"
-              << " is in progress, thus we cannot rotate the listener here.\n";
-    return false;
-  }
-
-  ALenum error_state;
-  ALfloat orientation[6];
-
-  alGetError(); //clear error state
-  alGetListenerfv(AL_ORIENTATION, &orientation[0]);
-  error_state = alGetError();
-  if (error_state != AL_NO_ERROR)
-  {
-    std::cout << "Sound::ListenerRotate: ERROR: Could not get listener's "
-              << "orientation, thus we cannot rotate.\n";
-    switch(error_state)
-    {
-      case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n"; break;
-      case AL_INVALID_ENUM:
-           std::cout << "    The enum parameter is invalid.\n"; break;
-      case AL_INVALID_VALUE:
-           std::cout << "    Invalid pointer value.\n";
-      default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
-                     << ".\n"; break;
-    }//swi
-    return false;
-  }//if
-  //do the rotation here
-  /* Rotation matrix (2D):
-            / cos x    -sin x \
-     R(x) = |                 |  where x is (likely to be) in [0, 2*Pi]
-            \ sin x     cos x /
-  */
-  float sinus, cosinus;
-  if (x_axis != 0.0)
-  {
-    sinus = sin(x_axis);
-    cosinus = cos(x_axis);
-    //rotate around x axis (x-coords remain)
-    orientation[1] = orientation[1]*cosinus - orientation[2]*sinus;//at-vector,y
-    orientation[2] = orientation[1]*sinus + orientation[2]*cosinus;//at-vector,z
-    orientation[4] = orientation[4]*cosinus - orientation[5]*sinus;//up-vector,y
-    orientation[5] = orientation[4]*sinus + orientation[5]*cosinus;//up-vector,z
-  }//if x_axis
-  if (y_axis != 0.0)
-  {
-    sinus = sin(y_axis);
-    cosinus = cos(y_axis);
-    //rotate around y axis (y-coords remain untouched)
-    orientation[2] = orientation[2]*cosinus - orientation[0]*sinus;//at-vector,z
-    orientation[0] = orientation[2]*sinus + orientation[0]*cosinus;//at-vector,x
-    orientation[5] = orientation[5]*cosinus - orientation[3]*sinus;//up-vector,z
-    orientation[3] = orientation[5]*sinus + orientation[3]*cosinus;//up-vector,x
-  }//if y_axis
-  if (z_axis != 0.0)
-  {
-    sinus = sin(z_axis);
-    cosinus = cos(z_axis);
-    //rotate around z axis (z-coords remain untouched)
-    orientation[0] = orientation[0]*cosinus - orientation[1]*sinus;//at_vector,x
-    orientation[1] = orientation[0]*sinus + orientation[1]*cosinus;//at-vector,y
-    orientation[3] = orientation[3]*cosinus - orientation[4]*sinus;//up-vector,x
-    orientation[4] = orientation[3]*sinus + orientation[4]*cosinus;//up-vector,y
-  }//if z_axis
-  //set new values for at- & up-vector
-  alListenerfv(AL_ORIENTATION, &orientation[0]);
-  error_state = alGetError();
-  if (error_state != AL_NO_ERROR)
-  {
-    std::cout << "Sound::ListenerRotate: ERROR: Could not set new orientation "
-              << "of listener.\n";
-    switch(error_state)
-    {
-      case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n"; break;
-      case AL_INVALID_ENUM:
-           std::cout << "    Invalid enum parameter.\n"; break;
-      case AL_INVALID_VALUE:
-           std::cout << "    Invalid value pointer given.\n"; break;
-      default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
-                     << ".\n"; break;
-    }//swi
-    return false;
-  }//if
-  return true; //seems like wie made it :)
-}
-
-//sets listener's velocity and returns true on success, false on error
-bool Sound::SetListenerVelocity(const float x, const float y, const float z)
-{
-  if (!AL_Ready)
-  {
-    std::cout << "Sound::SetListenerVelocity: Warning: OpenAL is not "
-              << "initialized, we cannot set the listener velocity yet.\n";
-    return false;
-  }
-  if (InitInProgress)
-  {
-    std::cout << "Sound::SetListenerVelocity: ERROR: (De-)Initialization of "
-              << "OpenAL is in progress, thus we cannot set a velocity here.\n";
-    return false;
-  }
-
-  ALenum error_state;
-
-  alGetError(); //clear error state
-  alListener3f(AL_VELOCITY, x, y, z);
-  error_state = alGetError();
-  if (error_state != AL_NO_ERROR)
-  {
-    std::cout << "Sound::SetListenerVelocity: ERROR: Could not set velocity!\n";
-    switch(error_state)
-    {
-      case AL_INVALID_ENUM: //unlikely to happen
-           std::cout << "    Invalid enumeration token.\n"; break;
-      case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n"; break;
-      case AL_INVALID_VALUE:
-           std::cout << "    Invalid value given, possibly NaN? (Values: x: "<<x
-                     << "; y: "<<y<<"; z: "<<z<<")\n"; break;
-      default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
-                     << ".\n"; break;
-    }//swi
-    return false;
-  }//if
-  return true;
-}//function SetListenerVelocity
-
-/*retrieves listener's velocity,
-  returns (0.0, 0.0, 0.0), if velocity could not be determined. However, a return
-  value of (0.0, 0.0, 0.0) does not necessarily indicate an error, since this
-  is also a legal return value for a non-moving listener.*/
-std::vector<float> Sound::GetListenerVelocity() const
-{
-  if (!AL_Ready)
-  {
-    std::cout << "Sound::GetListenerVelocity: Warning: OpenAL is not "
-              << "initialized, we cannot have a listener velocity yet.\n";
-    return std::vector<float>(3, 0.0f);
-  }
-  if (InitInProgress)
-  {
-    std::cout << "Sound::GetListenerVelocity: ERROR: (De-)Initialization of "
-              << "OpenAL is in progress, thus we cannot get a velocity here.\n";
-    return std::vector<float>(3, 0.0f);
-  }
-
-  ALenum error_state;
-  std::vector<float> result(3, 0.0f);
-
-  alGetError();//clears error state
-  alGetListener3f(AL_VELOCITY, &result[0], &result[1], &result[2]);
-  error_state = alGetError();
-  if (error_state != AL_NO_ERROR)
-  {
-    std::cout << "Sound::GetListenerVelocity: ERROR: Could not retrieve "
-              << "velocity value of listener!\n";
-    switch(error_state)
-    {
-      case AL_INVALID_ENUM: //unlikely
-           std::cout << "    Invalid enumeration token.\n"; break;
-      case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n"; break;
-      case AL_INVALID_VALUE:
-           std::cout << "    Invalid pointer value(s) given.\n"; break;
-      default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
-                     << ".\n"; break;
-    }//swi
-    return std::vector<float>(3, 0.0f);
-  }//if
-  return result;
-}//function GetListenerVelocity
 
 
 // ***** source attributes/ positioning *****

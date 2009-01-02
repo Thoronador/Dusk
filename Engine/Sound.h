@@ -95,36 +95,46 @@ class Sound
     bool Attach(const std::string NoiseIdentifier, const std::string MediaIdentifier);
     //   Detach: revokes association between Noise and its attached Media
     bool Detach(const std::string NoiseIdentifier);
-
+    //   noise playback management
     bool PlayNoise(const std::string NoiseIdentifier);
+    bool PauseNoise(const std::string NoiseIdentifier);
+    bool UnPauseNoise(const std::string NoiseIdentifier);
+    bool StopNoise(const std::string NoiseIdentifier);
+    bool LoopNoise(const std::string NoiseIdentifier, const bool DoLoop = true);
+    //   state retrieval functions
+    bool IsPlayingNoise(const std::string NoiseIdentifier) const;
+    bool IsLoopingNoise(const std::string FileName) const;
+    //   noise volume functions
+    bool SetNoiseVolume(const std::string NoiseIdentifier, const float volume = 1.0f);
+    float GetNoiseVolume(const std::string NoiseIdentifier, const bool consider_MinMax = false) const;
 
-    //media management routines
+    // **media management routines**
     bool CreateMedia(const std::string MediaIdentifier, const std::string PathToMedia);
     bool DestroyMedia(const std::string MediaIdentifier);
 
-    //routines for managing noise state
-    bool IsPlayingNoise(std::string NoiseIdentifier) const;
-    bool PauseNoise(std::string NoiseIdentifier);
-    bool UnPauseNoise(std::string NoiseIdentifier);
-    bool StopNoise(std::string NoiseIdentifier);
-    bool ReplayNoise(std::string NoiseIdentifier);
-    bool LoopNoise(std::string NoiseIdentifier, bool DoLoop = true);
-    bool IsLoopingNoise(std::string FileName) const;
-    //volume functions
-    bool SetNoiseVolume(std::string NoiseIdentifier, const float volume = 1.0f);
-    float GetNoiseVolume(std::string NoiseIdentifier, bool consider_MinMax = false) const;
-    //general state query/set functions
+    // **general state query/set functions**
     float GetSpeedOfSound() const;
     bool SetSpeedOfSound(const float new_value);
-    //listener attributes
+
+    // **listener management functions**
+    //   positioning
     bool SetListenerPostion(const float x, const float y, const float z);
     std::vector<float> GetListenerPosition() const;
     bool ListenerTranslatePostion(const float delta_x, const float delta_y, const float delta_z);
-    std::vector<float> GetListenerOrientation() const;
-    bool ListenerRotate(const float x_axis, const float y_axis=0.0f, const float z_axis=0.0f);
-    //listener velocity
+    //   velocity
     bool SetListenerVelocity(const float x, const float y, const float z);
     std::vector<float> GetListenerVelocity() const;
+    //   orientation of listener
+    std::vector<float> GetListenerOrientation() const;
+    bool ListenerRotate(const float x_axis, const float y_axis=0.0f, const float z_axis=0.0f);
+
+
+
+
+
+    //old or unimplemented/ non-working routines
+    //routines for managing noise state
+    bool ReplayNoise(const std::string NoiseIdentifier);
     //source postioning
     bool SetSoundPosition(const std::string FileName, const float x, const float y, const float z);
     std::vector<float> GetSoundPosition(const std::string FileName) const;
