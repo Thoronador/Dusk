@@ -18,7 +18,8 @@ Sound::Sound()
   InitInProgress = false;
   libHandleAL = NULL;
   libHandleOV = NULL;
-  pFileList = NULL;
+  pMediaList = NULL;
+  pNoiseList = NULL;
   //init function pointers
   AllFuncPointersToNULL();
 }
@@ -812,7 +813,7 @@ bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, boo
     InitInProgress = false;
     return false;
   }
-  
+
   #if defined(_WIN32)
   //Windows
   alSpeedOfSound = (LPALSPEEDOFSOUND) GetProcAddress(libHandleAL, "alSpeedOfSound");
@@ -826,7 +827,7 @@ bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, boo
     InitInProgress = false;
     return false;
   }
-  
+
   //Initialization of device (finally)
   pDevice = alcOpenDevice(NULL); //opens default device
   //later: should possibly be modified to open a selected device instead of default
@@ -1025,12 +1026,18 @@ bool Sound::Exit()
     return false;
   }
   InitInProgress = true;
+
+  //try to free all AL sources
+  while (pNoiseList != NULL)
+  {
+    DestroyNoise(pNoiseList->NoiseName);
+  }
   //try to free all file resources
-  while (pFileList != NULL)
+  while (pMediaList != NULL)
   {
     //frees resources of first file and sets pointer pFileList to next file,
     //  so we will reach NULL (end of list) sooner or later
-    FreeFileResources(pFileList->FileName);
+    DestroyMedia(pMediaList->MediaName);
   }//while
 
   //standard clean-up
@@ -1103,53 +1110,260 @@ bool Sound::Exit()
   return true;
 }
 
-bool Sound::Play(std::string FileName)
+bool Sound::IsMediaPresent(const std::string MediaIdentifier) const
+{
+  if (!AL_Ready || InitInProgress)
+  {
+    std::cout << "Sound::IsMediaPresent: Warning: OpenAL is not initialized, or"
+              << "(de-)initialization is in progress; thus we can not have "
+              << "media (yet).\n";
+    return false;
+  }
+
+  TMediaRec * temp;
+  temp = pMediaList;
+  while (temp!=NULL)
+  {
+    if (temp->MediaName == MediaIdentifier)
+    {
+      return true;
+    }
+    temp = temp->next;
+  }
+  return false;
+}
+
+bool Sound::IsNoisePresent(const std::string NoiseIdentifier) const
+{
+  if (!AL_Ready || InitInProgress)
+  {
+    std::cout << "Sound::IsNoisePresent: Warning: OpenAL is not initialized, or"
+              << "(de-)initialization is in progress; thus we can not have a "
+              << "noise (yet).\n";
+    return false;
+  }
+
+  TNoiseRec * temp;
+  temp = pNoiseList;
+  while (temp!=NULL)
+  {
+    if (temp->NoiseName == NoiseIdentifier)
+    {
+      return true;
+    }
+    temp = temp->next;
+  }
+  return false;
+}
+
+bool Sound::CreateNoise(const std::string NoiseIdentifier)
+{
+  if (!AL_Ready || InitInProgress)
+  {
+    std::cout << "Sound::CreateNoise: ERROR: OpenAL is not initialized, or"
+              << "(de-)initialization is in progress; thus we can not create a "
+              << "noise (yet).\n";
+    return false;
+  }
+
+  if (IsNoisePresent(NoiseIdentifier))
+  {
+    std::cout << "Sound::CreateNoise: ERROR: A noise named\""<<NoiseIdentifier
+              <<"\" already exists. Creation stopped.\n";
+    return false;
+  }
+
+  TNoiseRec * temp;
+  ALenum error_state;
+  temp = new TNoiseRec;
+  temp->NoiseName = NoiseIdentifier;
+  temp->attachedMedia = NULL;
+  temp->next = NULL;
+  temp->sourceID = 0;
+
+  alGetError(); //clear error state
+  alGenSources(1, &(temp->sourceID));
+  error_state = alGetError();
+  if (error_state != AL_NO_ERROR)
+  {
+    std::cout << "Sound::CreateNoise: Error while creating AL source.\n";
+    switch (error_state)
+    {
+      case AL_INVALID_VALUE:
+           std::cout << "    The provided array pointer is not valid.\n";
+           break;
+      case AL_INVALID_OPERATION:
+           std::cout << "    There is no current context.\n";
+           break;
+      case AL_OUT_OF_MEMORY:
+           std::cout << "    Not enough memory to generate the source.\n";
+           break;
+      default:
+           std::cout<<"    Unknown error occured. Error code: "
+                    <<(int)error_state<<".\n"; break;
+    }//swi
+    delete temp;
+    return false;
+  }
+  //now get the right place to insert temp pointer
+  if (pNoiseList == NULL)
+  {
+    pNoiseList = temp;
+  }
+  else
+  {
+    TNoiseRec * search;
+    search = pNoiseList;
+    while (search->next != NULL)
+    {
+      search = search->next;
+    }
+    search->next = temp;
+  }
+  return true;
+}
+
+bool Sound::DestroyNoise(const std::string NoiseIdentifier)
+{
+  if (!AL_Ready || InitInProgress)
+  {
+    std::cout << "Sound::DestroyNoise: ERROR: OpenAL is not initialized, or"
+              << "(de-)initialization is in progress; thus we can not create a "
+              << "noise (yet).\n";
+    return false;
+  }
+  if (IsNoisePresent(NoiseIdentifier))
+  {
+    std::cout << "Sound::DestroyNoise: ERROR: A noise named\""<<NoiseIdentifier
+              <<"\" does not exist, hence we cannot destroy it.\n";
+    return false;
+  }
+  ALenum error_state;
+  TNoiseRec * temp;
+  //remark: pNoiseList can't be NULL, since IsNoisePresent() returned true
+  if (pNoiseList->NoiseName == NoiseIdentifier)
+  {
+    if (pNoiseList->attachedMedia!=NULL)
+    {
+      //detach media. Result does not matter, source will be deleted anyway
+      Detach(NoiseIdentifier);
+    }
+    alGetError(); //clear error state
+    alDeleteSources(1, &(pNoiseList->sourceID));
+    error_state = alGetError();
+    if (error_state != AL_NO_ERROR)
+    {
+      std::cout << "Sound::DestroyNoise: ERROR: could not delete source.\n";
+      switch(error_state)
+      {
+        case AL_INVALID_OPERATION:
+             std::cout << "    There is no current context.\n"; break;
+        case AL_INVALID_NAME:
+             std::cout << "    Invalid source name. Corrupt structure?\n";
+             break;
+        default:
+             std::cout<<"    Unknown error occured. Error code: "
+                      <<(int)error_state<<".\n"; break;
+      }//swi
+      return false;
+    }//if
+    temp = pNoiseList;
+    pNoiseList = pNoiseList->next;
+    delete temp;
+    return true;
+  }//if
+  //wanted source is second or later in list
+  temp = pNoiseList;
+  while ((temp->next!=NULL) && (temp->next->NoiseName!=NoiseIdentifier))
+  {
+    temp = temp->next;
+  }//while
+  //check sanity
+  if (temp->next==NULL)
+  {
+    std::cout << "Sound::DestroyNoise: ERROR: Could not find noise \""
+              <<NoiseIdentifier<<"\", thus nothing's destroyed.\n";
+    return false;
+  }
+  //check for attached media
+  if (temp->next->attachedMedia!=NULL)
+  {
+    //detach media. Result does not matter, source will be deleted anyway
+    Detach(NoiseIdentifier);
+  }//if
+  //delete source
+  alGetError(); //clear error state
+  alDeleteSources(1, &(temp->next->sourceID));
+  error_state = alGetError();
+  if (error_state != AL_NO_ERROR)
+  {
+    std::cout << "Sound::DestroyNoise: ERROR: could not delete source.\n";
+    switch(error_state)
+    {
+      case AL_INVALID_OPERATION:
+           std::cout << "    There is no current context.\n"; break;
+      case AL_INVALID_NAME:
+           std::cout << "    Invalid source name. Corrupt structure?\n";
+           break;
+      default:
+           std::cout<<"    Unknown error occured. Error code: "
+                    <<(int)error_state<<".\n"; break;
+    }//swi
+    return false;
+  }//if
+  //delete noise record
+  TNoiseRec * help_ptr;
+  help_ptr = temp->next->next;
+  delete (temp->next);
+  temp->next = help_ptr;
+  return true;
+}
+
+
+//media management routines
+
+bool Sound::CreateMedia(const std::string MediaIdentifier, const std::string PathToMedia)
 {
   if (!AL_Ready)
   {
-    std::cout << "Sound::Play: Warning: OpenAL is not initialized, thus we can "
-              << "not play a file yet.\n";
+    std::cout << "Sound::CreateMedia: Warning: OpenAL is not initialized, thus "
+              << "we cannot load a media file yet.\n";
     return false;
   }
   if (InitInProgress)
   {
-    std::cout << "Sound::Play: Warning: (De-)Initialization of OpenAL is in "
-              << "progress, thus we cannot play a file and quit here.\n";
+    std::cout << "Sound::CreateMedia: Warning: (De-)Initialization of OpenAL is in "
+              << "progress, thus we cannot load a media file.\n";
+    return false;
+  }
+  if (IsMediaPresent(MediaIdentifier))
+  {
+    std::cout << "Sound::CreateMedia: ERROR: A media named\""<<MediaIdentifier
+              <<"\" already exists. Creation stopped.\n";
     return false;
   }
 
-  //check whether file is already buffered
-  TBufSrcRecord * temp;
-  temp = pFileList;
-  while (temp != NULL)
-  {
-    if (temp->FileName == FileName)
-    {
-      std::cout << "Sound::Play: Hint: File \"" <<FileName<< "\" is already "
-                << "buffered. Hence we try to replay it.\n";
-      return Replay(FileName);
-    }//if
-    temp = temp ->next;
-  }//while
-
   //check file for extension (and so for the implied file format)
-  if (FileName.substr(FileName.length()-4)==".wav")
+  if (PathToMedia.substr(PathToMedia.length()-4)==".wav")
   {
-    return PlayWAV(FileName);
+    return CreateWAVMedia(MediaIdentifier, PathToMedia);
   }
-  else if (FileName.substr(FileName.length()-4)==".ogg")
+  else if (PathToMedia.substr(PathToMedia.length()-4)==".ogg")
   {
-    return PlayOgg(FileName);
+    return CreateOggMedia(MediaIdentifier, PathToMedia);
   }
   else
   {
-    std::cout << "Sound::Play: Error: File \""<<FileName<<"\" does not seem to "
-              << "be a Wave or a Ogg-Vorbis file. File cannot be played.\n";
+    std::cout << "Sound::CreateMedia: Error: File \""<<PathToMedia<<"\" does "
+              << "not seem to be a Wave or a Ogg-Vorbis file. File cannot be "
+              << "loaded.\n";
     return false;
   }
 }
 
-bool Sound::PlayWAV(std::string WAV_FileName)
+//function which actually loads the WAVE files into buffers to make the available
+// to OpenAL
+bool Sound::CreateWAVMedia(const std::string MediaIdentifier, const std::string PathToMedia)
 {
   TRiffChunk riff_c;
   TFmtChunk fmt_c;
@@ -1157,18 +1371,18 @@ bool Sound::PlayWAV(std::string WAV_FileName)
   std::ifstream dat;
   char * temp;
 
-  dat.open(WAV_FileName.c_str(), std::ios::in | std::ios::binary);
+  dat.open(PathToMedia.c_str(), std::ios::in | std::ios::binary);
   if(!dat)
   {
-    std::cout << "Sound::PlayWAV: ERROR: Unable to open stream for reading.\n"
-              << "       File: \"" <<WAV_FileName<<"\".\n\n";
+    std::cout << "Sound::CreateWAVMedia: ERROR: Unable to open stream for reading.\n"
+              << "       File: \"" <<PathToMedia<<"\".\n\n";
     return false;
   }
   dat.read(riff_c.Riff, 4); // "RIFF"
   if ((riff_c.Riff[0]!='R') || (riff_c.Riff[1]!='I') || (riff_c.Riff[2]!='F')
        || (riff_c.Riff[3]!='F'))
   {
-    std::cout << "Sound::PlayWAV: ERROR: File \""<<WAV_FileName<<"\" has incorrect"
+    std::cout << "Sound::CreateWAVMedia: ERROR: File \""<<PathToMedia<<"\" has incorrect"
               <<" RIFF header.\n";
     dat.close();
     return false;
@@ -1178,7 +1392,7 @@ bool Sound::PlayWAV(std::string WAV_FileName)
   if ((riff_c.Wave[0]!='W') || (riff_c.Wave[1]!='A') || (riff_c.Wave[2]!='V')
        || (riff_c.Wave[3]!='E'))
   {
-    std::cout << "Sound::PlayWAV: ERROR: File \""<<WAV_FileName<<"\" has incorrect"
+    std::cout << "Sound::CreateWAVMedia: ERROR: File \""<<PathToMedia<<"\" has incorrect"
               <<" WAVE header.\n";
     dat.close();
     return false;
@@ -1188,7 +1402,7 @@ bool Sound::PlayWAV(std::string WAV_FileName)
   if ((fmt_c.fmt_[0]!='f') || (fmt_c.fmt_[1]!='m') || (fmt_c.fmt_[2]!='t')
        || (fmt_c.fmt_[3]!=' '))
   {
-    std::cout << "Sound::PlayWAV: ERROR: File \""<<WAV_FileName<<"\" has incorrect"
+    std::cout << "Sound::CreateWAVMedia: ERROR: File \""<<PathToMedia<<"\" has incorrect"
               <<" format chunk header signature.\n";
     dat.close();
     return false;
@@ -1198,24 +1412,25 @@ bool Sound::PlayWAV(std::string WAV_FileName)
   // will be ignored.
   if (fmt_c.chunk_size<16)
   {
-    std::cout << "Sound::PlayWAV: ERROR: Format chunk of file \""<<WAV_FileName
-              <<"\" has incorrect size of "<<fmt_c.chunk_size
+    std::cout << "Sound::CreateWAVMedia: ERROR: Format chunk of file \""
+              <<PathToMedia<<"\" has incorrect size of "<<fmt_c.chunk_size
               <<" bytes. (Should be 16 instead.)\n";
     dat.close();
     return false;
   }
   else if (fmt_c.chunk_size>16)
   {
-    std::cout << "Sound::PlayWAV: Warning: Format chunk of file \""<<WAV_FileName
-              <<"\" is larger than 16 bytes. Actual size is "<<fmt_c.chunk_size
-              <<" bytes. Everything after 16th byte will be ignored.\n";
+    std::cout << "Sound::CreateWAVMedia: Warning: Format chunk of file \""
+              <<PathToMedia<<"\" is larger than 16 bytes. Actual size is "
+              <<fmt_c.chunk_size<<" bytes. Everything after 16th byte will be "
+              <<"ignored.\n";
   }
   dat.read((char*) &(fmt_c.FormatTag), 2); //should have value of 1 for PCM
                                         //(this is what we have for typical .wav)
   if (fmt_c.FormatTag!=1)
   {
-    std::cout << "Sound::PlayWAV: ERROR: File \""<<WAV_FileName<<"\" is not of "
-              << "PCM format. Format index: " <<fmt_c.FormatTag<<".\n";
+    std::cout << "Sound::CreateWAVMedia: ERROR: File \""<<PathToMedia<<"\" is "
+              << "not of PCM format. Format index: " <<fmt_c.FormatTag<<".\n";
     dat.close();
   }
   dat.read((char*) &(fmt_c.Channels), 2);  // 1 for mono, 2 for stereo
@@ -1236,8 +1451,8 @@ bool Sound::PlayWAV(std::string WAV_FileName)
     }
     else //chunk is larger than 1 KB; quite unnormal
     {
-      std::cout << "Sound::PlayWAV: ERROR: Format chunk is much too big ("
-                << fmt_c.chunk_size << " bytes). Exiting.\n";
+      std::cout << "Sound::CreateWAVMedia: ERROR: Format chunk is much too big "
+                << "("<<fmt_c.chunk_size << " bytes). Exiting.\n";
       dat.close();
       return false;
     }
@@ -1248,7 +1463,7 @@ bool Sound::PlayWAV(std::string WAV_FileName)
   if ((data_c.data[0]!='d') || (data_c.data[1]!='a') || (data_c.data[2]!='t')
        || (data_c.data[3]!='a'))
   {
-    std::cout << "Sound::PlayWAV: ERROR: File \""<<WAV_FileName<<"\" has incorrect"
+    std::cout << "Sound::PlayWAV: ERROR: File \""<<PathToMedia<<"\" has incorrect"
               <<" data chunk header signature.\n";
     dat.close();
     return false;
@@ -1256,17 +1471,26 @@ bool Sound::PlayWAV(std::string WAV_FileName)
   dat.read((char*) &(data_c.length_of_data), 4); //Länge des folgenden Datenblocks
                                                  //bzw. der restlichen Datei
 
+  //check if data length is valid
+  if (data_c.length_of_data<fmt_c.BlockAlign)
+  {
+    std::cout << "Sound::CreateWAVMedia: ERROR: Data chunk of file \""<<PathToMedia
+              << "\" is to short to contain valid data. Exiting.\n";
+    dat.close();
+    return false;
+  }
+
+  //for calculations of number and size of buffers
   unsigned long buffer_size=0, buffer_num=0, i=0;
   unsigned long last_buffer_size=0;
-  TBufSrcRecord * buff_rec;
-  ALenum error_state;
-  //format of data
-  ALenum format_type;
+  TMediaRec * buff_rec;
+  ALenum error_state;//return value from alGetError();
+  ALenum format_type;//format of data
 
   //Not sure about what is a good buffer size for WAVE/PCM file
   //Following line may need to be adjusted :?
   buffer_size =  32* fmt_c.BlockAlign *1024;
-  //aassure that buffer is not larger than amount of available data
+  //assure that buffer is not larger than amount of available data
   if (buffer_size>data_c.length_of_data)
   {
     buffer_size = data_c.length_of_data;
@@ -1283,15 +1507,6 @@ bool Sound::PlayWAV(std::string WAV_FileName)
   }
   last_buffer_size = buffer_size;
 
-  //check if data length is valid
-  if (data_c.length_of_data<fmt_c.BlockAlign)
-  {
-     std::cout << "Sound::PlayWAV: ERROR: Data chunk is to short to contain "
-               << "valid data. Exiting.\n";
-     dat.close();
-     return false;
-  }
-
   //determine number of buffers
   buffer_num = data_c.length_of_data/ buffer_size;
   if ((data_c.length_of_data % buffer_size)!=0)
@@ -1300,10 +1515,15 @@ bool Sound::PlayWAV(std::string WAV_FileName)
     last_buffer_size = data_c.length_of_data % buffer_size; //size of last buffer
                                                     //is diff. from regular size
   }
-  //allocate memory for new record
-  buff_rec = new TBufSrcRecord;
-  buff_rec->FileName = WAV_FileName;
+  //allocate memory for new record and initialise values
+  buff_rec = new TMediaRec;
+  buff_rec->MediaName = MediaIdentifier;
+  buff_rec->FileName = PathToMedia;
   buff_rec->num_buffers = buffer_num;
+  buff_rec->buffers = NULL;
+  buff_rec->attached_to.clear();
+  buff_rec->next = NULL;
+
   //allocate memory for buffer_num ALuint variables
   buff_rec->buffers = (ALuint*) malloc(sizeof(ALuint)*buffer_num);
   alGetError();//clear error state
@@ -1311,8 +1531,8 @@ bool Sound::PlayWAV(std::string WAV_FileName)
   error_state = alGetError();
   if (error_state !=AL_NO_ERROR) //error occured
   {
-    std::cout << "Sound::Play: ERROR while generating buffers for \""
-              <<WAV_FileName <<"\".\n";
+    std::cout << "Sound::CreateWavMedia: ERROR while generating buffers for \""
+              <<PathToMedia<<"\".\n";
     switch (error_state)
     {
       case AL_INVALID_VALUE:
@@ -1331,62 +1551,56 @@ bool Sound::PlayWAV(std::string WAV_FileName)
     delete buff_rec;
     return false;
   }
+
   //determine format
   if (fmt_c.BitsPerSample==16)
   {
-    if (fmt_c.Channels==4)
+    switch(fmt_c.Channels)
     {
-      format_type = alGetEnumValue("AL_FORMAT_QUAD16");
-    }
-    if (fmt_c.Channels==2)
-    {
-      format_type = AL_FORMAT_STEREO16;
-    }
-    else if (fmt_c.Channels == 1)
-    {
-      format_type = AL_FORMAT_MONO16;
-    }
-    else
-    {
-      std::cout << "Sound::Play: ERROR: File \"" <<WAV_FileName<<"\" seems to "
-                << "have "<<fmt_c.Channels<<" channels. However, only four, two"
-                << " (stereo) or one (mono) channels are supported.\n";
-      dat.close();
-      alDeleteBuffers(buff_rec->num_buffers, buff_rec->buffers);
-      delete buff_rec;
-      return false;
-    }
+      case 4:
+        format_type = alGetEnumValue("AL_FORMAT_QUAD16"); break;
+      case 2:
+        format_type = AL_FORMAT_STEREO16; break;
+      case 1:
+        format_type = AL_FORMAT_MONO16; break;
+      default:
+        std::cout << "Sound::CreateWavMedia: ERROR: File \"" <<PathToMedia
+                  <<"\" seems to have "<<fmt_c.Channels<<" channels. However, "
+                  <<"only four, two (stereo) or one (mono) channels are "
+                  <<"supported.\n";
+        dat.close();
+        alDeleteBuffers(buff_rec->num_buffers, buff_rec->buffers);
+        delete buff_rec;
+        return false;
+        break; //pro forma :P
+    }//swi
   }
   else if (fmt_c.BitsPerSample==8)
   {
-    if (fmt_c.Channels==4)
+    switch(fmt_c.Channels)
     {
-      format_type = alGetEnumValue("AL_FORMAT_QUAD8");
-    }
-    else if (fmt_c.Channels==2)
-    {
-      format_type = AL_FORMAT_STEREO8;
-    }
-    else if (fmt_c.Channels == 1)
-    {
-      format_type = AL_FORMAT_MONO8;
-    }
-    else
-    {
-      std::cout << "Sound::Play: ERROR: File \"" <<WAV_FileName<<"\" seems to "
-                << "have "<<fmt_c.Channels<<" channels. However, only four, two"
-                << " (stereo) or one (mono) channels are supported.\n";
-      dat.close();
-      alDeleteBuffers(buff_rec->num_buffers, buff_rec->buffers);
-      delete buff_rec;
-      return false;
-    }
+      case 4:
+        format_type = alGetEnumValue("AL_FORMAT_QUAD8"); break;
+      case 2:
+        format_type = AL_FORMAT_STEREO8; break;
+      case 1:
+        format_type = AL_FORMAT_MONO8;
+      default:
+        std::cout << "Sound::CreateWavMedia: ERROR: File \"" <<PathToMedia
+                  <<"\" seems to have "<<fmt_c.Channels<<" channels. However, "
+                  <<"only four, two (stereo) or one (mono) channels are "
+                  <<"supported. Creation aborted.\n";
+        dat.close();
+        alDeleteBuffers(buff_rec->num_buffers, buff_rec->buffers);
+        delete buff_rec;
+        return false;
+    }//swi
   }
   else //Bits per Sample neither 16 nor 8, thus unsupported by OpenAL
   {
-    std::cout << "Sound::Play: ERROR: The sample rate of \"" <<WAV_FileName
-              <<"\" (" << fmt_c.BitsPerSample << " bits per sample) is not "
-              <<"supported. OpenAL supports only 8 and 16 bit samples.\n";
+    std::cout << "Sound::CreateWavMedia: ERROR: The sample rate of \""
+              <<PathToMedia<<"\" ("<<fmt_c.BitsPerSample<< " bits per sample) "
+              <<"is not supported. OpenAL supports only 8 and 16 bit samples.\n";
     dat.close();
     alDeleteBuffers(buff_rec->num_buffers, buff_rec->buffers);
     delete buff_rec;
@@ -1395,15 +1609,17 @@ bool Sound::PlayWAV(std::string WAV_FileName)
   //check for valid format enumeration value
   if (format_type == 0) //call to alGetEnumValue could not get a proper result
   {
-    std::cout << "Sound::Play: ERROR: Could not find a valid OpenAL format "
-              << "enumeration value. Most likely the format of \""<<WAV_FileName
-              << "\" (channels: "<<fmt_c.Channels<<"; bits per sample: "
+    std::cout << "Sound::CreateWavMedia: ERROR: Could not find a valid OpenAL "
+              << "format enumeration value. Most likely the format of \""
+              <<PathToMedia<<"\" (channels: "<<fmt_c.Channels<<"; bits per sample: "
               <<fmt_c.BitsPerSample<<") is not supported.\n";
     dat.close();
     alDeleteBuffers(buff_rec->num_buffers, buff_rec->buffers);
     delete buff_rec;
     return false;
   }
+
+  //now read the data into OpenAL buffers
   temp = (char*) malloc(buffer_size);
   for (i=0; i<buffer_num-1; i=i+1)
   {
@@ -1413,13 +1629,13 @@ bool Sound::PlayWAV(std::string WAV_FileName)
     error_state = alGetError();
     if (error_state!= AL_NO_ERROR)
     {
-      std::cout << "Sound::Play: ERROR while buffering data.\n";
+      std::cout << "Sound::CreateWavMedia: ERROR while buffering data.\n";
       switch (error_state)
       {
         case AL_INVALID_ENUM:
              std::cout <<"    The specified format does not exist.\n"; break;
         case AL_INVALID_VALUE:
-             std::cout <<"    The sie parameter is not valid for the given format"
+             std::cout <<"    The size parameter is not valid for the given format"
                        <<" or the buffer is already in use.\n"; break;
         case AL_OUT_OF_MEMORY:
              std::cout <<"    Not enough memory to create the buffer.\n"; break;
@@ -1443,7 +1659,7 @@ bool Sound::PlayWAV(std::string WAV_FileName)
   error_state = alGetError();
   if (error_state!= AL_NO_ERROR)
   {
-    std::cout << "Sound::Play: ERROR while buffering data.\n";
+    std::cout << "Sound::CreateWavMedia: ERROR while buffering data.\n";
     switch (error_state)
     {
       case AL_INVALID_ENUM:
@@ -1470,38 +1686,213 @@ bool Sound::PlayWAV(std::string WAV_FileName)
     free(temp);
   }//else
 
-  //Source generation
-  alGetError();//clear error state
-  alGenSources(1, &(buff_rec->sourceID));
-  error_state = alGetError();
-  if (error_state!= AL_NO_ERROR)
+  //we're finally done with reading the data, now put it into list
+  buff_rec->next = pMediaList;
+  pMediaList = buff_rec;
+  return true;
+}
+
+bool Sound::CreateOggMedia(const std::string MediaIdentifier, const std::string PathToMedia)
+{
+  if (!Vorbis_Ready)
   {
-    std::cout << "Sound::Play: ERROR while generating source.\n";
-    switch (error_state)
-    {
-      case AL_INVALID_OPERATION:
-           std::cout <<"    There is no context to create a source in.\n"; break;
-      case AL_INVALID_VALUE:
-           std::cout <<"    The array pointer is not valid or there are not "
-                     <<"enough resources to create a source.\n"; break;
-      case AL_OUT_OF_MEMORY:
-           std::cout <<"    Not enough memory to create the source.\n"; break;
-      default:
-           std::cout <<"    Unknown error. Error code: "<<(int)error_state<<".\n";
-           break;
-    }//swi
-    //should delete previously generated buffers here
-    alDeleteBuffers(buff_rec->num_buffers, buff_rec->buffers);
-    delete buff_rec;
+    std::cout << "Sound::CreateOggMedia: ERROR: OggVorbis was not initialized, "
+              << "so we cannot load an OggVorbis file here.\n";
     return false;
+  }
+  //not implemented yet
+  std::cout << "Sound::CreateOggMedia: ERROR: loading Ogg-Vorbis files is not "
+            << "properly implemented yet.\n";
+  return false;
+}
+
+bool Sound::DestroyMedia(const std::string MediaIdentifier)
+{
+  if (!AL_Ready || InitInProgress)
+  {
+    std::cout << "Sound::DestroyMedia: ERROR: OpenAL is not initialized, or"
+              << "(de-)initialization is in progress; thus we can not destroy "
+              << "media (yet).\n";
+    return false;
+  }
+  if (IsMediaPresent(MediaIdentifier))
+  {
+    std::cout << "Sound::DestroyMedia: ERROR: A noise named\""<<MediaIdentifier
+              <<"\" does not exist, hence we cannot destroy it.\n";
+    return false;
+  }
+  ALenum error_state;
+  TMediaRec * temp;
+  std::vector<std::string> tempList;
+  int i;
+
+  //remark: pMediaList can't be NULL, since IsNoisePresent() returned true
+  if (pMediaList->MediaName == MediaIdentifier)
+  {
+    if (pMediaList->attached_to.size()!=0)
+    {
+      //detach media. Result does not matter, source will be deleted anyway
+      tempList.assign(pMediaList->attached_to.begin(), pMediaList->attached_to.end());
+      for (i=0; i<tempList.size(); i=i+1)
+      {
+        Detach(tempList[i]);
+      }//for
+    }
+    //delete the buffers
+    alGetError(); //clear error state
+    alDeleteBuffers(pMediaList->num_buffers, pMediaList->buffers);
+    error_state = alGetError();
+    if (error_state != AL_NO_ERROR)
+    {
+      std::cout << "Sound::DestroyMedia: ERROR: could not delete buffers.\n";
+      switch(error_state)
+      {
+        case AL_INVALID_OPERATION:
+             std::cout << "    At least one buffer is still in use and can't be"
+                       <<" deleted.\n"; break;
+        case AL_INVALID_NAME:
+             std::cout << "    Invalid buffer name. Corrupt structure?\n";
+             break;
+        case AL_INVALID_VALUE:
+             std::cout << "    The requested number of buffers cannot be "
+                       <<"deleted.\n"; break;
+        default:
+             std::cout<<"    Unknown error occured. Error code: "
+                      <<(int)error_state<<".\n"; break;
+      }//swi
+      return false;
+    }//if
+    temp = pMediaList;
+    pMediaList = pMediaList->next;
+    delete temp;
+    return true;
   }//if
 
-  //Queue all buffers to the source
-  alSourceQueueBuffers(buff_rec->sourceID, buff_rec->num_buffers, buff_rec->buffers);
+
+  //wanted media is second or later in list
+  temp = pMediaList;
+  while ((temp->next!=NULL) && (temp->next->MediaName!=MediaIdentifier))
+  {
+    temp = temp->next;
+  }//while
+  //check sanity
+  if (temp->next==NULL)
+  {
+    std::cout << "Sound::DestroyMedia: ERROR: Could not find media \""
+              <<MediaIdentifier<<"\", thus nothing's destroyed.\n";
+    return false;
+  }
+  //check for attached media
+  if (temp->next->attached_to.size()>0)
+  {
+    //detach media. Result does not matter, buffers will be deleted anyway
+    tempList.assign(temp->next->attached_to.begin(), temp->next->attached_to.end());
+    for (i=0; i<tempList.size(); i=i+1)
+    {
+      Detach(tempList[i]);
+    }//for
+  }//if
+
+  //delete buffers
+  alGetError(); //clear error state
+  alDeleteSources(temp->next->num_buffers, temp->next->buffers);
+  error_state = alGetError();
+  if (error_state != AL_NO_ERROR)
+  {
+    std::cout << "Sound::DestroyMedia: ERROR: could not delete buffers.\n";
+    switch(error_state)
+    {
+      case AL_INVALID_OPERATION:
+           std::cout << "    At least one buffer is still in use and can't be"
+                     <<" deleted.\n"; break;
+      case AL_INVALID_NAME:
+           std::cout << "    Invalid buffer name. Corrupt structure?\n"; break;
+      case AL_INVALID_VALUE:
+           std::cout << "    The requested number of buffers cannot be "
+                     << "deleted.\n"; break;
+      default:
+           std::cout<<"    Unknown error occured. Error code: "
+                    <<(int)error_state<<".\n"; break;
+    }//swi
+    return false;
+  }//if
+  //delete media record
+  TMediaRec * help_ptr;
+  help_ptr = temp->next->next;
+  delete (temp->next);
+  temp->next = help_ptr;
+  return true;
+}
+
+bool Sound::Attach(const std::string NoiseIdentifier, const std::string MediaIdentifier)
+{
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::Attach: Warning: OpenAL is not initialized, thus we "
+              << "cannot attach media to noise yet.\n";
+    return false;
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::Attach: Warning: (De-)Initialization of OpenAL is in "
+              << "progress, thus we cannot attach media to noise here.\n";
+    return false;
+  }
+  if (!IsNoisePresent(NoiseIdentifier))
+  {
+    std::cout << "Sound::Attach: ERROR: there is no noise named \""
+              <<NoiseIdentifier<<"\", thus we cannot attach anything to it.\n";
+    return false;
+  }
+  if (!IsMediaPresent(MediaIdentifier))
+  {
+    std::cout << "Sound::Attach: ERROR: there is no media named \""
+              <<MediaIdentifier<<"\", thus we cannot attach anything to it.\n";
+    return false;
+  }
+
+  TNoiseRec * noise_ptr;
+  TMediaRec * media_ptr;
+  //get proper noise
+  noise_ptr = pNoiseList;
+  while ((noise_ptr!=NULL) && (noise_ptr->NoiseName!=NoiseIdentifier))
+  {
+    noise_ptr = noise_ptr->next;
+  }
+  //get proper media
+  media_ptr = pMediaList;
+  while ((media_ptr!=NULL) && (media_ptr->MediaName!=MediaIdentifier))
+  {
+    media_ptr = media_ptr->next;
+  }
+  //check for sanity
+  if (noise_ptr==NULL || media_ptr==NULL)
+  {
+    std::cout << "Sound::Attach: ERROR: Noise or media not found. Corrupt list?\n";
+    return false;
+  }
+
+  //check for attached media
+  if (noise_ptr->attachedMedia!=NULL)
+  {
+    //there is already a attached media; detach it
+    if (!Detach(NoiseIdentifier))
+    {
+      std::cout << "Sound::Attach: ERROR: Noise \""<<NoiseIdentifier
+                <<"\" already has a attached noise and Detach() failed.\n";
+      return false;
+    }
+  }
+
+  ALenum error_state;
+
+  alGetError();//clear error state
+  //Queue all of media's buffers to the source
+  alSourceQueueBuffers(noise_ptr->sourceID, media_ptr->num_buffers, media_ptr->buffers);
   error_state = alGetError();
   if (error_state!= AL_NO_ERROR)
   {
-    std::cout << "Sound::Play: ERROR while queueing buffers to source.\n";
+    std::cout << "Sound::Attach: ERROR while queueing buffers to source.\n";
     switch (error_state)
     {
       case AL_INVALID_NAME:
@@ -1515,43 +1906,157 @@ bool Sound::PlayWAV(std::string WAV_FileName)
            std::cout <<"    Unknown error. Error code: "<<(int)error_state<<".\n";
            break;
     }//swi
-    //should delete previously generated (and now not needed) buffers here
-    alDeleteBuffers(buff_rec->num_buffers, buff_rec->buffers);
-    //same with source here
-    alDeleteSources(1, &(buff_rec->sourceID));
-    delete buff_rec;
     return false;
   }//if
-  alSourcePlay(buff_rec->sourceID); //finally play it
-  error_state = alGetError();
-  if (error_state!=AL_NO_ERROR)
-  {
-    std::cout << "Sound::Play: ERROR: Could not play source.\n";
-    switch(error_state)
-    {
-      case AL_INVALID_NAME: //should not occur
-           std::cout << "    The source name is not valid.\n"; break;
-      case AL_INVALID_OPERATION: //should not occur either
-           std::cout << "    There is no current context."; break;
-      default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
-           <<".\n"; break;
-    }//swi
-    /*We should delete previously generated (and now not needed) buffers and
-     source here. I'm not completely sure whether buffers need to be unqueued
-     first before being deleted or not. So we just do it.*/
-    alSourceUnqueueBuffers(buff_rec->sourceID, buff_rec->num_buffers, buff_rec->buffers);
-    alDeleteBuffers(buff_rec->num_buffers, buff_rec->buffers);
-    alDeleteSources(1, &(buff_rec->sourceID));
-    delete buff_rec;
-    return false;
-  }//if
-  //add file to list of playing files
-  buff_rec->next = pFileList;
-  pFileList = buff_rec;
-  return true; //this is what we want :)
+  noise_ptr->attachedMedia = media_ptr;
+  media_ptr->attached_to.push_back(NoiseIdentifier);
+  return true;
 }
 
+bool Sound::Detach(const std::string NoiseIdentifier)
+{
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::Detach: Warning: OpenAL is not initialized, thus we "
+              << "cannot detach media from noise yet.\n";
+    return false;
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::Detach: Warning: (De-)Initialization of OpenAL is in "
+              << "progress, thus we cannot detach media from noise here.\n";
+    return false;
+  }
+  if (!IsNoisePresent(NoiseIdentifier))
+  {
+    std::cout << "Sound::Detach: ERROR: there is no noise named \""
+              <<NoiseIdentifier<<"\", thus we cannot detach anything from it.\n";
+    return false;
+  }
+
+  TNoiseRec * noise_ptr;
+
+  noise_ptr = pNoiseList;
+  while ((noise_ptr!=NULL) && (noise_ptr->NoiseName!=NoiseIdentifier))
+  {
+    noise_ptr = noise_ptr->next;
+  }
+  //check for sanity
+  if (noise_ptr==NULL)
+  {
+    std::cout << "Sound::Detach: ERROR: Noise \""<<NoiseIdentifier
+              <<"\" not found. Corrupt list?\n";
+    return false;
+  }
+  if (noise_ptr->attachedMedia==NULL)
+  {
+    //no attached media present, we don't need detach here and are done :)
+    return true;
+  }
+  //stop playback of source, in case it is playing (or paused)
+  alSourceStop(noise_ptr->sourceID);
+  //actual detach
+  ALenum error_state;
+
+  alGetError();//clear error state
+  alSourceUnqueueBuffers(noise_ptr->sourceID, noise_ptr->attachedMedia->num_buffers,
+                         noise_ptr->attachedMedia->buffers);
+  error_state = alGetError();
+  if (error_state != AL_NO_ERROR)
+  {
+    std::cout << "Sound::Detach: ERROR: couldn't detach buffers from source ("
+              <<"noise: \""<<NoiseIdentifier<<"\", attached media: \""
+              <<noise_ptr->attachedMedia->MediaName<<"\").\n";
+    switch(error_state)
+    {
+      case AL_INVALID_OPERATION:
+           std::cout << "    There is no current context.\n"; break;
+      case AL_INVALID_NAME:
+           std::cout << "    Invalid source name ("<<noise_ptr->sourceID
+                     << "). Corrupt data structure?\n"; break;
+      case AL_INVALID_VALUE:
+           std::cout << "    At least one buffer is still being processed and "
+                     << "could not be detached.\n"; break;
+      default:
+           std::cout << "    Unknown error. Error code: "<<(int)error_state
+                     << ".\n"; break;
+    }//swi
+    return false;
+  }//if
+  //adjust internal structures
+  int i;
+  //remove entry from media
+  for(i= noise_ptr->attachedMedia->attached_to.size()-1; i>=0; i=i-1)
+  {
+    if (noise_ptr->attachedMedia->attached_to[i]==NoiseIdentifier)
+    {
+      noise_ptr->attachedMedia->attached_to[i] = noise_ptr->attachedMedia->attached_to[noise_ptr->attachedMedia->attached_to.size()-1];
+      noise_ptr->attachedMedia->attached_to.erase(noise_ptr->attachedMedia->attached_to.end());
+    }//if
+  }//for
+  //noise
+  noise_ptr->attachedMedia = NULL;
+  return false;
+}
+
+bool Sound::PlayNoise(const std::string NoiseIdentifier)
+{
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::PlayNoise: Warning: OpenAL is not initialized, thus we"
+              << "cannot play anything yet.\n";
+    return false;
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::PlayNoise: Warning: (De-)Initialization of OpenAL is "
+              << "in progress, thus we cannot play anything here.\n";
+    return false;
+  }
+
+  TNoiseRec * temp;
+
+  temp = pNoiseList;
+  while ((temp!=NULL) && (temp->NoiseName!=NoiseIdentifier))
+  {
+    temp = temp->next;
+  }//while
+  if (temp==NULL)
+  {
+    std::cout << "Sound::PlayNoise: ERROR: Noise named \""<<NoiseIdentifier
+              << "\" was not found.\n";
+    return false;
+  }//if
+
+  ALenum error_state;
+
+  alGetError(); //clear error state
+  alSourcePlay(temp->sourceID);
+  error_state = alGetError();
+  if (error_state != AL_NO_ERROR)
+  {
+    std::cout << "Sound::PlayNoise: ERROR: could not play source.\n";
+    switch(error_state)
+    {
+      case AL_INVALID_OPERATION:
+           std::cout << "    There is no current context.\n"; break;
+      case AL_INVALID_NAME:
+           std::cout << "    Invalid source name. Corrupt data?\n"; break;
+      default:
+           std::cout << "    Unknown error. Error code: "<<(int)error_state
+                     << ".\n"; break;
+    }//swi
+    return false;
+  }//if
+  return true;
+}
+
+
+
+
+
+
+/*
 bool Sound::PlayOgg(std::string Ogg_FileName)
 {
   if (!Vorbis_Ready)
@@ -1637,20 +2142,20 @@ bool Sound::PlayOgg(std::string Ogg_FileName)
               << "    Upper: " << pVorbisInfo->bitrate_upper <<"\n"
               << "    Lower: " << pVorbisInfo->bitrate_lower <<"\n";
   }
-  
+
   char * temp_buff; //temporary buffer
   long int buff_size; //size of buffer in bytes
   ogg_int64_t pcm_samples; //number of samples (when file is completely decoded)
   int section; //current section
   long int bytes_read=0; //number of bytes read so far
   long read_by_func; //number of bytes that were read during last ov_read-call
-  
+
   pcm_samples = ov_pcm_total(pOggFile, -1);
   std::cout << "    Total number of samples: " << (long int)pcm_samples <<"\n";
   //assume, we get 16-bit samples, thus set buffer size accordingly
   buff_size = 2*pVorbisInfo->channels*pcm_samples;
   temp_buff = new char[buff_size];
-  
+
   //read loop
   do
   {
@@ -1672,31 +2177,31 @@ bool Sound::PlayOgg(std::string Ogg_FileName)
              std::cout << "    Unknown error. Error code: " << read_by_func
                        <<".\n"; break;
       }//swi
-      /*not sure whether we should jump out of the loop here either by break; or
-      by setting read_by_func = 0; */
+      //not sure whether we should jump out of the loop here either by break; or
+      //by setting read_by_func = 0;
     }//if
     else //read was successfull or end of file was reached
     {
       bytes_read = bytes_read + read_by_func;
     }//else
   } while (read_by_func!=0); //a value of 0 indicates end of file, and we stop
-  
+
   //If we were successful, all the decoded PCM data of the Ogg file should now
   //be in temp_buff. Since we did not(!) care about sample rate changes, we are
   //only able to play ogg files with constant sample rate so far. :(
-  
+
   ALenum error_state;
   ALenum format;
   TBufSrcRecord * buff_rec;
-  
+
   //allocate memory for new record
   buff_rec = new TBufSrcRecord;
   buff_rec->FileName = Ogg_FileName;
   buff_rec->num_buffers = 1;
   //allocate memory for buffer_num ALuint variables
   buff_rec->buffers = (ALuint*) malloc(sizeof(ALuint));
-  
-  
+
+
   alGetError(); //clear error state
   alGenBuffers(1, buff_rec->buffers);
   error_state = alGetError();
@@ -1722,7 +2227,7 @@ bool Sound::PlayOgg(std::string Ogg_FileName)
     }
     return false;
   }//if
-  
+
   //determine audio format of buffer
   if (pVorbisInfo->channels == 2)
   {
@@ -1751,7 +2256,7 @@ bool Sound::PlayOgg(std::string Ogg_FileName)
     if (pVorbisInfo) { delete pVorbisInfo; }
     return false;
   }//else
-  
+
   //fill buffer with data
   alGetError(); //clear error state
   alBufferData(buff_rec->buffers[0], format, (ALvoid*)temp_buff, buff_size, pVorbisInfo->rate);
@@ -1795,8 +2300,8 @@ bool Sound::PlayOgg(std::string Ogg_FileName)
     delete buff_rec;
     return false;
   }//if
-  
-  
+
+
   //Gererate source
   alGetError(); //clear error state
   alGenSources(1, &(buff_rec->sourceID));
@@ -1825,7 +2330,7 @@ bool Sound::PlayOgg(std::string Ogg_FileName)
     delete buff_rec;
     return false;
   }//if
-  
+
   //queue buffer to the source
   alSourceQueueBuffers(buff_rec->sourceID, 1, buff_rec->buffers);
   error_state = alGetError();
@@ -1875,12 +2380,12 @@ bool Sound::PlayOgg(std::string Ogg_FileName)
     delete buff_rec;
     return false;
   }//if
-  
+
   //we finally made it :)
   buff_rec->next = pFileList;
   pFileList = buff_rec;
   return true;
-}
+} */
 
 //returns true if the specified file is currently playing
 bool Sound::IsPlaying(std::string FileName) const
@@ -2319,7 +2824,7 @@ bool Sound::Loop(std::string FileName, bool DoLoop)
 /*Determines, whether a sound file is in loop mode
    return value: true if file is looping, false otherwise*/
 bool Sound::IsLooping(std::string FileName) const
-{ 
+{
   if (!AL_Ready)
   {
     std::cout << "Sound::IsLooping: Warning: OpenAL is not initialized, thus we "
@@ -2334,10 +2839,10 @@ bool Sound::IsLooping(std::string FileName) const
   }
   TBufSrcRecord * temp;
   temp = pFileList;
-  
+
   ALint loop_state;
   ALenum error_state;
-  
+
   while (temp!=NULL)
   {
     if (temp->FileName == FileName)
@@ -2448,7 +2953,7 @@ bool Sound::SetVolume(std::string FileName, const float volume)
   Returns volume of file. On error or if file isn't found, return value is zero
   as long as consider_MinMax == false. Otherwise, return value on error is un-
   specified.
-  
+
   -parameter:
       bool consider_MinMax: if set to true, still checks for guaranteed minimum
                             and allowed maximum value and adjusts return value
@@ -2468,7 +2973,7 @@ float Sound::GetVolume(std::string FileName, bool consider_MinMax) const
               << "progress, thus we cannot have a file here.\n";
     return 0.0;
   }
-  
+
   ALfloat volume_info;
   ALenum error_state;
   TBufSrcRecord * temp;
@@ -2632,7 +3137,7 @@ bool Sound::SetSpeedOfSound(const float new_value)
               << "is in progress. No state changes possbile.\n";
     return false;
   }
-  
+
   ALenum error_state;
   alGetError();//clear error state
   alSpeedOfSound(new_value);
@@ -2670,7 +3175,7 @@ bool Sound::SetListenerPostion(const float x, const float y, const float z)
               << "OpenAL is in progress, thus we cannot set position here.\n";
     return false;
   }
-  
+
   ALenum error_state;
   alGetError(); //clear error state
   alListener3f(AL_POSITION, x, y, z);
@@ -2710,11 +3215,11 @@ std::vector<float> Sound::GetListenerPosition() const
               << "OpenAL is in progress, thus we cannot get a position here.\n";
     return std::vector<float>(3, 0.0f);
   }
-  
+
   std::vector<float> result(3, 0.0f); //declare vector and initialize it with
                                       // three zeros (better than thrice push_b)
   ALenum error_state;
-  
+
   alGetError(); //clear error state
   alGetListener3f(AL_POSITION, &result[0], &result[1], &result[2]);
   error_state = alGetError();
@@ -2756,7 +3261,7 @@ bool Sound::ListenerTranslatePostion(const float delta_x, const float delta_y, c
               << "of OpenAL is in progress, thus we cannot set position here.\n";
     return false;
   }
-  
+
   ALenum error_state;
   ALfloat current_x, current_y, current_z; //will hold current listener pos.
   alGetError(); //clear error state
@@ -2825,7 +3330,7 @@ std::vector<float> Sound::GetListenerOrientation() const
   ALenum error_state;
   ALfloat orientation[6];
   std::vector<float> result;
-  
+
   alGetError(); //clear error state
   alGetListenerfv(AL_ORIENTATION, &orientation[0]);
   error_state = alGetError();
@@ -2871,10 +3376,10 @@ bool Sound::ListenerRotate(const float x_axis, const float y_axis, const float z
               << " is in progress, thus we cannot rotate the listener here.\n";
     return false;
   }
-  
+
   ALenum error_state;
   ALfloat orientation[6];
-  
+
   alGetError(); //clear error state
   alGetListenerfv(AL_ORIENTATION, &orientation[0]);
   error_state = alGetError();
@@ -2972,9 +3477,9 @@ bool Sound::SetListenerVelocity(const float x, const float y, const float z)
               << "OpenAL is in progress, thus we cannot set a velocity here.\n";
     return false;
   }
-  
+
   ALenum error_state;
-  
+
   alGetError(); //clear error state
   alListener3f(AL_VELOCITY, x, y, z);
   error_state = alGetError();
@@ -3017,10 +3522,10 @@ std::vector<float> Sound::GetListenerVelocity() const
               << "OpenAL is in progress, thus we cannot get a velocity here.\n";
     return std::vector<float>(3, 0.0f);
   }
-  
+
   ALenum error_state;
   std::vector<float> result(3, 0.0f);
-  
+
   alGetError();//clears error state
   alGetListener3f(AL_VELOCITY, &result[0], &result[1], &result[2]);
   error_state = alGetError();
@@ -3063,10 +3568,10 @@ bool Sound::SetSoundPosition(const std::string FileName, const float x, const fl
               << " is in progress, thus we cannot set a position here.\n";
     return false;
   }
-  
+
   ALenum error_state;
   TBufSrcRecord * temp;
-  
+
   temp = pFileList;
   while (temp != NULL)
   {
@@ -3121,11 +3626,11 @@ std::vector<float> Sound::GetSoundPosition(const std::string FileName) const
               << " is in progress, thus we cannot get a position here.\n";
     return std::vector<float>(3, 0.0f);
   }
-  
+
   ALenum error_state;
   TBufSrcRecord * temp;
   std::vector<float> result(3, 0.0f);
-  
+
   temp = pFileList;
   while (temp != NULL)
   {
@@ -3180,10 +3685,10 @@ bool Sound::SetSoundVelocity(const std::string FileName, const float x, const fl
               << " is in progress, thus we cannot set a position here.\n";
     return false;
   }
-  
+
   ALenum error_state;
   TBufSrcRecord * temp;
-  
+
   temp = pFileList;
   while (temp!=NULL)
   {
@@ -3244,7 +3749,7 @@ std::vector<float> Sound::GetSoundVelocity(const std::string FileName) const
   ALenum error_state;
   TBufSrcRecord * temp;
   std::vector<float> result(3, 0.0f);
-  
+
   temp = pFileList;
   while (temp!=NULL)
   {

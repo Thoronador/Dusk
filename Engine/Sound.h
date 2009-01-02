@@ -41,16 +41,27 @@ typedef struct data_chunk
 };
 typedef data_chunk TDataChunk;
 
-//Type for internal file&buffer/source management
-typedef struct bufsrc_rec
+//buffer management type
+typedef struct media_rec
 {
-  std::string FileName;
-  ALuint sourceID;
+  std::string MediaName; //unique name, case sensitive
+  std::string FileName; //pro forma, not really needed after file is loaded
   ALuint num_buffers;
   ALuint * buffers;
-  bufsrc_rec * next;
+  std::vector<std::string> attached_to;
+  media_rec * next;
 };
-typedef bufsrc_rec TBufSrcRecord;
+typedef media_rec TMediaRec;
+
+//source management type
+typedef struct noise_rec
+{
+  std::string NoiseName; //unique name, case sensitive
+  ALuint sourceID;
+  TMediaRec * attachedMedia;
+  noise_rec * next;
+};
+typedef noise_rec TNoiseRec;
 
 //type declaration for OggVorbis function pointers
 typedef int (*P_ov_clear)(OggVorbis_File *vf);
@@ -72,18 +83,36 @@ class Sound
     //(de-)initialization routines
     bool Init(std::string PathToLib_AL = "NULL", std::string PathToLib_Vorbisfile = "NULL", bool needVorbis = false);//initializes OpenAL
     bool Exit();//deinitializes OpenAL
-    //routines for managing sound state
-    bool Play(std::string FileName);
-    bool IsPlaying(std::string FileName) const;
-    bool Pause(std::string FileName);
-    bool UnPause(std::string FileName);
-    bool Stop(std::string FileName);
-    bool Replay(std::string FileName);
-    bool Loop(std::string FileName, bool DoLoop = true);
-    bool IsLooping(std::string FileName) const;
+
+    // **presence checks**
+    bool IsMediaPresent(const std::string MediaIdentifier) const;
+    bool IsNoisePresent(const std::string NoiseIdentifier) const;
+
+    // **noise management routines**
+    bool CreateNoise(const std::string NoiseIdentifier);
+    bool DestroyNoise(const std::string NoiseIdentifier);
+    //   Attach: associates existing Noise with a Media
+    bool Attach(const std::string NoiseIdentifier, const std::string MediaIdentifier);
+    //   Detach: revokes association between Noise and its attached Media
+    bool Detach(const std::string NoiseIdentifier);
+
+    bool PlayNoise(const std::string NoiseIdentifier);
+
+    //media management routines
+    bool CreateMedia(const std::string MediaIdentifier, const std::string PathToMedia);
+    bool DestroyMedia(const std::string MediaIdentifier);
+
+    //routines for managing noise state
+    bool IsPlayingNoise(std::string NoiseIdentifier) const;
+    bool PauseNoise(std::string NoiseIdentifier);
+    bool UnPauseNoise(std::string NoiseIdentifier);
+    bool StopNoise(std::string NoiseIdentifier);
+    bool ReplayNoise(std::string NoiseIdentifier);
+    bool LoopNoise(std::string NoiseIdentifier, bool DoLoop = true);
+    bool IsLoopingNoise(std::string FileName) const;
     //volume functions
-    bool SetVolume(std::string FileName, const float volume = 1.0f);
-    float GetVolume(std::string FileName, bool consider_MinMax = false) const;
+    bool SetNoiseVolume(std::string NoiseIdentifier, const float volume = 1.0f);
+    float GetNoiseVolume(std::string NoiseIdentifier, bool consider_MinMax = false) const;
     //general state query/set functions
     float GetSpeedOfSound() const;
     bool SetSpeedOfSound(const float new_value);
@@ -104,19 +133,23 @@ class Sound
     std::vector<float> GetSoundVelocity(const std::string FileName) const;
     //file management
     bool FreeFileResources(std::string FileName);//should possibly be private?
-    std::vector<std::string> GetBufferedFiles() const;
+    std::vector<std::string> GetBufferedMedia() const;
+    std::vector<std::string> GetNoiseList() const;
     static Sound& get();
   protected:
 
   private:
     Sound();
     Sound(const Sound& op){}
-    bool PlayWAV(std::string WAV_FileName);
-    bool PlayOgg(std::string Ogg_FileName);
+    //bool PlayWAV(std::string WAV_FileName);
+    //bool PlayOgg(std::string Ogg_FileName);
+    bool CreateWAVMedia(const std::string MediaIdentifier, const std::string PathToMedia);
+    bool CreateOggMedia(const std::string MediaIdentifier, const std::string PathToMedia);
     void AllFuncPointersToNULL(void); //never ever call this one manually,
     // or you might render the whole class inoperative!
 
-    TBufSrcRecord * pFileList;//pointer to list
+    TMediaRec * pMediaList;
+    TNoiseRec * pNoiseList;
 
     ALCdevice *pDevice;
     ALCcontext *pContext;
@@ -273,7 +306,7 @@ class Sound
     LPALSPEEDOFSOUND alSpeedOfSound;
     /*LPALDISTANCEMODEL alDistanceModel;
     */
-    
+
     //**** OggVorbis function pointers
     P_ov_clear ov_clear;
     P_ov_comment ov_comment;
