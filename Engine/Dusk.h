@@ -48,12 +48,37 @@ It provides the pure virtual function execute() for polymorpic use
 
 
 /*
+This Header defines the CommandAssociateSoundMedia and
+ CommandDeassociateSoundMedia classes.
+
+Their purpose is to associate or deassociate Sound's noises with media.
+*/
+#include "CommandAssociateSound.h"
+
+
+/*
 This Header defines the CommandCreateObject class
 
 Creates an Object, register it in the Scene and loads a mesh
 Not implemented yet
 */
 #include "CommandCreateObject.h"
+
+
+/*
+This Header defines the CommandLoopSound class.
+
+It sets a sound to infinite loop mode or can get it out of loop mode again,
+depending on the given boolean value.
+*/
+#include "CommandLoopSound.h"
+
+/*
+This Header defines the CommandCreateMedia and CommandDestroyMedia classes.
+
+They can create (i.e. load) sound media and destroy (i.e. free) sound media.
+*/
+#include "CommandMediaSound.h"
 
 
 /*
@@ -66,16 +91,19 @@ Not finished yet
 
 
 /*
-This Header defines the CommandPauseSound class
+This Header defines the CommandCreateNoise and CommandDestroyNoise classes.
 
-
+They can create and destroy sound sources ("noises").
 */
-#include "CommandPauseSound.h"
+#include "CommandNoiseSound.h"
 
 
 /*
 This Header defines the CommandPlaySound class
 
+Its purpose is to handle sound playback commands.
+It is a unification of the former CommandPlaySound, CommandPauseSound,
+CommandUnPauseSound, CommandStopSound and CommandReplaySound classes.
 
 */
 #include "CommandPlaySound.h"
@@ -91,28 +119,11 @@ Doesn't work well, Programm crashes when CommandQuit is executed instead of shut
 
 
 /*
-This Header defines the CommandReplaySound class
+This Header defines the CommandSoundVolume class
 
-
+It sets the volume values of sounds.
 */
-#include "CommandReplaySound.h"
-
-
-/*
-This Header defines the CommandStopSound class
-
-
-
-*/
-#include "CommandStopSound.h"
-
-
-/*
-This Header defines the CommandUnPauseSound class
-
-
-*/
-#include "CommandUnPauseSound.h"
+#include "CommandSoundVolume.h"
 
 
 /*
@@ -144,7 +155,7 @@ This Header defines the FrameListener class
 
 Cares for Timemanagment
 */
-#include "FrameListener.h
+#include "FrameListener.h"
 
 
 /*
@@ -221,7 +232,7 @@ It shall be used for global settings
 /*
 This Header defines the Sound class
 
-It implements the sound system
+It implements the sound system.
 */
 #include "Sound.h"
 

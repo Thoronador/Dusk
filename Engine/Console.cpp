@@ -3,11 +3,7 @@
 #include "Dispatcher.h"
 #include "Command.h"
 #include "CommandQuit.h"
-#include "CommandPauseSound.h"
 #include "CommandPlaySound.h"
-#include "CommandReplaySound.h"
-#include "CommandStopSound.h"
-#include "CommandUnPauseSound.h"
 #include "CommandMove.h"
 #include "CommandLoopSound.h"
 #include "CommandSoundVolume.h"
@@ -248,7 +244,7 @@ int Console::executeCommand(std::string p_string)
             }
             else
             {
-                com  = new CommandPlaySound(command[1]);
+                com  = new CommandPlaySound(command[1], sopPlay);
                 m_Dispatcher->executeCommand(com);
             }
         }
@@ -261,7 +257,7 @@ int Console::executeCommand(std::string p_string)
             }
             else
             {
-                com  = new CommandPauseSound(command[1]);
+                com  = new CommandPlaySound(command[1], sopPause);
                 m_Dispatcher->executeCommand(com);
             }
         }
@@ -274,7 +270,7 @@ int Console::executeCommand(std::string p_string)
             }
             else
             {
-                com  = new CommandStopSound(command[1]);
+                com  = new CommandPlaySound(command[1], sopStop);
                 m_Dispatcher->executeCommand(com);
             }
         }
@@ -287,7 +283,7 @@ int Console::executeCommand(std::string p_string)
             }
             else
             {
-                com  = new CommandUnPauseSound(command[1]);
+                com  = new CommandPlaySound(command[1], sopUnPause);
                 m_Dispatcher->executeCommand(com);
             }
         }
@@ -300,7 +296,7 @@ int Console::executeCommand(std::string p_string)
             }
             else
             {
-                com  = new CommandReplaySound(command[1]);
+                com  = new CommandPlaySound(command[1], sopReplay);
                 m_Dispatcher->executeCommand(com);
             }
         }
