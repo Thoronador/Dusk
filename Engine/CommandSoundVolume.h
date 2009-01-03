@@ -8,11 +8,11 @@ namespace Dusk
   class CommandSoundVolume : public Command
   {
     public:
-      CommandSoundVolume(const std::string& path, const float vol);
+      CommandSoundVolume(const std::string& NoiseID, const float vol);
       virtual ~CommandSoundVolume();
       virtual bool execute(Dusk::Scene* scene, int count = 1);
     private:
-      std::string m_Path;
+      std::string m_Noise;
       float m_Volume;
   };
 }

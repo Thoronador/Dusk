@@ -3,9 +3,9 @@
 namespace Dusk
 {
   //constructor
-  CommandLoopSound::CommandLoopSound(const std::string& path, const bool Looping)
+  CommandLoopSound::CommandLoopSound(const std::string& NoiseID, const bool Looping)
   {
-    m_Path = path;
+    m_Noise = NoiseID;
     m_DoLoop = Looping;
   }
 
@@ -17,8 +17,6 @@ namespace Dusk
 
   bool CommandLoopSound::execute(Dusk::Scene* scene, int count)
   {
-    Sound::get().Loop(m_Path, m_DoLoop);
-
-    //should return true; or return false; here
+    return Sound::get().LoopNoise(m_Noise, m_DoLoop);
   }
 }

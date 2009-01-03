@@ -3,9 +3,9 @@
 namespace Dusk
 {
   //constructor
-  CommandUnPauseSound::CommandUnPauseSound(const std::string& path)
+  CommandUnPauseSound::CommandUnPauseSound(const std::string& NoiseID)
   {
-    m_Path = path;
+    m_Noise = NoiseID;
   }
 
   //destructor
@@ -16,6 +16,6 @@ namespace Dusk
 
   bool CommandUnPauseSound::execute(Dusk::Scene* scene, int count)
   {
-    Sound::get().UnPause(m_Path);
+    return Sound::get().UnPauseNoise(m_Noise);
   }
 }

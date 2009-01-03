@@ -11,6 +11,9 @@
 #include "CommandMove.h"
 #include "CommandLoopSound.h"
 #include "CommandSoundVolume.h"
+#include "CommandNoiseSound.h"
+#include "CommandMediaSound.h"
+#include "CommandAssociateSound.h"
 #include "DuskTypes.h"
 #include <iostream>
 #include <sstream>
@@ -158,11 +161,89 @@ int Console::executeCommand(std::string p_string)
         //-------------------------------------------------------
         // Sound Commands
 
+        else if (command[0] == "CreateSound")
+        {
+            if(command.size()< 2)
+            {
+                std::cout<<"Console::executeCommand: Error: No noise ID parameter "
+                         <<"for CreateSound."<<std::endl;
+            }
+            else
+            {
+                com  = new CommandCreateNoise(command[1]);
+                m_Dispatcher->executeCommand(com);
+            }
+        }
+        else if (command[0] == "DestroySound")
+        {
+            if(command.size()< 2)
+            {
+                std::cout<<"Console::executeCommand: Error: No noise ID parameter "
+                         <<"for DestroySound."<<std::endl;
+            }
+            else
+            {
+                com  = new CommandDestroyNoise(command[1]);
+                m_Dispatcher->executeCommand(com);
+            }
+        }
+        else if (command[0] == "CreateMedia")
+        {
+            if(command.size()< 3)
+            {
+                std::cout<<"Console::executeCommand: Error: No media ID parameter "
+                         <<"or no file path for CreateMedia."<<std::endl;
+            }
+            else
+            {
+                com  = new CommandCreateMedia(command[1], command[2]);
+                m_Dispatcher->executeCommand(com);
+            }
+        }
+        else if (command[0] == "DestroyMedia")
+        {
+            if(command.size()< 2)
+            {
+                std::cout<<"Console::executeCommand: Error: No media ID parameter "
+                         <<"for DestroyMedia."<<std::endl;
+            }
+            else
+            {
+                com  = new CommandDestroyMedia(command[1]);
+                m_Dispatcher->executeCommand(com);
+            }
+        }
+        else if (command[0] == "AssociateSoundMedia")
+        {
+            if(command.size()< 3)
+            {
+                std::cout<<"Console::executeCommand: Error: No noise ID parameter "
+                         <<"or no media ID for AssociateSoundMedia."<<std::endl;
+            }
+            else
+            {
+                com  = new CommandAssociateSoundMedia(command[1], command[2]);
+                m_Dispatcher->executeCommand(com);
+            }
+        }
+        else if (command[0] == "DeassociateSoundMedia")
+        {
+            if(command.size()< 2)
+            {
+                std::cout<<"Console::executeCommand: Error: No noise ID parameter "
+                         <<"for DeassociateSoundMedia."<<std::endl;
+            }
+            else
+            {
+                com  = new CommandDeassociateSoundMedia(command[1]);
+                m_Dispatcher->executeCommand(com);
+            }
+        }
         else if (command[0] == "PlaySound")
         {
             if(command.size()< 2)
             {
-                std::cout<<"Console::executeCommand: Error: No file parameter "
+                std::cout<<"Console::executeCommand: Error: No noise ID parameter "
                          <<"for PlaySound."<<std::endl;
             }
             else
@@ -175,7 +256,7 @@ int Console::executeCommand(std::string p_string)
         {
             if(command.size()< 2)
             {
-                std::cout<<"Console::executeCommand: Error: No file parameter "
+                std::cout<<"Console::executeCommand: Error: No noise ID parameter "
                          <<"for PauseSound."<<std::endl;
             }
             else
@@ -188,7 +269,7 @@ int Console::executeCommand(std::string p_string)
         {
             if(command.size()< 2)
             {
-                std::cout<<"Console::executeCommand: Error: No file parameter "
+                std::cout<<"Console::executeCommand: Error: No noise ID "
                          <<"for StopSound."<<std::endl;
             }
             else
@@ -201,7 +282,7 @@ int Console::executeCommand(std::string p_string)
         {
             if(command.size()< 2)
             {
-                std::cout<<"Console::executeCommand: Error: No file parameter "
+                std::cout<<"Console::executeCommand: Error: No noise ID "
                          <<"for UnPauseSound."<<std::endl;
             }
             else
@@ -214,7 +295,7 @@ int Console::executeCommand(std::string p_string)
         {
             if(command.size()< 2)
             {
-                std::cout<<"Console::executeCommand: Error: No file parameter "
+                std::cout<<"Console::executeCommand: Error: No noise ID "
                          <<"for ReplaySound."<<std::endl;
             }
             else
@@ -238,7 +319,6 @@ int Console::executeCommand(std::string p_string)
                 m_Dispatcher->executeCommand(com);
             }
         }
-
         else if (command[0] == "SoundVolume")
         {
             if(command.size()< 3)

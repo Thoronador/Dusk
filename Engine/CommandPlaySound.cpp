@@ -2,10 +2,10 @@
 #include "Sound.h"
 namespace Dusk
 {
-    CommandPlaySound::CommandPlaySound(const std::string& path)
+    CommandPlaySound::CommandPlaySound(const std::string& NoiseID)
     {
         //ctor
-        m_Path = path;
+        m_Noise = NoiseID;
     }
 
     CommandPlaySound::~CommandPlaySound()
@@ -15,7 +15,7 @@ namespace Dusk
 
     bool CommandPlaySound::execute(Dusk::Scene* scene, int count)
     {
-        Sound::get().Play(m_Path);
+        return Sound::get().PlayNoise(m_Noise);
     }
 }
 

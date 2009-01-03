@@ -8,11 +8,11 @@ namespace Dusk
   class CommandUnPauseSound : public Command
   {
     public:
-      CommandUnPauseSound(const std::string& path);
+      CommandUnPauseSound(const std::string& NoiseID);
       virtual ~CommandUnPauseSound();
       virtual bool execute(Dusk::Scene* scene, int count = 1);
     private:
-      std::string m_Path;
+      std::string m_Noise;
   };
 }
 

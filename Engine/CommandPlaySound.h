@@ -8,12 +8,12 @@ namespace Dusk
     class CommandPlaySound : public Command
     {
         public:
-            CommandPlaySound(const std::string& path);
+            CommandPlaySound(const std::string& NoiseID);
             virtual ~CommandPlaySound();
             virtual bool execute(Dusk::Scene* scene, int count = 1);
         protected:
         private:
-        std::string m_Path;
+        std::string m_Noise;
     };
 }
 

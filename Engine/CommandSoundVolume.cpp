@@ -3,9 +3,9 @@
 namespace Dusk
 {
   //constructor
-  CommandSoundVolume::CommandSoundVolume(const std::string& path, const float vol)
+  CommandSoundVolume::CommandSoundVolume(const std::string& NoiseID, const float vol)
   {
-    m_Path = path;
+    m_Noise = NoiseID;
     m_Volume = vol;
   }
 
@@ -17,8 +17,6 @@ namespace Dusk
 
   bool CommandSoundVolume::execute(Dusk::Scene* scene, int count)
   {
-    Sound::get().SetVolume(m_Path, m_Volume);
-
-    //should return true; or return false; here
+    return Sound::get().SetNoiseVolume(m_Noise, m_Volume);
   }
 }

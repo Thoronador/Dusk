@@ -8,11 +8,11 @@ namespace Dusk
   class CommandStopSound : public Command
   {
     public:
-      CommandStopSound(const std::string& path);
+      CommandStopSound(const std::string& NoiseID);
       virtual ~CommandStopSound();
       virtual bool execute(Dusk::Scene* scene, int count = 1);
     private:
-      std::string m_Path;
+      std::string m_Noise;
   };
 }
 
