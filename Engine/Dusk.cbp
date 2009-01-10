@@ -100,26 +100,24 @@
 		<Unit filename="Camera.h" />
 		<Unit filename="Command.cpp" />
 		<Unit filename="Command.h" />
+		<Unit filename="CommandAssociateSound.cpp" />
+		<Unit filename="CommandAssociateSound.h" />
 		<Unit filename="CommandCreateObject.cpp" />
 		<Unit filename="CommandCreateObject.h" />
 		<Unit filename="CommandLoopSound.cpp" />
 		<Unit filename="CommandLoopSound.h" />
+		<Unit filename="CommandMediaSound.cpp" />
+		<Unit filename="CommandMediaSound.h" />
 		<Unit filename="CommandMove.cpp" />
 		<Unit filename="CommandMove.h" />
-		<Unit filename="CommandPauseSound.cpp" />
-		<Unit filename="CommandPauseSound.h" />
+		<Unit filename="CommandNoiseSound.cpp" />
+		<Unit filename="CommandNoiseSound.h" />
 		<Unit filename="CommandPlaySound.cpp" />
 		<Unit filename="CommandPlaySound.h" />
 		<Unit filename="CommandQuit.cpp" />
 		<Unit filename="CommandQuit.h" />
-		<Unit filename="CommandReplaySound.cpp" />
-		<Unit filename="CommandReplaySound.h" />
 		<Unit filename="CommandSoundVolume.cpp" />
 		<Unit filename="CommandSoundVolume.h" />
-		<Unit filename="CommandStopSound.cpp" />
-		<Unit filename="CommandStopSound.h" />
-		<Unit filename="CommandUnPauseSound.cpp" />
-		<Unit filename="CommandUnPauseSound.h" />
 		<Unit filename="Console.cpp" />
 		<Unit filename="Console.h" />
 		<Unit filename="Dispatcher.cpp" />
@@ -152,7 +150,6 @@
 			<code_completion />
 			<envvars />
 			<debugger />
-			<lib_finder />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>
