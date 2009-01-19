@@ -1,6 +1,8 @@
 #ifndef DUSKOBJECT_H
 #define DUSKOBJECT_H
 
+#include <string>
+#include <OgreEntity.h>
 
 class DuskObject
 {
@@ -13,7 +15,5 @@ class DuskObject
         std::string objectType;
         Ogre::Entity *entity;
 };
-
-
 
 #endif // DUSKOBJECT_H

@@ -1,7 +1,7 @@
 #ifndef DUSKAPPLICATION_H
 #define DUSKAPPLICATION_H
 
-#include <ogre.h>
+#include <Ogre.h>
 #include "FrameListener.h"
 using namespace Ogre;
 
@@ -28,10 +28,10 @@ protected:
    virtual void createScene() = 0; // I am pure virtual, override me!
    virtual void destroyScene();
 
-   Root *mRoot;
-   Camera* mCamera;
-   SceneManager* mSceneMgr;
-   RenderWindow* mWindow;
+   Root *m_Root;
+   Camera* m_Camera;
+   SceneManager* m_SceneMgr;
+   RenderWindow* m_Window;
 };
 
 

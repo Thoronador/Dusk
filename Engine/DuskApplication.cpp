@@ -1,18 +1,14 @@
 #include "DuskApplication.h"
 
-bool DuskApplication::initialize()
-{
-
-}
 DuskApplication::DuskApplication()
-: mRoot(0)
+: m_Root(0)
 {
 
 }
 
 DuskApplication::~DuskApplication()
 {
-    delete mRoot;
+    delete m_Root;
 }
 
 void DuskApplication::go()
@@ -20,7 +16,7 @@ void DuskApplication::go()
    if (!initialise())
       return;
 
-   mRoot->startRendering();
+   m_Root->startRendering();
 
    // clean up
    destroyScene();
@@ -54,7 +50,7 @@ void Root::startRendering(void)
 //-------------------------------------------------------------------------------------
 bool DuskApplication::initialise()
 {
-   mRoot = new Root();
+   m_Root = new Root();
 
    // add resource locations
    addResourceLocations();
@@ -107,7 +103,7 @@ void DuskApplication::addResourceLocations()
 }
 
 //-------------------------------------------------------------------------------------
-bool OgreApplication::initOgreCore()
+bool DuskApplication::initOgreCore()
 {
    // Show the configuration dialog and initialise the system
    // You can skip this and use root.restoreConfig() to load configuration
@@ -129,14 +125,14 @@ bool OgreApplication::initOgreCore()
 void DuskApplication::createSceneManager()
 {
    // Create the SceneManager, in this case a generic one
-   m_SceneManager = m_Root->createSceneManager(ST_GENERIC);
+   m_SceneMgr = m_Root->createSceneManager(ST_GENERIC);
 }
 
 //-------------------------------------------------------------------------------------
 void DuskApplication::createCamera()
 {
    // Create the camera
-   m_Camera = m_SceneManager->createCamera("PlayerCam");
+   m_Camera = m_SceneMgr->createCamera("PlayerCam");
 
    // Position it at 500 in Z direction
    m_Camera->setPosition(Vector3(0,0,500));
@@ -149,7 +145,7 @@ void DuskApplication::createCamera()
 void DuskApplication::createViewports()
 {
    // Create one viewport, entire window
-   Viewport* vp = m_Window->addViewport(mCamera);
+   Viewport* vp = m_Window->addViewport(m_Camera);
    vp->setBackgroundColour(ColourValue(0,0,0));
 
    // Alter the camera aspect ratio to match the viewport
