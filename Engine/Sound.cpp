@@ -1,11 +1,7 @@
 #include "Sound.h"
+#include <algorithm>
 #include <cmath> //needed for rotation calculations
-
-//vorbisfile callback functions for streams
-size_t stream_read_func(void *ptr, size_t size, size_t nmemb, void *datasource);
-int stream_seek_func(void *datasource, ogg_int64_t offset, int whence);
-int stream_close_func(void *datasource);
-long stream_tell_func(void *datasource);
+#include <cstdio> //required for opening files for Ogg (since it's a C lib)
 
 //functions for class Sound:
 //constructor
@@ -69,7 +65,7 @@ bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, boo
   if (libHandleAL == NULL)
   {
     std::cout << "Sound::Init: ERROR: Could not open OpenAL dynamic library in \""
-              << PathToLib_AL << "\". Exiting.";
+              << PathToLib_AL << "\". Exiting.\n";
     InitInProgress = false;
     return false;
   }
@@ -910,7 +906,7 @@ bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, boo
   if (libHandleOV == NULL)
   {
     std::cout << "Sound::Init: ERROR: Could not open OggVorbis dynamic library in \""
-              << PathToLib_Vorbisfile << "\". Exiting.";
+              << PathToLib_Vorbisfile << "\". Exiting.\n";
     InitInProgress = false;
     return (!needVorbis);
   }
@@ -924,22 +920,26 @@ bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, boo
   ov_info = (P_ov_info) GetProcAddress(libHandleOV, "ov_info");
   // We should not use ov_open() on Windows systems. However, it's completely
   // fine for Linux.
-  ov_open = (P_ov_open) GetProcAddress(libHandleOV, "ov_open");
+  //ov_open = (P_ov_open) GetProcAddress(libHandleOV, "ov_open");
   ov_open_callbacks = (P_ov_open_callbacks) GetProcAddress(libHandleOV, "ov_open_callbacks");
   ov_pcm_total = (P_ov_pcm_total) GetProcAddress(libHandleOV, "ov_pcm_total");
   ov_read = (P_ov_read) GetProcAddress(libHandleOV, "ov_read");
-  ov_test = (P_ov_test) GetProcAddress(libHandleOV, "ov_test");
+  ov_streams = (P_ov_streams) GetProcAddress(libHandleOV, "ov_streams");
+  //ov_test = (P_ov_test) GetProcAddress(libHandleOV, "ov_test");
+  ov_time_total = (P_ov_time_total) GetProcAddress(libHandleOV, "ov_time_total");
   #else
   //Linux goes here
   ov_clear = (P_ov_clear) dlsym(libHandleOV, "ov_clear");
   ov_comment = (P_ov_comment) dlsym(libHandleOV, "ov_comment");
   //ov_fopen = (P_ov_fopen) dlsym(libHandleOV, "ov_fopen");
   ov_info = (P_ov_info) dlsym(libHandleOV, "ov_info");
-  ov_open = (P_ov_open) dlsym(libHandleOV, "ov_open");
+  //ov_open = (P_ov_open) dlsym(libHandleOV, "ov_open");
   ov_open_callbacks = (P_ov_open_callbacks) dlsym(libHandleOV, "ov_open_callbacks");
   ov_pcm_total = (P_ov_pcm_total) dlsym(libHandleOV, "ov_pcm_total");
   ov_read = (P_ov_read) dlsym(libHandleOV, "ov_read");
-  ov_test = (P_ov_test) dlsym(libHandleOV, "ov_test");
+  ov_streams = (P_ov_streams) dlysm(libHandleOV, "ov_streams");
+  //ov_test = (P_ov_test) dlsym(libHandleOV, "ov_test");
+  ov_time_total = (P_ov_time_total) dlsym(libHandleOV, "ov_time_total");
   #endif
   if (ov_clear == NULL)
   {
@@ -965,12 +965,12 @@ bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, boo
     InitInProgress = false;
     return (!needVorbis);
   }
-  if (ov_open == NULL)
+  /*if (ov_open == NULL)
   {
     std::cout << "Sound::Init: ERROR: Could not retrieve \"ov_open\" address.\n";
     InitInProgress = false;
     return (!needVorbis);
-  }
+  }*/
   if (ov_open_callbacks == NULL)
   {
     std::cout << "Sound::Init: ERROR: Could not retrieve \"ov_open_callbacks\" address.\n";
@@ -989,9 +989,21 @@ bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, boo
     InitInProgress = false;
     return (!needVorbis);
   }
-  if (ov_test == NULL)
+  if (ov_streams == NULL)
+  {
+    std::cout << "Sound::Init: ERROR: Could not retrieve \"ov_streams\" address.\n";
+    InitInProgress = false;
+    return (!needVorbis);
+  }
+  /*if (ov_test == NULL)
   {
     std::cout << "Sound::Init: ERROR: Could not retrieve \"ov_test\" address.\n";
+    InitInProgress = false;
+    return (!needVorbis);
+  }*/
+  if (ov_time_total == NULL)
+  {
+    std::cout << "Sound::Init: ERROR: Could not retrieve \"ov_time_total\" address.\n";
     InitInProgress = false;
     return (!needVorbis);
   }
@@ -1397,11 +1409,14 @@ bool Sound::CreateMedia(const std::string MediaIdentifier, const std::string Pat
   }
 
   //check file for extension (and so for the implied file format)
-  if (PathToMedia.substr(PathToMedia.length()-4)==".wav")
+  std::string ending;
+  ending = PathToMedia.substr(PathToMedia.length()-4);
+  std::transform(ending.begin(), ending.end(), ending.begin(), tolower);
+  if (ending==".wav")
   {
     return CreateWAVMedia(MediaIdentifier, PathToMedia);
   }
-  else if (PathToMedia.substr(PathToMedia.length()-4)==".ogg")
+  else if (ending==".ogg")
   {
     return CreateOggMedia(MediaIdentifier, PathToMedia);
   }
@@ -1754,9 +1769,253 @@ bool Sound::CreateOggMedia(const std::string MediaIdentifier, const std::string 
     return false;
   }
   //not implemented yet
-  std::cout << "Sound::CreateOggMedia: ERROR: loading Ogg-Vorbis files is not "
-            << "properly implemented yet.\n";
-  return false;
+  //std::cout << "Sound::CreateOggMedia: ERROR: loading Ogg-Vorbis files is not "
+  //          << "properly implemented yet.\n";
+  //return false;
+  
+  //here we go... now
+  
+  OggVorbis_File ov;
+  vorbis_info * vinfo;
+  FILE * dat;
+  int section, ret;
+  double time_total;
+  ogg_int64_t pcm_samples;
+  
+  dat = fopen(PathToMedia.c_str(), "rb");
+  if (dat==NULL)
+  {
+    std::cout << "Sound::CreateOggMedia: ERROR: Could not open file \""
+              << PathToMedia << "\" via fopen properly.\n";
+    return false;
+  }//if
+  
+  ret = ov_open_callbacks(dat, &ov, NULL, 0, OV_CALLBACKS_DEFAULT);
+  if (ret<0)
+  {
+    std::cout << "Sound::CreateOggMedia: ERROR: Could not open file \""
+              << PathToMedia << "\" via callbacks properly.\n";
+    switch(ret)
+    {
+      case OV_EREAD:
+           std::cout << "    A read from the media returned an error.\n"; break;
+      case OV_ENOTVORBIS:
+           std::cout << "    Bitstream does not contain any Vorbis data.\n";
+           break;
+      case OV_EVERSION:
+           std::cout << "    Version mismatch.\n"; break;
+      case OV_EBADHEADER:
+           std::cout << "    Invalid Vorbis header.\n"; break;
+      case OV_EFAULT:
+           std::cout << "    Internal logic error/ bug.\n"; break;
+      default:
+           std::cout << "    Unknown error. Code: " << ret <<".\n"; break;
+    }//switch
+    ov_clear(&ov);
+    return false;
+  }//if
+  std::cout << "Sound::CreateOggMedia: Debug info: File \""<< PathToMedia
+             << "\" opened properly.\n";
+  
+  vinfo = ov_info(&ov, -1);
+  std::cout <<"Sound::CreateOggMedia: Information for \""<<PathToMedia<<"\":\n";
+  if (vinfo == NULL)
+  {
+    std::cout << "Sound::CreateOggMedia: Warning: Could not get file "
+              << "information for \"" << PathToMedia << "\".\n";
+    ov_clear(&ov);
+    return false;
+  }
+  
+  std::cout << "    Vorbis encoder version: " << vinfo->version <<"\n"
+            << "    Channels: " << vinfo->channels << "\n"
+            << "    Sampling rate: " << vinfo->rate <<"\n    Bitrate:\n"
+            << "    Nominal: " << vinfo->bitrate_nominal <<"\n"
+            << "    Upper: " << vinfo->bitrate_upper <<"\n"
+            << "    Lower: " << vinfo->bitrate_lower <<"\n";
+  std::cout << "\n    Number of streams: "<< ov_streams(&ov) <<"\n";
+  
+  if ((vinfo->channels!=1) && (vinfo->channels!=2))
+  {
+    std::cout << "Sound::CreateOggMedia: ERROR: File \""<<PathToMedia<<"\" has "
+              <<vinfo->channels<< " audio channels, however only one (mono) or "
+              << "two (stereo) are supported.\n";
+    ov_clear(&ov);
+    return false;
+  }
+  time_total = ov_time_total(&ov, -1);
+  if (time_total == OV_EINVAL)
+  {
+    std::cout << "Couldn't get total time for stream. Stream does not exist or "
+              << "is unseekable.\n";
+  }
+  else
+  {
+    std::cout << "    Total time: "<<time_total<<" seconds.\n";
+  }
+  pcm_samples = ov_pcm_total(&ov, -1);
+  if (pcm_samples == OV_EINVAL)
+  {
+    std::cout << "Sound::CreateOggMedia: ERROR: Couldn't get total sample count"
+              <<" for stream. Stream does not exist or is unseekable.\n";
+    ov_clear(&ov);
+    return false;
+  }
+  std::cout << "    PCM samples: "<<pcm_samples<<" samples.\n";
+  
+  long int bytes_read, total_read;
+  long int data_size;
+  char * buffer;
+  
+  data_size = pcm_samples*vinfo->channels*2;
+  
+  if ((data_size>30*1024*1024)/*30 MB*/ || (data_size<=0))
+  {
+    std::cout << "Sound::CreateOggMedia: ERROR: Size of uncompressed stream "
+              <<"from file \""<<PathToMedia<<"\" would be larger than 30 MB. "
+              <<"Aborting to avoid abusive memory allocation.\n";
+    ov_clear(&ov);
+    return false;
+  }
+  
+  buffer = new char[data_size];
+  std::cout << "Sound::CreateOggMedia: Debug: "<<data_size<<" bytes allocated "
+              <<"for uncompressed data from file \""<<PathToMedia<<"\".\n";
+  section = 0;
+  total_read = 0;
+  
+  do
+  {
+    bytes_read = ov_read(&ov, &buffer[total_read], data_size-total_read /*buffer lenght*/,
+                         0 /*little endian*/, 2 /*16 bit data*/,
+                         1 /*signed data*/, &section);
+    if (bytes_read<0)
+    {
+      std::cout << "Sound::CreateOggMedia: ERROR while reading from file \""
+                << PathToMedia << "\".\n";
+      switch(bytes_read)
+      {
+        case OV_HOLE:
+             std::cout << "    Interruption in data stream.\n"; break;
+        case OV_EBADLINK:
+             std::cout << "    Invalid stream section supplied.\n"; break;
+        case OV_EINVAL:
+             std::cout << "    File headers couldn't be read or are corrupt; or"
+                       << " open call for supplied file failed.\n"; break;
+        default:
+             std::cout << "    Unknown error code: "<<bytes_read<<".\n"; break;
+      }//switch
+    }//if
+    else
+    {
+      total_read = total_read + bytes_read;
+    }//else
+  } while (bytes_read>0);
+  
+  if (bytes_read<0)
+  {
+    delete buffer;
+    ov_clear(&ov);
+    return false;
+  }
+  std::cout << "Sound::CreateOggMedia: Debug: "<<total_read<<" bytes read, "
+            <<data_size<<" bytes were assumed.\n";
+  if (total_read!=data_size)
+  {
+    std::cout << "Sound::CreateOggMedia: ERROR: Size miscalculations in file \""
+                << PathToMedia << "\". Read "<<total_read<<" bytes, but assumed"
+                <<" "<<data_size<<" bytes. Aborting.\n";
+    delete buffer;
+    ov_clear(&ov);
+    return false;
+  }//if
+  
+  //all is read, now pass it to OpenAL
+  ALenum error_state, format;
+  TMediaRec * buff_rec;
+  if (vinfo->channels==2)
+  {
+    format = AL_FORMAT_STEREO16;
+  }
+  else
+  {
+    format = AL_FORMAT_STEREO8;
+  }
+  
+  //create new media and initialise its values
+  buff_rec = new TMediaRec;
+  buff_rec->MediaName = MediaIdentifier;
+  buff_rec->FileName = PathToMedia;
+  buff_rec->num_buffers = 1;
+  buff_rec->buffers = NULL;
+  buff_rec->attached_to.clear();
+  buff_rec->next = NULL;
+  
+  //allocate memory for ALuint variable
+  buff_rec->buffers = (ALuint*) malloc(sizeof(ALuint));
+  alGetError();//clear error state
+  alGenBuffers(1, buff_rec->buffers);
+  error_state = alGetError();
+  if (error_state !=AL_NO_ERROR) //error occured
+  {
+    std::cout << "Sound::CreateOggMedia: ERROR while generating buffers for \""
+              <<PathToMedia<<"\".\n";
+    switch (error_state)
+    {
+      case AL_INVALID_VALUE:
+           std::cout << "    The provided buffer array is not large enough to "
+                     << "hold the requested number of buffers.\n";
+           break;
+      case AL_OUT_OF_MEMORY:
+           std::cout << "    Not enough memory to generate the buffers.\n";
+           break;
+      default:
+           std::cout<<"    Unknown error occured. Error code: "
+                    <<(int)error_state<<".\n"; break;
+    }//swi
+    ov_clear(&ov);
+    delete buffer;
+    alDeleteBuffers(1, buff_rec->buffers);
+    delete buff_rec;
+    return false;
+  }
+  
+  error_state = alGetError();//clear error state
+  alBufferData(buff_rec->buffers[0], format, buffer, data_size, vinfo->rate);
+  error_state = alGetError();
+  if (error_state !=AL_NO_ERROR) //error occured
+  {
+    std::cout << "Sound::CreateOggMedia: ERROR while filling buffers for \""
+              <<PathToMedia<<"\".\n";
+    switch (error_state)
+    {
+      case AL_INVALID_VALUE:
+           std::cout << "    The provided buffer array size is not valid for "
+                     << "the given format, or the data pointer is NULL.\n";
+           break;
+      case AL_OUT_OF_MEMORY:
+           std::cout << "    Not enough memory to generate the buffers.\n";
+           break;
+      case AL_INVALID_ENUM:
+           std::cout << "    The specified format does not exist.\n"; break;
+      default:
+           std::cout<<"    Unknown error occured. Error code: "
+                    <<(int)error_state<<".\n"; break;
+    }//swi
+    ov_clear(&ov);
+    delete buffer;
+    alDeleteBuffers(1, buff_rec->buffers);
+    delete buff_rec;
+    return false;
+  }
+  
+  //finally, we are through
+  delete buffer;
+  ov_clear(&ov);
+  //add media to list
+  buff_rec->next = pMediaList;
+  pMediaList = buff_rec;
+  return true;
 }
 
 bool Sound::DestroyMedia(const std::string MediaIdentifier)
@@ -3390,341 +3649,6 @@ bool Sound::ListenerRotate(const float x_axis, const float y_axis, const float z
   return true; //seems like wie made it :)
 }
 
-
-
-
-/*
-bool Sound::PlayOgg(std::string Ogg_FileName)
-{
-  if (!Vorbis_Ready)
-  {
-    std::cout << "Sound::PlayOgg: ERROR: OggVorbis was not initialized, so we "
-              << "cannot play an OggVorbis file here.\n";
-    return false;
-  }
-
-  OggVorbis_File * pOggFile;
-  std::ifstream* pFileStream;
-  vorbis_info * pVorbisInfo;
-  int result;
-
-  pFileStream = new std::ifstream;
-  pFileStream->open(Ogg_FileName.c_str(), std::ios::in|std::ios::binary);
-  if (!(*pFileStream))
-  {
-    std::cout << "Sound::PlayOgg: ERROR: Could not open file \""<<Ogg_FileName
-              << "\" for reading via stream.\n";
-    return false;
-  }
-  std::cout << "Sound::PlayOgg: Debug: file \""<<Ogg_FileName<< "\" opened for "
-            <<"reading with stream->open().\n";
-
-  //prepare callbacks
-  ov_callbacks custom_cb;
-  custom_cb.read_func = stream_read_func;
-  custom_cb.seek_func = stream_seek_func;
-  custom_cb.tell_func = stream_tell_func;
-  custom_cb.close_func = stream_close_func;
-
-  pOggFile = new OggVorbis_File;
-
-  //open it!
-  std::cout << "Sound::PlayOgg: Debug: calling ov_open_callbacks.\n";
-  result = ov_open_callbacks((void*)pFileStream, pOggFile, NULL, 0, custom_cb);
-  std::cout << "Sound::PlayOgg: Debug: call of ov_open_callbacks done.\n";
-  if (result !=0)
-  {
-    std::cout << "Sound::PlayOgg: Error while opening file \"" <<Ogg_FileName
-              << "\".\n";
-    switch (result)
-    {
-      case OV_EREAD:
-           std::cout << "    Could not read from file.\n"; break;
-      case OV_ENOTVORBIS:
-           std::cout << "    Bitstream does not contain any Vorbis data.\n";
-           break;
-      case OV_EVERSION:
-           std::cout << "    Version mismatch.\n"; break;
-      case OV_EBADHEADER:
-           std::cout << "    Invalid Vorbis header.\n"; break;
-      case OV_EFAULT:
-           std::cout << "    Internal logic error/ bug.\n"; break;
-      default:
-           std::cout << "    Unknown error. Code: " << result <<".\n"; break;
-    }//swi
-    ov_clear(pOggFile);
-    if (*pFileStream)
-    {
-      pFileStream->close();
-    }
-    return false;
-  }//if
-
-  std::cout << "Sound::PlayOgg: Debug: file \""<<Ogg_FileName<< "\" opened for "
-            <<"reading with ov_open_callbacks.\n";
-
-  pVorbisInfo = ov_info(pOggFile, -1);
-  std::cout << "Sound::PlayOgg: Information for \"" << Ogg_FileName <<"\":\n";
-  if (pVorbisInfo == NULL)
-  {
-    std::cout << "Sound::PlayOgg: Warning: Could not get file information for "
-              << "\"" << Ogg_FileName << "\".\n";
-  }
-  else
-  {
-    std::cout << "    Vorbis encoder version: " << pVorbisInfo->version <<"\n"
-              << "    Channels: " << pVorbisInfo->channels << "\n"
-              << "    Sampling rate: " << pVorbisInfo->rate <<"\n    Bitrate:\n"
-              << "    Nominal: " << pVorbisInfo->bitrate_nominal <<"\n"
-              << "    Upper: " << pVorbisInfo->bitrate_upper <<"\n"
-              << "    Lower: " << pVorbisInfo->bitrate_lower <<"\n";
-  }
-
-  char * temp_buff; //temporary buffer
-  long int buff_size; //size of buffer in bytes
-  ogg_int64_t pcm_samples; //number of samples (when file is completely decoded)
-  int section; //current section
-  long int bytes_read=0; //number of bytes read so far
-  long read_by_func; //number of bytes that were read during last ov_read-call
-
-  pcm_samples = ov_pcm_total(pOggFile, -1);
-  std::cout << "    Total number of samples: " << (long int)pcm_samples <<"\n";
-  //assume, we get 16-bit samples, thus set buffer size accordingly
-  buff_size = 2*pVorbisInfo->channels*pcm_samples;
-  temp_buff = new char[buff_size];
-
-  //read loop
-  do
-  {
-    read_by_func = ov_read(pOggFile, &(temp_buff[bytes_read]), buff_size-bytes_read, 0, 2, 1, &section);
-    if (read_by_func<0) //indicates error
-    {
-      std::cout << "Sound::PlayOgg: Error while reading/ decoding file \""
-                << Ogg_FileName << "\".\n";
-      switch(read_by_func)
-      {
-        case OV_HOLE:
-             std::cout << "    There was a data interruption (one of: corrupt "
-                       << "page, garbage between pages or loss of sync.\n";
-             break;
-        case OV_EBADLINK:
-             std::cout << "    Invalid stream section was supplied, or the "
-                       << "requested link is corrupt."; break;
-        default:
-             std::cout << "    Unknown error. Error code: " << read_by_func
-                       <<".\n"; break;
-      }//swi
-      //not sure whether we should jump out of the loop here either by break; or
-      //by setting read_by_func = 0;
-    }//if
-    else //read was successfull or end of file was reached
-    {
-      bytes_read = bytes_read + read_by_func;
-    }//else
-  } while (read_by_func!=0); //a value of 0 indicates end of file, and we stop
-
-  //If we were successful, all the decoded PCM data of the Ogg file should now
-  //be in temp_buff. Since we did not(!) care about sample rate changes, we are
-  //only able to play ogg files with constant sample rate so far. :(
-
-  ALenum error_state;
-  ALenum format;
-  TBufSrcRecord * buff_rec;
-
-  //allocate memory for new record
-  buff_rec = new TBufSrcRecord;
-  buff_rec->FileName = Ogg_FileName;
-  buff_rec->num_buffers = 1;
-  //allocate memory for buffer_num ALuint variables
-  buff_rec->buffers = (ALuint*) malloc(sizeof(ALuint));
-
-
-  alGetError(); //clear error state
-  alGenBuffers(1, buff_rec->buffers);
-  error_state = alGetError();
-  if (error_state!= AL_NO_ERROR)
-  {
-    std::cout << "Sound::PlayOgg: ERROR: Could not generate buffer for file \""
-              << Ogg_FileName << "\".\n";
-    switch(error_state)
-    {
-      case AL_INVALID_VALUE:
-           std::cout << "    The buffer array is too small!\n"; break;
-      case AL_OUT_OF_MEMORY:
-           std::cout << "    Not enough memory to create the buffer.\n"; break;
-      default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
-                     <<".\n"; break;
-    }//swi
-    delete buff_rec;
-    ov_clear(pOggFile);
-    if (*pFileStream)
-    {
-      pFileStream->close();
-    }
-    return false;
-  }//if
-
-  //determine audio format of buffer
-  if (pVorbisInfo->channels == 2)
-  {
-    format = AL_FORMAT_STEREO16;
-  }
-  else if (pVorbisInfo->channels == 1)
-  {
-    format = AL_FORMAT_MONO16;
-  }
-  else  //number of channels not supported (by OpenAL)
-  {
-    std::cout << "Sound::PlayOgg: ERROR: Format of file \""<<Ogg_FileName
-              << "\" is not supported. OpenAL supports only channel numbers of "
-              << "1 (mono) or 2 (stereo), but this file seems to have "
-              << pVorbisInfo->channels << " channels.\n";
-    delete[] temp_buff;
-    //delete buffer(s) (currently only one, might change later)
-    alDeleteBuffers(1, buff_rec->buffers);
-    delete buff_rec;
-    ov_clear(pOggFile);
-    if (*pFileStream)
-    {
-      pFileStream->close();
-    }
-    if (pOggFile) { delete pOggFile; }
-    if (pVorbisInfo) { delete pVorbisInfo; }
-    return false;
-  }//else
-
-  //fill buffer with data
-  alGetError(); //clear error state
-  alBufferData(buff_rec->buffers[0], format, (ALvoid*)temp_buff, buff_size, pVorbisInfo->rate);
-  error_state = alGetError(); //will be examined later
-  //whether or not alBufferData() was successful: we can release other temp
-  // buffers now. (Avoids to do it twice and saves a few lines of coding later.)
-  delete[] temp_buff;
-  ov_clear(pOggFile);
-  if (*pFileStream)
-  {
-    pFileStream->close();
-  }
-  if (pOggFile)
-  {
-    delete pOggFile;
-  }
-  if (pVorbisInfo)
-  {
-    delete pVorbisInfo;
-  }
-  //now check for/ examine alBufferData errors
-  if (error_state!=AL_NO_ERROR)
-  {
-    std::cout<<"Sound::PlayOgg: ERROR: Couldn't fill buffer with audio data.\n";
-    switch(error_state)
-    {
-      case AL_OUT_OF_MEMORY:
-           std::cout << "    There is not enough memory to create the buffer.\n";
-           break;
-      case AL_INVALID_VALUE:
-           std::cout << "    The size parameter is not valid for the specified "
-                     << "format, the buffer is already in use or data is a NULL"
-                     << " pointer.\n"; break;
-      case AL_INVALID_ENUM:
-           std::cout << "    The specified format does not exist.\n"; break;
-      default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
-                     <<".\n"; break;
-    }//swi
-    alDeleteBuffers(1, buff_rec->buffers);
-    delete buff_rec;
-    return false;
-  }//if
-
-
-  //Gererate source
-  alGetError(); //clear error state
-  alGenSources(1, &(buff_rec->sourceID));
-  error_state = alGetError();
-  if (error_state!= AL_NO_ERROR)
-  {
-    std::cout << "Sound::PlayOgg: ERROR: Could not generate source for file \""
-              << Ogg_FileName << "\".\n";
-    switch(error_state)
-    {
-      case AL_OUT_OF_MEMORY:
-           std::cout << "    Not enough memory to generate the source.\n";
-           break;
-      case AL_INVALID_VALUE:
-           std::cout << "    The array pointer is not valid or there are not "
-                     <<"enough resources to create a source.\n"; break;
-      case AL_INVALID_OPERATION:
-           std::cout << "    There is no context to create sources in.\n";
-           break;
-      default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
-                     <<".\n"; break;
-    }//swi
-    //delete buffer(s) (currently only one, might change later)
-    alDeleteBuffers(1, buff_rec->buffers);
-    delete buff_rec;
-    return false;
-  }//if
-
-  //queue buffer to the source
-  alSourceQueueBuffers(buff_rec->sourceID, 1, buff_rec->buffers);
-  error_state = alGetError();
-  if (error_state!=AL_NO_ERROR)
-  {
-    std::cout << "Sound::PlayOgg: ERROR: Could not queue buffer to source.\n";
-    switch(error_state)
-    {
-      case AL_INVALID_NAME:
-           std::cout << "    The buffer name or the specified source name is "
-                     << "not valid.\n"; break;
-      case AL_INVALID_OPERATION:
-           std::cout << "    There is no context, the source has already a static"
-                     << " buffer attached or the new buffer has not the same "
-                     << "format as the other buffers in the queue.\n"; break;
-      default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
-                     <<".\n"; break;
-    }//swi
-    //delete buffer(s) (currently only one, might change later) and source
-    alDeleteBuffers(1, buff_rec->buffers);
-    alDeleteSources(1, &(buff_rec->sourceID));
-    delete buff_rec;
-    return false;
-  }//if
-  //finally play it :)
-  alSourcePlay(buff_rec->sourceID);
-  error_state = alGetError();
-  if (error_state!=AL_NO_ERROR)
-  {
-    std::cout << "Sound::PlayOgg: ERROR: Could not play source.\n";
-    switch(error_state)
-    {
-      case AL_INVALID_NAME: //should not happen
-           std::cout << "    The source name is not valid.\n"; break;
-      case AL_INVALID_OPERATION:
-           std::cout << "    There is no context.\n"; break;
-      default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
-                     << ".\n"; break;
-    }//swi
-    //unqueue and delete buffer(s) (currently only one, might change later)
-    alSourceUnqueueBuffers(buff_rec->sourceID, 1, buff_rec->buffers);
-    alDeleteBuffers(1, buff_rec->buffers);
-    //delete source
-    alDeleteSources(1, &(buff_rec->sourceID));
-    delete buff_rec;
-    return false;
-  }//if
-
-  //we finally made it :)
-  buff_rec->next = pFileList;
-  pFileList = buff_rec;
-  return true;
-} */
-
-
 //sets all AL function pointers to NULL
 void Sound::AllFuncPointersToNULL(void)
 {
@@ -3863,62 +3787,11 @@ void Sound::AllFuncPointersToNULL(void)
   ov_comment = NULL;
   //ov_fopen = NULL;
   ov_info = NULL;
-  ov_open = NULL;
+  //ov_open = NULL;
   ov_open_callbacks = NULL;
   ov_pcm_total = NULL;
   ov_read = NULL;
-  ov_test = NULL;
+  ov_streams = NULL;
+  //ov_test = NULL;
+  ov_time_total = NULL;
 }
-
-//vorbisfile callback functions for streams
-size_t stream_read_func(void *ptr, size_t size, size_t nmemb, void *datasource)
-{
-  std::ifstream* ms;
-  if (size==0 || nmemb==0)
-  {
-    return 0;
-  }
-  ms = static_cast<std::ifstream*> (datasource);
-  ms->read((char*) ptr, size*nmemb);
-  return (ms->gcount() / size);
-}//read_func
-
-/* Returns zero on success, returns a non-zero value on error, result is -1
-  when device is unseekable.*/
-int stream_seek_func(void *datasource, ogg_int64_t offset, int whence)
-{
-  std::ifstream* ms;
-  ms = static_cast<std::ifstream*> (datasource);
-  switch (whence)
-  {
-    case SEEK_CUR:
-         ms->seekg(offset, std::ios::cur);
-         break;
-    case SEEK_END:
-         ms->seekg(offset, std::ios::end);
-         break;
-    case SEEK_SET:
-         ms->seekg(offset, std::ios::beg);
-         break;
-    default:
-         return -1;
-  }//swi
-  return 0;
-}//seek_func
-
-/* Should return zero on success and EOF on failure. However, libvorbisfile does
-   not check return value, since the function is supposed to succeed.*/
-int stream_close_func(void *datasource)
-{
-  std::ifstream* ms;
-  ms = static_cast<std::ifstream*> (datasource);
-  ms->close();
-  return 0;
-}//close_func
-
-long stream_tell_func(void *datasource)
-{
-  std::ifstream* ms;
-  ms = static_cast<std::ifstream*> (datasource);
-  return (ms->tellg());
-}//tell_func
