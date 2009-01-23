@@ -3,6 +3,9 @@
 
 #include <string>
 #include <OgreEntity.h>
+#include <OgreVector3.h>
+
+namespace Dusk{
 
 class DuskObject
 {
@@ -10,10 +13,12 @@ class DuskObject
         DuskObject();
         virtual ~DuskObject();
     protected:
-    private:
         std::string ID;
         std::string objectType;
         Ogre::Entity *entity;
+        Ogre::Vector3 position, rotation;
 };
+
+}
 
 #endif // DUSKOBJECT_H
