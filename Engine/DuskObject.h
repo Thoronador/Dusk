@@ -12,6 +12,10 @@ class DuskObject
     public:
         DuskObject();
         virtual ~DuskObject();
+        Ogre::Vector3 GetPosition() const;
+        Ogre::Vector3 GetRotation() const;
+        void SetPosition(const Ogre::Vector3 pos);
+        void SetRotation(const Ogre::Vector3 rot);
     protected:
         std::string ID;
         std::string objectType;

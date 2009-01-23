@@ -1039,7 +1039,7 @@ bool Sound::Exit()
   }
   InitInProgress = true;
 
-  int i;
+  unsigned int i;
   std::vector<std::string> object_list;
   //try to free all AL sources
   object_list = GetNoiseList(false);
@@ -1268,21 +1268,9 @@ bool Sound::CreateNoise(const std::string NoiseIdentifier)
     delete temp;
     return false;
   }
-  //now get the right place to insert temp pointer
-  if (pNoiseList == NULL)
-  {
-    pNoiseList = temp;
-  }
-  else
-  {
-    TNoiseRec * search;
-    search = pNoiseList;
-    while (search->next != NULL)
-    {
-      search = search->next;
-    }
-    search->next = temp;
-  }
+  //insert into list
+  temp->next = pNoiseList;
+  pNoiseList = temp;
   return true;
 }
 
@@ -1548,6 +1536,16 @@ bool Sound::CreateWAVMedia(const std::string MediaIdentifier, const std::string 
     return false;
   }
 
+  //length check for high bound
+  if (data_c.length_of_data>MaxMediaSize_MB*1024*1024)
+  {
+    std::cout << "Sound::CreateWAVMedia: ERROR: Size of PCM data from file \""
+              <<PathToMedia<<"\" would be larger than "<< MaxMediaSize_MB
+              << " MB. Aborting to avoid abusive memory allocation.\n";
+    dat.close();
+    return false;
+  }//if
+
   //for calculations of number and size of buffers
   unsigned long buffer_size=0, buffer_num=0, i=0;
   unsigned long last_buffer_size=0;
@@ -1772,16 +1770,16 @@ bool Sound::CreateOggMedia(const std::string MediaIdentifier, const std::string 
   //std::cout << "Sound::CreateOggMedia: ERROR: loading Ogg-Vorbis files is not "
   //          << "properly implemented yet.\n";
   //return false;
-  
+
   //here we go... now
-  
+
   OggVorbis_File ov;
   vorbis_info * vinfo;
   FILE * dat;
   int section, ret;
   double time_total;
   ogg_int64_t pcm_samples;
-  
+
   dat = fopen(PathToMedia.c_str(), "rb");
   if (dat==NULL)
   {
@@ -1789,7 +1787,7 @@ bool Sound::CreateOggMedia(const std::string MediaIdentifier, const std::string 
               << PathToMedia << "\" via fopen properly.\n";
     return false;
   }//if
-  
+
   ret = ov_open_callbacks(dat, &ov, NULL, 0, OV_CALLBACKS_DEFAULT);
   if (ret<0)
   {
@@ -1816,7 +1814,7 @@ bool Sound::CreateOggMedia(const std::string MediaIdentifier, const std::string 
   }//if
   std::cout << "Sound::CreateOggMedia: Debug info: File \""<< PathToMedia
              << "\" opened properly.\n";
-  
+
   vinfo = ov_info(&ov, -1);
   std::cout <<"Sound::CreateOggMedia: Information for \""<<PathToMedia<<"\":\n";
   if (vinfo == NULL)
@@ -1826,7 +1824,7 @@ bool Sound::CreateOggMedia(const std::string MediaIdentifier, const std::string 
     ov_clear(&ov);
     return false;
   }
-  
+
   std::cout << "    Vorbis encoder version: " << vinfo->version <<"\n"
             << "    Channels: " << vinfo->channels << "\n"
             << "    Sampling rate: " << vinfo->rate <<"\n    Bitrate:\n"
@@ -1834,7 +1832,7 @@ bool Sound::CreateOggMedia(const std::string MediaIdentifier, const std::string 
             << "    Upper: " << vinfo->bitrate_upper <<"\n"
             << "    Lower: " << vinfo->bitrate_lower <<"\n";
   std::cout << "\n    Number of streams: "<< ov_streams(&ov) <<"\n";
-  
+
   if ((vinfo->channels!=1) && (vinfo->channels!=2))
   {
     std::cout << "Sound::CreateOggMedia: ERROR: File \""<<PathToMedia<<"\" has "
@@ -1862,28 +1860,29 @@ bool Sound::CreateOggMedia(const std::string MediaIdentifier, const std::string 
     return false;
   }
   std::cout << "    PCM samples: "<<pcm_samples<<" samples.\n";
-  
+
   long int bytes_read, total_read;
   long int data_size;
   char * buffer;
-  
+
   data_size = pcm_samples*vinfo->channels*2;
-  
-  if ((data_size>30*1024*1024)/*30 MB*/ || (data_size<=0))
+
+  if ((data_size>MaxMediaSize_MB*1024*1024)/*MaxMediaSize_MB MB (currently 30 MB)*/ || (data_size<=0))
   {
     std::cout << "Sound::CreateOggMedia: ERROR: Size of uncompressed stream "
-              <<"from file \""<<PathToMedia<<"\" would be larger than 30 MB. "
-              <<"Aborting to avoid abusive memory allocation.\n";
+              << "from file \""<<PathToMedia<<"\" would be larger than "
+              << MaxMediaSize_MB << " MB. Aborting to avoid abusive memory "
+              << "allocation.\n";
     ov_clear(&ov);
     return false;
   }
-  
+
   buffer = new char[data_size];
   std::cout << "Sound::CreateOggMedia: Debug: "<<data_size<<" bytes allocated "
               <<"for uncompressed data from file \""<<PathToMedia<<"\".\n";
   section = 0;
   total_read = 0;
-  
+
   do
   {
     bytes_read = ov_read(&ov, &buffer[total_read], data_size-total_read /*buffer lenght*/,
@@ -1911,7 +1910,7 @@ bool Sound::CreateOggMedia(const std::string MediaIdentifier, const std::string 
       total_read = total_read + bytes_read;
     }//else
   } while (bytes_read>0);
-  
+
   if (bytes_read<0)
   {
     delete buffer;
@@ -1929,7 +1928,7 @@ bool Sound::CreateOggMedia(const std::string MediaIdentifier, const std::string 
     ov_clear(&ov);
     return false;
   }//if
-  
+
   //all is read, now pass it to OpenAL
   ALenum error_state, format;
   TMediaRec * buff_rec;
@@ -1941,7 +1940,7 @@ bool Sound::CreateOggMedia(const std::string MediaIdentifier, const std::string 
   {
     format = AL_FORMAT_STEREO8;
   }
-  
+
   //create new media and initialise its values
   buff_rec = new TMediaRec;
   buff_rec->MediaName = MediaIdentifier;
@@ -1950,7 +1949,7 @@ bool Sound::CreateOggMedia(const std::string MediaIdentifier, const std::string 
   buff_rec->buffers = NULL;
   buff_rec->attached_to.clear();
   buff_rec->next = NULL;
-  
+
   //allocate memory for ALuint variable
   buff_rec->buffers = (ALuint*) malloc(sizeof(ALuint));
   alGetError();//clear error state
@@ -1979,7 +1978,7 @@ bool Sound::CreateOggMedia(const std::string MediaIdentifier, const std::string 
     delete buff_rec;
     return false;
   }
-  
+
   error_state = alGetError();//clear error state
   alBufferData(buff_rec->buffers[0], format, buffer, data_size, vinfo->rate);
   error_state = alGetError();
@@ -2008,7 +2007,7 @@ bool Sound::CreateOggMedia(const std::string MediaIdentifier, const std::string 
     delete buff_rec;
     return false;
   }
-  
+
   //finally, we are through
   delete buffer;
   ov_clear(&ov);
@@ -2038,7 +2037,7 @@ bool Sound::DestroyMedia(const std::string MediaIdentifier)
   ALenum error_state;
   TMediaRec * temp;
   std::vector<std::string> tempList;
-  int i;
+  unsigned int i;
 
   //remark: pMediaList can't be NULL, since IsNoisePresent() returned true
   if (pMediaList->MediaName == MediaIdentifier)

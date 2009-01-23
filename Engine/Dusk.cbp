@@ -123,6 +123,8 @@
 		<Unit filename="Dispatcher.cpp" />
 		<Unit filename="Dispatcher.h" />
 		<Unit filename="Dusk.h" />
+		<Unit filename="DuskObject.cpp" />
+		<Unit filename="DuskObject.h" />
 		<Unit filename="DuskTypes.h" />
 		<Unit filename="FrameListener.cpp" />
 		<Unit filename="FrameListener.h" />
@@ -134,8 +136,6 @@
 		<Unit filename="InputSytem.cpp" />
 		<Unit filename="InputSytemBinding.cpp" />
 		<Unit filename="InputSytemEditor.cpp" />
-		<Unit filename="Object.cpp" />
-		<Unit filename="Object.h" />
 		<Unit filename="Scene.cpp" />
 		<Unit filename="Scene.h" />
 		<Unit filename="Script.cpp" />
@@ -143,8 +143,6 @@
 		<Unit filename="Settings.h" />
 		<Unit filename="Sound.cpp" />
 		<Unit filename="Sound.h" />
-		<Unit filename="StaticObject.cpp" />
-		<Unit filename="StaticObject.h" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />

@@ -18,7 +18,7 @@ AnimatedObject::~AnimatedObject()
   //dtor
 }
 
-Ogre::Vector3 AnimatedObject::GetVelocity()
+Ogre::Vector3 AnimatedObject::GetVelocity() const
 {
   return velocity;
 }
@@ -28,7 +28,7 @@ void AnimatedObject::SetVelocity(const Ogre::Vector3 v)
   velocity = v;
 }
 
-Ogre::Vector3 AnimatedObject::GetAcceleration()
+Ogre::Vector3 AnimatedObject::GetAcceleration() const
 {
   return acceleration;
 }

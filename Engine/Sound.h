@@ -75,6 +75,7 @@ typedef long (*P_ov_read)(OggVorbis_File *vf, char *buffer, int length, int bige
 typedef long (*P_ov_streams)(OggVorbis_File *vf);
 typedef double (*P_ov_time_total)(OggVorbis_File *vf,int i);
 
+const unsigned int MaxMediaSize_MB = 30;
 
 //Klasse Sound
 class Sound
