@@ -2,7 +2,7 @@
 #define LANDSCAPE_H
 
 #include <string>
-// #include <OgreManualObject.h>
+#include <OgreManualObject.h>
 
 namespace Dusk
 {
@@ -32,15 +32,15 @@ namespace Dusk
     private:
       Landscape();
       Landscape(const Landscape& op){}
-      
+
       void InitObjects(const unsigned int num);
 
       TLandscapeRecord * m_RecordList;
       unsigned int m_numRec;
-      
-      //Ogre::ManualObject * m_ObjectList[];
-      //unsigned int m_numObj;
-      
+
+      Ogre::ManualObject ** m_ObjectList;
+      unsigned int m_numObj;
+
   };
 }
 

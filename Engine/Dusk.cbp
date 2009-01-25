@@ -136,6 +136,8 @@
 		<Unit filename="InputSytem.cpp" />
 		<Unit filename="InputSytemBinding.cpp" />
 		<Unit filename="InputSytemEditor.cpp" />
+		<Unit filename="Landscape.cpp" />
+		<Unit filename="Landscape.h" />
 		<Unit filename="Scene.cpp" />
 		<Unit filename="Scene.h" />
 		<Unit filename="Script.cpp" />

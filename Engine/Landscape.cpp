@@ -13,6 +13,8 @@ Landscape::Landscape()
   //empty
   m_RecordList = NULL;
   m_numRec = 0;
+  m_ObjectList = NULL;
+  m_numObj = 0;
 }
 
 Landscape::~Landscape()
@@ -140,17 +142,15 @@ bool Landscape::LoadFromFile(const std::string FileName)
 
 void Landscape::InitObjects(const unsigned int num)
 {
-  /*
   unsigned int i;
-  
-  m_ObjectList = new (Ogre::ManualObject *)[num];
+
+  m_ObjectList = new Ogre::ManualObject* [num];
   m_numObj = num;
-  
+
   for (i=0; i<num; i++)
   {
     m_ObjectList[i] = NULL;
   }
-  */
 }
 
 bool Landscape::SendToEngine()
@@ -159,27 +159,32 @@ bool Landscape::SendToEngine()
   {
     return false;
   }
-  /*
+
   Ogre::SceneManager * scm;
   unsigned int i, j, k;
-  
+
   scm = Dusk::getAPI().getOgreSceneManager();
   if (scm==NULL)
   {
     std::cout << "Landscape::SendToEngine: ERROR: Got NULL for scene manager.\n";
     return false;
   }
-  
+
+  //create own scene node for landscape
+  Ogre::SceneNode * landnode;
+  landnode = scm->getRootSceneNode()->createChildSceneNode("LandscapeNode", Ogre::Vector3(0.0, 0.0, 0.0));
+
+
   InitObjects(m_numRec);
   for (i=0; i<m_numRec; i++)
   {
     std::stringstream convert;
     convert << i;
-      
+
     m_ObjectList[i] = scm->createManualObject("Landscape"+convert.str());
-    m_ObjectList[i]->estimateVertexCount(65*65);
+    m_ObjectList[i]->estimateVertexCount(64*64*6);
     m_ObjectList[i]->setDynamic(false);
-    m_ObjectList[i]->begin(Ogre::OT_TRIANGLE_LIST);
+    m_ObjectList[i]->begin("Landscape/Green", Ogre::RenderOperation::OT_TRIANGLE_LIST);
     for (j=0; j<64; j++)
     {
       for (k=0; k<64; k++)
@@ -187,36 +192,35 @@ bool Landscape::SendToEngine()
         //first triangle
         m_ObjectList[i]->position(
                     m_RecordList[i].OffsetX+cDefaultStride*j,
-                    m_RecordList[i].height[j][k],
-                    m_RecordList[i].OffsetY+cDefaultStride*k);
-        m_ObjectList[i]->position(
-                    m_RecordList[i].OffsetX+cDefaultStride*(j+1),
-                    m_RecordList[i].height[j+1][k],
+                    m_RecordList[i].Height[j][k],
                     m_RecordList[i].OffsetY+cDefaultStride*k);
         m_ObjectList[i]->position(
                     m_RecordList[i].OffsetX+cDefaultStride*j,
-                    m_RecordList[i].height[j][k+1],
+                    m_RecordList[i].Height[j][k+1],
                     m_RecordList[i].OffsetY+cDefaultStride*(k+1));
+        m_ObjectList[i]->position(
+                    m_RecordList[i].OffsetX+cDefaultStride*(j+1),
+                    m_RecordList[i].Height[j+1][k],
+                    m_RecordList[i].OffsetY+cDefaultStride*k);
         //second triangle
         m_ObjectList[i]->position(
                     m_RecordList[i].OffsetX+cDefaultStride*(j+1),
-                    m_RecordList[i].height[j+1][k],
+                    m_RecordList[i].Height[j+1][k],
                     m_RecordList[i].OffsetY+cDefaultStride*k);
         m_ObjectList[i]->position(
-                    m_RecordList[i].OffsetX+cDefaultStride*(j+1),
-                    m_RecordList[i].height[j+1][k+1],
+                    m_RecordList[i].OffsetX+cDefaultStride*j,
+                    m_RecordList[i].Height[j][k+1],
                     m_RecordList[i].OffsetY+cDefaultStride*(k+1));
         m_ObjectList[i]->position(
-                    m_RecordList[i].OffsetX+cDefaultStride*j),
-                    m_RecordList[i].height[j][k+1],
+                    m_RecordList[i].OffsetX+cDefaultStride*(j+1),
+                    m_RecordList[i].Height[j+1][k+1],
                     m_RecordList[i].OffsetY+cDefaultStride*(k+1));
       }//for k
     }//for j
     m_ObjectList[i]->end();
+    landnode->attachObject(m_ObjectList[i]);
   }//for
   return true;
-  */
-  return false;
 }
 
 
@@ -229,8 +233,8 @@ float Landscape::GetHeigtAtPosition(const float x, const float y) const
   unsigned int i, x_idx, y_idx;
   for(i=0; i<m_numRec; i++)
   {
-    if ((x>=m_RecordList[i].OffsetX) || (x<=m_RecordList[i].OffsetX+64*cDefaultStride)
-       ||(y>=m_RecordList[i].OffsetY) || (y<=m_RecordList[i].OffsetY+64*cDefaultStride))
+    if ((x>=m_RecordList[i].OffsetX) && (x<=m_RecordList[i].OffsetX+64*cDefaultStride)
+       &&(y>=m_RecordList[i].OffsetY) && (y<=m_RecordList[i].OffsetY+64*cDefaultStride))
     {
       //got it
       //not implemented exactly yet, but at least we have a return value which
