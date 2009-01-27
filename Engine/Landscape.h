@@ -26,6 +26,7 @@ namespace Dusk
       static Landscape& GetSingleton();
 
       bool LoadFromFile(const std::string FileName);
+      bool SaveToFile(const std::string FileName);
       bool SendToEngine();
 
       float GetHeigtAtPosition(const float x, const float y) const;

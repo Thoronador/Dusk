@@ -55,7 +55,6 @@ bool Landscape::LoadFromFile(const std::string FileName)
   {
     std::cout << "Landscape::LoadFromFile: File \""<<FileName<< "\" has "
               << "invalid header.\n";
-    delete temp;
     input.close();
     return false;
   }
@@ -111,6 +110,18 @@ bool Landscape::LoadFromFile(const std::string FileName)
       input.close();
       return false;
     }
+    if (temp->Stride <=0.0f)
+    {
+      std::cout << "Landscape::LoadFromFile: File \""<<FileName<< "\" has an "
+                << "invalid stride value of "<< temp->Stride <<".\n";
+      delete[] m_RecordList;
+      m_RecordList= NULL;
+      m_numRec = 0;
+      input.close();
+      return false;
+    }//if
+    
+    
     //read the height data
     input.read((char*) &(temp->Height[0][0]), 65*65*sizeof(float));
     if (!input.good())
@@ -139,6 +150,55 @@ bool Landscape::LoadFromFile(const std::string FileName)
   input.close();
   return true;
 }
+
+bool Landscape::SaveToFile(const std::string FileName)
+{
+  if (m_RecordList==NULL)
+  {
+    std::cout << "Landscape::SaveToFile: No Landscape data is present.\n";
+    return false;
+  }
+  
+  std::ofstream output;
+  
+  output.open(FileName.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
+  if(!output)
+  {
+    std::cout << "Landscape::SaveToFile: Could not open file \""<<FileName
+              << "\" for writing in binary mode.\n";
+    return false;
+  }//if
+
+  //write header "Dusk"
+  output.write("Dusk", 4);
+  output.write((char*) &m_numRec, sizeof(unsigned int));
+  
+  unsigned int i;
+  
+  for (i=0; i<m_numRec; i=i+1)
+  {
+    //write header "Land"
+    output.write("Land", 4);
+    //write offsets
+    output.write((char*) &(m_RecordList[i].OffsetX), sizeof(float));
+    output.write((char*) &(m_RecordList[i].OffsetY), sizeof(float));
+    //stride
+    output.write((char*) &(m_RecordList[i].Stride), sizeof(float));
+    //height data
+    output.write((char*) &(m_RecordList[i].Height[0][0]), 65*65*sizeof(float));
+    //colour data
+    output.write((char*) &(m_RecordList[i].Colour[0][0][0]), 65*65*3);
+    if (!output.good())
+    {
+      std::cout << "Landscape::SaveToFile: Error while writing record "<<i+1
+                << " to file \"" <<FileName<<"\".\n";
+      output.close();
+      return false;             
+    }//if
+  } //for
+  output.close();
+  return true;
+}//SaveToFile
 
 void Landscape::InitObjects(const unsigned int num)
 {
@@ -182,39 +242,36 @@ bool Landscape::SendToEngine()
     convert << i;
 
     m_ObjectList[i] = scm->createManualObject("Landscape"+convert.str());
-    m_ObjectList[i]->estimateVertexCount(64*64*6);
+    m_ObjectList[i]->estimateVertexCount(65*65);
+    m_ObjectList[i]->estimateIndexCount(64*64*6);
     m_ObjectList[i]->setDynamic(false);
     m_ObjectList[i]->begin("Landscape/Green", Ogre::RenderOperation::OT_TRIANGLE_LIST);
+    for (j=0; j<65; j++)
+    {
+      for (k=0; k<65; k++)
+      {
+        m_ObjectList[i]->position(m_RecordList[i].OffsetX+cDefaultStride*j,
+                                  m_RecordList[i].Height[j][k],
+                                  m_RecordList[i].OffsetY+cDefaultStride*k);
+        m_ObjectList[i]->colour(m_RecordList[i].Colour[j][k][0]/255.0f,
+                                m_RecordList[i].Colour[j][k][1]/255.0f,
+                                m_RecordList[i].Colour[j][k][2]/255.0f);
+      }//for k
+    }//for j
+    
+    //triangles
     for (j=0; j<64; j++)
     {
       for (k=0; k<64; k++)
       {
-        //first triangle
-        m_ObjectList[i]->position(
-                    m_RecordList[i].OffsetX+cDefaultStride*j,
-                    m_RecordList[i].Height[j][k],
-                    m_RecordList[i].OffsetY+cDefaultStride*k);
-        m_ObjectList[i]->position(
-                    m_RecordList[i].OffsetX+cDefaultStride*j,
-                    m_RecordList[i].Height[j][k+1],
-                    m_RecordList[i].OffsetY+cDefaultStride*(k+1));
-        m_ObjectList[i]->position(
-                    m_RecordList[i].OffsetX+cDefaultStride*(j+1),
-                    m_RecordList[i].Height[j+1][k],
-                    m_RecordList[i].OffsetY+cDefaultStride*k);
-        //second triangle
-        m_ObjectList[i]->position(
-                    m_RecordList[i].OffsetX+cDefaultStride*(j+1),
-                    m_RecordList[i].Height[j+1][k],
-                    m_RecordList[i].OffsetY+cDefaultStride*k);
-        m_ObjectList[i]->position(
-                    m_RecordList[i].OffsetX+cDefaultStride*j,
-                    m_RecordList[i].Height[j][k+1],
-                    m_RecordList[i].OffsetY+cDefaultStride*(k+1));
-        m_ObjectList[i]->position(
-                    m_RecordList[i].OffsetX+cDefaultStride*(j+1),
-                    m_RecordList[i].Height[j+1][k+1],
-                    m_RecordList[i].OffsetY+cDefaultStride*(k+1));
+        //first triangle: [j][k], [j][k+1], [j+1][k]
+        m_ObjectList[i]->index(j*65+k);
+        m_ObjectList[i]->index(j*65+k+1);
+        m_ObjectList[i]->index((j+1)*65+k);
+        //second triangle: [j+1][k], [j][k+1], [j+1][k+1]
+        m_ObjectList[i]->index((j+1)*65+k);
+        m_ObjectList[i]->index(j*65+k+1);
+        m_ObjectList[i]->index((j+1)*65+k+1);
       }//for k
     }//for j
     m_ObjectList[i]->end();
