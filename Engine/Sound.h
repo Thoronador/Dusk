@@ -66,9 +66,7 @@ typedef noise_rec TNoiseRec;
 //type declaration for OggVorbis function pointers
 typedef int (*P_ov_clear)(OggVorbis_File *vf);
 typedef vorbis_comment* (*P_ov_comment)(OggVorbis_File *vf,int link);
-//typedef int (*P_ov_fopen)(char *path,OggVorbis_File *vf);
 typedef vorbis_info* (*P_ov_info)(OggVorbis_File *vf,int link);
-//typedef int (*P_ov_open)(FILE *f,OggVorbis_File *vf,char *initial,long ibytes);
 typedef int (*P_ov_open_callbacks)(void *datasource, OggVorbis_File *vf, char *initial, long ibytes, ov_callbacks callbacks);
 typedef ogg_int64_t (*P_ov_pcm_total)(OggVorbis_File *vf,int i);
 typedef long (*P_ov_read)(OggVorbis_File *vf, char *buffer, int length, int bigendianp, int word, int sgned, int *bitstream);
@@ -105,6 +103,8 @@ class Sound
     bool UnPauseNoise(const std::string NoiseIdentifier);
     bool StopNoise(const std::string NoiseIdentifier);
     bool LoopNoise(const std::string NoiseIdentifier, const bool DoLoop = true);
+    bool SetNoiseOffset(const std::string NoiseIdentifier, const float seconds);
+    float GetNoiseOffset(const std::string NoiseIdentifier) const;
     //   state retrieval functions
     bool IsPlayingNoise(const std::string NoiseIdentifier) const;
     bool IsLoopingNoise(const std::string FileName) const;
@@ -315,10 +315,7 @@ class Sound
     //**** OggVorbis function pointers
     P_ov_clear ov_clear;
     P_ov_comment ov_comment;
-    //P_ov_fopen ov_fopen;
     P_ov_info ov_info;
-    //better don't use ov_open on Windows
-    //P_ov_open ov_open;
     P_ov_open_callbacks ov_open_callbacks;
     P_ov_pcm_total ov_pcm_total;
     P_ov_read ov_read;

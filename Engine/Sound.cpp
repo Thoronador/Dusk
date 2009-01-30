@@ -916,29 +916,23 @@ bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, boo
   //Windows
   ov_clear = (P_ov_clear) GetProcAddress(libHandleOV, "ov_clear");
   ov_comment = (P_ov_comment) GetProcAddress(libHandleOV, "ov_comment");
-  //ov_fopen = (P_ov_fopen) GetProcAddress(libHandleOV, "ov_fopen");
   ov_info = (P_ov_info) GetProcAddress(libHandleOV, "ov_info");
   // We should not use ov_open() on Windows systems. However, it's completely
   // fine for Linux.
-  //ov_open = (P_ov_open) GetProcAddress(libHandleOV, "ov_open");
   ov_open_callbacks = (P_ov_open_callbacks) GetProcAddress(libHandleOV, "ov_open_callbacks");
   ov_pcm_total = (P_ov_pcm_total) GetProcAddress(libHandleOV, "ov_pcm_total");
   ov_read = (P_ov_read) GetProcAddress(libHandleOV, "ov_read");
   ov_streams = (P_ov_streams) GetProcAddress(libHandleOV, "ov_streams");
-  //ov_test = (P_ov_test) GetProcAddress(libHandleOV, "ov_test");
   ov_time_total = (P_ov_time_total) GetProcAddress(libHandleOV, "ov_time_total");
   #else
   //Linux goes here
   ov_clear = (P_ov_clear) dlsym(libHandleOV, "ov_clear");
   ov_comment = (P_ov_comment) dlsym(libHandleOV, "ov_comment");
-  //ov_fopen = (P_ov_fopen) dlsym(libHandleOV, "ov_fopen");
   ov_info = (P_ov_info) dlsym(libHandleOV, "ov_info");
-  //ov_open = (P_ov_open) dlsym(libHandleOV, "ov_open");
   ov_open_callbacks = (P_ov_open_callbacks) dlsym(libHandleOV, "ov_open_callbacks");
   ov_pcm_total = (P_ov_pcm_total) dlsym(libHandleOV, "ov_pcm_total");
   ov_read = (P_ov_read) dlsym(libHandleOV, "ov_read");
   ov_streams = (P_ov_streams) dlysm(libHandleOV, "ov_streams");
-  //ov_test = (P_ov_test) dlsym(libHandleOV, "ov_test");
   ov_time_total = (P_ov_time_total) dlsym(libHandleOV, "ov_time_total");
   #endif
   if (ov_clear == NULL)
@@ -953,24 +947,12 @@ bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, boo
     InitInProgress = false;
     return (!needVorbis);
   }
-  /*if (ov_fopen == NULL)
-  {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"ov_fopen\" address.\n";
-    InitInProgress = false;
-    return (!needVorbis);
-  }*/
   if (ov_info == NULL)
   {
     std::cout << "Sound::Init: ERROR: Could not retrieve \"ov_info\" address.\n";
     InitInProgress = false;
     return (!needVorbis);
   }
-  /*if (ov_open == NULL)
-  {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"ov_open\" address.\n";
-    InitInProgress = false;
-    return (!needVorbis);
-  }*/
   if (ov_open_callbacks == NULL)
   {
     std::cout << "Sound::Init: ERROR: Could not retrieve \"ov_open_callbacks\" address.\n";
@@ -995,12 +977,6 @@ bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, boo
     InitInProgress = false;
     return (!needVorbis);
   }
-  /*if (ov_test == NULL)
-  {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"ov_test\" address.\n";
-    InitInProgress = false;
-    return (!needVorbis);
-  }*/
   if (ov_time_total == NULL)
   {
     std::cout << "Sound::Init: ERROR: Could not retrieve \"ov_time_total\" address.\n";
@@ -1766,10 +1742,6 @@ bool Sound::CreateOggMedia(const std::string MediaIdentifier, const std::string 
               << "so we cannot load an OggVorbis file here.\n";
     return false;
   }
-  //not implemented yet
-  //std::cout << "Sound::CreateOggMedia: ERROR: loading Ogg-Vorbis files is not "
-  //          << "properly implemented yet.\n";
-  //return false;
 
   //here we go... now
 
@@ -2627,6 +2599,132 @@ bool Sound::LoopNoise(const std::string NoiseIdentifier, const bool DoLoop)
   return true;
 }
 
+bool Sound::SetNoiseOffset(const std::string NoiseIdentifier, const float seconds)
+{
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::SetNoiseOffset: Warning: OpenAL is not initialized, "
+              << "thus we cannot set anything yet.\n";
+    return false;
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::SetNoiseOffset: Warning: (De-)Initialization of OpenAL"
+              << " is in progress, thus we cannot set anything here.\n";
+    return false;
+  }
+  if (seconds<0.0f)
+  {
+    std::cout << "Sound::SetNoiseOffset: ERROR: Cannot set negative value for "
+              << "offset. Aborting.\n";
+    return false;
+  }
+
+  TNoiseRec * temp;
+
+  temp = pNoiseList;
+  while ((temp!=NULL) && (temp->NoiseName!=NoiseIdentifier))
+  {
+    temp = temp->next;
+  }//while
+  if (temp==NULL)
+  {
+    std::cout << "Sound::SetNoiseOffset: ERROR: Noise \""<<NoiseIdentifier
+              << "\" was not found.\n";
+    return false;
+  }//if
+
+  ALenum error_state;
+  alGetError();//clear error state
+  alSourcef(temp->sourceID, AL_SEC_OFFSET, seconds);
+  error_state = alGetError();
+  if (error_state!=AL_NO_ERROR)
+  {
+    std::cout << "Sound::SetNoiseOffset: ERROR: Unable to set offset for \""
+              << NoiseIdentifier << "\" to "<<seconds<<" seconds.\n";
+    switch(error_state)
+    {
+      case AL_INVALID_OPERATION:
+           std::cout << "    There is no current context.\n"; break;
+      case AL_INVALID_ENUM: //shouldn't happen, at least not with OpenAL 1.1
+           std::cout << "    Invalid enumeration parameter. Make sure you have"
+                     << " OpenAL 1.1 or higher.\n"; break;
+      case AL_INVALID_VALUE:
+           std::cout << "    The given offset value is out of range.\n"; break;
+      case AL_INVALID_NAME:
+           std::cout << "    Invalid source name. Internal data corruption?\n";
+           break;
+      default:
+           std::cout << "    Unknown error. Error code: "<<(int)error_state
+                     << ".\n"; break;
+    }//switch
+    return false;
+  }//if
+  return true;
+}//SetNoiseOffset
+
+// retrieves noise offset in seconds. On error, -1.0 is returned
+float Sound::GetNoiseOffset(const std::string NoiseIdentifier) const
+{
+  if (!AL_Ready)
+  {
+    std::cout << "Sound::GetNoiseOffset: Warning: OpenAL is not initialized, "
+              << "thus we cannot get any values yet.\n";
+    return -1.0f;
+  }
+  if (InitInProgress)
+  {
+    std::cout << "Sound::GetNoiseOffset: Warning: (De-)Initialization of OpenAL"
+              << " is in progress, thus we cannot get anything here.\n";
+    return -1.0f;
+  }
+
+  TNoiseRec * temp;
+
+  temp = pNoiseList;
+  while ((temp!=NULL) && (temp->NoiseName!=NoiseIdentifier))
+  {
+    temp = temp->next;
+  }//while
+  if (temp==NULL)
+  {
+    std::cout << "Sound::GetNoiseOffset: ERROR: Noise \""<<NoiseIdentifier
+              << "\" was not found.\n";
+    return -1.0f;
+  }//if
+
+  ALenum error_state;
+  ALfloat seconds;
+  alGetError();//clear error state
+  alGetSourcef(temp->sourceID, AL_SEC_OFFSET, &seconds);
+  error_state = alGetError();
+  if (error_state!=AL_NO_ERROR)
+  {
+    std::cout << "Sound::GetNoiseOffset: ERROR: Unable to get offset for \""
+              << NoiseIdentifier << "\".\n";
+    switch(error_state)
+    {
+      case AL_INVALID_OPERATION:
+           std::cout << "    There is no current context.\n"; break;
+      case AL_INVALID_ENUM: //shouldn't happen, at least not with OpenAL 1.1
+           std::cout << "    Invalid enumeration parameter. Make sure you have"
+                     << " OpenAL 1.1 or higher.\n"; break;
+      case AL_INVALID_VALUE:
+           std::cout << "    Invalid pointer value.\n"; break;
+      case AL_INVALID_NAME:
+           std::cout << "    Invalid source name. Internal data corruption?\n";
+           break;
+      default:
+           std::cout << "    Unknown error. Error code: "<<(int)error_state
+                     << ".\n"; break;
+    }//switch
+    return -1.0;
+  }//if
+  return seconds;
+}//GetNoiseOffset
+
+
+//state retrieval
 bool Sound::IsPlayingNoise(const std::string NoiseIdentifier) const
 {
   if (!AL_Ready || InitInProgress)
@@ -3784,13 +3882,10 @@ void Sound::AllFuncPointersToNULL(void)
   //**** OggVorbis function pointers
   ov_clear = NULL;
   ov_comment = NULL;
-  //ov_fopen = NULL;
   ov_info = NULL;
-  //ov_open = NULL;
   ov_open_callbacks = NULL;
   ov_pcm_total = NULL;
   ov_read = NULL;
   ov_streams = NULL;
-  //ov_test = NULL;
   ov_time_total = NULL;
 }
