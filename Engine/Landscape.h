@@ -16,6 +16,8 @@ namespace Dusk
     float Stride; //probably used in case the distances are not fixed
     float Height[65][65]; //height of the land
     unsigned char Colour[65][65][3]; //colour of the land in RGB-byte values
+    //not part of actual data, but calculated during loading process
+    float Highest, Lowest;
   };
   typedef land_rec TLandscapeRecord;
 
@@ -25,10 +27,19 @@ namespace Dusk
       virtual ~Landscape();
       static Landscape& GetSingleton();
 
+      //load and save (all) records from/to file
       bool LoadFromFile(const std::string FileName);
       bool SaveToFile(const std::string FileName);
+      unsigned int RecordsAvailable();
+      //send loaded data to scene manager
       bool SendToEngine();
+      //manipulating landscape data
+      bool Shift(const unsigned int record, const float delta);
+      bool Scale(const unsigned int record, const float factor);
+      bool MakePlain(const unsigned int record, const float value);
+      bool IsPlain(const unsigned int record);
 
+      //for collision detection
       float GetHeigtAtPosition(const float x, const float y) const;
     private:
       Landscape();

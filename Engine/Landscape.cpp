@@ -19,7 +19,20 @@ Landscape::Landscape()
 
 Landscape::~Landscape()
 {
+  unsigned int i;
   //empty
+  if (m_numObj>0)
+  {
+    for (i=0; i<m_numObj; i++)
+    {
+      /*std::stringstream convert;
+      convert << i;
+      Dusk::getAPI().getOgreSceneManager()->destroyManualObject("Landscape"+convert.str());*/
+      Dusk::getAPI().getOgreSceneManager()->destroyManualObject(m_ObjectList[i]);
+    }
+    delete[] m_ObjectList;
+    m_numObj = 0;
+  }//if
 }
 
 Landscape& Landscape::GetSingleton()
@@ -37,7 +50,7 @@ bool Landscape::LoadFromFile(const std::string FileName)
   }
 
   TLandscapeRecord * temp;
-  unsigned int numRecords, i;
+  unsigned int numRecords, i,j, record;
   char Header[4];
   std::ifstream input;
 
@@ -120,8 +133,8 @@ bool Landscape::LoadFromFile(const std::string FileName)
       input.close();
       return false;
     }//if
-    
-    
+
+
     //read the height data
     input.read((char*) &(temp->Height[0][0]), 65*65*sizeof(float));
     if (!input.good())
@@ -148,6 +161,27 @@ bool Landscape::LoadFromFile(const std::string FileName)
     }
   }//for
   input.close();
+
+  //search Highest and Lowest values
+  for (record=0; record<numRecords; record++)
+  {
+    m_RecordList[record].Highest= m_RecordList[record].Height[0][0];
+    m_RecordList[record].Lowest = m_RecordList[record].Height[0][0];
+    for (i=0; i<65; i++)
+    {
+      for (j=0; j<65; j++)
+      {
+        if (m_RecordList[record].Height[i][j]>m_RecordList[record].Highest)
+        {
+          m_RecordList[record].Highest = m_RecordList[record].Height[i][j];
+        }
+        else if (m_RecordList[record].Height[i][j]<m_RecordList[record].Lowest)
+        {
+          m_RecordList[record].Lowest = m_RecordList[record].Height[i][j];
+        }
+      }//for j
+    }//for i
+  }//for record
   return true;
 }
 
@@ -158,9 +192,9 @@ bool Landscape::SaveToFile(const std::string FileName)
     std::cout << "Landscape::SaveToFile: No Landscape data is present.\n";
     return false;
   }
-  
+
   std::ofstream output;
-  
+
   output.open(FileName.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
   if(!output)
   {
@@ -172,9 +206,9 @@ bool Landscape::SaveToFile(const std::string FileName)
   //write header "Dusk"
   output.write("Dusk", 4);
   output.write((char*) &m_numRec, sizeof(unsigned int));
-  
+
   unsigned int i;
-  
+
   for (i=0; i<m_numRec; i=i+1)
   {
     //write header "Land"
@@ -193,12 +227,17 @@ bool Landscape::SaveToFile(const std::string FileName)
       std::cout << "Landscape::SaveToFile: Error while writing record "<<i+1
                 << " to file \"" <<FileName<<"\".\n";
       output.close();
-      return false;             
+      return false;
     }//if
   } //for
   output.close();
   return true;
 }//SaveToFile
+
+unsigned int Landscape::RecordsAvailable()
+{
+  return m_numRec;
+}
 
 void Landscape::InitObjects(const unsigned int num)
 {
@@ -258,7 +297,7 @@ bool Landscape::SendToEngine()
                                 m_RecordList[i].Colour[j][k][2]/255.0f);
       }//for k
     }//for j
-    
+
     //triangles
     for (j=0; j<64; j++)
     {
@@ -280,6 +319,74 @@ bool Landscape::SendToEngine()
   return true;
 }
 
+bool Landscape::Shift(const unsigned int record, const float delta)
+{
+  if (record>=m_numRec)
+  {
+    return false;
+  }
+  unsigned int i,j;
+
+  for (i=0; i<65; i++)
+  {
+    for (j=0; j<65; j++)
+    {
+      m_RecordList[record].Height[i][j] = m_RecordList[record].Height[i][j]+delta;
+    }
+  }
+  m_RecordList[record].Highest = m_RecordList[record].Highest+delta;
+  m_RecordList[record].Lowest = m_RecordList[record].Lowest+delta;
+  return true;
+}//Shift
+
+bool Landscape::Scale(const unsigned int record, const float factor)
+{
+  if (record>=m_numRec)
+  {
+    return false;
+  }
+  unsigned int i,j;
+
+  for (i=0; i<65; i++)
+  {
+    for (j=0; j<65; j++)
+    {
+      m_RecordList[record].Height[i][j] = m_RecordList[record].Height[i][j]*factor;
+    }
+  }
+  m_RecordList[record].Highest = m_RecordList[record].Highest*factor;
+  m_RecordList[record].Lowest = m_RecordList[record].Lowest*factor;
+  return true;
+}//Scale
+
+bool Landscape::MakePlain(const unsigned int record, const float value)
+{
+  if (record>=m_numRec)
+  {
+    return false;
+  }
+  unsigned int i,j;
+
+  for (i=0; i<65; i++)
+  {
+    for (j=0; j<65; j++)
+    {
+      m_RecordList[record].Height[i][j] = value;
+    }
+  }
+  m_RecordList[record].Highest = value;
+  m_RecordList[record].Lowest = value;
+  return true;
+}//MakePlain
+
+bool Landscape::IsPlain(const unsigned int record)
+{
+  if (record>=m_numRec)
+  {
+    return true;
+  }
+  return (m_RecordList[record].Highest==m_RecordList[record].Lowest);
+}
 
 float Landscape::GetHeigtAtPosition(const float x, const float y) const
 {
@@ -305,9 +412,7 @@ float Landscape::GetHeigtAtPosition(const float x, const float y) const
 }
 
 /*to do:
--load and save routines
 -sending data to Ogre via Ogre::ManualObject
  (Maybe NURBS would be better, but what's Ogre's class/function for that?)
-
 */
 } //namespace
