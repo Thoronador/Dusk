@@ -27,7 +27,7 @@ namespace Dusk
     */
     bool Application::initialise(std::string pluginFileName)
     {
-        std::cout << pluginFileName;
+        std::cout << "Plugin file: "<<pluginFileName<<"\n";
         m_Root = new Ogre::Root(pluginFileName);
 
         // add resource locations

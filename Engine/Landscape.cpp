@@ -341,7 +341,7 @@ bool Landscape::Shift(const unsigned int record, const float delta)
 
 bool Landscape::Scale(const unsigned int record, const float factor)
 {
-  if (record>=m_numRec)
+  if (record>=m_numRec || factor<cMinScale)
   {
     return false;
   }

@@ -1,6 +1,8 @@
 #include "Scene.h"
 #include "API.h"
 #include "Camera.h"
+#include "Landscape.h"
+
 namespace Dusk
 {
 
@@ -65,6 +67,15 @@ void Scene::createGrassMesh()
 
         Ogre::Entity *robot = m_SceneManager->createEntity("robot", "robot.mesh");
         m_SceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(robot);
+
+        //Landscape: load
+        if (Landscape::GetSingleton().LoadFromFile("data"+path_sep+"Landscape.dusk"))
+        {
+          if (Landscape::GetSingleton().SendToEngine())
+          {
+            std::cout << "Landscape loaded successfully.\n";
+          }
+        }
 
         Ogre::Plane plane;
         plane.normal = Ogre::Vector3::UNIT_Y;

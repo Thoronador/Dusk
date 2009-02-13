@@ -8,6 +8,14 @@ namespace Dusk
 {
   const float cDefaultStride = 5.00;
   const unsigned int cMaxLandRecords = 2500; //50 x 50 squares should do
+  const float cMinScale = 0.01;
+
+  //maybe this should go somewhere else
+  #if defined(_WIN32)
+    const std::string path_sep = "\\";
+  #else
+    const std::string path_sep = "/";
+  #endif
 
   typedef struct land_rec
   {
