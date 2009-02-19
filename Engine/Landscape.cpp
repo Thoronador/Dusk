@@ -1,5 +1,6 @@
 #include "Landscape.h"
 #include "API.h"
+#include <iostream>
 #include <sstream>
 // #include <OgreSceneManager.h>
 
@@ -352,7 +353,6 @@ bool Landscape::LoadFromFile(const std::string FileName)
     return false;
   }
 
-  LandscapeRecord * temp;
   unsigned int numRecords, i;
   char Header[4];
   std::ifstream input;
@@ -398,8 +398,6 @@ bool Landscape::LoadFromFile(const std::string FileName)
   //read loop
   for (i=0; i<numRecords; i=i+1)
   {
-    temp = &m_RecordList[i];
-
     if (!m_RecordList[i].LoadFromStream(&input))
     {
       std::cout << "Landscape::LoadFromFile: File \""<<FileName<< "\" has "
