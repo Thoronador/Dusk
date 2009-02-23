@@ -12,11 +12,13 @@
 	<fstream>
 	<cstring>
 
-1235362824 source:d:\wopcp\trunk\tescs_converter\main.cpp
+1235374134 source:d:\wopcp\trunk\tescs_converter\main.cpp
 	<iostream>
+	<fstream>
+	<string>
 	"Converter.h"
 
-1235373076 d:\wopcp\trunk\tescs_converter\converter.h
+1235419886 d:\wopcp\trunk\tescs_converter\converter.h
 	<string>
 
 1235373046 source:d:\wopcp\trunk\tescs_converter\converter.cpp

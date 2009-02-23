@@ -35,6 +35,5 @@ int main()
   {
     std::cout << "(At least one) Error occured!\n";
   }
-  //ScanESP("C:\\TEMP\\Bloodmoon.esm");
   return 0;
 }

@@ -4,4 +4,4 @@
 #endif
 #include <string>
 
-bool ScanESP(const std::string FileName, const std::string DuskFileName);
+bool ScanESP(const std::string& FileName, const std::string& DuskFileName);
