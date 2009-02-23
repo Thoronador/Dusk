@@ -1,8 +1,9 @@
 #include "Landscape.h"
-#include "API.h"
+#ifndef NO_OGRE_IN_LANDSCAPE
+  #include "API.h"
+#endif
 #include <iostream>
 #include <sstream>
-// #include <OgreSceneManager.h>
 
 namespace Dusk
 {
@@ -18,8 +19,10 @@ namespace Dusk
 LandscapeRecord::LandscapeRecord()
 {
   m_Loaded = false;
+  #ifndef NO_OGRE_IN_LANDSCAPE
   m_OgreObject = NULL;
   m_ObjectIndex = 0;
+  #endif
   OffsetX = 0.0;
   OffsetY = 0.0;
   Highest = 0.0;
@@ -29,11 +32,13 @@ LandscapeRecord::LandscapeRecord()
 LandscapeRecord::~LandscapeRecord()
 {
   //empty destructor
+  #ifndef NO_OGRE_IN_LANDSCAPE
   if (m_OgreObject != NULL)
   {
     Dusk::getAPI().getOgreSceneManager()->destroyManualObject(m_OgreObject);
     m_OgreObject = NULL;
   }
+  #endif
 }
 
 bool LandscapeRecord::LoadFromStream(std::ifstream *AStream)
@@ -125,7 +130,7 @@ bool LandscapeRecord::SaveToStream(std::ofstream *AStream)
   {
     return false;
   }
-    if (!AStream->good())
+  if (!AStream->good())
   {
     std::cout << "LandscapeRecord::SaveToStream: ERROR: passed stream argument"
               << " contains error(s).\n";
@@ -215,6 +220,7 @@ bool LandscapeRecord::IsPlain()
   return Highest==Lowest;
 }
 
+#ifndef NO_OGRE_IN_LANDSCAPE
 bool LandscapeRecord::SendDataToEngine()
 {
   if (!m_Loaded)
@@ -317,7 +323,7 @@ bool LandscapeRecord::RemoveDataFromEngine()
   m_OgreObject = NULL;
   return true;
 }
-
+#endif //ifndef NO_OGRE_IN_LANDSCAPE
 
 //the main Landscape class
 // ++++
@@ -465,6 +471,7 @@ LandscapeRecord* Landscape::GetRecord(const unsigned int record)
   return &m_RecordList[record];
 }
 
+#ifndef NO_OGRE_IN_LANDSCAPE
 bool Landscape::SendToEngine()
 {
   if (m_numRec==0)
@@ -492,6 +499,7 @@ bool Landscape::SendToEngine()
   }//for
   return true;
 }
+#endif //ifndef NO_OGRE_IN_LANDSCAPE
 
 float Landscape::GetHeigtAtPosition(const float x, const float y) const
 {

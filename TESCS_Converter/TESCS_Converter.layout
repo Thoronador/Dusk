@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_layout_file>
+	<ActiveTarget name="Debug" />
+	<File name="..\Engine\API.h" open="0" top="0" tabpos="0">
+		<Cursor position="30" topLine="0" />
+	</File>
+	<File name="..\Engine\Landscape.cpp" open="1" top="0" tabpos="5">
+		<Cursor position="11008" topLine="415" />
+	</File>
+	<File name="..\Engine\Landscape.h" open="1" top="0" tabpos="4">
+		<Cursor position="170" topLine="24" />
+	</File>
+	<File name="Converter.cpp" open="1" top="0" tabpos="2">
+		<Cursor position="38227" topLine="1250" />
+	</File>
+	<File name="Converter.h" open="1" top="0" tabpos="3">
+		<Cursor position="133" topLine="0" />
+	</File>
+	<File name="main.cpp" open="1" top="1" tabpos="1">
+		<Cursor position="1037" topLine="0" />
+	</File>
+</CodeBlocks_layout_file>

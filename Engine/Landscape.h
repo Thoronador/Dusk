@@ -3,7 +3,9 @@
 
 #include <fstream>
 #include <string>
-#include <OgreManualObject.h>
+#ifndef NO_OGRE_IN_LANDSCAPE
+  #include <OgreManualObject.h>
+#endif
 
 namespace Dusk
 {
@@ -49,13 +51,17 @@ namespace Dusk
       bool Scale(const float factor);
       bool MakePlain(const float value);
       bool IsPlain();
+      #ifndef NO_OGRE_IN_LANDSCAPE
       //send loaded data to scene manager
       bool SendDataToEngine();
       bool RemoveDataFromEngine();
+      #endif
     private:
       bool m_Loaded;
+      #ifndef NO_OGRE_IN_LANDSCAPE
       Ogre::ManualObject * m_OgreObject;
       unsigned int m_ObjectIndex;
+      #endif
   };
 
   //don't touch this
@@ -72,8 +78,10 @@ namespace Dusk
       bool SaveToFile(const std::string FileName);
       unsigned int RecordsAvailable();
       LandscapeRecord* GetRecord(const unsigned int record);
+      #ifndef NO_OGRE_IN_LANDSCAPE
       //send loaded data to scene manager
       bool SendToEngine();
+      #endif
       //for collision detection
       float GetHeigtAtPosition(const float x, const float y) const;
     private:
