@@ -10,8 +10,12 @@
 
 const long int cAADT = 0x54444141; //"AADT" = 41 41 44 54
 const long int cACTI = 0x49544341; //"ACTI" = 41 43 54 49
+const long int cALCH = 0x48434C41; //"ALCH" = 41 4C 43 48
+const long int cALDT = 0x54444C41; //"ALDT" = 41 4C 44 54
 const long int cANAM = 0x4D414E41; //"ANAM" = 41 4E 41 4D
+const long int cAODT = 0x54444F41; //"AODT" = 41 4F 44 54
 const long int cAPPA = 0x41505041; //"APPA" = 41 50 50 41
+const long int cARMO = 0x4F4D5241; //"ARMO" = 41 52 4D 4F
 const long int cASND = 0x444E5341; //"ASND" = 41 53 4E 44
 const long int cAVFX = 0x58465641; //"AVFX" = 41 56 46 58
 const long int cBKDT = 0x54444B42; //"BKDT" = 42 4B 44 54
@@ -23,10 +27,12 @@ const long int cBYDT = 0x54445942; //"BYDT" = 42 59 44 54
 const long int cBVFX = 0x58465642; //"BVFX" = 42 56 46 58
 const long int cCLAS = 0x53414C43; //"CLAS" = 43 4C 41 53
 const long int cCLDT = 0x54444C43; //"CLDT" = 43 4C 44 54
+const long int cCLOT = 0x544F4C43; //"CLOT" = 43 4C 4F 54
 const long int cCNAM = 0x4D414E43; //"CNAM" = 43 4E 41 4D
 const long int cCNDT = 0x54444E43; //"CNDT" = 43 4E 44 54
 const long int cCONT = 0x544E4F43; //"CONT" = 43 4F 4E 54
 const long int cCSND = 0x444E5343; //"CSND" = 43 53 4E 44
+const long int cCTDT = 0x54445443; //"CTDT" = 43 54 44 54
 const long int cCVFX = 0x58465643; //"CVFX" = 43 56 46 58
 const long int cDATA = 0x41544144; //"DATA" = 44 41 54 41
 const long int cDESC = 0x43534544; //"DESC" = 44 45 53 43
@@ -45,6 +51,8 @@ const long int cINDX = 0x58444E49; //"INDX" = 49 4E 44 58
 const long int cINTV = 0x56544E49; //"INTV" = 49 4E 54 56
 const long int cITEX = 0x58455449; //"ITEX" = 49 54 45 58
 const long int cLAND = 0x444E414C; //"LAND" = 4C 41 4E 44
+const long int cLHDT = 0x5444484C; //"LHDT" = 4C 48 44 54
+const long int cLIGH = 0x4847494C; //"LIGH" = 4C 49 47 48
 const long int cLKDT = 0x54444B4C; //"LKDT" = 4C 4B 44 54
 const long int cLOCK = 0x4B434F4C; //"LOCK" = 4C 4F 43 4B
 const long int cLTEX = 0x5845544C; //"LTEX" = 4C 54 45 58
@@ -94,16 +102,20 @@ bool ProcessNextRecord(std::ifstream& in_File, const std::string& DuskFileName, 
 
 //routines for reading/ skipping different records
 bool ReadACTI(std::ifstream& in_File, const long int FileSize);
+bool ReadALCH(std::ifstream& in_File, const long int FileSize);
 bool ReadAPPA(std::ifstream& in_File, const long int FileSize);
+bool ReadARMO(std::ifstream& in_File, const long int FileSize);
 bool ReadBODY(std::ifstream& in_File);
 bool ReadBOOK(std::ifstream& in_File);
 bool ReadCLAS(std::ifstream& in_File);
+bool ReadCLOT(std::ifstream& in_File, const long int FileSize);
 bool ReadCONT(std::ifstream& in_File, const long int FileSize);
 bool ReadDOOR(std::ifstream& in_File);
 bool ReadFACT(std::ifstream& in_File);
 bool ReadGLOB(std::ifstream& in_File);
 bool ReadGMST(std::ifstream& in_File);
 bool ReadLAND(std::ifstream& in_File, const std::string& DuskFile);
+bool ReadLIGH(std::ifstream& in_File, const long int FileSize);
 bool ReadLOCK(std::ifstream& in_File, const long int FileSize);
 bool ReadLTEX(std::ifstream& in_File);
 bool ReadMGEF(std::ifstream& in_File);
@@ -302,14 +314,20 @@ bool ProcessNextRecord(std::ifstream& in_File, const std::string& DuskFileName, 
   {
     case cACTI:
          Success = ReadACTI(in_File, FileSize); break;
+    case cALCH:
+         Success = ReadALCH(in_File, FileSize); break;
     case cAPPA:
          Success = ReadAPPA(in_File, FileSize); break;
+    case cARMO:
+         Success = ReadARMO(in_File, FileSize); break;
     case cBODY:
          Success = ReadBODY(in_File); break;
     case cBOOK:
          Success = ReadBOOK(in_File); break;
     case cCLAS:
          Success = ReadCLAS(in_File); break;
+    case cCLOT:
+         Success = ReadCLOT(in_File, FileSize); break;
     case cCONT:
          Success = ReadCONT(in_File, FileSize); break;
     case cDOOR:
@@ -322,6 +340,8 @@ bool ProcessNextRecord(std::ifstream& in_File, const std::string& DuskFileName, 
          Success = ReadGMST(in_File); break;
     case cLAND:
          Success = ReadLAND(in_File, DuskFileName); break;
+    case cLIGH:
+         Success = ReadLIGH(in_File, FileSize); break;
     case cLOCK:
          Success = ReadLOCK(in_File, FileSize); break;
     case cLTEX:
@@ -445,6 +465,137 @@ bool ReadACTI(std::ifstream& in_File, const long int FileSize)
 }//ReadACTI
 
 
+bool ReadALCH(std::ifstream& in_File, const long int FileSize)
+{
+  long int Size, HeaderOne, Flags;
+  in_File.read((char*) &Size, 4);
+  in_File.read((char*) &HeaderOne, 4);
+  in_File.read((char*) &Flags, 4);
+
+  /*Alchemy Potions:
+    NAME = Item ID, required
+    MODL = Model Name, required
+    FNAM = Item Name, required
+    ALDT = Alchemy Data (12 bytes), required
+        float  Weight
+        long   Value
+        long   AutoCalc
+    ENAM = Enchantment (24 bytes) 1 to 8 per record
+        short EffectID
+        byte  SkillID		for skill related effects, -1/0 otherwise
+        byte  AttributeID	for attribute related effects, -1/0 otherwise
+        long  Unknown1
+        long  Unknown2
+        long  Duration
+        long  Magnitude
+        long  Unknown4
+    TEXT = Inventory Icon
+    SCRI = Script Name (optional) */
+
+  long int SubRecName, SubLength;
+  SubRecName = SubLength = 0;
+
+  //read NAME
+  in_File.read((char*) &SubRecName, 4);
+  if (SubRecName!=cNAME)
+  {
+    UnexpectedRecord(cNAME, SubRecName);
+    return false;
+  }
+  //NAME's length
+  in_File.read((char*) &SubLength, 4);
+  in_File.seekg(SubLength, std::ios::cur); //skip potion ID
+
+  //read MODL
+  in_File.read((char*) &SubRecName, 4);
+  if (SubRecName!=cMODL)
+  {
+    UnexpectedRecord(cMODL, SubRecName);
+    return false;
+  }
+  //MODL's length
+  in_File.read((char*) &SubLength, 4);
+  in_File.seekg(SubLength, std::ios::cur);//skip potion's model path
+
+  //read FNAM
+  in_File.read((char*) &SubRecName, 4);
+  if (SubRecName!=cFNAM)
+  {
+    UnexpectedRecord(cFNAM, SubRecName);
+    return false;
+  }
+  //FNAM's length
+  in_File.read((char*) &SubLength, 4);
+  in_File.seekg(SubLength, std::ios::cur);//skip potion's "real" name
+
+  //read ALDT
+  in_File.read((char*) &SubRecName, 4);
+  if (SubRecName!=cALDT)
+  {
+    UnexpectedRecord(cALDT, SubRecName);
+    return false;
+  }
+  //ALDT's length
+  in_File.read((char*) &SubLength, 4);
+  if (SubLength!=12)
+  {
+    std::cout <<"Error: sub record ALDT of ALCH has invalid length ("<<SubLength
+              <<" bytes). Should be 12 bytes.\n";
+    return false;
+  }
+  in_File.seekg(12, std::ios::cur);//skip data of potion
+
+  //read multiple ENAM
+  do
+  {
+    //read ENAM
+    in_File.read((char*) &SubRecName, 4);
+    if (SubRecName == cENAM)
+    {
+      //ENAM's length
+      in_File.read((char*) &SubLength, 4);
+      if (SubLength!=24)
+      {
+        std::cout <<"Error: sub record ENAM of ALCH has invalid length ("<<SubLength
+                  <<" bytes). Should be 24 bytes.\n";
+        return false;
+      }
+      in_File.seekg(24, std::ios::cur); //skip potion enchantment
+    }
+  } while (SubRecName == cENAM);
+
+  //read TEXT (record name was already read in previous do-while-loop)
+  if (SubRecName!=cTEXT)
+  {
+    UnexpectedRecord(cTEXT, SubRecName);
+    return false;
+  }
+  //TEXT's length
+  in_File.read((char*) &SubLength, 4);
+  in_File.seekg(SubLength, std::ios::cur); //skip potion icon path
+
+  if (in_File.tellg()>=FileSize)
+  { //there's no optional part, if end of file is already reached
+    return in_File.good();
+  }
+
+  //read optional SCRI
+  in_File.read((char*) &SubRecName, 4);
+  if (SubRecName==cSCRI)
+  {
+    //SCRI's length
+    in_File.read((char*) &SubLength, 4);
+    in_File.seekg(SubLength, std::ios::cur); //skip potion script ID
+  }
+  else
+  {
+    //seek four bytes towards beginning to land before next record name
+    in_File.seekg(-4, std::ios::cur);
+  }
+  return in_File.good();
+}//ReadALCH
+
+
 bool ReadAPPA(std::ifstream& in_File, const long int FileSize)
 {
   long int Size, HeaderOne, Flags;
@@ -548,6 +699,194 @@ bool ReadAPPA(std::ifstream& in_File, const long int FileSize)
   }
   return in_File.good();
 }//ReadAPPA
+
+
+bool ReadARMO(std::ifstream& in_File, const long int FileSize)
+{
+  long int Size, HeaderOne, Flags;
+  in_File.read((char*) &Size, 4);
+  in_File.read((char*) &HeaderOne, 4);
+  in_File.read((char*) &Flags, 4);
+
+  /*Armor pieces:
+    NAME = Item ID, required
+    MODL = Model Filename, required
+    FNAM = Item Name, required
+    AODT = Armour Data, required (24 bytes)
+        long  Type (0 = Helmet,1 = Cuirass,2 = L. Pauldron,3 = R. Pauldron,
+                    4 = Greaves,5 = Boots,6 = L. Gauntlet,7 = R. Gauntlet,
+                    8 = Shield,9 = L. Bracer,10 = R. Bracer)
+        float Weight
+        long  Value
+        long  Health
+        long  EnchantPts
+        long  Armour
+    ITEX = Icon Filename, required
+    INDX = Body Part Index (1 byte)
+        (0=Head,1=Hair,2=Neck,3=Cuirass,4=Groin,5=Skirt,6=Right Hand,
+         7=Left Hand,8=Right Wrist,9=Left Wrist,10=Shield,11=Right Forearm,
+         12=Left Forearm,13=Right Upper Arm,14=Left Upper Arm,15=Right Foot,
+         16=Left Foot,17=Right Ankle,18=Left Ankle,19=Right Knee,20=Left Knee,
+         21=Right Upper Leg,22=Left Upper Leg,23=Right Pauldron,24=Left Pauldron,
+         25=Weapon,26=Tail)
+    BNAM = Male Part Name
+    CNAM = Female Body Part Name (0 occurences)
+        INDX and BNAM/CNAM are grouped together.  INDX first followed
+        by an optional BNAM (no BNAM indicates a NULL field for that index).
+        Up to 7 pairs allowed.
+    SCRI = Script Name (optional)
+    ENAM = Enchantment Name (optional) */
+
+  long int SubRecName, SubLength;
+  SubRecName = SubLength = 0;
+
+  //read NAME
+  in_File.read((char*) &SubRecName, 4);
+  if (SubRecName!=cNAME)
+  {
+    UnexpectedRecord(cNAME, SubRecName);
+    return false;
+  }
+  //NAME's length
+  in_File.read((char*) &SubLength, 4);
+  in_File.seekg(SubLength, std::ios::cur); //skip armour ID
+
+  //read MODL
+  in_File.read((char*) &SubRecName, 4);
+  if (SubRecName!=cMODL)
+  {
+    UnexpectedRecord(cMODL, SubRecName);
+    return false;
+  }
+  //MODL's length
+  in_File.read((char*) &SubLength, 4);
+  in_File.seekg(SubLength, std::ios::cur);//skip MODL path
+
+  //read FNAM
+  in_File.read((char*) &SubRecName, 4);
+  if (SubRecName!=cFNAM)
+  {
+    UnexpectedRecord(cFNAM, SubRecName);
+    return false;
+  }
+  //FNAM's length
+  in_File.read((char*) &SubLength, 4);
+  in_File.seekg(SubLength, std::ios::cur);//armour's "real" name
+
+  //read AODT
+  in_File.read((char*) &SubRecName, 4);
+  if (SubRecName!=cAODT)
+  {
+    UnexpectedRecord(cAODT, SubRecName);
+    return false;
+  }
+  //AODT's length
+  in_File.read((char*) &SubLength, 4);
+  if (SubLength!=24)
+  {
+    std::cout <<"Error: sub record AODT of ARMO has invalid length ("<<SubLength
+              <<" bytes). Should be 24 bytes.\n";
+    return false;
+  }
+  in_File.seekg(24, std::ios::cur);//skip armour data
+
+  //read ITEX
+  in_File.read((char*) &SubRecName, 4);
+  if (SubRecName!=cITEX)
+  {
+    UnexpectedRecord(cITEX, SubRecName);
+    return false;
+  }
+  //ITEX's length
+  in_File.read((char*) &SubLength, 4);
+  in_File.seekg(SubLength, std::ios::cur);//skip path to armour icon texture
+
+
+  //still need to implement INDX/BNAM-pairs here ****
+
+  SubRecName = 0;
+  do
+  {
+    if (in_File.tellg()>=FileSize)
+    { //avoid reading non-existing, optional sub-records
+      return in_File.good();
+    }//if
+
+    //read INDX
+    in_File.read((char*) &SubRecName, 4);
+    if (SubRecName==cINDX)
+    {
+      //INDX's length
+      in_File.read((char*) &SubLength, 4);
+      if (SubLength!=1)
+      {
+        std::cout <<"Error: sub record INDX of ARMO has invalid length ("<<SubLength
+                  <<" bytes). Should be one byte only.\n";
+        return false;
+      }
+      in_File.seekg(1, std::ios::cur);//skip body part index
+
+      if (in_File.tellg()>=FileSize)
+      { //avoid reading non-existing, optional sub-records; BNAM must not follow
+        return in_File.good();
+      }//if
+
+      //read BNAM
+      in_File.read((char*) &SubRecName, 4);
+      if (SubRecName==cBNAM)
+      {
+        //BNAM's length
+        in_File.read((char*) &SubLength, 4);
+        in_File.seekg(SubLength, std::ios::cur);//skip body part Name
+      }
+      else
+      { //land before next INDX
+        in_File.seekg(-4, std::ios::cur);
+      }
+    }//if INDX read
+    else
+    {
+      //seek four bytes towards beginning to land before next (sub-)record name
+      in_File.seekg(-4, std::ios::cur);
+      //set SubRecName to zero to exit loop
+      SubRecName = 0;
+    }
+  } while (SubRecName == cBNAM or SubRecName == cINDX);
+
+  //still need to implement INDX/BNAM-pairs above here ****
+
+  if (in_File.tellg()>=FileSize)
+  { //avoid reading non-existing, optional sub-records
+    return in_File.good();
+  }
+
+  //read optional SCRI
+  in_File.read((char*) &SubRecName, 4);
+  if (SubRecName==cSCRI)
+  {
+    //SCRI's length
+    in_File.read((char*) &SubLength, 4);
+    in_File.seekg(SubLength, std::ios::cur); //skip armour script name
+    if (in_File.tellg()>=FileSize)
+    { //avoid reading non-existing, optional sub-records
+      return in_File.good();
+    }
+    //read next sub-record name
+    in_File.read((char*) &SubRecName, 4);
+  }
+  if (SubRecName==cENAM)
+  {
+    //ENAM's length
+    in_File.read((char*) &SubLength, 4);
+    in_File.seekg(SubLength, std::ios::cur); //skip armour script name
+  }
+  else
+  {
+    //seek four bytes towards beginning to land before next record name
+    in_File.seekg(-4, std::ios::cur);
+  }
+  return in_File.good();
+}//ReadARMO
 
 
 bool ReadBODY(std::ifstream& in_File)
@@ -813,6 +1152,185 @@ bool ReadCLAS(std::ifstream& in_File)
 
   return in_File.good();
 }//ReadCLAS
+
+
+bool ReadCLOT(std::ifstream& in_File, const long int FileSize)
+{
+  long int Size, HeaderOne, Flags;
+  in_File.read((char*) &Size, 4);
+  in_File.read((char*) &HeaderOne, 4);
+  in_File.read((char*) &Flags, 4);
+
+  /*Clothing:
+    NAME = Item ID, required
+    MODL = Model Name, required
+    FNAM = Item Name, required
+    CTDT = Clothing Data (12 bytes), required
+        long  Type (0=Pants,1=Shoes,2=Shirt,3=Belt,4=Robe,5=Right Glove,
+                    6=Left Glove,7=Skirt,8=Ring,9=Amulet)
+        float Weight
+        short Value
+        short EnchantPts
+    ITEX = Inventory Icon
+    INDX = Body Part Index (1 byte)
+    BNAM = Male Body Part Name
+    CNAM = Female Body Part Name
+        INDX and BNAM/CNAM are grouped together.  INDX first followed
+        by an optional BNAM (no BNAM indicates a NULL field for that index).
+        Up to 7 pairs allowed.
+    ENAM = Enchantment Name (optional)
+    SCRI = Script Name (optional) */
+
+  long int SubRecName, SubLength;
+  SubRecName = SubLength = 0;
+
+  //read NAME
+  in_File.read((char*) &SubRecName, 4);
+  if (SubRecName!=cNAME)
+  {
+    UnexpectedRecord(cNAME, SubRecName);
+    return false;
+  }
+  //NAME's length
+  in_File.read((char*) &SubLength, 4);
+  in_File.seekg(SubLength, std::ios::cur); //skip clothing name
+
+  //read MODL
+  in_File.read((char*) &SubRecName, 4);
+  if (SubRecName!=cMODL)
+  {
+    UnexpectedRecord(cMODL, SubRecName);
+    return false;
+  }
+  //MODL's length
+  in_File.read((char*) &SubLength, 4);
+  in_File.seekg(SubLength, std::ios::cur);//skip path to clothing model
+
+  //read FNAM
+  in_File.read((char*) &SubRecName, 4);
+  if (SubRecName!=cFNAM)
+  {
+    UnexpectedRecord(cFNAM, SubRecName);
+    return false;
+  }
+  //FNAM's length
+  in_File.read((char*) &SubLength, 4);
+  in_File.seekg(SubLength, std::ios::cur);//skip clothing name
+
+  //read CTDT
+  in_File.read((char*) &SubRecName, 4);
+  if (SubRecName!=cCTDT)
+  {
+    UnexpectedRecord(cCTDT, SubRecName);
+    return false;
+  }
+  //CTDT's length
+  in_File.read((char*) &SubLength, 4);
+  if (SubLength!=12)
+  {
+    std::cout <<"Error: sub record CTDT of CLOT has invalid length ("<<SubLength
+              <<" bytes). Should be 12 bytes.\n";
+    return false;
+  }
+  in_File.seekg(12, std::ios::cur);//skip clothing data
+
+  //read ITEX
+  in_File.read((char*) &SubRecName, 4);
+  if (SubRecName!=cITEX)
+  {
+    UnexpectedRecord(cITEX, SubRecName);
+    return false;
+  }
+  //ITEX's length
+  in_File.read((char*) &SubLength, 4);
+  in_File.seekg(SubLength, std::ios::cur);//skip path to clothing icon texture
+
+  // ************************************************* INDX/ BNAM
+
+  SubRecName = 0;
+  do
+  {
+    if (in_File.tellg()>=FileSize)
+    { //avoid reading non-existing, optional sub-records
+      return in_File.good();
+    }//if
+
+    //read INDX
+    in_File.read((char*) &SubRecName, 4);
+    if (SubRecName==cINDX)
+    {
+      //INDX's length
+      in_File.read((char*) &SubLength, 4);
+      if (SubLength!=1)
+      {
+        std::cout <<"Error: sub record INDX of CLOT has invalid length ("<<SubLength
+                  <<" bytes). Should be one byte only.\n";
+        return false;
+      }
+      in_File.seekg(1, std::ios::cur);//skip body part index
+
+      if (in_File.tellg()>=FileSize)
+      { //avoid reading non-existing, optional sub-records; BNAM must not follow
+        return in_File.good();
+      }//if
+
+      //read BNAM
+      in_File.read((char*) &SubRecName, 4);
+      if (SubRecName==cBNAM)
+      {
+        //BNAM's length
+        in_File.read((char*) &SubLength, 4);
+        in_File.seekg(SubLength, std::ios::cur);//skip body part name
+      }
+      else
+      { //land before next INDX
+        in_File.seekg(-4, std::ios::cur);
+      }
+    }//if INDX read
+    else
+    {
+      //seek four bytes towards beginning to land before next (sub-)record name
+      in_File.seekg(-4, std::ios::cur);
+      //set SubRecName to zero to exit loop
+      SubRecName = 0;
+    }
+  } while (SubRecName == cBNAM or SubRecName == cINDX);
+
+  // ************************************************* INDX/ BNAM
+
+  if (in_File.tellg()>=FileSize)
+  { //avoid reading non-existing, optional sub-records
+    return in_File.good();
+  }
+
+  //read optional SCRI
+  in_File.read((char*) &SubRecName, 4);
+  if (SubRecName==cSCRI)
+  {
+    //SCRI's length
+    in_File.read((char*) &SubLength, 4);
+    in_File.seekg(SubLength, std::ios::cur); //skip clothing script name
+    if (in_File.tellg()>=FileSize)
+    { //avoid reading non-existing, optional sub-records
+      return in_File.good();
+    }
+    //read next sub-record name
+    in_File.read((char*) &SubRecName, 4);
+  }
+  //optional ENAM
+  if (SubRecName==cENAM)
+  {
+    //ENAM's length
+    in_File.read((char*) &SubLength, 4);
+    in_File.seekg(SubLength, std::ios::cur); //skip clothing enchantment name
+  }
+  else
+  {
+    //seek four bytes towards beginning to land before next record name
+    in_File.seekg(-4, std::ios::cur);
+  }
+  return in_File.good();
+}//ReadCLOT
 
 
 bool ReadCONT(std::ifstream& in_File, const long int FileSize)
@@ -1495,6 +2013,130 @@ bool ReadLAND(std::ifstream& in_File, const std::string& DuskFile)
 
   return in_File.good();
 }//ReadLAND
+
+
+bool ReadLIGH(std::ifstream& in_File, const long int FileSize)
+{
+  long int Size, HeaderOne, Flags;
+  in_File.read((char*) &Size, 4);
+  in_File.read((char*) &HeaderOne, 4);
+  in_File.read((char*) &Flags, 4);
+
+  /*Lights:
+    NAME = ID string
+    MODL = NIF model name
+    FNAM = Item name (optional)
+    ITEX = Inventory icon (optional)
+    LHDT = Light data (24 bytes)
+        float Weight
+        long  Value
+        long  Time
+        long  Radius
+        byte  Red	}
+        byte  Green	}
+        byte  Blue	} long ColorRef?
+        byte  Null	}
+        long  Flags (0x0001 = Dynamic,0x0002 = Can Carry,0x0004 = Negative,
+                     0x0008 = Flicker,0x0010 = Fire,0x0020 = Off Default,
+                     0x0040 = Flicker Slow,0x0080 = Pulse,0x0100 = Pulse Slow)
+    SCRI = Script name (optional)
+    SNAM = Sound name (optional?) */
+
+  long int SubRecName, SubLength;
+  SubRecName = SubLength = 0;
+
+  //read NAME
+  in_File.read((char*) &SubRecName, 4);
+  if (SubRecName!=cNAME)
+  {
+    UnexpectedRecord(cNAME, SubRecName);
+    return false;
+  }
+  //NAME's length
+  in_File.read((char*) &SubLength, 4);
+  in_File.seekg(SubLength, std::ios::cur); //skip light's ID
+
+  //read MODL
+  in_File.read((char*) &SubRecName, 4);
+  if (SubRecName!=cMODL)
+  {
+    UnexpectedRecord(cMODL, SubRecName);
+    return false;
+  }
+  //MODL's length
+  in_File.read((char*) &SubLength, 4);
+  in_File.seekg(SubLength, std::ios::cur); //skip light's model path
+
+  //read optional FNAM sub-record
+  in_File.read((char*) &SubRecName, 4);
+  if (SubRecName==cFNAM)
+  {
+    //FNAM's length
+    in_File.read((char*) &SubLength, 4);
+    in_File.seekg(SubLength, std::ios::cur); //skip light's "real" name
+    //read next (optional) sub-record name
+    in_File.read((char*) &SubRecName, 4);
+  }
+
+  //skip ITEX
+  if (SubRecName==cITEX)
+  {
+    //ITEX's length
+    in_File.read((char*) &SubLength, 4);
+    in_File.seekg(SubLength, std::ios::cur); //skip light's inventory icon path
+    //read next sub-record name
+    in_File.read((char*) &SubRecName, 4);
+  }
+
+  //read LHDT (already read before)
+  if (SubRecName!=cLHDT)
+  {
+    UnexpectedRecord(cLHDT, SubRecName);
+    return false;
+  }
+  //LHDT's length
+  in_File.read((char*) &SubLength, 4);
+  if (SubLength!=24)
+  {
+    std::cout <<"Error: sub record LHDT of LIGH has invalid length ("<<SubLength
+              <<" bytes). Should be 24 bytes.\n";
+    return false;
+  }
+  in_File.seekg(24, std::ios::cur); //skip light data
+
+  if (in_File.tellg()>=FileSize)
+  { //avoid to read non-present optional records
+    return in_File.good();
+  }
+
+  //read optional SCRI
+  in_File.read((char*) &SubRecName, 4);
+  if (SubRecName==cSCRI)
+  {
+    //SCRI's length
+    in_File.read((char*) &SubLength, 4);
+    in_File.seekg(SubLength, std::ios::cur); //skip light's script ID
+    if (in_File.tellg()>=FileSize)
+    {
+      return in_File.good();
+    }//if
+    //read next (optional) record
+    in_File.read((char*) &SubLength, 4);
+  }
+
+  //read optional SNAM
+  if (SubRecName==cSNAM)
+  {
+    //SNAM's length
+    in_File.read((char*) &SubLength, 4);
+    in_File.seekg(SubLength, std::ios::cur); //skip light's sound name
+  }
+  else
+  { //search four bytes towards beginning to land before name of next record
+    in_File.seekg(-4, std::ios::cur);
+  }
+  return in_File.good();
+}//ReadLIGH
 
 
 bool ReadLOCK(std::ifstream& in_File, const long int FileSize)

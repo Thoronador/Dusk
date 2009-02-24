@@ -33,8 +33,6 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="..\Engine\API.cpp" />
-		<Unit filename="..\Engine\API.h" />
 		<Unit filename="..\Engine\Landscape.cpp" />
 		<Unit filename="..\Engine\Landscape.h" />
 		<Unit filename="Converter.cpp" />
