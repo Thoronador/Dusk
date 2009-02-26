@@ -124,7 +124,7 @@ void UnexpectedRecord(const long int expected, const long int unexpected);
 bool ProcessNextRecord(std::ifstream& in_File, const std::string& DuskFileName, const int FileSize);
 
 //routines for reading/ skipping different records
-bool ReadACTI(std::ifstream& in_File, const long int FileSize);
+/*bool ReadACTI(std::ifstream& in_File, const long int FileSize);
 bool ReadALCH(std::ifstream& in_File, const long int FileSize);
 bool ReadAPPA(std::ifstream& in_File, const long int FileSize);
 bool ReadARMO(std::ifstream& in_File, const long int FileSize);
@@ -139,9 +139,9 @@ bool ReadENCH(std::ifstream& in_File, const long int FileSize);
 bool ReadFACT(std::ifstream& in_File);
 bool ReadGLOB(std::ifstream& in_File);
 bool ReadGMST(std::ifstream& in_File, const long int FileSize);
-bool ReadINGR(std::ifstream& in_File, const long int FileSize);
+bool ReadINGR(std::ifstream& in_File, const long int FileSize);*/
 bool ReadLAND(std::ifstream& in_File, const std::string& DuskFile);
-bool ReadLIGH(std::ifstream& in_File, const long int FileSize);
+/*bool ReadLIGH(std::ifstream& in_File, const long int FileSize);
 bool ReadLOCK(std::ifstream& in_File, const long int FileSize);
 bool ReadLTEX(std::ifstream& in_File);
 bool ReadMGEF(std::ifstream& in_File);
@@ -158,7 +158,7 @@ bool ReadSOUN(std::ifstream& in_File);
 bool ReadSPEL(std::ifstream& in_File);
 bool ReadSSCR(std::ifstream& in_File);
 bool ReadSTAT(std::ifstream& in_File);
-bool ReadWEAP(std::ifstream& in_File, const long int FileSize);
+bool ReadWEAP(std::ifstream& in_File, const long int FileSize);*/
 bool SkipRecord(std::ifstream& in_File);
 
 
@@ -325,7 +325,7 @@ bool ScanESP(const std::string& FileName, const std::string& DuskFileName)
       Go_on_processing = false;
     }
   }
-  std::cout << "Number of processed records (including possible failures): "
+  std::cout << "Number of processed and/or skipped records (including possible failures): "
             <<Processed_Records<<"\n"
             << "Current file position: "<<input.tellg()<< " bytes.\n";
   //end
@@ -345,86 +345,50 @@ bool ProcessNextRecord(std::ifstream& in_File, const std::string& DuskFileName, 
   switch(RecordName)
   {
     case cACTI:
-         Success = ReadACTI(in_File, FileSize); break;
     case cALCH:
-         Success = ReadALCH(in_File, FileSize); break;
     case cAPPA:
-         Success = ReadAPPA(in_File, FileSize); break;
     case cARMO:
-         Success = ReadARMO(in_File, FileSize); break;
     case cBODY:
-         Success = ReadBODY(in_File); break;
     case cBOOK:
-         Success = ReadBOOK(in_File); break;
     case cBSGN:
     case cCELL:
-         Success = SkipRecord(in_File); break;
     case cCLAS:
-         Success = ReadCLAS(in_File, FileSize); break;
     case cCLOT:
-         Success = ReadCLOT(in_File, FileSize); break;
     case cCONT:
-         Success = ReadCONT(in_File, FileSize); break;
     case cCREA:
     case cDIAL:
-         Success = SkipRecord(in_File); break;
     case cDOOR:
-         Success = ReadDOOR(in_File); break;
     case cENCH:
-         Success = ReadENCH(in_File, FileSize); break;
     case cFACT:
-         Success = ReadFACT(in_File); break;
     case cGLOB:
-         Success = ReadGLOB(in_File); break;
     case cGMST:
-         Success = ReadGMST(in_File, FileSize); break;
     case cINFO:
-         Success = SkipRecord(in_File); break;
     case cINGR:
-         Success = ReadINGR(in_File, FileSize); break;
+         Success = SkipRecord(in_File); break;
     case cLAND:
          Success = ReadLAND(in_File, DuskFileName); break;
     case cLEVC:
     case cLEVI:
-         Success = SkipRecord(in_File);
     case cLIGH:
-         Success = ReadLIGH(in_File, FileSize); break;
     case cLOCK:
-         Success = ReadLOCK(in_File, FileSize); break;
     case cLTEX:
-         Success = ReadLTEX(in_File); break;
     case cMGEF:
-         Success = ReadMGEF(in_File); break;
     case cMISC:
-         Success = ReadMISC(in_File); break;
     case cNPC_:
-         Success = SkipRecord(in_File); break;
     case cPGRD:
-         Success = ReadPGRD(in_File); break;
     case cPROB:
-         Success = ReadPROB(in_File, FileSize); break;
     case cRACE:
-         Success = ReadRACE(in_File); break;
     case cREGN:
-         Success = ReadREGN(in_File); break;
     case cREPA:
-         Success = ReadREPA(in_File, FileSize); break;
     case cSCPT:
-         Success = ReadSCPT(in_File); break;
     case cSKIL:
-         Success = ReadSKIL(in_File); break;
     case cSNDG:
-         Success = ReadSNDG(in_File); break;
     case cSOUN:
-         Success = ReadSOUN(in_File); break;
     case cSPEL:
-         Success = ReadSPEL(in_File); break;
     case cSSCR:
-         Success = ReadSSCR(in_File); break;
     case cSTAT:
-         Success = ReadSTAT(in_File); break;
     case cWEAP:
-         Success = ReadWEAP(in_File, FileSize); break;
+         Success = SkipRecord(in_File); break;
     default:
          std::cout << "ProcessRecords: ERROR: unknown record type found: \""
                    <<IntTo4Char(RecordName)<<"\".\n"
@@ -453,12 +417,12 @@ void UnexpectedRecord(const long int expected, const long int unexpected)
   return;
 }
 
-bool ReadACTI(std::ifstream& in_File, const long int FileSize)
+/*bool ReadACTI(std::ifstream& in_File, const long int FileSize)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
 
   /*Activators:
     NAME = Item ID, required
@@ -466,7 +430,7 @@ bool ReadACTI(std::ifstream& in_File, const long int FileSize)
     FNAM = Item Name, required
     SCRI = Script Name (optional) */
 
-  long int SubRecName, SubLength;
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
 
   //read NAME
@@ -522,14 +486,14 @@ bool ReadACTI(std::ifstream& in_File, const long int FileSize)
   }
   return in_File.good();
 }//ReadACTI
-
-
+*/
+/*
 bool ReadALCH(std::ifstream& in_File, const long int FileSize)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
 
   /*Alchemy Potions:
     NAME = Item ID, required
@@ -551,7 +515,7 @@ bool ReadALCH(std::ifstream& in_File, const long int FileSize)
     TEXT = Inventory Icon
     SCRI = Script Name (optional) */
 
-  long int SubRecName, SubLength;
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
 
   //read NAME
@@ -653,14 +617,14 @@ bool ReadALCH(std::ifstream& in_File, const long int FileSize)
   }
   return in_File.good();
 }//ReadALCH
-
-
+*/
+/*
 bool ReadAPPA(std::ifstream& in_File, const long int FileSize)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
 
   /*Alchemy Apparatus:
     NAME = Item ID, required
@@ -674,7 +638,7 @@ bool ReadAPPA(std::ifstream& in_File, const long int FileSize)
     ITEX = Inventory Icon
     SCRI = Script Name (optional) */
 
-  long int SubRecName, SubLength;
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
 
   //read NAME
@@ -758,14 +722,14 @@ bool ReadAPPA(std::ifstream& in_File, const long int FileSize)
   }
   return in_File.good();
 }//ReadAPPA
-
-
+*/
+/*
 bool ReadARMO(std::ifstream& in_File, const long int FileSize)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
 
   /*Armor pieces:
     NAME = Item ID, required
@@ -796,7 +760,7 @@ bool ReadARMO(std::ifstream& in_File, const long int FileSize)
     SCRI = Script Name (optional)
     ENAM = Enchantment Name (optional) */
 
-  long int SubRecName, SubLength;
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
 
   //read NAME
@@ -946,14 +910,14 @@ bool ReadARMO(std::ifstream& in_File, const long int FileSize)
   }
   return in_File.good();
 }//ReadARMO
-
-
+*/
+/*
 bool ReadBODY(std::ifstream& in_File)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
 
   /*
   NAME = Body Part ID
@@ -961,7 +925,8 @@ bool ReadBODY(std::ifstream& in_File)
   FNAM = Race ID
   BYDT = Body part data (4 bytes)
   */
-  long int SubRecName, SubLength;
+
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
 
   //read NAME
@@ -1018,14 +983,14 @@ bool ReadBODY(std::ifstream& in_File)
   in_File.seekg(4, std::ios::cur);
   return in_File.good();
 }//ReadBODY
-
-
+*/
+/*
 bool ReadBOOK(std::ifstream& in_File)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
 
   /*Books:
     NAME = Item ID, required
@@ -1041,7 +1006,7 @@ bool ReadBOOK(std::ifstream& in_File)
     SCRI = Script Name (optional)
     TEXT = Book text */
 
-  long int SubRecName, SubLength;
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
 
   //read NAME
@@ -1122,14 +1087,14 @@ bool ReadBOOK(std::ifstream& in_File)
 
   return in_File.good();
 }//ReadBOOK
-
-
+*/
+/*
 bool ReadCLAS(std::ifstream& in_File, const long int FileSize)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
 
   /*Class definition
     NAME = Class ID string
@@ -1156,7 +1121,8 @@ bool ReadCLAS(std::ifstream& in_File, const long int FileSize)
                             0x01000 = Magic Items,0x02000 = Potions,0x04000 = Training
                             0x08000 = Spellmaking,0x10000 = Enchanting,0x20000 = Repair Item)
     DESC = Description string (optional for non-playable classes) */
-  long int SubRecName, SubLength;
+
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
 
   //read NAME
@@ -1217,14 +1183,14 @@ bool ReadCLAS(std::ifstream& in_File, const long int FileSize)
   }
   return in_File.good();
 }//ReadCLAS
-
-
+*/
+/*
 bool ReadCLOT(std::ifstream& in_File, const long int FileSize)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
 
   /*Clothing:
     NAME = Item ID, required
@@ -1246,7 +1212,7 @@ bool ReadCLOT(std::ifstream& in_File, const long int FileSize)
     ENAM = Enchantment Name (optional)
     SCRI = Script Name (optional) */
 
-  long int SubRecName, SubLength;
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
 
   //read NAME
@@ -1396,14 +1362,14 @@ bool ReadCLOT(std::ifstream& in_File, const long int FileSize)
   }
   return in_File.good();
 }//ReadCLOT
-
-
+*/
+/*
 bool ReadCONT(std::ifstream& in_File, const long int FileSize)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
 
   /*Container:
     NAME = ID
@@ -1418,7 +1384,7 @@ bool ReadCONT(std::ifstream& in_File, const long int FileSize)
         long	Count	  Number of the item
         char	Name[32]  The ID of the item */
 
-  long int SubRecName, SubLength;
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
 
   //read NAME
@@ -1534,14 +1500,14 @@ bool ReadCONT(std::ifstream& in_File, const long int FileSize)
 
   return in_File.good();
 }//ReadCONT
-
-
+*/
+/*
 bool ReadDOOR(std::ifstream& in_File)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
 
   /*Door:
     NAME = door ID
@@ -1552,7 +1518,7 @@ bool ReadDOOR(std::ifstream& in_File)
     ANAM = Sound name close (optional)
   */
 
-  long int SubRecName, SubLength;
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
 
   //read NAME, MODL, FNAM
@@ -1594,14 +1560,14 @@ bool ReadDOOR(std::ifstream& in_File)
 
   return in_File.good();
 }//ReadDOOR
-
-
+*/
+/*
 bool ReadENCH(std::ifstream& in_File, const long int FileSize)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
 
   /*Enchantment:
     NAME = ID string
@@ -1620,7 +1586,7 @@ bool ReadENCH(std::ifstream& in_File, const long int FileSize)
         long  MagMin
         long  MagMax */
 
-  long int SubRecName, SubLength;
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
 
   //read NAME
@@ -1680,14 +1646,14 @@ bool ReadENCH(std::ifstream& in_File, const long int FileSize)
 
   return in_File.good();
 }//ReadENCH
-
-
+*/
+/*
 bool ReadFACT(std::ifstream& in_File)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
 
   /*Faction:
     NAME = Faction ID string
@@ -1711,7 +1677,7 @@ bool ReadFACT(std::ifstream& in_File)
         The ANAM/INTV occur in pairs for each faction with
         a reaction adjustment (usually -4 to +4) */
 
-  long int SubRecName, SubLength;
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
 
   //read NAME
@@ -1747,9 +1713,9 @@ bool ReadFACT(std::ifstream& in_File)
       in_File.read((char*) &SubLength, 4);
       in_File.seekg(SubLength, std::ios::cur); //skip name
     }
-  } while (SubRecName == cRNAM);
+  } while (SubRecName == cRNAM);*/
 
-  /*//seek 4 bytes towards beginning to land before next record name
+  /* //seek 4 bytes towards beginning to land before next record name
   in_File.seekg(-4, std::ios::cur);
 
   //read FADT
@@ -1757,7 +1723,7 @@ bool ReadFACT(std::ifstream& in_File)
 
   //last SubRecord read in do-while-loop is already the next (FADT)
 
-  if (SubRecName!=cFADT)
+  /*if (SubRecName!=cFADT)
   {
     UnexpectedRecord(cFADT, SubRecName);
     return false;
@@ -1799,13 +1765,14 @@ bool ReadFACT(std::ifstream& in_File)
   in_File.seekg(-4, std::ios::cur);
   return in_File.good();
 }//ReadFACT
-
+*/
+/*
 bool ReadGLOB(std::ifstream& in_File)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
 
   /*Global variable:
     NAME = Global ID
@@ -1814,7 +1781,7 @@ bool ReadGLOB(std::ifstream& in_File)
         'l' = long
         'f' = float
     FLTV = Float data (4 bytes) */
-  long int SubRecName, SubLength;
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
   char TypeChar = '\0';
 
@@ -1871,20 +1838,20 @@ bool ReadGLOB(std::ifstream& in_File)
 
   return in_File.good();
 }//ReadGLOB
-
-
+*/
+/*
 bool ReadGMST(std::ifstream& in_File, const long int FileSize)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
 
   /*GMST: Game Setting
     NAME = Setting ID string
     STRV = String value/ INTV = Integer value (4 btes)/FLTV = Float value (4 bytes)
   */
-  long int SubRecName, SubLength;
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
   char NameFirstChar = '\0';
 
@@ -1963,14 +1930,14 @@ bool ReadGMST(std::ifstream& in_File, const long int FileSize)
   }//switch
   return in_File.good();
 }//ReadGMST
-
-
+*/
+/*
 bool ReadINGR(std::ifstream& in_File, const long int FileSize)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
 
   /*Ingredients:
     NAME = Item ID, required
@@ -1985,7 +1952,7 @@ bool ReadINGR(std::ifstream& in_File, const long int FileSize)
     ITEX = Inventory Icon
     SCRI = Script Name (optional) */
 
-  long int SubRecName, SubLength;
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
 
   //read NAME
@@ -2068,7 +2035,7 @@ bool ReadINGR(std::ifstream& in_File, const long int FileSize)
   }
   return in_File.good();
 }//ReadINGR
-
+*/
 
 bool ReadLAND(std::ifstream& in_File, const std::string& DuskFile)
 {
@@ -2112,7 +2079,14 @@ bool ReadLAND(std::ifstream& in_File, const std::string& DuskFile)
         A 16x16 array of short texture indices (from a LTEX record I think). */
 
   long int SubRecName, SubLength;
-  SubRecName = SubLength = 0;
+  long int CellX, CellY;
+  SubRecName = SubLength = CellX = CellY = 0;
+
+  if (Size<4232/*size of VHGT*/+8/*Header*/)
+  { //skip the rest of the data, because it's too small to contain height data
+    in_File.seekg(Size, std::ios::cur);
+    return in_File.good();
+  }
 
   //read INTV
   in_File.read((char*) &SubRecName, 4);
@@ -2129,7 +2103,9 @@ bool ReadLAND(std::ifstream& in_File, const std::string& DuskFile)
               <<" bytes). Should be 8 bytes.\n";
     return false;
   }
-  in_File.seekg(8, std::ios::cur); //skip cell offsets
+  //read cell offsets
+  in_File.read((char*) &CellX, 4);
+  in_File.read((char*) &CellY, 4);
 
   //read DATA
   in_File.read((char*) &SubRecName, 4);
@@ -2180,18 +2156,25 @@ bool ReadLAND(std::ifstream& in_File, const std::string& DuskFile)
               <<" bytes). Should be 4.232 bytes.\n";
     return false;
   }
+
+  std::cout << "Debug: sub-record VHGT found for cell "<<CellX<<","<<CellY<<".\n";
+
   //data vars
   char MW_Height[65][65];
   float HeightOffset = 0.0f;
+  std::cout << "Debug: initialising memory for structure MW_Height.\n";
   memset(MW_Height, '\0', 65*65);
   //read height offset
   in_File.read((char*) &HeightOffset, 4);
   //skip Unknown1
   in_File.seekg(1, std::ios::cur);
   //read height data
+  std::cout << "Debug: reading content of VHGT.\n";
   in_File.read(&MW_Height[0][0], 65*65);
+  std::cout << "Debug: read operation finished. "<< in_File.gcount() <<" of "<<65*65<<" bytes were read.\n";
   //skip Unknown2
   in_File.seekg(2, std::ios::cur);
+  std::cout << "Debug: read operation (and skip of two bytes) successful.\n";
 
   //read WNAM
   in_File.read((char*) &SubRecName, 4);
@@ -2212,7 +2195,8 @@ bool ReadLAND(std::ifstream& in_File, const std::string& DuskFile)
 
   //data var
   char MW_Colour[65][65][3];
-  memset(MW_Height, 255, 65*65*3);
+  std::cout << "Debug: initialising memory for structure MW_Colour.\n";
+  memset(MW_Colour, 255, 65*65*3);
 
   //read optional VCLR
   in_File.read((char*) &SubRecName, 4);
@@ -2256,6 +2240,9 @@ bool ReadLAND(std::ifstream& in_File, const std::string& DuskFile)
     ++
     ++++ */
   //conversion of data to Dusk's format
+
+  std::cout << "Debug: Starting conversion to Dusk's format.\n";
+
   Dusk::LandscapeRecord DuskLand;
   unsigned int i,j;
 
@@ -2271,6 +2258,11 @@ bool ReadLAND(std::ifstream& in_File, const std::string& DuskFile)
       DuskLand.Colour[i][j][2] = MW_Colour[i][j][2];
     }//for j
   }//for i
+  DuskLand.Stride = Dusk::cDefaultStride;
+  DuskLand.OffsetX = Dusk::cDefaultStride * 64 * CellX;
+  DuskLand.OffsetY = Dusk::cDefaultStride * 64 * CellY;
+  DuskLand.SetLoadedState(true);
+  std::cout << "Debug: conversion finished.\n";
 
   std::ofstream DuskOutput;
   DuskOutput.open(DuskFile.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
@@ -2287,17 +2279,17 @@ bool ReadLAND(std::ifstream& in_File, const std::string& DuskFile)
   DuskOutput.write((char*) &i, sizeof(unsigned int));
   DuskLand.SaveToStream(&DuskOutput);
   DuskOutput.close();
-
+  std::cout << "Debug: write operation to file \""<<DuskFile<<"\" finished.\n";
   return in_File.good();
 }//ReadLAND
 
-
+/*
 bool ReadLIGH(std::ifstream& in_File, const long int FileSize)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
 
   /*Lights:
     NAME = ID string
@@ -2319,7 +2311,7 @@ bool ReadLIGH(std::ifstream& in_File, const long int FileSize)
     SCRI = Script name (optional)
     SNAM = Sound name (optional?) */
 
-  long int SubRecName, SubLength;
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
 
   //read NAME
@@ -2414,14 +2406,14 @@ bool ReadLIGH(std::ifstream& in_File, const long int FileSize)
   }
   return in_File.good();
 }//ReadLIGH
-
-
+*/
+/*
 bool ReadLOCK(std::ifstream& in_File, const long int FileSize)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
 
   /*Lockpicks:
     NAME = Item ID, required
@@ -2435,7 +2427,7 @@ bool ReadLOCK(std::ifstream& in_File, const long int FileSize)
 	ITEX = Inventory Icon
 	SCRI = Script Name (optional) */
 
-  long int SubRecName, SubLength;
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
 
   //read NAME
@@ -2519,21 +2511,21 @@ bool ReadLOCK(std::ifstream& in_File, const long int FileSize)
   }
   return in_File.good();
 }//ReadLOCK
-
-
+*/
+/*
 bool ReadLTEX(std::ifstream& in_File)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
 
   /*Land texture(?): (no documentation known)
     NAME = texture name/ID (?)
     INTV = texture index (?)
     DATA = path to texture */
 
-  long int SubRecName, SubLength;
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
 
   //read NAME
@@ -2577,14 +2569,14 @@ bool ReadLTEX(std::ifstream& in_File)
 
   return in_File.good();
 }//Read LTEX
-
-
+*/
+/*
 bool ReadMGEF(std::ifstream& in_File)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
 
   /*Magic effects:
     INDX = The Effect ID (4 bytes, long)
@@ -2613,7 +2605,7 @@ bool ReadMGEF(std::ifstream& in_File)
       Note (Thoronador):
         sequence of the (at least) last four optional sub records can vary.*/
 
-  long int SubRecName, SubLength;
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
 
   //read INDX
@@ -2765,14 +2757,14 @@ bool ReadMGEF(std::ifstream& in_File)
   in_File.seekg(-4, std::ios::cur);
   return in_File.good();
 }//ReadMGEF
-
-
+*/
+/*
 bool ReadMISC(std::ifstream& in_File)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
 
   /*Misc. Items:
     Misc Items
@@ -2788,7 +2780,7 @@ bool ReadMISC(std::ifstream& in_File)
     SCRI = script ID string (optional)
   */
 
-  long int SubRecName, SubLength;
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
 
   //read NAME
@@ -2878,14 +2870,14 @@ bool ReadMISC(std::ifstream& in_File)
   in_File.seekg(-4, std::ios::cur);
   return in_File.good();
 }//ReadMISC
-
-
+*/
+/*
 bool ReadPGRD(std::ifstream& in_File)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
 
   /*Path Grid:
     DATA = (unknown data, length seems to be 12 bytes, always)
@@ -2893,7 +2885,7 @@ bool ReadPGRD(std::ifstream& in_File)
     PGRP = unknown data (path grid points?)
     PGRC = unknown data (length: ?) */
 
-  long int SubRecName, SubLength;
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
 
   //read DATA
@@ -2942,14 +2934,14 @@ bool ReadPGRD(std::ifstream& in_File)
 
   return in_File.good();
 }//ReadPGRD
-
-
+*/
+/*
 bool ReadPROB(std::ifstream& in_File, const long int FileSize)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
 
   /*Probe Item:
     NAME = Item ID, required
@@ -2963,7 +2955,7 @@ bool ReadPROB(std::ifstream& in_File, const long int FileSize)
     ITEX = Inventory Icon
     SCRI = Script Name (optional) */
 
-  long int SubRecName, SubLength;
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
 
   //read NAME
@@ -3046,14 +3038,14 @@ bool ReadPROB(std::ifstream& in_File, const long int FileSize)
   }
   return in_File.good();
 }//ReadPROB
-
-
+*/
+/*
 bool ReadRACE(std::ifstream& in_File)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
   /*Race Definition:
     NAME = Race ID string
     FNAM = Race name string
@@ -3075,7 +3067,7 @@ bool ReadRACE(std::ifstream& in_File)
     NPCS = Special power/ability name string (32 bytes), multiple
     DESC = Race description */
 
-  long int SubRecName, SubLength;
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
 
   //read NAME
@@ -3148,14 +3140,14 @@ bool ReadRACE(std::ifstream& in_File)
 
   return in_File.good();
 }//ReadRACE
-
-
+*/
+/*
 bool ReadREGN(std::ifstream& in_File)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
   /*Regions:
     NAME = Region ID string
     FNAM = Region name string
@@ -3179,7 +3171,7 @@ bool ReadREGN(std::ifstream& in_File)
         byte Chance
         Multiple records with the order determining the sound priority */
 
-  long int SubRecName, SubLength;
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
 
   //read NAME
@@ -3267,14 +3259,14 @@ bool ReadREGN(std::ifstream& in_File)
   in_File.seekg(-4, std::ios::cur);
   return in_File.good();
 }//ReadREGN
-
-
+*/
+/*
 bool ReadREPA(std::ifstream& in_File, const long int FileSize)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
 
   /*Repair Item:
     NAME = Item ID, required
@@ -3288,7 +3280,7 @@ bool ReadREPA(std::ifstream& in_File, const long int FileSize)
     ITEX = Inventory Icon
     SCRI = Script Name (optional) */
 
-  long int SubRecName, SubLength;
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
 
   //read NAME
@@ -3372,14 +3364,14 @@ bool ReadREPA(std::ifstream& in_File, const long int FileSize)
   }
   return in_File.good();
 }//ReadREPA
-
-
+*/
+/*
 bool ReadSCPT(std::ifstream& in_File)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
 
   /*Script:
     SCHD = Script Header (52 bytes)
@@ -3395,7 +3387,7 @@ bool ReadSCPT(std::ifstream& in_File)
       Note (thoronador): SCVR may not be present at all, if there are no local
           vars. Moreover, SCVR, SCDT and SCTX can occur in any order.*/
 
-  long int SubRecName, SubLength;
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
 
   //read SCHD
@@ -3444,14 +3436,14 @@ bool ReadSCPT(std::ifstream& in_File)
   in_File.seekg(-4, std::ios::cur);
   return in_File.good();
 }//ReadSCPT
-
-
+*/
+/*
 bool ReadSKIL(std::ifstream& in_File)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
 
   /*Skills:
     INDX = Skill ID (4 bytes, long)
@@ -3462,7 +3454,7 @@ bool ReadSKIL(std::ifstream& in_File)
         float UseValue[4] (The use types for each skill are hard-coded.)
     DESC = Skill description string */
 
-  long int SubRecName, SubLength;
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
 
   //read INDX
@@ -3512,14 +3504,14 @@ bool ReadSKIL(std::ifstream& in_File)
 
   return in_File.good();
 }//ReadSKIL
-
-
+*/
+/*
 bool ReadSNDG(std::ifstream& in_File)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
 
   /*Sound Generator:
     NAME = Name? (DEFAULT0001, ALIT0001, etc...)
@@ -3529,7 +3521,7 @@ bool ReadSNDG(std::ifstream& in_File)
     CNAM = Creature name (optional)
     SNAM = Sound ID string */
 
-  long int SubRecName, SubLength;
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
 
   //read NAME
@@ -3583,14 +3575,14 @@ bool ReadSNDG(std::ifstream& in_File)
 
   return in_File.good();
 }//ReadSNDG
-
-
+*/
+/*
 bool ReadSOUN(std::ifstream& in_File)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
 
   /*Sound:
     NAME = Sound ID
@@ -3600,7 +3592,7 @@ bool ReadSOUN(std::ifstream& in_File)
         byte MinRange
         byte MaxRange*/
 
-  long int SubRecName, SubLength;
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
 
   //read NAME
@@ -3644,14 +3636,14 @@ bool ReadSOUN(std::ifstream& in_File)
 
   return in_File.good();
 }//ReadSOUN
-
-
+*/
+/*
 bool ReadSPEL(std::ifstream& in_File)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
 
   /*Spell:
     NAME = Spell ID
@@ -3662,7 +3654,7 @@ bool ReadSPEL(std::ifstream& in_File)
         long Flags (0x0001 = AutoCalc,0x0002 = PC Start,0x0004 = Always Succeeds)
     ENAM = Enchantment data (24 bytes, 0 to 8) */
 
-  long int SubRecName, SubLength;
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
 
   //read NAME
@@ -3725,20 +3717,20 @@ bool ReadSPEL(std::ifstream& in_File)
   in_File.seekg(-4, std::ios::cur);
   return in_File.good();
 }//ReadSPEL
-
-
+*/
+/*
 bool ReadSSCR(std::ifstream& in_File)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
 
   /*Start Script(?): (no documentation known)
     DATA = ? (a sequence of digits)
     NAME = ID string*/
 
-  long int SubRecName, SubLength;
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
 
   //read DATA
@@ -3766,19 +3758,20 @@ bool ReadSSCR(std::ifstream& in_File)
 
   return in_File.good();
 }//ReadSSCR
-
+*/
+/*
 bool ReadSTAT(std::ifstream& in_File)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
 
   /*Static:
     NAME = ID string
     MODL = NIF model*/
 
-  long int SubRecName, SubLength;
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
 
   //read NAME
@@ -3807,14 +3800,14 @@ bool ReadSTAT(std::ifstream& in_File)
 
   return in_File.good();
 }//ReadSTAT
-
-
+*/
+/*
 bool ReadWEAP(std::ifstream& in_File, const long int FileSize)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
   in_File.read((char*) &HeaderOne, 4);
-  in_File.read((char*) &Flags, 4);
+  in_File.read((char*) &Flags, 4);*/
 
   /*Weapons:
     NAME = item ID, required
@@ -3842,7 +3835,7 @@ bool ReadWEAP(std::ifstream& in_File, const long int FileSize)
     ENAM = Enchantment ID string (optional)
     SCRI = script ID string (optional) */
 
-  long int SubRecName, SubLength;
+  /*long int SubRecName, SubLength;
   SubRecName = SubLength = 0;
 
   //read NAME
@@ -3937,7 +3930,7 @@ bool ReadWEAP(std::ifstream& in_File, const long int FileSize)
   }
   return in_File.good();
 }//ReadWEAP
-
+*/
 
 bool SkipRecord(std::ifstream& in_File)
 {

@@ -25,6 +25,13 @@ int main()
     std::cout << "Error: could not open file \""<<ESP_File<<"\".\n";
     return 0;
   }
+  test_in.close();
+
+  if (ESP_File == Dusk_File)
+  {
+    std::cout << "Error: ESP file and destination file are the same. Aborting.\n";
+    return 0;
+  }
 
   std::cout << "Scaning file \""<<ESP_File<<"\" for landscape records.\n";
   if (ScanESP(ESP_File, Dusk_File))

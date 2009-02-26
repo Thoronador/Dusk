@@ -25,6 +25,7 @@ LandscapeRecord::LandscapeRecord()
   #endif
   OffsetX = 0.0;
   OffsetY = 0.0;
+  Stride = cDefaultStride;
   Highest = 0.0;
   Lowest = 0.0;
 }
@@ -159,6 +160,11 @@ bool LandscapeRecord::SaveToStream(std::ofstream *AStream)
 bool LandscapeRecord::IsLoaded()
 {
   return m_Loaded;
+}
+
+void LandscapeRecord::SetLoadedState(const bool value)
+{
+  m_Loaded = value;
 }
 
 bool LandscapeRecord::Shift(const float delta)

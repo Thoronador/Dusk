@@ -43,9 +43,13 @@ namespace Dusk
       unsigned char Colour[65][65][3]; //colour of the land in RGB-byte values
       //not part of actual data, but calculated during loading process
       float Highest, Lowest;
+      //load and save functions
       bool LoadFromStream(std::ifstream *AStream);
       bool SaveToStream(std::ofstream *AStream);
+      //function for determining whether data is loaded or not
       bool IsLoaded();
+      //mainpulate loading state directly, use with care, or better: not at all
+      void SetLoadedState(const bool value);
       //manipulating landscape data
       bool Shift(const float delta);
       bool Scale(const float factor);
