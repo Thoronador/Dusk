@@ -22,20 +22,24 @@ const long int cBKDT = 0x54444B42; //"BKDT" = 42 4B 44 54
 const long int cBNAM = 0x4D414E42; //"BNAM" = 42 4E 41 4D
 const long int cBODY = 0x59444F42; //"BODY" = 42 4F 44 59
 const long int cBOOK = 0x4B4F4F42; //"BOOK" = 42 4F 4F 4B
+const long int cBSGN = 0x4E475342; //"BSGN" = 42 53 47 4E
 const long int cBSND = 0x444E5342; //"BSND" = 42 53 4E 44
 const long int cBYDT = 0x54445942; //"BYDT" = 42 59 44 54
 const long int cBVFX = 0x58465642; //"BVFX" = 42 56 46 58
+const long int cCELL = 0x4C4C4543; //"CELL" = 43 45 4C 4C
 const long int cCLAS = 0x53414C43; //"CLAS" = 43 4C 41 53
 const long int cCLDT = 0x54444C43; //"CLDT" = 43 4C 44 54
 const long int cCLOT = 0x544F4C43; //"CLOT" = 43 4C 4F 54
 const long int cCNAM = 0x4D414E43; //"CNAM" = 43 4E 41 4D
 const long int cCNDT = 0x54444E43; //"CNDT" = 43 4E 44 54
 const long int cCONT = 0x544E4F43; //"CONT" = 43 4F 4E 54
+const long int cCREA = 0x41455243; //"CREA" = 43 52 45 41
 const long int cCSND = 0x444E5343; //"CSND" = 43 53 4E 44
 const long int cCTDT = 0x54445443; //"CTDT" = 43 54 44 54
 const long int cCVFX = 0x58465643; //"CVFX" = 43 56 46 58
 const long int cDATA = 0x41544144; //"DATA" = 44 41 54 41
 const long int cDESC = 0x43534544; //"DESC" = 44 45 53 43
+const long int cDIAL = 0x4C414944; //"DIAL" = 44 49 41 4C
 const long int cDOOR = 0x524F4F44; //"DOOR" = 44 4F 4F 52
 const long int cENAM = 0x4D414E45; //"ENAM" = 45 4E 41 4D
 const long int cENCH = 0x48434E45; //"ENCH" = 45 4E 43 48
@@ -50,11 +54,14 @@ const long int cGMST = 0x54534D47; //"GMST" = 47 4D 53 54
 const long int cHSND = 0x444E5348; //"HSND" = 48 53 4E 44
 const long int cHVFX = 0x58465648; //"HVFX" = 48 56 46 58
 const long int cINDX = 0x58444E49; //"INDX" = 49 4E 44 58
+const long int cINFO = 0x4F464E49; //"INFO" = 49 4E 46 4F
 const long int cINGR = 0x52474E49; //"INGR" = 49 4E 47 52
 const long int cINTV = 0x56544E49; //"INTV" = 49 4E 54 56
 const long int cIRDT = 0x54445249; //"IRDT" = 49 52 44 54
 const long int cITEX = 0x58455449; //"ITEX" = 49 54 45 58
 const long int cLAND = 0x444E414C; //"LAND" = 4C 41 4E 44
+const long int cLEVC = 0x4356454C; //"LEVC" = 4C 45 56 43
+const long int cLEVI = 0x4956454C; //"LEVI" = 4C 45 56 49
 const long int cLHDT = 0x5444484C; //"LHDT" = 4C 48 44 54
 const long int cLIGH = 0x4847494C; //"LIGH" = 4C 49 47 48
 const long int cLKDT = 0x54444B4C; //"LKDT" = 4C 4B 44 54
@@ -68,6 +75,7 @@ const long int cMODL = 0x4C444F4D; //"MODL" = 4D 4F 44 4C
 const long int cNAME = 0x454D414E; //"NAME" = 4E 41 4D 45
 const long int cNPCO = 0x4F43504E; //"NPCO" = 4E 50 43 4F
 const long int cNPCS = 0x5343504E; //"NPCS" = 4E 50 43 53
+const long int cNPC_ = 0x5F43504E; //"NPC_" = 4E 50 43 5F
 const long int cPBDT = 0x54444250; //"PBDT" = 50 42 44 54
 const long int cPGRC = 0x43524750; //"PGRC" = 50 47 52 43
 const long int cPGRD = 0x44524750; //"PGRD" = 50 47 52 44
@@ -125,6 +133,7 @@ bool ReadBOOK(std::ifstream& in_File);
 bool ReadCLAS(std::ifstream& in_File, const long int FileSize);
 bool ReadCLOT(std::ifstream& in_File, const long int FileSize);
 bool ReadCONT(std::ifstream& in_File, const long int FileSize);
+bool ReadCREA(std::ifstream& in_File);
 bool ReadDOOR(std::ifstream& in_File);
 bool ReadENCH(std::ifstream& in_File, const long int FileSize);
 bool ReadFACT(std::ifstream& in_File);
@@ -150,6 +159,7 @@ bool ReadSPEL(std::ifstream& in_File);
 bool ReadSSCR(std::ifstream& in_File);
 bool ReadSTAT(std::ifstream& in_File);
 bool ReadWEAP(std::ifstream& in_File, const long int FileSize);
+bool SkipRecord(std::ifstream& in_File);
 
 
 bool ScanESP(const std::string& FileName, const std::string& DuskFileName)
@@ -346,12 +356,18 @@ bool ProcessNextRecord(std::ifstream& in_File, const std::string& DuskFileName, 
          Success = ReadBODY(in_File); break;
     case cBOOK:
          Success = ReadBOOK(in_File); break;
+    case cBSGN:
+    case cCELL:
+         Success = SkipRecord(in_File); break;
     case cCLAS:
          Success = ReadCLAS(in_File, FileSize); break;
     case cCLOT:
          Success = ReadCLOT(in_File, FileSize); break;
     case cCONT:
          Success = ReadCONT(in_File, FileSize); break;
+    case cCREA:
+    case cDIAL:
+         Success = SkipRecord(in_File); break;
     case cDOOR:
          Success = ReadDOOR(in_File); break;
     case cENCH:
@@ -362,10 +378,15 @@ bool ProcessNextRecord(std::ifstream& in_File, const std::string& DuskFileName, 
          Success = ReadGLOB(in_File); break;
     case cGMST:
          Success = ReadGMST(in_File, FileSize); break;
+    case cINFO:
+         Success = SkipRecord(in_File); break;
     case cINGR:
          Success = ReadINGR(in_File, FileSize); break;
     case cLAND:
          Success = ReadLAND(in_File, DuskFileName); break;
+    case cLEVC:
+    case cLEVI:
+         Success = SkipRecord(in_File);
     case cLIGH:
          Success = ReadLIGH(in_File, FileSize); break;
     case cLOCK:
@@ -376,6 +397,8 @@ bool ProcessNextRecord(std::ifstream& in_File, const std::string& DuskFileName, 
          Success = ReadMGEF(in_File); break;
     case cMISC:
          Success = ReadMISC(in_File); break;
+    case cNPC_:
+         Success = SkipRecord(in_File); break;
     case cPGRD:
          Success = ReadPGRD(in_File); break;
     case cPROB:
@@ -1390,6 +1413,7 @@ bool ReadCONT(std::ifstream& in_File, const long int FileSize)
         float Weight
     FLAG = Container flags (4 bytes, bit-field)
         (0x0001=Organic;0x0002=Respawns, organic only;0x0008=Default, unknown)
+    SCRI = script name (optional)
     NPCO = An item record (36 bytes, 0+ times)
         long	Count	  Number of the item
         char	Name[32]  The ID of the item */
@@ -1464,6 +1488,19 @@ bool ReadCONT(std::ifstream& in_File, const long int FileSize)
   }
   in_File.seekg(4, std::ios::cur); //skip flags
 
+  //read optional SCRI
+  in_File.read((char*) &SubRecName, 4);
+  if (SubRecName==cSCRI)
+  {
+    //SCRI's length
+    in_File.read((char*) &SubLength, 4);
+    in_File.seekg(SubLength, std::ios::cur); //skip container script
+  }
+  else
+  { //seek four bytes towards beginning to land before next record name
+    in_File.seekg(-4, std::ios::cur);
+  }
+
   //"init" SubRecName to be not cNPCO
   SubRecName = 0;
   //read multiple NPCO sub-records
@@ -1494,6 +1531,7 @@ bool ReadCONT(std::ifstream& in_File, const long int FileSize)
     //seek 4 bytes towards beginning to land before next record name
     in_File.seekg(-4, std::ios::cur);
   }
+
   return in_File.good();
 }//ReadCONT
 
@@ -3899,3 +3937,18 @@ bool ReadWEAP(std::ifstream& in_File, const long int FileSize)
   }
   return in_File.good();
 }//ReadWEAP
+
+
+bool SkipRecord(std::ifstream& in_File)
+{
+  long int Size, HeaderOne, Flags;
+  Size = 0;
+  in_File.read((char*) &Size, 4);
+  in_File.read((char*) &HeaderOne, 4);
+  in_File.read((char*) &Flags, 4);
+
+  /* data does not really matter here */
+
+  in_File.seekg(Size, std::ios::cur);
+  return in_File.good();
+}//SkipRecord
