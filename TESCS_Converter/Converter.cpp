@@ -121,7 +121,7 @@ std::string IntTo4Char(const long int value);
 void UnexpectedRecord(const long int expected, const long int unexpected);
 
 //"dispatcher"
-bool ProcessNextRecord(std::ifstream& in_File, const std::string& DuskFileName, const int FileSize);
+bool ProcessNextRecord(std::ifstream& in_File, std::fstream* DuskOut, const int FileSize);
 
 //routines for reading/ skipping different records
 /*bool ReadACTI(std::ifstream& in_File, const long int FileSize);
@@ -140,7 +140,7 @@ bool ReadFACT(std::ifstream& in_File);
 bool ReadGLOB(std::ifstream& in_File);
 bool ReadGMST(std::ifstream& in_File, const long int FileSize);
 bool ReadINGR(std::ifstream& in_File, const long int FileSize);*/
-bool ReadLAND(std::ifstream& in_File, const std::string& DuskFile);
+bool ReadLAND(std::ifstream& in_File, std::fstream* DuskOut);
 /*bool ReadLIGH(std::ifstream& in_File, const long int FileSize);
 bool ReadLOCK(std::ifstream& in_File, const long int FileSize);
 bool ReadLTEX(std::ifstream& in_File);
@@ -313,27 +313,47 @@ bool ScanESP(const std::string& FileName, const std::string& DuskFileName)
   // name of the next record
   input.seekg(-4, std::ios::cur);
 
+
+  std::fstream DuskOutput;
+  DuskOutput.open(DuskFileName.c_str(), std::ios::out | std::ios::in | std::ios::binary | std::ios::trunc);
+  if(!DuskOutput)
+  {
+    std::cout << "ScanLAND: Could not create file \""<<DuskFileName
+              << "\" for reading/writing in binary mode.\n";
+    return false;
+  }//if
+
+  //write header "Dusk"
+  long unsigned int i;
+
+  DuskOutput.write("Dusk", 4);
+  i = 0;
+  DuskOutput.write((char*) &i, sizeof(unsigned int));
+
+
   bool Go_on_processing = input.good();
   unsigned int Processed_Records = 0;
   //now read all the records
   while (Go_on_processing)
   {
-    Go_on_processing = ProcessNextRecord(input, DuskFileName, FileSize);
+    Go_on_processing = ProcessNextRecord(input, &DuskOutput, FileSize);
     Processed_Records++;
     if (input.tellg()>=FileSize)
     {
       Go_on_processing = false;
     }
   }
+
   std::cout << "Number of processed and/or skipped records (including possible failures): "
             <<Processed_Records<<"\n"
             << "Current file position: "<<input.tellg()<< " bytes.\n";
   //end
   input.close();
+  DuskOutput.close();
   return false;
 }
 
-bool ProcessNextRecord(std::ifstream& in_File, const std::string& DuskFileName, const int FileSize)
+bool ProcessNextRecord(std::ifstream& in_File, std::fstream* DuskOut, const int FileSize)
 {
   long int RecordName; //normally should be 4 char, but char is not eligible for switch
   RecordName = 0;
@@ -366,7 +386,7 @@ bool ProcessNextRecord(std::ifstream& in_File, const std::string& DuskFileName, 
     case cINGR:
          Success = SkipRecord(in_File); break;
     case cLAND:
-         Success = ReadLAND(in_File, DuskFileName); break;
+         Success = ReadLAND(in_File, DuskOut); break;
     case cLEVC:
     case cLEVI:
     case cLIGH:
@@ -2037,7 +2057,7 @@ bool ReadINGR(std::ifstream& in_File, const long int FileSize)
 }//ReadINGR
 */
 
-bool ReadLAND(std::ifstream& in_File, const std::string& DuskFile)
+bool ReadLAND(std::ifstream& in_File, std::fstream* DuskOut)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
@@ -2162,19 +2182,16 @@ bool ReadLAND(std::ifstream& in_File, const std::string& DuskFile)
   //data vars
   char MW_Height[65][65];
   float HeightOffset = 0.0f;
-  std::cout << "Debug: initialising memory for structure MW_Height.\n";
   memset(MW_Height, '\0', 65*65);
   //read height offset
   in_File.read((char*) &HeightOffset, 4);
   //skip Unknown1
   in_File.seekg(1, std::ios::cur);
   //read height data
-  std::cout << "Debug: reading content of VHGT.\n";
   in_File.read(&MW_Height[0][0], 65*65);
   std::cout << "Debug: read operation finished. "<< in_File.gcount() <<" of "<<65*65<<" bytes were read.\n";
   //skip Unknown2
   in_File.seekg(2, std::ios::cur);
-  std::cout << "Debug: read operation (and skip of two bytes) successful.\n";
 
   //read WNAM
   in_File.read((char*) &SubRecName, 4);
@@ -2195,7 +2212,6 @@ bool ReadLAND(std::ifstream& in_File, const std::string& DuskFile)
 
   //data var
   char MW_Colour[65][65][3];
-  std::cout << "Debug: initialising memory for structure MW_Colour.\n";
   memset(MW_Colour, 255, 65*65*3);
 
   //read optional VCLR
@@ -2264,23 +2280,20 @@ bool ReadLAND(std::ifstream& in_File, const std::string& DuskFile)
   DuskLand.SetLoadedState(true);
   std::cout << "Debug: conversion finished.\n";
 
-  std::ofstream DuskOutput;
-  DuskOutput.open(DuskFile.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
-  if(!DuskOutput)
-  {
-    std::cout << "ReadLAND: Could not create file \""<<DuskFile
-              << "\" for writing in binary mode.\n";
-    return false;
-  }//if
 
-  //write header "Dusk"
-  DuskOutput.write("Dusk", 4);
-  i = 1;
-  DuskOutput.write((char*) &i, sizeof(unsigned int));
-  DuskLand.SaveToStream(&DuskOutput);
-  DuskOutput.close();
-  std::cout << "Debug: write operation to file \""<<DuskFile<<"\" finished.\n";
-  return in_File.good();
+  i = 0;
+  //read current count
+  DuskOut->seekg(4, std::ios::beg);
+  DuskOut->read((char*) &i, 4);
+  //write data
+  DuskOut->seekp(0, std::ios::end);
+  DuskLand.SaveToStream((std::ofstream*) DuskOut);
+  //write new count
+  i = i+1;
+  DuskOut->seekp(4, std::ios::beg);
+  DuskOut->write((char*) &i, 4);
+
+  return in_File.good() and DuskOut->good();
 }//ReadLAND
 
 /*
