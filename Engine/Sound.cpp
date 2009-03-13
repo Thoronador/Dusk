@@ -2277,7 +2277,7 @@ bool Sound::Detach(const std::string NoiseIdentifier)
   }//for
   //noise
   noise_ptr->attachedMedia = NULL;
-  return false;
+  return true;
 }
 
 bool Sound::PlayNoise(const std::string NoiseIdentifier)
