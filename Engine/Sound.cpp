@@ -1910,7 +1910,7 @@ bool Sound::CreateOggMedia(const std::string MediaIdentifier, const std::string 
   }
   else
   {
-    format = AL_FORMAT_STEREO8;
+    format = AL_FORMAT_MONO16;
   }
 
   //create new media and initialise its values
