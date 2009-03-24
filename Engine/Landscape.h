@@ -80,6 +80,8 @@ namespace Dusk
       //load and save (all) records from/to file
       bool LoadFromFile(const std::string FileName);
       bool SaveToFile(const std::string FileName);
+      LandscapeRecord* CreateRecord();
+      void DestroyRecord(const LandscapeRecord* recPtr);
       unsigned int RecordsAvailable();
       LandscapeRecord* GetRecord(const unsigned int record);
       #ifndef NO_OGRE_IN_LANDSCAPE
@@ -87,13 +89,14 @@ namespace Dusk
       bool SendToEngine();
       #endif
       //for collision detection
-      float GetHeigtAtPosition(const float x, const float y) const;
+      float GetHeightAtPosition(const float x, const float y) const;
     private:
       Landscape();
       Landscape(const Landscape& op){}
+      void Landscape::ChangeListSize(const unsigned int new_size);
 
-      LandscapeRecord * m_RecordList;
-      unsigned int m_numRec;
+      LandscapeRecord ** m_RecordList;
+      unsigned int m_numRec, m_Capacity;
   };
 }
 

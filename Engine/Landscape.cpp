@@ -231,7 +231,7 @@ bool LandscapeRecord::SendDataToEngine()
 {
   if (!m_Loaded)
   {
-    std::cout << "LandscapeRecord::SendDataToEngine: ERROR: REcord has no valid data (yet).\n";
+    std::cout << "LandscapeRecord::SendDataToEngine: ERROR: Record has no valid data (yet).\n";
     return false;
   }
 
@@ -342,6 +342,7 @@ Landscape::Landscape()
   //empty
   m_RecordList = NULL;
   m_numRec = 0;
+  m_Capacity = 0;
   //m_ObjectList = NULL;
   //m_numObj = 0;
 }
@@ -359,7 +360,7 @@ Landscape& Landscape::GetSingleton()
 
 bool Landscape::LoadFromFile(const std::string FileName)
 {
-  if (m_RecordList!=NULL)
+  if (m_numRec!=0)
   {
     std::cout << "Landscape::LoadFromFile: Landscape data is already present.\n";
     return false;
@@ -404,19 +405,22 @@ bool Landscape::LoadFromFile(const std::string FileName)
     return false;
   }
 
-  m_RecordList = new LandscapeRecord[numRecords];
-  m_numRec = numRecords;
+  //m_RecordList = new LandscapeRecord[numRecords];
+  //m_numRec = numRecords;
+  ChangeListSize(numRecords);
 
   //read loop
   for (i=0; i<numRecords; i=i+1)
   {
-    if (!m_RecordList[i].LoadFromStream(&input))
+    LandscapeRecord* tr = CreateRecord();
+    if (!tr->LoadFromStream(&input))
     {
       std::cout << "Landscape::LoadFromFile: File \""<<FileName<< "\" has "
-                << "invalid record data.\n";
-      delete[] m_RecordList;
-      m_RecordList= NULL;
-      m_numRec = 0;
+                << "invalid record data. Clearing loaded data.\n";
+      //delete[] m_RecordList;
+      //m_RecordList= NULL;
+      //m_numRec = 0;
+      ChangeListSize(0);
       input.close();
       return false;
     }
@@ -427,7 +431,7 @@ bool Landscape::LoadFromFile(const std::string FileName)
 
 bool Landscape::SaveToFile(const std::string FileName)
 {
-  if (m_RecordList==NULL)
+  if (m_numRec==0)
   {
     std::cout << "Landscape::SaveToFile: No Landscape data is present.\n";
     return false;
@@ -451,7 +455,7 @@ bool Landscape::SaveToFile(const std::string FileName)
 
   for (i=0; i<m_numRec; i=i+1)
   {
-    if (!m_RecordList[i].SaveToStream(&output))
+    if (!m_RecordList[i]->SaveToStream(&output))
     {
       std::cout << "Landscape::SaveToFile: Error while writing record "<<i+1
                 << " to file \"" <<FileName<<"\".\n";
@@ -462,6 +466,86 @@ bool Landscape::SaveToFile(const std::string FileName)
   output.close();
   return true;
 }//SaveToFile
+
+void Landscape::ChangeListSize(const unsigned int new_size)
+{
+  LandscapeRecord ** new_list;
+  LandscapeRecord ** temp_list;
+  unsigned int i, copy_count;
+  
+  //allocate new list
+  new_list = new LandscapeRecord*[new_size];
+  //copy existing pointers
+  copy_count = m_numRec;
+  if (new_size<m_numRec)
+  {
+    copy_count = new_size;
+    //delete unwanted records
+    for (i=new_size; i<m_numRec; i++)
+    {
+      delete m_RecordList[i];
+    }
+  }//if
+  
+  for (i=0; i<m_numRec; i++)
+  {
+    new_list[i] = m_RecordList[i];
+  }//for
+  //nullify new pointers
+  for (i=m_numRec; i<new_size; i++)
+  {
+    new_list[i] = NULL;
+  }//for
+  temp_list = m_RecordList;
+  m_RecordList = new_list;
+  delete [] temp_list;
+  m_Capacity = new_size;
+}//ChangeListSize
+
+LandscapeRecord* Landscape::CreateRecord()
+{
+  //check for insufficient list length
+  if (m_numRec == m_Capacity)
+  {
+    //allocate new memory
+    if (m_Capacity<500)
+    {
+      ChangeListSize(m_Capacity*2+1);
+    }//if
+    else
+    {
+      ChangeListSize(m_Capacity+100);
+    }
+  }//if
+  
+  m_RecordList[m_numRec] = new LandscapeRecord;
+  m_numRec = m_numRec +1;
+  return m_RecordList[m_numRec-1];
+}
+
+void Landscape::DestroyRecord(const LandscapeRecord* recPtr)
+{
+  //far from optimal :(
+  if (recPtr==NULL)
+  {
+    return;
+  }
+  
+  unsigned int i;
+  
+  for (i=0; i<m_numRec; i++)
+  {
+    if (recPtr==m_RecordList[i])
+    {
+      delete m_RecordList[i];
+      //fill space with last record
+      m_RecordList[i] = m_RecordList[m_numRec-1];
+      m_RecordList[m_numRec-1] = NULL;
+      m_numRec = m_numRec-1;
+      return;
+    }//if
+  }//for
+}//DestroyRecord
 
 unsigned int Landscape::RecordsAvailable()
 {
@@ -474,7 +558,7 @@ LandscapeRecord* Landscape::GetRecord(const unsigned int record)
   {
     return NULL;
   }
-  return &m_RecordList[record];
+  return m_RecordList[record];
 }
 
 #ifndef NO_OGRE_IN_LANDSCAPE
@@ -501,37 +585,33 @@ bool Landscape::SendToEngine()
 
   for (i=0; i<m_numRec; i++)
   {
-    m_RecordList[i].SendDataToEngine();
+    m_RecordList[i]->SendDataToEngine();
   }//for
   return true;
 }
 #endif //ifndef NO_OGRE_IN_LANDSCAPE
 
-float Landscape::GetHeigtAtPosition(const float x, const float y) const
+float Landscape::GetHeightAtPosition(const float x, const float y) const
 {
-  if (m_RecordList == NULL)
+  if (m_numRec == 0)
   {
     return 0.0;
   }
   unsigned int i, x_idx, y_idx;
   for(i=0; i<m_numRec; i++)
   {
-    if ((x>=m_RecordList[i].OffsetX) && (x<=m_RecordList[i].OffsetX+64*cDefaultStride)
-       &&(y>=m_RecordList[i].OffsetY) && (y<=m_RecordList[i].OffsetY+64*cDefaultStride))
+    if ((x>=m_RecordList[i]->OffsetX) && (x<=m_RecordList[i]->OffsetX+64*cDefaultStride)
+       &&(y>=m_RecordList[i]->OffsetY) && (y<=m_RecordList[i]->OffsetY+64*cDefaultStride))
     {
       //got it
       //not implemented exactly yet, but at least we have a return value which
       // is somewhat near the real value
-      x_idx = (x-m_RecordList[i].OffsetX)/cDefaultStride;
-      y_idx = (y-m_RecordList[i].OffsetY)/cDefaultStride;
-      return m_RecordList[i].Height[x_idx][y_idx];
+      x_idx = (x-m_RecordList[i]->OffsetX)/cDefaultStride;
+      y_idx = (y-m_RecordList[i]->OffsetY)/cDefaultStride;
+      return m_RecordList[i]->Height[x_idx][y_idx];
     }//if
   }//for
   return 0.0;
 }
 
-/*to do:
--sending data to Ogre via Ogre::ManualObject
- (Maybe NURBS would be better, but what's Ogre's class/function for that?)
-*/
 } //namespace
