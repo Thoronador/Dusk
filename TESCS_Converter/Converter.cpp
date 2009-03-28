@@ -121,7 +121,7 @@ std::string IntTo4Char(const long int value);
 void UnexpectedRecord(const long int expected, const long int unexpected);
 
 //"dispatcher"
-bool ProcessNextRecord(std::ifstream& in_File, std::fstream* DuskOut, const int FileSize);
+bool ProcessNextRecord(std::ifstream& in_File, const int FileSize);
 
 //routines for reading/ skipping different records
 /*bool ReadACTI(std::ifstream& in_File, const long int FileSize);
@@ -140,7 +140,7 @@ bool ReadFACT(std::ifstream& in_File);
 bool ReadGLOB(std::ifstream& in_File);
 bool ReadGMST(std::ifstream& in_File, const long int FileSize);
 bool ReadINGR(std::ifstream& in_File, const long int FileSize);*/
-bool ReadLAND(std::ifstream& in_File, std::fstream* DuskOut);
+bool ReadLAND(std::ifstream& in_File);
 /*bool ReadLIGH(std::ifstream& in_File, const long int FileSize);
 bool ReadLOCK(std::ifstream& in_File, const long int FileSize);
 bool ReadLTEX(std::ifstream& in_File);
@@ -313,30 +313,12 @@ bool ScanESP(const std::string& FileName, const std::string& DuskFileName)
   // name of the next record
   input.seekg(-4, std::ios::cur);
 
-
-  std::fstream DuskOutput;
-  DuskOutput.open(DuskFileName.c_str(), std::ios::out | std::ios::in | std::ios::binary | std::ios::trunc);
-  if(!DuskOutput)
-  {
-    std::cout << "ScanLAND: Could not create file \""<<DuskFileName
-              << "\" for reading/writing in binary mode.\n";
-    return false;
-  }//if
-
-  //write header "Dusk"
-  long unsigned int i;
-
-  DuskOutput.write("Dusk", 4);
-  i = 0;
-  DuskOutput.write((char*) &i, sizeof(unsigned int));
-
-
   bool Go_on_processing = input.good();
   unsigned int Processed_Records = 0;
   //now read all the records
   while (Go_on_processing)
   {
-    Go_on_processing = ProcessNextRecord(input, &DuskOutput, FileSize);
+    Go_on_processing = ProcessNextRecord(input, FileSize);
     Processed_Records++;
     if (input.tellg()>=FileSize)
     {
@@ -349,11 +331,12 @@ bool ScanESP(const std::string& FileName, const std::string& DuskFileName)
             << "Current file position: "<<input.tellg()<< " bytes.\n";
   //end
   input.close();
-  DuskOutput.close();
-  return false;
+
+  //save data and return
+  return Dusk::Landscape::GetSingleton().SaveToFile(DuskFileName);
 }
 
-bool ProcessNextRecord(std::ifstream& in_File, std::fstream* DuskOut, const int FileSize)
+bool ProcessNextRecord(std::ifstream& in_File, const int FileSize)
 {
   long int RecordName; //normally should be 4 char, but char is not eligible for switch
   RecordName = 0;
@@ -386,7 +369,7 @@ bool ProcessNextRecord(std::ifstream& in_File, std::fstream* DuskOut, const int 
     case cINGR:
          Success = SkipRecord(in_File); break;
     case cLAND:
-         Success = ReadLAND(in_File, DuskOut); break;
+         Success = ReadLAND(in_File); break;
     case cLEVC:
     case cLEVI:
     case cLIGH:
@@ -2057,7 +2040,7 @@ bool ReadINGR(std::ifstream& in_File, const long int FileSize)
 }//ReadINGR
 */
 
-bool ReadLAND(std::ifstream& in_File, std::fstream* DuskOut)
+bool ReadLAND(std::ifstream& in_File)
 {
   long int Size, HeaderOne, Flags;
   in_File.read((char*) &Size, 4);
@@ -2238,7 +2221,7 @@ bool ReadLAND(std::ifstream& in_File, std::fstream* DuskOut)
     in_File.read((char*) &SubLength, 4);
     if (SubLength!=512)
     {
-      std::cout <<"Error: sub record VCLR of LAND has invalid length ("<<SubLength
+      std::cout <<"Error: sub record VTEX of LAND has invalid length ("<<SubLength
                 <<" bytes). Should be 512 bytes.\n";
       return false;
     }
@@ -2259,41 +2242,31 @@ bool ReadLAND(std::ifstream& in_File, std::fstream* DuskOut)
 
   std::cout << "Debug: Starting conversion to Dusk's format.\n";
 
-  Dusk::LandscapeRecord DuskLand;
+  Dusk::LandscapeRecord* DuskLand;
   unsigned int i,j;
+
+  //get new record from Landscape singleton
+  DuskLand = Dusk::Landscape::GetSingleton().CreateRecord();
 
   for (i=0; i<65; i++)
   {
     for (j=0; j<65; j++)
     {
       HeightOffset = HeightOffset + MW_Height[i][j];
-      DuskLand.Height[i][j] = HeightOffset;
+      DuskLand->Height[i][j] = HeightOffset;
 
-      DuskLand.Colour[i][j][0] = MW_Colour[i][j][0];
-      DuskLand.Colour[i][j][1] = MW_Colour[i][j][1];
-      DuskLand.Colour[i][j][2] = MW_Colour[i][j][2];
+      DuskLand->Colour[i][j][0] = MW_Colour[i][j][0];
+      DuskLand->Colour[i][j][1] = MW_Colour[i][j][1];
+      DuskLand->Colour[i][j][2] = MW_Colour[i][j][2];
     }//for j
   }//for i
-  DuskLand.Stride = Dusk::cDefaultStride;
-  DuskLand.OffsetX = Dusk::cDefaultStride * 64 * CellX;
-  DuskLand.OffsetY = Dusk::cDefaultStride * 64 * CellY;
-  DuskLand.SetLoadedState(true);
+  DuskLand->Stride = Dusk::cDefaultStride;
+  DuskLand->OffsetX = Dusk::cDefaultStride * 64 * CellX;
+  DuskLand->OffsetY = Dusk::cDefaultStride * 64 * CellY;
+  DuskLand->SetLoadedState(true);
   std::cout << "Debug: conversion finished.\n";
 
-
-  i = 0;
-  //read current count
-  DuskOut->seekg(4, std::ios::beg);
-  DuskOut->read((char*) &i, 4);
-  //write data
-  DuskOut->seekp(0, std::ios::end);
-  DuskLand.SaveToStream((std::ofstream*) DuskOut);
-  //write new count
-  i = i+1;
-  DuskOut->seekp(4, std::ios::beg);
-  DuskOut->write((char*) &i, 4);
-
-  return in_File.good() and DuskOut->good();
+  return in_File.good();
 }//ReadLAND
 
 /*
