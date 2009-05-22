@@ -93,7 +93,7 @@ namespace Dusk
     private:
       Landscape();
       Landscape(const Landscape& op){}
-      void Landscape::ChangeListSize(const unsigned int new_size);
+      void ChangeListSize(const unsigned int new_size);
 
       LandscapeRecord ** m_RecordList;
       unsigned int m_numRec, m_Capacity;
