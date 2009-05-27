@@ -932,7 +932,7 @@ bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, boo
   ov_open_callbacks = (P_ov_open_callbacks) dlsym(libHandleOV, "ov_open_callbacks");
   ov_pcm_total = (P_ov_pcm_total) dlsym(libHandleOV, "ov_pcm_total");
   ov_read = (P_ov_read) dlsym(libHandleOV, "ov_read");
-  ov_streams = (P_ov_streams) dlysm(libHandleOV, "ov_streams");
+  ov_streams = (P_ov_streams) dlsym(libHandleOV, "ov_streams");
   ov_time_total = (P_ov_time_total) dlsym(libHandleOV, "ov_time_total");
   #endif
   if (ov_clear == NULL)
