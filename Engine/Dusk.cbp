@@ -133,9 +133,9 @@
 		<Unit filename="InputSystem.h" />
 		<Unit filename="InputSystemBinding.h" />
 		<Unit filename="InputSystemEditor.h" />
-		<Unit filename="InputSytem.cpp" />
-		<Unit filename="InputSytemBinding.cpp" />
-		<Unit filename="InputSytemEditor.cpp" />
+		<Unit filename="InputSystem.cpp" />
+		<Unit filename="InputSystemBinding.cpp" />
+		<Unit filename="InputSystemEditor.cpp" />
 		<Unit filename="Landscape.cpp" />
 		<Unit filename="Landscape.h" />
 		<Unit filename="Scene.cpp" />
