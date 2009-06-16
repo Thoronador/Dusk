@@ -55,7 +55,6 @@ std::vector<std::string> Script::explodeCommands()
     }
 
     return pieces;
-
 }
 
 std::string Script::trim(std::string p_string)
@@ -63,24 +62,35 @@ std::string Script::trim(std::string p_string)
     int pos = -1;
     int look = 0;
     int size = p_string.size();
-    while (p_string.at(look) == ' ')
+    while (look<size)
     {
+      if (p_string.at(look) == ' ')
+      {
         pos = look;
-        look++;
-        if (look == size)
-            break;
-    }
+      }
+      else
+      {
+        break;
+      }
+      look++;
+    }//while
     if (pos > -1)
         p_string.erase(0, pos + 1);
 
     pos = - 1;
     look = p_string.size() - 1;
-    if (look >= 0)
-        while (p_string.at(look) == ' ')
-        {
-            pos = look;
-            look--;
-        }
+    while (look>=0)
+    {
+      if (p_string.at(look) == ' ')
+      {
+        pos = look;
+      }
+      else
+      {
+        break;
+      }
+      look--;
+    }//while
     if (pos > -1)
         p_string.erase(pos, p_string.size() - pos);
 
