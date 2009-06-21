@@ -143,6 +143,18 @@ int Console::executeCommand(std::string p_string)
             m_Dispatcher->executeCommand(com);
             std::cout << "to the right" << std::endl;
         }
+        else if (command[0] == "turn_left")
+        {
+            com = new CommandMove(TURN_LEFT);
+            m_Dispatcher->executeCommand(com);
+            std::cout << "Take a look to the left" << std::endl;
+        }
+        else if (command[0] == "turn_right")
+        {
+            com = new CommandMove(TURN_RIGHT);
+            m_Dispatcher->executeCommand(com);
+            std::cout << "Take a look to the right" << std::endl;
+        }
         else if (command[0] == "jump")
         {
             com = new CommandMove(UP);

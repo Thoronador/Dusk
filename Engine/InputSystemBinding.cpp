@@ -12,12 +12,16 @@ InputSystemBinding::InputSystemBinding()
     myBindListPress[OIS::KC_S] = Script("move_backward");
     myBindListPress[OIS::KC_A] = Script("step_left");
     myBindListPress[OIS::KC_D] = Script("step_right");
+    myBindListPress[OIS::KC_Q] = Script("turn_left");
+    myBindListPress[OIS::KC_E] = Script("turn_right");
     //myBindListPress[OIS::KC_SPACE] = Script("jump");
 
     myBindListRelease[OIS::KC_W] = Script("move_backward");
     myBindListRelease[OIS::KC_S] = Script("move_forward");
     myBindListRelease[OIS::KC_A] = Script("step_right");
     myBindListRelease[OIS::KC_D] = Script("step_left");
+    myBindListRelease[OIS::KC_Q] = Script("turn_right");
+    myBindListRelease[OIS::KC_E] = Script("turn_left");
 }
 
 InputSystemBinding::~InputSystemBinding()

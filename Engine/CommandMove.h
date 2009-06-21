@@ -21,6 +21,7 @@ namespace Dusk
         protected:
         private:
             static int moveConstant;
+            static const int rotateDPS;
             DIRECTION m_Direction;
 
     };
