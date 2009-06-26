@@ -10,6 +10,12 @@ namespace Dusk
 
   const std::string cLandNodeName = "LandscapeNode";
 
+unsigned int GenerateUniqueID()
+{
+  static unsigned int m_genID = 0;
+  return m_genID++;
+}
+
 //the Landscape record class
 // ++++
 // ++ Contains the (height and colour) data of the landscape chunks.
@@ -21,13 +27,13 @@ LandscapeRecord::LandscapeRecord()
   m_Loaded = false;
   #ifndef NO_OGRE_IN_LANDSCAPE
   m_OgreObject = NULL;
-  m_ObjectIndex = 0;
   #endif
-  OffsetX = 0.0;
-  OffsetY = 0.0;
+  m_RecordID = GenerateUniqueID();
+  m_OffsetX = 0.0;
+  m_OffsetY = 0.0;
   Stride = cDefaultStride;
-  Highest = 0.0;
-  Lowest = 0.0;
+  m_Highest = 0.0;
+  m_Lowest = 0.0;
 }
 
 LandscapeRecord::~LandscapeRecord()
@@ -40,6 +46,26 @@ LandscapeRecord::~LandscapeRecord()
     m_OgreObject = NULL;
   }
   #endif
+}
+
+float LandscapeRecord::Highest()
+{
+  return m_Highest;
+}
+
+float LandscapeRecord::Lowest()
+{
+  return m_Lowest;
+}
+
+float LandscapeRecord::OffsetX()
+{
+  return m_OffsetX;
+}
+
+float LandscapeRecord::OffsetY()
+{
+  return m_OffsetY;
 }
 
 bool LandscapeRecord::LoadFromStream(std::ifstream *AStream)
@@ -66,8 +92,8 @@ bool LandscapeRecord::LoadFromStream(std::ifstream *AStream)
     return false;
   }
   //read offsets
-  AStream->read((char*) &OffsetX, sizeof(float));
-  AStream->read((char*) &OffsetY, sizeof(float));
+  AStream->read((char*) &m_OffsetX, sizeof(float));
+  AStream->read((char*) &m_OffsetY, sizeof(float));
   //stride
   AStream->read((char*) &Stride, sizeof(float));
   if (!AStream->good())
@@ -105,19 +131,19 @@ bool LandscapeRecord::LoadFromStream(std::ifstream *AStream)
   //search Highest and Lowest values
   unsigned int i, j;
 
-  Highest= Height[0][0];
-  Lowest = Height[0][0];
+  m_Highest= Height[0][0];
+  m_Lowest = Height[0][0];
   for (i=0; i<65; i++)
   {
     for (j=0; j<65; j++)
     {
-      if (Height[i][j]>Highest)
+      if (Height[i][j]>m_Highest)
       {
-        Highest = Height[i][j];
+        m_Highest = Height[i][j];
       }
-      else if (Height[i][j]<Lowest)
+      else if (Height[i][j]<m_Lowest)
       {
-        Lowest = Height[i][j];
+        m_Lowest = Height[i][j];
       }
     }//for j
   }//for i
@@ -129,6 +155,8 @@ bool LandscapeRecord::SaveToStream(std::ofstream *AStream)
 {
   if (!m_Loaded || AStream==NULL)
   {
+    std::cout << "LandscapeRecord::SaveToStream: ERROR: record is not loaded "
+              << " or stream parameter is NULL.\n";
     return false;
   }
   if (!AStream->good())
@@ -140,8 +168,8 @@ bool LandscapeRecord::SaveToStream(std::ofstream *AStream)
   //write header "Land"
   AStream->write("Land", 4);
   //write offsets
-  AStream->write((char*) &OffsetX, sizeof(float));
-  AStream->write((char*) &OffsetY, sizeof(float));
+  AStream->write((char*) &m_OffsetX, sizeof(float));
+  AStream->write((char*) &m_OffsetY, sizeof(float));
   //stride
   AStream->write((char*) &Stride, sizeof(float));
   //height data
@@ -178,8 +206,8 @@ bool LandscapeRecord::Shift(const float delta)
       Height[i][j] = Height[i][j]+delta;
     }
   }
-  Highest = Highest+delta;
-  Lowest = Lowest+delta;
+  m_Highest = m_Highest+delta;
+  m_Lowest = m_Lowest+delta;
   return true;
 }
 
@@ -200,8 +228,8 @@ bool LandscapeRecord::Scale(const float factor)
       Height[i][j] = Height[i][j]*factor;
     }
   }
-  Highest = Highest*factor;
-  Lowest = Lowest*factor;
+  m_Highest = m_Highest*factor;
+  m_Lowest = m_Lowest*factor;
   return true;
 }
 
@@ -216,14 +244,53 @@ bool LandscapeRecord::MakePlain(const float value)
       Height[i][j] = value;
     }
   }
-  Highest = value;
-  Lowest = value;
+  m_Highest = value;
+  m_Lowest = value;
+  SetLoadedState(true);
   return true;
 }
 
 bool LandscapeRecord::IsPlain()
 {
-  return Highest==Lowest;
+  return m_Highest==m_Lowest;
+}
+
+bool LandscapeRecord::GenerateByFunction( float (*func) (const float x, const float z))
+{
+  unsigned int i,j;
+
+  if (func==NULL)
+  {
+    std::cout << "LandscapeRecord::GenerateByFunction: ERROR: pointer to "
+              << "function is NULL!\n";
+    return false;
+  }
+
+  m_Highest = 0.0;
+  m_Lowest = 0.0;
+  for (i=0; i<65; i++)
+  {
+    for (j=0; j<65; j++)
+    {
+      Height[i][j] = func((float)i/64.0f, (float)j/64.0f);
+      if (Height[i][j]>m_Highest)
+      {
+        m_Highest = Height[i][j];
+      }
+      else if (Height[i][j]<m_Lowest)
+      {
+        m_Lowest = Height[i][j];
+      }
+    }//for j
+  }//for i
+  SetLoadedState(true);
+  return true;
+}//function
+
+void LandscapeRecord::MoveTo(const float Offset_X, const float Offset_Y)
+{
+  m_OffsetX = Offset_X;
+  m_OffsetY = Offset_Y;
 }
 
 #ifndef NO_OGRE_IN_LANDSCAPE
@@ -254,12 +321,8 @@ bool LandscapeRecord::SendDataToEngine()
   Ogre::SceneNode * landnode;
   landnode = scm->getSceneNode(cLandNodeName);
 
-
-
   std::stringstream convert;
-  m_ObjectIndex = m_ObjectCount;
-  m_ObjectCount++;
-  convert << m_ObjectIndex;
+  convert << GetID();
 
   m_OgreObject = scm->createManualObject("Landscape"+convert.str());
   m_OgreObject->estimateVertexCount(65*65);
@@ -271,9 +334,9 @@ bool LandscapeRecord::SendDataToEngine()
   {
     for (k=0; k<65; k++)
     {
-      m_OgreObject->position(OffsetX+cDefaultStride*j,
+      m_OgreObject->position(m_OffsetX+cDefaultStride*j,
                              Height[j][k],
-                             OffsetY+cDefaultStride*k);
+                             m_OffsetY+cDefaultStride*k);
       m_OgreObject->colour(Colour[j][k][0]/255.0f,
                            Colour[j][k][1]/255.0f,
                            Colour[j][k][2]/255.0f);
@@ -331,6 +394,11 @@ bool LandscapeRecord::RemoveDataFromEngine()
 }
 #endif //ifndef NO_OGRE_IN_LANDSCAPE
 
+unsigned int LandscapeRecord::GetID()
+{
+  return m_RecordID;
+}
+
 //the main Landscape class
 // ++++
 // ++ Basically it will be a sort of manager for all the individual landscape
@@ -339,12 +407,9 @@ bool LandscapeRecord::RemoveDataFromEngine()
 // ++++
 Landscape::Landscape()
 {
-  //empty
   m_RecordList = NULL;
   m_numRec = 0;
   m_Capacity = 0;
-  //m_ObjectList = NULL;
-  //m_numObj = 0;
 }
 
 Landscape::~Landscape()
@@ -472,7 +537,7 @@ void Landscape::ChangeListSize(const unsigned int new_size)
   LandscapeRecord ** new_list;
   LandscapeRecord ** temp_list;
   unsigned int i, copy_count;
-  
+
   //allocate new list
   new_list = new LandscapeRecord*[new_size];
   //copy existing pointers
@@ -486,7 +551,7 @@ void Landscape::ChangeListSize(const unsigned int new_size)
       delete m_RecordList[i];
     }
   }//if
-  
+
   for (i=0; i<m_numRec; i++)
   {
     new_list[i] = m_RecordList[i];
@@ -517,7 +582,7 @@ LandscapeRecord* Landscape::CreateRecord()
       ChangeListSize(m_Capacity+100);
     }
   }//if
-  
+
   m_RecordList[m_numRec] = new LandscapeRecord;
   m_numRec = m_numRec +1;
   return m_RecordList[m_numRec-1];
@@ -530,9 +595,9 @@ void Landscape::DestroyRecord(const LandscapeRecord* recPtr)
   {
     return;
   }
-  
+
   unsigned int i;
-  
+
   for (i=0; i<m_numRec; i++)
   {
     if (recPtr==m_RecordList[i])
@@ -552,13 +617,37 @@ unsigned int Landscape::RecordsAvailable()
   return m_numRec;
 }
 
-LandscapeRecord* Landscape::GetRecord(const unsigned int record)
+//gets pointer to the record-th record in list
+//  ---- unsafe, because position of records might change due to deleting and
+//       adding records
+LandscapeRecord* Landscape::GetRecordByPosition(const unsigned int record)
 {
   if (record>=m_numRec)
   {
     return NULL;
   }
   return m_RecordList[record];
+}
+
+//gets pointer to record with given ID
+//  ---- safer than GetRecordByPosition(), but also slower
+LandscapeRecord* Landscape::GetRecordByID(const unsigned int recordID)
+{
+  if (m_numRec==0)
+  {
+    return NULL;
+  }
+
+  unsigned int i;
+
+  for (i=0; i<m_numRec; i++)
+  {
+    if (m_RecordList[i]->GetID() == recordID)
+    {
+      return m_RecordList[i];
+    }
+  }//for
+  return NULL;
 }
 
 #ifndef NO_OGRE_IN_LANDSCAPE
@@ -600,14 +689,14 @@ float Landscape::GetHeightAtPosition(const float x, const float y) const
   unsigned int i, x_idx, y_idx;
   for(i=0; i<m_numRec; i++)
   {
-    if ((x>=m_RecordList[i]->OffsetX) && (x<=m_RecordList[i]->OffsetX+64*cDefaultStride)
-       &&(y>=m_RecordList[i]->OffsetY) && (y<=m_RecordList[i]->OffsetY+64*cDefaultStride))
+    if ((x>=m_RecordList[i]->OffsetX()) && (x<=m_RecordList[i]->OffsetX()+64*cDefaultStride)
+       &&(y>=m_RecordList[i]->OffsetY()) && (y<=m_RecordList[i]->OffsetY()+64*cDefaultStride))
     {
       //got it
       //not implemented exactly yet, but at least we have a return value which
       // is somewhat near the real value
-      x_idx = (x-m_RecordList[i]->OffsetX)/cDefaultStride;
-      y_idx = (y-m_RecordList[i]->OffsetY)/cDefaultStride;
+      x_idx = (x-m_RecordList[i]->OffsetX())/cDefaultStride;
+      y_idx = (y-m_RecordList[i]->OffsetY())/cDefaultStride;
       return m_RecordList[i]->Height[x_idx][y_idx];
     }//if
   }//for

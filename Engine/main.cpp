@@ -12,7 +12,22 @@
 
 int main(int argc, char **argv)
 {
-    std::string pluginFileName = std::string(argv[1]);
+    std::string pluginFileName = "";
+
+    if (argc>1)
+    {
+      pluginFileName = std::string(argv[1]);
+    }
+    else
+    {
+      //no plugin file name passed, so let's have a wild guess
+      // (that might be wrong, but is still better than nothing)
+      #if defined(_WIN32)
+      pluginFileName = "plugins-windows-release.cfg";
+      #else
+      pluginFileName = "plugins-linux.cfg";
+      #endif
+    }
 
     // Create application object
     Dusk::Application app;
