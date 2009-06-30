@@ -23,6 +23,7 @@ namespace Dusk
             Ogre::SceneNode* m_Secondary;
             Ogre::Vector3 m_translationVector;
             float m_RotationPerSecond;
+            static const float cAboveGroundLevel;
     };
 }
 

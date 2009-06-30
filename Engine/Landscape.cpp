@@ -8,7 +8,11 @@
 namespace Dusk
 {
 
-  const std::string cLandNodeName = "LandscapeNode";
+  const std::string Landscape::cLandNodeName = "LandscapeNode";
+  const unsigned int Landscape::cMaxLandRecords = 2500; //50 x 50 squares should do
+
+  const float LandscapeRecord::cDefaultStride = 5.00;
+  const float LandscapeRecord::cMinScale = 0.01;
 
 unsigned int GenerateUniqueID()
 {
@@ -105,8 +109,8 @@ bool LandscapeRecord::LoadFromStream(std::ifstream *AStream)
   if (Stride <=0.0f)
   {
     std::cout << "LandscapeRecord::LoadFromStream: Stream contains an invalid "
-              << "stride value of "<< Stride <<".\n";
-    Stride = 0.0f;
+              << "stride value of "<< Stride <<". Setting default value. Exit.\n";
+    Stride = cDefaultStride;
     return false;
   }//if
 
@@ -313,13 +317,13 @@ bool LandscapeRecord::SendDataToEngine()
   }
 
   //get own scene node for landscape
-  if (!scm->hasSceneNode(cLandNodeName))
+  if (!scm->hasSceneNode(Landscape::cLandNodeName))
   {
     std::cout << "LandscapeRecord::SendDataToEngine: ERROR: LandscapeNode does not exist.\n";
     return false;
   }
   Ogre::SceneNode * landnode;
-  landnode = scm->getSceneNode(cLandNodeName);
+  landnode = scm->getSceneNode(Landscape::cLandNodeName);
 
   std::stringstream convert;
   convert << GetID();
@@ -380,13 +384,13 @@ bool LandscapeRecord::RemoveDataFromEngine()
   }
 
   //get scene node for landscape
-  if (!scm->hasSceneNode(cLandNodeName))
+  if (!scm->hasSceneNode(Landscape::cLandNodeName))
   {
     std::cout << "LandscapeRecord::RemoveDataFromEngine: ERROR: LandscapeNode does not exist.\n";
     return false;
   }
   Ogre::SceneNode * landnode;
-  landnode = scm->getSceneNode(cLandNodeName);
+  landnode = scm->getSceneNode(Landscape::cLandNodeName);
   landnode->detachObject(m_OgreObject);
   scm->destroyManualObject(m_OgreObject);
   m_OgreObject = NULL;
@@ -415,7 +419,21 @@ Landscape::Landscape()
 Landscape::~Landscape()
 {
   //empty
-}
+  if (m_RecordList != NULL)
+  {
+    int i = 0;
+    for (i=m_numRec-1; i>=0; i=i-1)
+    {
+      if (m_RecordList[i]!=NULL)
+      {
+        delete m_RecordList[i];
+        m_RecordList[i] = NULL;
+      }
+    }//for
+    delete [] m_RecordList;
+    m_RecordList = NULL;
+  }//if
+}//destructor
 
 Landscape& Landscape::GetSingleton()
 {
@@ -669,8 +687,7 @@ bool Landscape::SendToEngine()
   }
 
   //create own scene node for landscape
-  Ogre::SceneNode * landnode;
-  landnode = scm->getRootSceneNode()->createChildSceneNode(cLandNodeName, Ogre::Vector3(0.0, 0.0, 0.0));
+  scm->getRootSceneNode()->createChildSceneNode(cLandNodeName, Ogre::Vector3(0.0, 0.0, 0.0));
 
   for (i=0; i<m_numRec; i++)
   {
@@ -678,6 +695,33 @@ bool Landscape::SendToEngine()
   }//for
   return true;
 }
+
+bool Landscape::RemoveFromEngine()
+{
+  if(m_numRec == 0)
+  {
+    return true; //nothing to remove, i.e. done ;)
+  }
+
+  Ogre::SceneManager * scm;
+  unsigned int i;
+
+  scm = Dusk::getAPI().getOgreSceneManager();
+  if (scm==NULL)
+  {
+    std::cout << "Landscape::RemoveFromEngine: ERROR: Got NULL for scene manager.\n";
+    return false;
+  }
+  //remove all records' objects, one by one
+  for (i=0; i<m_numRec; i++)
+  {
+    m_RecordList[i]->RemoveDataFromEngine();
+  }//for
+  //remove previously create scene node for landscape
+  scm->getRootSceneNode()->removeChild(cLandNodeName);
+  return true;
+}
+
 #endif //ifndef NO_OGRE_IN_LANDSCAPE
 
 float Landscape::GetHeightAtPosition(const float x, const float y) const
@@ -689,15 +733,31 @@ float Landscape::GetHeightAtPosition(const float x, const float y) const
   unsigned int i, x_idx, y_idx;
   for(i=0; i<m_numRec; i++)
   {
-    if ((x>=m_RecordList[i]->OffsetX()) && (x<=m_RecordList[i]->OffsetX()+64*cDefaultStride)
-       &&(y>=m_RecordList[i]->OffsetY()) && (y<=m_RecordList[i]->OffsetY()+64*cDefaultStride))
+    if ((x>=m_RecordList[i]->OffsetX()) && (x<=m_RecordList[i]->OffsetX()+64*LandscapeRecord::cDefaultStride)
+       &&(y>=m_RecordList[i]->OffsetY()) && (y<=m_RecordList[i]->OffsetY()+64*LandscapeRecord::cDefaultStride))
     {
       //got it
       //not implemented exactly yet, but at least we have a return value which
       // is somewhat near the real value
-      x_idx = (x-m_RecordList[i]->OffsetX())/cDefaultStride;
-      y_idx = (y-m_RecordList[i]->OffsetY())/cDefaultStride;
-      return m_RecordList[i]->Height[x_idx][y_idx];
+      x_idx = (x-m_RecordList[i]->OffsetX())/LandscapeRecord::cDefaultStride;
+      y_idx = (y-m_RecordList[i]->OffsetY())/LandscapeRecord::cDefaultStride;
+
+      if (x_idx==64 or y_idx==64)
+      {
+        return m_RecordList[i]->Height[x_idx][y_idx];
+      }
+
+      //interpolation to get better approximation of height between points
+      float x_linear, y_linear; //linear factors
+      float ip1, ip2; //height at interpolatoin points 1 and 2
+      x_linear = (x-m_RecordList[i]->OffsetX()-x_idx*LandscapeRecord::cDefaultStride)/LandscapeRecord::cDefaultStride;
+      y_linear = (y-m_RecordList[i]->OffsetY()-y_idx*LandscapeRecord::cDefaultStride)/LandscapeRecord::cDefaultStride;
+
+      ip1 = (1.0-x_linear)*m_RecordList[i]->Height[x_idx][y_idx]
+           +      x_linear*m_RecordList[i]->Height[x_idx+1][y_idx];
+      ip2 = (1.0-x_linear)*m_RecordList[i]->Height[x_idx][y_idx+1]
+           +      x_linear*m_RecordList[i]->Height[x_idx+1][y_idx+1];
+      return (1.0-y_linear)*ip1 + y_linear*ip2;
     }//if
   }//for
   return 0.0;

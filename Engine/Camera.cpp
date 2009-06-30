@@ -1,7 +1,12 @@
 #include "Camera.h"
 #include "API.h"
+#include "Landscape.h"
+
 namespace Dusk
 {
+
+    const float Camera::cAboveGroundLevel = 50.0;
+
     Camera::Camera(Ogre::SceneManager* scn)
     {
         //ctor
@@ -40,7 +45,15 @@ namespace Dusk
 
     void Camera::move(const Ogre::FrameEvent& evt)
     {
-        m_Primary->translate(m_translationVector * evt.timeSinceLastFrame, Ogre::Node::TS_LOCAL);
+        if (m_translationVector != Ogre::Vector3::ZERO)
+        {
+          m_Primary->translate(m_translationVector * evt.timeSinceLastFrame, Ogre::Node::TS_LOCAL);
+
+          //new height
+          Ogre::Vector3 camPos = m_Primary->getPosition();
+          float new_height = Landscape::GetSingleton().GetHeightAtPosition(camPos.x, camPos.z);
+          m_Primary->setPosition(camPos.x, new_height+cAboveGroundLevel, camPos.z);
+        }
         if (m_RotationPerSecond != 0.0)
         {
           m_Primary->yaw(Ogre::Degree(m_RotationPerSecond * evt.timeSinceLastFrame), Ogre::Node::TS_LOCAL);

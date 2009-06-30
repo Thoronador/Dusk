@@ -9,10 +9,6 @@
 
 namespace Dusk
 {
-  const float cDefaultStride = 5.00;
-  const unsigned int cMaxLandRecords = 2500; //50 x 50 squares should do
-  const float cMinScale = 0.01;
-
   //maybe this should go somewhere else
   #if defined(_WIN32)
     const std::string path_sep = "\\";
@@ -76,6 +72,8 @@ namespace Dusk
       #endif
       //"identifier"
       unsigned int GetID();
+      static const float cDefaultStride;
+      static const float cMinScale;
     private:
       static unsigned int m_genID;
       //not part of actual data, but calculated during loading process
@@ -106,9 +104,13 @@ namespace Dusk
       #ifndef NO_OGRE_IN_LANDSCAPE
       //send loaded data to scene manager
       bool SendToEngine();
+      //remove loaded data from scene manager
+      bool RemoveFromEngine();
       #endif
       //for collision detection
       float GetHeightAtPosition(const float x, const float y) const;
+      static const std::string cLandNodeName;
+      static const unsigned int cMaxLandRecords;
     private:
       Landscape();
       Landscape(const Landscape& op){}
