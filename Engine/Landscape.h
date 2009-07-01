@@ -3,19 +3,13 @@
 
 #include <fstream>
 #include <string>
+#include "DuskTypes.h"
 #ifndef NO_OGRE_IN_LANDSCAPE
   #include <OgreManualObject.h>
 #endif
 
 namespace Dusk
 {
-  //maybe this should go somewhere else
-  #if defined(_WIN32)
-    const std::string path_sep = "\\";
-  #else
-    const std::string path_sep = "/";
-  #endif
-
   unsigned int GenerateUniqueID();
 
   /*typedef struct land_rec

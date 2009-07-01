@@ -139,6 +139,10 @@
 		<Unit filename="InputSystemEditor.h" />
 		<Unit filename="Landscape.cpp" />
 		<Unit filename="Landscape.h" />
+		<Unit filename="ObjectBase.cpp" />
+		<Unit filename="ObjectBase.h" />
+		<Unit filename="ObjectData.cpp" />
+		<Unit filename="ObjectData.h" />
 		<Unit filename="Scene.cpp" />
 		<Unit filename="Scene.h" />
 		<Unit filename="Script.cpp" />
