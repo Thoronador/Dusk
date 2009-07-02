@@ -1,5 +1,6 @@
 #include "ObjectBase.h"
 #include <fstream>
+#include <iostream>
 
 namespace Dusk
 {
@@ -22,13 +23,16 @@ ObjectBase& ObjectBase::GetSingleton()
 
 bool ObjectBase::hasObject(const std::string NameOfObject) const
 {
-  /*std::map<std::string, std::string>::iterator iter;
-  iter = m_ObjectList.find(NameOfObject);*/
   return (m_ObjectList.find(NameOfObject) != m_ObjectList.end());
 }
 
 void ObjectBase::addObject(const std::string ID, const std::string Mesh)
 {
+  if (ID=="" or Mesh=="")
+  {
+    std::cout << "ObjectBase::addObject: ERROR: ID or Mesh is empty string.\n";
+    return;
+  }
   m_ObjectList[ID] = Mesh;
 }
 

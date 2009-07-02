@@ -107,6 +107,7 @@ bool DuskObject::Enable()
     return false;
   }
 
+  //generate unique entity name
   std::stringstream entity_name;
   entity_name << ID << GenerateUniqueObjectID();
   //create entity + node and attach entity to node

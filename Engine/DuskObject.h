@@ -7,7 +7,7 @@
 
 namespace Dusk{
 
-enum ObjectTypes {otUndefined, otStatic};
+enum ObjectTypes {otUndefined, otStatic, otItem};
 
 class DuskObject
 {
@@ -34,6 +34,6 @@ class DuskObject
         float m_Scale;
 };
 
-}
+}//namespace
 
 #endif // DUSKOBJECT_H

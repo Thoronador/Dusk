@@ -56,7 +56,7 @@ bool ObjectData::SaveToFile(const std::string FileName)
   {
     if (m_ReferenceList.at(i)!=NULL)
     {
-      output.write("Refr", 4); //header
+      output.write("RefO", 4); //header
       //write ID
       len = m_ReferenceList.at(i)->GetID().length();
       output.write((char*) &len, sizeof(unsigned int));
@@ -126,7 +126,7 @@ bool ObjectData::LoadFromFile(const std::string FileName)
   {
     //read header "Refr"
     input.read(Header, 4);
-    if ((Header[0]!='R') || (Header[1]!='e') || (Header[2]!='f') || (Header[3]!='r'))
+    if ((Header[0]!='R') || (Header[1]!='e') || (Header[2]!='f') || (Header[3]!='O'))
     {
       std::cout << "ObjectData::LoadFromFile: ERROR: File contains invalid "
                 << "reference header.\n";
@@ -161,7 +161,7 @@ bool ObjectData::LoadFromFile(const std::string FileName)
     input.read((char*) &rz, sizeof(float));
 
     //scale
-    input.read((char*) &rz, sizeof(float));
+    input.read((char*) &scl, sizeof(float));
 
     if (!input.good())
     {

@@ -3,18 +3,25 @@
 
 #include <map>
 #include <string>
-#include <iostream>
 
 namespace Dusk
 {
   /* class ObjectBase
            This class' purpose is to hold the IDs of all distinct static objects
-           in the game and their corresponding mesh name.
-           Think of it as a sort of look-up table, e.g.:
+           in the game and their corresponding mesh name. "Static objects" in
+           the above context are all non-moving objects which cannot be picked
+           up by the player or a NPC. Examples of static objects would be walls,
+           trees, furniture (non-movable) and so on.
+           Things like an apple or a bottle are NOT "static objects", they are
+           "items", because they can be picked up and/or used by the player. See
+           the class ItemBase for items.
+
+
+           Think of ObjectBase as a sort of look-up table, e.g.:
 
              ID  |  Mesh
            ------+------------------
-           Robot | robot.mesh
+           tree  | tree_oak.mesh
            Chair | wooden_chair.mesh
             ...  | ...
   */

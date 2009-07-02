@@ -137,6 +137,10 @@
 		<Unit filename="InputSystemBinding.h" />
 		<Unit filename="InputSystemEditor.cpp" />
 		<Unit filename="InputSystemEditor.h" />
+		<Unit filename="Inventory.cpp" />
+		<Unit filename="Inventory.h" />
+		<Unit filename="ItemBase.cpp" />
+		<Unit filename="ItemBase.h" />
 		<Unit filename="Landscape.cpp" />
 		<Unit filename="Landscape.h" />
 		<Unit filename="ObjectBase.cpp" />
