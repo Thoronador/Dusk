@@ -34,7 +34,7 @@ namespace Dusk
       void addObject(const std::string ID, const std::string Mesh);
       void ClearAllObjects();
       unsigned int NumberOfObjects() const;
-      std::string GetMeshName(const std::string ID) const;
+      std::string GetMeshName(const std::string ID, const bool UseMarkerOnError=true) const;
       bool SaveToFile(const std::string FileName);
       bool LoadFromFile(const std::string FileName);
     private:

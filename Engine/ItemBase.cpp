@@ -1,4 +1,5 @@
 #include "ItemBase.h"
+#include "DuskTypes.h"
 #include <iostream>
 #include <fstream>
 
@@ -86,7 +87,7 @@ float ItemBase::GetItemWeight(const std::string itemID)
   return 0.0;
 }
 
-std::string ItemBase::GetMeshName(const std::string itemID)
+std::string ItemBase::GetMeshName(const std::string itemID, const bool UseMarkerOnError)
 {
   std::map<std::string, ItemRecord>::iterator iter;
   iter = m_ItemList.find(itemID);
@@ -94,7 +95,15 @@ std::string ItemBase::GetMeshName(const std::string itemID)
   {
     return iter->second.Mesh;
   }
-  return "";
+  //item with given ID is not present
+  if (UseMarkerOnError)
+  {
+    return cErrorMesh;
+  }
+  else
+  {
+    return "";
+  }
 }
 
 bool ItemBase::SaveToFile(const std::string FileName)

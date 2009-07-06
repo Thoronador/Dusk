@@ -50,7 +50,7 @@ namespace Dusk
       std::string GetItemName(const std::string itemID);
       int GetItemValue(const std::string itemID);
       float GetItemWeight(const std::string itemID);
-      std::string GetMeshName(const std::string itemID);
+      std::string GetMeshName(const std::string itemID, const bool UseMarkerOnError=true);
       bool SaveToFile(const std::string FileName);
       bool LoadFromFile(const std::string FileName);
     private:

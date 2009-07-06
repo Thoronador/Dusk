@@ -1,4 +1,5 @@
 #include "ObjectBase.h"
+#include "DuskTypes.h"
 #include <fstream>
 #include <iostream>
 
@@ -46,13 +47,21 @@ unsigned int ObjectBase::NumberOfObjects() const
   return m_ObjectList.size();
 }
 
-std::string ObjectBase::GetMeshName(const std::string ID) const
+std::string ObjectBase::GetMeshName(const std::string ID, const bool UseMarkerOnError) const
 {
   if (hasObject(ID))
   {
     return m_ObjectList.find(ID)->second;
   }
-  return "";
+  //if we get to this point, object is not present in list
+  if (UseMarkerOnError)
+  {
+    return cErrorMesh;
+  }
+  else
+  {
+    return "";
+  }
 }
 
 bool ObjectBase::SaveToFile(const std::string FileName)

@@ -1,6 +1,7 @@
 #ifndef DUSKTYPESH
 #define DUSKTYPESH
-// In this file are global types (and constants) defined
+#include <string>
+// In this file global types (and constants) are defined
 
 namespace Dusk
 {
@@ -11,6 +12,9 @@ namespace Dusk
   #else
     const std::string path_sep = "/";
   #endif
+
+  //standard mesh name for non-existing objects/ items
+  const std::string cErrorMesh = "ErrorMarker.mesh";
 }//namespace
 
 #endif
