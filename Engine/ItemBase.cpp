@@ -1,7 +1,6 @@
 #include "ItemBase.h"
 #include "DuskTypes.h"
 #include <iostream>
-#include <fstream>
 
 namespace Dusk
 {
@@ -118,44 +117,49 @@ bool ItemBase::SaveToFile(const std::string FileName)
   }//if
 
   unsigned int len;
-  std::map<std::string, ItemRecord>::iterator iter;
-
+  bool success = false;
   len = m_ItemList.size();
   //write header "Dusk"
   output.write("Dusk", 4);
   //number of elements to write (and later to read, on loading)
   output.write((char*) &len, sizeof(unsigned int));
+  success = SaveToStream(&output);
+  output.close();
+  return success;
+}
+
+bool ItemBase::SaveToStream(std::ofstream* Stream)
+{
+  std::map<std::string, ItemRecord>::iterator iter;
+  unsigned int len = 0;
 
   for(iter=m_ItemList.begin(); iter!=m_ItemList.end(); iter++)
   {
     //write header "Item"
-    output.write("Item", 4);
+    Stream->write("Item", 4);
     //write ID
     len = iter->first.length();
-    output.write((char*) &len, sizeof(unsigned int));
-    output.write(iter->first.c_str(), len);
+    Stream->write((char*) &len, sizeof(unsigned int));
+    Stream->write(iter->first.c_str(), len);
     //write name
     len = iter->second.Name.length();
-    output.write((char*) &len, sizeof(unsigned int));
-    output.write(iter->second.Name.c_str(), len);
+    Stream->write((char*) &len, sizeof(unsigned int));
+    Stream->write(iter->second.Name.c_str(), len);
     //write value
-    output.write((char*) &(iter->second.value), sizeof(int));
+    Stream->write((char*) &(iter->second.value), sizeof(int));
     //write weight
-    output.write((char*) &(iter->second.weight), sizeof(float));
+    Stream->write((char*) &(iter->second.weight), sizeof(float));
     //write Mesh name
     len = iter->second.Mesh.length();
-    output.write((char*) &len, sizeof(unsigned int));
-    output.write(iter->second.Mesh.c_str(), len);
+    Stream->write((char*) &len, sizeof(unsigned int));
+    Stream->write(iter->second.Mesh.c_str(), len);
 
-    if (!output.good())
+    if (!Stream->good())
     {
-      std::cout << "ItemBase::SaveToFile: ERROR while writing data to file \""
-                << FileName << "\".\n";
-      output.close();
+      std::cout << "ItemBase::SaveToStream: ERROR while writing data.\n";
       return false;
     }//if
   }//for
-  output.close();
   return true;
 }
 

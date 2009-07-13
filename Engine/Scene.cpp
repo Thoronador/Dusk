@@ -71,7 +71,7 @@ void Scene::createGrassMesh()
         //Landscape: load
         if (Landscape::GetSingleton().LoadFromFile("data"+path_sep+"Landscape.dusk"))
         {
-          if (Landscape::GetSingleton().SendToEngine())
+          if (Landscape::GetSingleton().SendToEngine(getAPI().getOgreSceneManager()))
           {
             std::cout << "Landscape loaded successfully.\n";
           }
@@ -113,6 +113,6 @@ void Scene::createGrassMesh()
     }
     void Scene::destroyScene()
     {
-
+      Landscape::GetSingleton().RemoveFromEngine(getAPI().getOgreSceneManager());
     }
 }

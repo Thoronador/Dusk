@@ -1,6 +1,5 @@
 #include "ObjectBase.h"
 #include "DuskTypes.h"
-#include <fstream>
 #include <iostream>
 
 namespace Dusk
@@ -67,6 +66,7 @@ std::string ObjectBase::GetMeshName(const std::string ID, const bool UseMarkerOn
 bool ObjectBase::SaveToFile(const std::string FileName)
 {
   std::ofstream output;
+  bool success = false;
   output.open(FileName.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
   if(!output)
   {
@@ -82,27 +82,32 @@ bool ObjectBase::SaveToFile(const std::string FileName)
   output.write("Dusk", 4);
   //number of elements to write (and later to read, on loading)
   output.write((char*) &i, sizeof(unsigned int));
+  success = SaveToStream(&output);
+  output.close();
+  return success;
+}
 
+bool ObjectBase::SaveToStream(std::ofstream* Stream)
+{
   std::map<std::string, std::string>::iterator iter;
+  unsigned int len;
 
   for (iter = m_ObjectList.begin(); iter != m_ObjectList.end(); iter++)
   {
-    output.write("ObjSta", 6); //Object, Static
-    i = iter->first.length();
-    output.write((char*) &i, sizeof(unsigned int));
-    output.write(iter->first.c_str(), i);
-    i = iter->second.length();
-    output.write((char*) &i, sizeof(unsigned int));
-    output.write(iter->second.c_str(), i);
-    if (!output.good())
+    Stream->write("ObjS", 4); //Object, Static
+    len = iter->first.length();
+    Stream->write((char*) &len, sizeof(unsigned int));
+    Stream->write(iter->first.c_str(), len);
+    len = iter->second.length();
+    Stream->write((char*) &len, sizeof(unsigned int));
+    Stream->write(iter->second.c_str(), len);
+    if (!Stream->good())
     {
-      std::cout << "ObjectBase::SaveToFile: Error while writing data to file \""<<FileName<<"\".\n";
-      output.close();
+      std::cout << "ObjectBase::SaveToStream: Error while writing data to stream.\n";
       return false;
     }
   }//for
-  output.close();
-  return output.good();
+  return Stream->good();
 }
 
 bool ObjectBase::LoadFromFile(const std::string FileName)
@@ -119,8 +124,8 @@ bool ObjectBase::LoadFromFile(const std::string FileName)
     return false;
   }//if
 
-  char Header[6];
-  Header[0] = Header[1] = Header[2] = Header[3] = Header[4] = Header[5] = '\0';
+  char Header[4];
+  Header[0] = Header[1] = Header[2] = Header[3] = '\0';
 
   //read header "Dusk"
   input.read(Header, 4);
@@ -136,10 +141,9 @@ bool ObjectBase::LoadFromFile(const std::string FileName)
   input.read((char*) &count, sizeof(unsigned int));
   for (i=0; i<count; i++)
   {
-    //read header "ObjSta" (Object, Static)
-    input.read(Header, 6);
-    if ((Header[0]!='O') || (Header[1]!='b') || (Header[2]!='j') || (Header[3]!='S')
-        || (Header[4]!='t') || (Header[5]!='a'))
+    //read header "ObjS" (Object, Static)
+    input.read(Header, 4);
+    if ((Header[0]!='O') || (Header[1]!='b') || (Header[2]!='j') || (Header[3]!='S'))
     {
       std::cout << "ObjectBase::LoadFromFile: ERROR: File contains invalid "
                 << "record header.\n";

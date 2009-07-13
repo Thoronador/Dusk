@@ -61,7 +61,7 @@ namespace Dusk
       void MoveTo(const float Offset_X, const float Offset_Y);
       #ifndef NO_OGRE_IN_LANDSCAPE
       //send loaded data to scene manager
-      bool SendDataToEngine();
+      bool SendDataToEngine(Ogre::SceneManager * scm);
       bool RemoveDataFromEngine();
       #endif
       //"identifier"
@@ -78,7 +78,6 @@ namespace Dusk
       #ifndef NO_OGRE_IN_LANDSCAPE
       Ogre::ManualObject * m_OgreObject;
       #endif
-      //unsigned int GenerateUniqueID();
   };
 
   class Landscape
@@ -97,9 +96,9 @@ namespace Dusk
       LandscapeRecord* GetRecordByID(const unsigned int recordID);
       #ifndef NO_OGRE_IN_LANDSCAPE
       //send loaded data to scene manager
-      bool SendToEngine();
+      bool SendToEngine(Ogre::SceneManager * scm);
       //remove loaded data from scene manager
-      bool RemoveFromEngine();
+      bool RemoveFromEngine(Ogre::SceneManager * scm);
       #endif
       //for collision detection
       float GetHeightAtPosition(const float x, const float y) const;

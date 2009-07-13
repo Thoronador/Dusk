@@ -23,7 +23,7 @@ class DuskObject
         bool SetScale(const float newScale);
         std::string GetID() const;
         bool ChangeID(const std::string newID);
-        bool Enable();
+        bool Enable(Ogre::SceneManager* scm);
         bool Disable();
         bool IsEnabled();
     protected:

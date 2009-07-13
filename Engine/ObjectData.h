@@ -4,6 +4,7 @@
 #include "ObjectBase.h"
 #include "DuskObject.h"
 #include <vector>
+#include <fstream>
 
 namespace Dusk
 {
@@ -19,11 +20,12 @@ namespace Dusk
   {
     public:
       virtual ~ObjectData();
-      ObjectData& GetSingleton();
+      static ObjectData& GetSingleton();
       unsigned int NumberOfReferences() const;
       bool LoadFromFile(const std::string FileName);
       bool SaveToFile(const std::string FileName);
-      void EnableAllObjects();
+      bool SaveToStream(std::ofstream* Stream);
+      void EnableAllObjects(Ogre::SceneManager * scm);
       void DisableAllObjects();
     private:
       ObjectData();

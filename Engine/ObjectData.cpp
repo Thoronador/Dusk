@@ -1,5 +1,4 @@
 #include "ObjectData.h"
-#include <fstream>
 
 namespace Dusk
 {
@@ -44,50 +43,58 @@ bool ObjectData::SaveToFile(const std::string FileName)
     return false;
   }//if
 
-  unsigned int i, len;
-  float x,y,z;
-  i = m_ReferenceList.size();
+  unsigned int len;
+  bool success = false;
+
+  len = m_ReferenceList.size();
   //write header "Dusk"
   output.write("Dusk", 4);
   //number of elements to write (and later to read, on loading)
-  output.write((char*) &i, sizeof(unsigned int));
+  output.write((char*) &len, sizeof(unsigned int));
+  success = SaveToStream(&output);
+  output.close();
+  return success;
+}
+
+bool ObjectData::SaveToStream(std::ofstream* Stream)
+{
+  unsigned int i, len;
+  float x,y,z;
 
   for (i=0; i<m_ReferenceList.size(); i++)
   {
     if (m_ReferenceList.at(i)!=NULL)
     {
-      output.write("RefO", 4); //header
+      Stream->write("RefO", 4); //header
       //write ID
       len = m_ReferenceList.at(i)->GetID().length();
-      output.write((char*) &len, sizeof(unsigned int));
-      output.write(m_ReferenceList.at(i)->GetID().c_str(), len);
+      Stream->write((char*) &len, sizeof(unsigned int));
+      Stream->write(m_ReferenceList.at(i)->GetID().c_str(), len);
 
       //write position and rotation
       x = m_ReferenceList.at(i)->GetPosition().x;
       y = m_ReferenceList.at(i)->GetPosition().y;
       z = m_ReferenceList.at(i)->GetPosition().z;
-      output.write((char*) &x, sizeof(float));
-      output.write((char*) &y, sizeof(float));
-      output.write((char*) &z, sizeof(float));
+      Stream->write((char*) &x, sizeof(float));
+      Stream->write((char*) &y, sizeof(float));
+      Stream->write((char*) &z, sizeof(float));
       x = m_ReferenceList.at(i)->GetRotation().x;
       y = m_ReferenceList.at(i)->GetRotation().y;
       z = m_ReferenceList.at(i)->GetRotation().z;
-      output.write((char*) &x, sizeof(float));
-      output.write((char*) &y, sizeof(float));
-      output.write((char*) &z, sizeof(float));
+      Stream->write((char*) &x, sizeof(float));
+      Stream->write((char*) &y, sizeof(float));
+      Stream->write((char*) &z, sizeof(float));
       //scale
       x = m_ReferenceList.at(i)->GetScale();
-      output.write((char*) &x, sizeof(float));
+      Stream->write((char*) &x, sizeof(float));
       //everything OK?
-      if (!output.good())
+      if (!Stream->good())
       {
-        std::cout << "ObjectData::SaveToFile: ERROR while writing reference data.\n";
-        output.close();
+        std::cout << "ObjectData::SaveToStream: ERROR while writing reference data.\n";
         return false;
       }
     }//if
   }//for
-  output.close();
   return true;
 }
 
@@ -179,14 +186,19 @@ bool ObjectData::LoadFromFile(const std::string FileName)
   return false;
 }
 
-void ObjectData::EnableAllObjects()
+void ObjectData::EnableAllObjects(Ogre::SceneManager * scm)
 {
   unsigned int i;
+  if (scm==NULL)
+  {
+    std::cout << "ObjectData::EnableAllObjects: ERROR: Scene Manager is NULL!\n";
+    return;
+  }
   for(i=0; i<m_ReferenceList.size(); i++)
   {
     if (m_ReferenceList.at(i)!=NULL)
     {
-      m_ReferenceList.at(i)->Enable();
+      m_ReferenceList.at(i)->Enable(scm);
     }
   }//for
 }

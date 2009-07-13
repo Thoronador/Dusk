@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+#include <fstream>
 
 namespace Dusk
 {
@@ -37,6 +38,7 @@ namespace Dusk
       std::string GetMeshName(const std::string ID, const bool UseMarkerOnError=true) const;
       bool SaveToFile(const std::string FileName);
       bool LoadFromFile(const std::string FileName);
+      bool SaveToStream(std::ofstream* Stream);
     private:
       ObjectBase();
       ObjectBase(const ObjectBase& op){}

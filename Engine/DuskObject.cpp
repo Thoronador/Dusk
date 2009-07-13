@@ -92,15 +92,13 @@ bool DuskObject::ChangeID(const std::string newID)
   return false;
 }
 
-bool DuskObject::Enable()
+bool DuskObject::Enable(Ogre::SceneManager* scm)
 {
   if (entity!=NULL)
   {
     return true;
   }
 
-  Ogre::SceneManager * scm;
-  scm = getAPI().getOgreSceneManager();
   if (scm==NULL)
   {
     std::cout << "DuskObject::Enable: ERROR: no scene manager present.\n";
@@ -125,15 +123,14 @@ bool DuskObject::Disable()
     return true;
   }
 
+  Ogre::SceneNode* ent_node = entity->getParentSceneNode();
   Ogre::SceneManager * scm;
-  scm = getAPI().getOgreSceneManager();
+  scm = ent_node->getCreator();
   if (scm==NULL)
   {
-    std::cout << "DuskObject::Disable: ERROR: no scene manager present.\n";
+    std::cout << "DuskObject::Disable: ERROR: got NULL for scene manager.\n";
     return false;
   }
-
-  Ogre::SceneNode* ent_node = entity->getParentSceneNode();
   ent_node->detachObject(entity);
   scm->getRootSceneNode()->removeAndDestroyChild(ent_node->getName());
   scm->destroyEntity(entity);

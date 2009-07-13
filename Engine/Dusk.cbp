@@ -121,6 +121,8 @@
 		<Unit filename="CommandSoundVolume.h" />
 		<Unit filename="Console.cpp" />
 		<Unit filename="Console.h" />
+		<Unit filename="DataLoader.cpp" />
+		<Unit filename="DataLoader.h" />
 		<Unit filename="Dispatcher.cpp" />
 		<Unit filename="Dispatcher.h" />
 		<Unit filename="Dusk.h" />

@@ -298,7 +298,7 @@ void LandscapeRecord::MoveTo(const float Offset_X, const float Offset_Y)
 }
 
 #ifndef NO_OGRE_IN_LANDSCAPE
-bool LandscapeRecord::SendDataToEngine()
+bool LandscapeRecord::SendDataToEngine(Ogre::SceneManager * scm)
 {
   if (!m_Loaded)
   {
@@ -306,10 +306,8 @@ bool LandscapeRecord::SendDataToEngine()
     return false;
   }
 
-  Ogre::SceneManager * scm;
-  unsigned int j, k;
-
-  scm = Dusk::getAPI().getOgreSceneManager();
+  //Ogre::SceneManager * scm;
+  //scm = Dusk::getAPI().getOgreSceneManager();
   if (scm==NULL)
   {
     std::cout << "LandscapeRecord::SendDataToEngine: ERROR: Got NULL for scene manager.\n";
@@ -333,6 +331,7 @@ bool LandscapeRecord::SendDataToEngine()
   m_OgreObject->estimateIndexCount(64*64*6);
   m_OgreObject->setDynamic(false);
   m_OgreObject->begin("Landscape/Green", Ogre::RenderOperation::OT_TRIANGLE_LIST);
+  unsigned int j, k;
   //vectors
   for (j=0; j<65; j++)
   {
@@ -375,7 +374,7 @@ bool LandscapeRecord::RemoveDataFromEngine()
   }
 
   Ogre::SceneManager * scm;
-  scm = Dusk::getAPI().getOgreSceneManager();
+  scm = m_OgreObject->getParentSceneNode()->getCreator();
   if (scm==NULL)
   {
     std::cout << "LandscapeRecord::RemoveDataFromEngine: ERROR: Got NULL for "
@@ -669,17 +668,15 @@ LandscapeRecord* Landscape::GetRecordByID(const unsigned int recordID)
 }
 
 #ifndef NO_OGRE_IN_LANDSCAPE
-bool Landscape::SendToEngine()
+bool Landscape::SendToEngine(Ogre::SceneManager * scm)
 {
   if (m_numRec==0)
   {
     return false;
   }
 
-  Ogre::SceneManager * scm;
-  unsigned int i;
-
-  scm = Dusk::getAPI().getOgreSceneManager();
+  //Ogre::SceneManager * scm;
+  //scm = Dusk::getAPI().getOgreSceneManager();
   if (scm==NULL)
   {
     std::cout << "Landscape::SendToEngine: ERROR: Got NULL for scene manager.\n";
@@ -689,30 +686,30 @@ bool Landscape::SendToEngine()
   //create own scene node for landscape
   scm->getRootSceneNode()->createChildSceneNode(cLandNodeName, Ogre::Vector3(0.0, 0.0, 0.0));
 
+  unsigned int i;
   for (i=0; i<m_numRec; i++)
   {
-    m_RecordList[i]->SendDataToEngine();
+    m_RecordList[i]->SendDataToEngine(scm);
   }//for
   return true;
 }
 
-bool Landscape::RemoveFromEngine()
+bool Landscape::RemoveFromEngine(Ogre::SceneManager * scm)
 {
   if(m_numRec == 0)
   {
     return true; //nothing to remove, i.e. done ;)
   }
 
-  Ogre::SceneManager * scm;
-  unsigned int i;
-
-  scm = Dusk::getAPI().getOgreSceneManager();
+  //Ogre::SceneManager * scm;
+  //scm = Dusk::getAPI().getOgreSceneManager();
   if (scm==NULL)
   {
     std::cout << "Landscape::RemoveFromEngine: ERROR: Got NULL for scene manager.\n";
     return false;
   }
   //remove all records' objects, one by one
+  unsigned int i;
   for (i=0; i<m_numRec; i++)
   {
     m_RecordList[i]->RemoveDataFromEngine();
