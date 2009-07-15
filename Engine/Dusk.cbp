@@ -126,6 +126,7 @@
 		<Unit filename="Dispatcher.cpp" />
 		<Unit filename="Dispatcher.h" />
 		<Unit filename="Dusk.h" />
+		<Unit filename="DuskConstants.h" />
 		<Unit filename="DuskObject.cpp" />
 		<Unit filename="DuskObject.h" />
 		<Unit filename="DuskTypes.h" />
