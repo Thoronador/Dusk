@@ -1,4 +1,5 @@
 #include "ObjectData.h"
+#include "DuskConstants.h"
 
 namespace Dusk
 {
@@ -32,6 +33,15 @@ unsigned int ObjectData::NumberOfReferences() const
   return m_ReferenceList.size();
 }
 
+DuskObject* ObjectData::addReference(const std::string ID,
+    const Ogre::Vector3 position, const Ogre::Vector3 rotation, const float scale)
+{
+  DuskObject * ObjectPointer = new DuskObject(ID, position, rotation, scale);
+  m_ReferenceList.push_back(ObjectPointer);
+  return ObjectPointer;
+}
+
+
 bool ObjectData::SaveToFile(const std::string FileName)
 {
   std::ofstream output;
@@ -48,7 +58,7 @@ bool ObjectData::SaveToFile(const std::string FileName)
 
   len = m_ReferenceList.size();
   //write header "Dusk"
-  output.write("Dusk", 4);
+  output.write((char*) &cHeaderDusk, sizeof(unsigned int));
   //number of elements to write (and later to read, on loading)
   output.write((char*) &len, sizeof(unsigned int));
   success = SaveToStream(&output);
@@ -65,7 +75,8 @@ bool ObjectData::SaveToStream(std::ofstream* Stream)
   {
     if (m_ReferenceList.at(i)!=NULL)
     {
-      Stream->write("RefO", 4); //header
+      //write header "RefO" (reference of Object)
+      Stream->write((char*) &cHeaderRefO, sizeof(unsigned int)); //header
       //write ID
       len = m_ReferenceList.at(i)->GetID().length();
       Stream->write((char*) &len, sizeof(unsigned int));
@@ -101,10 +112,7 @@ bool ObjectData::SaveToStream(std::ofstream* Stream)
 bool ObjectData::LoadFromFile(const std::string FileName)
 {
   std::ifstream input;
-  unsigned int count, i, len;
-  char ID_Buffer[256];
-  float x, y, z, rx, ry, rz, scl;
-  DuskObject * objPtr = NULL;
+  unsigned int count, i;
 
   input.open(FileName.c_str(), std::ios::in | std::ios::binary);
   if(!input)
@@ -114,12 +122,12 @@ bool ObjectData::LoadFromFile(const std::string FileName)
     return false;
   }//if
 
-  char Header[4];
-  Header[0] = Header[1] = Header[2] = Header[3] = '\0';
+  unsigned int Header;
+  Header = 0;
 
   //read header "Dusk"
-  input.read(Header, 4);
-  if ((Header[0]!='D') || (Header[1]!='u') || (Header[2]!='s') || (Header[3]!='k'))
+  input.read((char*) &Header, sizeof(unsigned int));
+  if (Header!=cHeaderDusk)
   {
     std::cout << "ObjectData::LoadFromFile: ERROR: File contains invalid "
               << "file header.\n";
@@ -131,59 +139,72 @@ bool ObjectData::LoadFromFile(const std::string FileName)
   input.read((char*) &count, sizeof(unsigned int));
   for (i=0; i<count; i++)
   {
-    //read header "Refr"
-    input.read(Header, 4);
-    if ((Header[0]!='R') || (Header[1]!='e') || (Header[2]!='f') || (Header[3]!='O'))
+    if (!LoadFromStream(&input))
     {
-      std::cout << "ObjectData::LoadFromFile: ERROR: File contains invalid "
-                << "reference header.\n";
+      std::cout << "ObjectData::LoadFromFile: ERROR while reading record.\n";
       input.close();
       return false;
     }
-    //read ID
-    input.read((char*) &len, sizeof(unsigned int));
-    if (len>255)
-    {
-      std::cout << "ObjectData::LoadFromFile: ERROR: ID cannot be longer than "
-                << "255 characters.\n";
-      input.close();
-      return false;
-    }
-    input.read(ID_Buffer, len);
-    ID_Buffer[len] = '\0';
-    if (!input.good())
-    {
-      std::cout << "ObjectData::LoadFromFile: ERROR while reading data (ID).\n";
-      input.close();
-      return false;
-    }
-    //position
-    input.read((char*) &x, sizeof(float));
-    input.read((char*) &y, sizeof(float));
-    input.read((char*) &z, sizeof(float));
-
-    //rotation
-    input.read((char*) &rx, sizeof(float));
-    input.read((char*) &ry, sizeof(float));
-    input.read((char*) &rz, sizeof(float));
-
-    //scale
-    input.read((char*) &scl, sizeof(float));
-
-    if (!input.good())
-    {
-      std::cout << "ObjectData::LoadFromFile: ERROR while reading data "
-                << "(position, rotation or scale).\n";
-      input.close();
-      return false;
-    }
-
-    objPtr = new DuskObject(std::string(ID_Buffer), Ogre::Vector3(x,y,z),
-                            Ogre::Vector3(rx,ry,rz), scl);
-    m_ReferenceList.push_back(objPtr);
   }//for
   input.close();
-  return false;
+  return true;
+}
+
+bool ObjectData::LoadFromStream(std::ifstream* Stream)
+{
+  static char ID_Buffer[256];
+  float x, y, z, rx, ry, rz, scl;
+  DuskObject * objPtr = NULL;
+  unsigned int Header, len;
+
+  //read header "RefO"
+  Header = 0;
+  Stream->read((char*) &Header, sizeof(unsigned int));
+  if (Header!=cHeaderRefO)
+  {
+    std::cout << "ObjectData::LoadFromStream: ERROR: Stream contains invalid "
+              << "reference header.\n";
+    return false;
+  }
+  //read ID
+  Stream->read((char*) &len, sizeof(unsigned int));
+  if (len>255)
+  {
+    std::cout << "ObjectData::LoadFromStream: ERROR: ID cannot be longer than "
+              << "255 characters.\n";
+    return false;
+  }
+  Stream->read(ID_Buffer, len);
+  ID_Buffer[len] = '\0';
+  if (!Stream->good())
+  {
+    std::cout << "ObjectData::LoadFromStream: ERROR while reading data (ID).\n";
+    return false;
+  }
+  //position
+  Stream->read((char*) &x, sizeof(float));
+  Stream->read((char*) &y, sizeof(float));
+  Stream->read((char*) &z, sizeof(float));
+
+  //rotation
+  Stream->read((char*) &rx, sizeof(float));
+  Stream->read((char*) &ry, sizeof(float));
+  Stream->read((char*) &rz, sizeof(float));
+
+  //scale
+  Stream->read((char*) &scl, sizeof(float));
+
+  if (!Stream->good())
+  {
+    std::cout << "ObjectData::LoadFromStream: ERROR while reading data "
+              << "(position, rotation or scale).\n";
+    return false;
+  }
+
+  objPtr = new DuskObject(std::string(ID_Buffer), Ogre::Vector3(x,y,z),
+                          Ogre::Vector3(rx,ry,rz), scl);
+  m_ReferenceList.push_back(objPtr);
+  return true;
 }
 
 void ObjectData::EnableAllObjects(Ogre::SceneManager * scm)
@@ -214,6 +235,5 @@ void ObjectData::DisableAllObjects()
     }
   }//for
 }
-
 
 }//namespace

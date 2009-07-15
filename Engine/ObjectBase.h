@@ -39,6 +39,7 @@ namespace Dusk
       bool SaveToFile(const std::string FileName);
       bool LoadFromFile(const std::string FileName);
       bool SaveToStream(std::ofstream* Stream);
+      bool LoadFromStream(std::ifstream* Stream);
     private:
       ObjectBase();
       ObjectBase(const ObjectBase& op){}

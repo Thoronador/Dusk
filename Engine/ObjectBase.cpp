@@ -1,5 +1,5 @@
 #include "ObjectBase.h"
-#include "DuskTypes.h"
+#include "DuskConstants.h"
 #include <iostream>
 
 namespace Dusk
@@ -79,7 +79,7 @@ bool ObjectBase::SaveToFile(const std::string FileName)
   i = m_ObjectList.size();
 
   //write header "Dusk"
-  output.write("Dusk", 4);
+  output.write((char*) &cHeaderDusk, sizeof(unsigned int));
   //number of elements to write (and later to read, on loading)
   output.write((char*) &i, sizeof(unsigned int));
   success = SaveToStream(&output);
@@ -94,7 +94,8 @@ bool ObjectBase::SaveToStream(std::ofstream* Stream)
 
   for (iter = m_ObjectList.begin(); iter != m_ObjectList.end(); iter++)
   {
-    Stream->write("ObjS", 4); //Object, Static
+    //write header "ObjS"
+    Stream->write((char*) &cHeaderObjS, sizeof(unsigned int)); //Object, Static
     len = iter->first.length();
     Stream->write((char*) &len, sizeof(unsigned int));
     Stream->write(iter->first.c_str(), len);
@@ -113,8 +114,7 @@ bool ObjectBase::SaveToStream(std::ofstream* Stream)
 bool ObjectBase::LoadFromFile(const std::string FileName)
 {
   std::ifstream input;
-  unsigned int count, i, len;
-  char ID_Buffer[256], Mesh_Buffer[256];
+  unsigned int count, i;
 
   input.open(FileName.c_str(), std::ios::in | std::ios::binary);
   if(!input)
@@ -124,12 +124,12 @@ bool ObjectBase::LoadFromFile(const std::string FileName)
     return false;
   }//if
 
-  char Header[4];
-  Header[0] = Header[1] = Header[2] = Header[3] = '\0';
+  unsigned int Header;
+  Header = 0;
 
   //read header "Dusk"
-  input.read(Header, 4);
-  if ((Header[0]!='D') || (Header[1]!='u') || (Header[2]!='s') || (Header[3]!='k'))
+  input.read((char*) &Header, sizeof(unsigned int));
+  if (Header!=cHeaderDusk)
   {
     std::cout << "ObjectBase::LoadFromFile: ERROR: File contains invalid "
               << "file header.\n";
@@ -141,55 +141,65 @@ bool ObjectBase::LoadFromFile(const std::string FileName)
   input.read((char*) &count, sizeof(unsigned int));
   for (i=0; i<count; i++)
   {
-    //read header "ObjS" (Object, Static)
-    input.read(Header, 4);
-    if ((Header[0]!='O') || (Header[1]!='b') || (Header[2]!='j') || (Header[3]!='S'))
+    if (!LoadFromStream(&input));
     {
-      std::cout << "ObjectBase::LoadFromFile: ERROR: File contains invalid "
-                << "record header.\n";
+      std::cout << "ObjectBase::LoadFromFile: ERROR: while reading data.\n";
       input.close();
       return false;
     }//if
-    //read length of ID
-    input.read((char*) &len, sizeof(unsigned int));
-    if (len>255)
-    {
-      std::cout << "ObjectBase::LoadFromFile: ERROR: ID cannot be longer than "
-                << "255 characters.\n";
-      input.close();
-      return false;
-    }
-    //read ID
-    input.read(ID_Buffer, len);
-    ID_Buffer[len] = '\0'; //add terminating null character
-    if (!input.good())
-    {
-      std::cout << "ObjectBase::LoadFromFile: ERROR while reading data.\n";
-      input.close();
-      return false;
-    }
-    //read length of mesh name
-    input.read((char*) &len, sizeof(unsigned int));
-    if (len>255)
-    {
-      std::cout << "ObjectBase::LoadFromFile: ERROR: Name of Mesh cannot be "
-                << "longer than 255 characters.\n";
-      input.close();
-      return false;
-    }
-    //read ID
-    input.read(Mesh_Buffer, len);
-    Mesh_Buffer[len] = '\0'; //add terminating null character
-    if (!input.good())
-    {
-      std::cout << "ObjectBase::LoadFromFile: ERROR while reading data.\n";
-      input.close();
-      return false;
-    }
-    //now add it to the data
-    addObject(std::string(ID_Buffer), std::string(Mesh_Buffer));
   }//for
   input.close();
+  return true;
+}
+
+bool ObjectBase::LoadFromStream(std::ifstream* Stream)
+{
+  unsigned int len;
+  unsigned int Header = 0;
+  static char ID_Buffer[256], Mesh_Buffer[256];
+
+  //read header "ObjS" (Object, Static)
+  Stream->read((char*) &Header, sizeof(unsigned int));
+  if (Header!=cHeaderObjS)
+  {
+    std::cout << "ObjectBase::LoadFromStream: ERROR: Stream contains invalid "
+              << "record header.\n";
+    return false;
+  }//if
+  //read length of ID
+  Stream->read((char*) &len, sizeof(unsigned int));
+  if (len>255)
+  {
+    std::cout << "ObjectBase::LoadFromStream: ERROR: ID cannot be longer than "
+              << "255 characters.\n";
+    return false;
+  }
+  //read ID
+  Stream->read(ID_Buffer, len);
+  ID_Buffer[len] = '\0'; //add terminating null character
+  if (!(Stream->good()))
+  {
+    std::cout << "ObjectBase::LoadFromStream: ERROR while reading data.\n";
+    return false;
+  }
+  //read length of mesh name
+  Stream->read((char*) &len, sizeof(unsigned int));
+  if (len>255)
+  {
+    std::cout << "ObjectBase::LoadFromStream: ERROR: Name of Mesh cannot be "
+              << "longer than 255 characters.\n";
+    return false;
+  }
+  //read ID
+  Stream->read(Mesh_Buffer, len);
+  Mesh_Buffer[len] = '\0'; //add terminating null character
+  if (!(Stream->good()))
+  {
+    std::cout << "ObjectBase::LoadFromStream: ERROR while reading data.\n";
+    return false;
+  }
+  //now add it to the data
+  addObject(std::string(ID_Buffer), std::string(Mesh_Buffer));
   return true;
 }
 

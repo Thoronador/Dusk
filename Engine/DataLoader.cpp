@@ -4,6 +4,7 @@
 #include "ItemBase.h"
 #include "ObjectBase.h"
 #include "ObjectData.h"
+#include "DuskConstants.h"
 
 namespace Dusk
 {
@@ -38,7 +39,7 @@ bool DataLoader::SaveToFile(const std::string FileName, const unsigned int bits)
   }//if
 
   //write header "Dusk"
-  output.write("Dusk", 4);
+  output.write((char*) &cHeaderDusk, sizeof(unsigned int));
   //determine number of records
   data_records = 0;
   if ((bits & LANDSCAPE_BIT) !=0)
@@ -115,6 +116,91 @@ bool DataLoader::SaveToFile(const std::string FileName, const unsigned int bits)
     }//if
   }//if obj. references
   output.close();
+  return true;
+}
+
+bool DataLoader::LoadFromFile(const std::string FileName)
+{
+  std::ifstream input;
+  input.open(FileName.c_str(), std::ios::in | std::ios::binary);
+  if(!input)
+  {
+    std::cout << "DataLoader::LoadFromFile: Could not open file \""<<FileName
+              << "\" for reading in binary mode.\n";
+    return false;
+  }//if
+
+  unsigned int file_size, Header, data_records, records_done;
+
+  //determine file size
+  input.seekg(0, std::ios::end);
+  file_size = input.tellg();
+  input.seekg(0, std::ios::beg);
+
+  //read header "Dusk"
+  Header = 0;
+  input.read((char*) &Header, sizeof(unsigned int));
+  if (Header!=cHeaderDusk)
+  {
+    std::cout << "DataLoader::LoadFromFile: ERROR: File \""<<FileName
+              <<"\" contains invalid file header.\n";
+    input.close();
+    return false;
+  }
+
+  //determine number of records
+  data_records = 0;
+  input.read((char*) &data_records, sizeof(unsigned int));
+
+  //read loop
+  LandscapeRecord* land_rec = NULL;
+  bool success = true;
+  records_done = 0;
+  while ((records_done<data_records) && (input.tellg()<file_size))
+  {
+    Header = 0;
+    //read next record header
+    input.read((char*) &Header, sizeof(unsigned int));
+    input.seekg(-4, std::ios::cur);
+    switch (Header)
+    {
+      case cHeaderItem:
+           success = ItemBase::GetSingleton().LoadFromStream(&input);
+           break;
+      case cHeaderLand:
+           land_rec = Landscape::GetSingleton().CreateRecord();
+           success = land_rec->LoadFromStream(&input);
+           if (!success)
+           {
+             Landscape::GetSingleton().DestroyRecord(land_rec);
+           }
+           break;
+      case cHeaderObjS:
+           success = ObjectBase::GetSingleton().LoadFromStream(&input);
+           break;
+      case cHeaderRefO:
+           success = ObjectData::GetSingleton().LoadFromStream(&input);
+           break;
+      default:
+          std::cout << "DataLoader::LoadFromFile: ERROR: Got unexpected header "
+                    <<Header << " in file \""<<FileName<<"\" at position "
+                    <<input.tellg()<<".\n";
+          success = false;
+          break;
+    }//switch
+
+    if(!success or !input.good())
+    {
+      std::cout << "DataLoader::LoadFromFile: ERROR while reading data.\n"
+                << "Position: "<<input.tellg() << " bytes.\n"
+                << "Records read: "<<records_done<<" (excluding failure)\n";
+      input.close();
+      return false;
+    }
+    records_done++;
+  }//while
+  input.close();
+  std::cout << "DataLoader::LoadFromFile: Info: "<<records_done<<" records loaded.\n";
   return true;
 }
 

@@ -1,5 +1,5 @@
 #include "ItemBase.h"
-#include "DuskTypes.h"
+#include "DuskConstants.h"
 #include <iostream>
 
 namespace Dusk
@@ -120,7 +120,7 @@ bool ItemBase::SaveToFile(const std::string FileName)
   bool success = false;
   len = m_ItemList.size();
   //write header "Dusk"
-  output.write("Dusk", 4);
+  output.write((char*) &cHeaderDusk, sizeof(unsigned int));
   //number of elements to write (and later to read, on loading)
   output.write((char*) &len, sizeof(unsigned int));
   success = SaveToStream(&output);
@@ -136,7 +136,7 @@ bool ItemBase::SaveToStream(std::ofstream* Stream)
   for(iter=m_ItemList.begin(); iter!=m_ItemList.end(); iter++)
   {
     //write header "Item"
-    Stream->write("Item", 4);
+    Stream->write((char*) &cHeaderItem, sizeof(unsigned int));
     //write ID
     len = iter->first.length();
     Stream->write((char*) &len, sizeof(unsigned int));
@@ -166,11 +166,8 @@ bool ItemBase::SaveToStream(std::ofstream* Stream)
 bool ItemBase::LoadFromFile(const std::string FileName)
 {
   std::ifstream input;
-  unsigned int count, i, len;
-  char ID_Buffer[256], Name_Buffer[256], Mesh_Buffer[256];
-  int value;
-  float weight;
-
+  unsigned int count, i;
+  bool success;
   input.open(FileName.c_str(), std::ios::in | std::ios::binary);
   if(!input)
   {
@@ -179,12 +176,12 @@ bool ItemBase::LoadFromFile(const std::string FileName)
     return false;
   }//if
 
-  char Header[4];
-  Header[0] = Header[1] = Header[2] = Header[3] = '\0';
+  unsigned int Header;
+  Header = 0;
 
   //read header "Dusk"
-  input.read(Header, 4);
-  if ((Header[0]!='D') || (Header[1]!='u') || (Header[2]!='s') || (Header[3]!='k'))
+  input.read((char*) &Header, sizeof(unsigned int));
+  if (Header!=cHeaderDusk)
   {
     std::cout << "ItemBase::LoadFromFile: ERROR: File contains invalid "
               << "file header.\n";
@@ -197,81 +194,92 @@ bool ItemBase::LoadFromFile(const std::string FileName)
 
   for (i=0; i<count; i++)
   {
-    //read header "Item"
-    input.read(Header, 4);
-    if ((Header[0]!='I') || (Header[1]!='t') || (Header[2]!='e') || (Header[3]!='m'))
+    success = LoadFromStream(&input);
+    if (!success)
     {
-      std::cout << "ItemBase::LoadFromFile: ERROR: File contains invalid "
-                << "item record header.\n";
-      input.close();
-      return false;
-    }//if
-
-    //read length of ID
-    input.read((char*) &len, sizeof(unsigned int));
-    if (len>255)
-    {
-      std::cout << "ItemBase::LoadFromFile: ERROR: ID cannot be longer than "
-                << "255 characters.\n";
-      input.close();
-      return false;
+      break;
     }
-    //read ID
-    input.read(ID_Buffer, len);
-    ID_Buffer[len] = '\0'; //add terminating null character
-    if (!input.good())
-    {
-      std::cout << "ItemBase::LoadFromFile: ERROR while reading data (ID).\n";
-      input.close();
-      return false;
-    }
-
-    //read length of item name
-    input.read((char*) &len, sizeof(unsigned int));
-    if (len>255)
-    {
-      std::cout << "ItemBase::LoadFromFile: ERROR: item name cannot be longer "
-                << "than 255 characters.\n";
-      input.close();
-      return false;
-    }
-    //read item name
-    input.read(Name_Buffer, len);
-    Name_Buffer[len] = '\0'; //add terminating null character
-    if (!input.good())
-    {
-      std::cout << "ItemBase::LoadFromFile: ERROR while reading data (name).\n";
-      input.close();
-      return false;
-    }
-
-    //read value
-    input.read((char*) &value, sizeof(int));
-    //read weight
-    input.read((char*) &weight, sizeof(float));
-
-    //read length of mesh name
-    input.read((char*) &len, sizeof(unsigned int));
-    if (len>255)
-    {
-      std::cout << "ItemBase::LoadFromFile: ERROR: mesh name cannot be longer "
-                << "than 255 characters.\n";
-      input.close();
-      return false;
-    }
-    //read mesh name
-    input.read(Mesh_Buffer, len);
-    Mesh_Buffer[len] = '\0'; //add terminating null character
-    if (!input.good())
-    {
-      std::cout << "ItemBase::LoadFromFile: ERROR while reading data (mesh).\n";
-      input.close();
-      return false;
-    }
-    addItem(std::string(ID_Buffer), std::string(Name_Buffer), value, weight,
-            std::string(Mesh_Buffer));
   }//for
   input.close();
+  return success;
+}
+
+bool ItemBase::LoadFromStream(std::ifstream* Stream)
+{
+  unsigned int Header, len;
+  //buffers declared static to avoid multiple allocation and deallocation
+  //during multiple calls of LoadFromStream()
+  static char ID_Buffer[256], Name_Buffer[256], Mesh_Buffer[256];
+  int value;
+  float weight;
+
+  //read header "Item"
+  Header = 0;
+  Stream->read((char*) &Header, sizeof(unsigned int));
+  if (Header!=cHeaderItem)
+  {
+    std::cout << "ItemBase::LoadFromStream: ERROR: Stream contains invalid "
+              << "item record header.\n";
+    return false;
+  }//if
+
+  //read length of ID
+  Stream->read((char*) &len, sizeof(unsigned int));
+  if (len>255)
+  {
+    std::cout << "ItemBase::LoadFromStream: ERROR: ID cannot be longer than "
+              << "255 characters.\n";
+    return false;
+  }
+  //read ID
+  Stream->read(ID_Buffer, len);
+  ID_Buffer[len] = '\0'; //add terminating null character
+  if (!(Stream->good()))
+  {
+    std::cout << "ItemBase::LoadFromStream: ERROR while reading data (ID).\n";
+    return false;
+  }
+
+  //read length of item name
+  Stream->read((char*) &len, sizeof(unsigned int));
+  if (len>255)
+  {
+    std::cout << "ItemBase::LoadFromStream: ERROR: item name cannot be longer "
+              << "than 255 characters.\n";
+    return false;
+  }
+  //read item name
+  Stream->read(Name_Buffer, len);
+  Name_Buffer[len] = '\0'; //add terminating null character
+  if (!(Stream->good()))
+  {
+    std::cout << "ItemBase::LoadFromStream: ERROR while reading data (name).\n";
+    return false;
+  }
+
+  //read value
+  Stream->read((char*) &value, sizeof(int));
+  //read weight
+  Stream->read((char*) &weight, sizeof(float));
+
+  //read length of mesh name
+  Stream->read((char*) &len, sizeof(unsigned int));
+  if (len>255)
+  {
+    std::cout << "ItemBase::LoadFromStream: ERROR: mesh name cannot be longer "
+              << "than 255 characters.\n";
+    return false;
+  }
+  //read mesh name
+  Stream->read(Mesh_Buffer, len);
+  Mesh_Buffer[len] = '\0'; //add terminating null character
+  if (!(Stream->good()))
+  {
+    std::cout << "ItemBase::LoadFromStream: ERROR while reading data (mesh).\n";
+    return false;
+  }
+  addItem(std::string(ID_Buffer), std::string(Name_Buffer), value, weight,
+          std::string(Mesh_Buffer));
   return true;
 }
 

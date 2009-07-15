@@ -1,4 +1,5 @@
 #include "Landscape.h"
+#include "DuskConstants.h"
 #ifndef NO_OGRE_IN_LANDSCAPE
   #include "API.h"
 #endif
@@ -85,11 +86,11 @@ bool LandscapeRecord::LoadFromStream(std::ifstream *AStream)
     return false;
   }
 
-  char Land[4];
-  Land[0] = Land[1] = Land[2] = Land[3] = '\0';
+  unsigned int Land;
+  Land = 0;
   //read header "Land"
-  AStream->read(Land, 4);
-  if ((Land[0]!='L') || (Land[1]!='a') || (Land[2]!='n') || (Land[3]!='d'))
+  AStream->read((char*) &Land, sizeof(unsigned int));
+  if (Land!=cHeaderLand)
   {
     std::cout << "LandscapeRecord::LoadFromStream: Stream contains invalid "
               << "Landscape record header.\n";
@@ -170,7 +171,7 @@ bool LandscapeRecord::SaveToStream(std::ofstream *AStream)
     return false;
   }
   //write header "Land"
-  AStream->write("Land", 4);
+  AStream->write((char*) &cHeaderLand, sizeof(unsigned int));
   //write offsets
   AStream->write((char*) &m_OffsetX, sizeof(float));
   AStream->write((char*) &m_OffsetY, sizeof(float));
@@ -449,7 +450,7 @@ bool Landscape::LoadFromFile(const std::string FileName)
   }
 
   unsigned int numRecords, i;
-  char Header[4];
+  unsigned int Header;
   std::ifstream input;
 
   input.open(FileName.c_str(), std::ios::in | std::ios::binary);
@@ -461,8 +462,9 @@ bool Landscape::LoadFromFile(const std::string FileName)
   }//if
 
   //read header "Dusk"
-  input.read(Header, 4);
-  if ((Header[0]!='D') || (Header[1]!='u') || (Header[2]!='s') || (Header[3]!='k'))
+  Header = 0;
+  input.read((char*) &Header, sizeof(unsigned int));
+  if (Header!=cHeaderDusk)
   {
     std::cout << "Landscape::LoadFromFile: File \""<<FileName<< "\" has "
               << "invalid header.\n";
@@ -530,7 +532,7 @@ bool Landscape::SaveToFile(const std::string FileName)
   }//if
 
   //write header "Dusk"
-  output.write("Dusk", 4);
+  output.write((char*) &cHeaderDusk, sizeof(unsigned int));
   output.write((char*) &m_numRec, sizeof(unsigned int));
 
   unsigned int i;
@@ -675,8 +677,6 @@ bool Landscape::SendToEngine(Ogre::SceneManager * scm)
     return false;
   }
 
-  //Ogre::SceneManager * scm;
-  //scm = Dusk::getAPI().getOgreSceneManager();
   if (scm==NULL)
   {
     std::cout << "Landscape::SendToEngine: ERROR: Got NULL for scene manager.\n";
@@ -701,8 +701,6 @@ bool Landscape::RemoveFromEngine(Ogre::SceneManager * scm)
     return true; //nothing to remove, i.e. done ;)
   }
 
-  //Ogre::SceneManager * scm;
-  //scm = Dusk::getAPI().getOgreSceneManager();
   if (scm==NULL)
   {
     std::cout << "Landscape::RemoveFromEngine: ERROR: Got NULL for scene manager.\n";

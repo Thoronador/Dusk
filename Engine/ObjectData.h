@@ -9,22 +9,18 @@
 namespace Dusk
 {
 
-  /* basic data should contain:
-     ID of Object
-     position
-     rotation/ orientation
-     scaling factor
-  */
-
   class ObjectData
   {
     public:
       virtual ~ObjectData();
       static ObjectData& GetSingleton();
       unsigned int NumberOfReferences() const;
+      DuskObject* addReference(const std::string ID, const Ogre::Vector3 position,
+                               const Ogre::Vector3 rotation, const float scale);
       bool LoadFromFile(const std::string FileName);
       bool SaveToFile(const std::string FileName);
       bool SaveToStream(std::ofstream* Stream);
+      bool LoadFromStream(std::ifstream* Stream);
       void EnableAllObjects(Ogre::SceneManager * scm);
       void DisableAllObjects();
     private:

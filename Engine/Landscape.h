@@ -3,7 +3,6 @@
 
 #include <fstream>
 #include <string>
-#include "DuskTypes.h"
 #ifndef NO_OGRE_IN_LANDSCAPE
   #include <OgreManualObject.h>
 #endif
