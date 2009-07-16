@@ -1,9 +1,11 @@
 #include "DuskObject.h"
-#include "API.h"
 #include "ObjectBase.h"
 #include <sstream>
+#include <OgreSceneNode.h>
 
 namespace Dusk{
+
+const float cMinimumScaleBound = 0.01;
 
 unsigned int GenerateUniqueObjectID()
 {
@@ -39,7 +41,8 @@ DuskObject::DuskObject(const std::string _ID, const Ogre::Vector3 pos, const Ogr
 
 DuskObject::~DuskObject()
 {
-    //dtor
+  //deletes related Ogre entity and scene node, if present
+  Disable();
 }
 
 Ogre::Vector3 DuskObject::GetPosition() const
@@ -54,11 +57,24 @@ Ogre::Vector3 DuskObject::GetRotation() const
 
 void DuskObject::SetPosition(const Ogre::Vector3 pos)
 {
+  if(entity!=NULL)
+  {
+    entity->getParentSceneNode()->setPosition(pos);
+  }
   position = pos;
 }
 
 void DuskObject::SetRotation(const Ogre::Vector3 rot)
 {
+  if (entity != NULL)
+  {
+    entity->getParentSceneNode()->resetOrientation();
+    //not sure whether this is the best one...
+    // maybe we still need to set a different transform space
+    entity->getParentSceneNode()->rotate(Ogre::Vector3::UNIT_X, Ogre::Degree(rot.x));
+    entity->getParentSceneNode()->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(rot.y));
+    entity->getParentSceneNode()->rotate(Ogre::Vector3::UNIT_Z, Ogre::Degree(rot.z));
+  }
   rotation = rot;
 }
 
@@ -73,8 +89,16 @@ bool DuskObject::SetScale(const float newScale)
   {
     return false; //we don't change existing objects
   }
-  m_Scale = newScale;
-  return true;
+  //we don't want zero or negative values as scaling factor
+  if (newScale>= cMinimumScaleBound)
+  {
+    m_Scale = newScale;
+    return true;
+  }
+  std::cout << "DuskObject::Scale: Error: new scaling factor ("<<newScale
+            << ") is less than minimum scale boundary ("<<cMinimumScaleBound
+            << "). New scaling factor will not be applied.\n";
+  return false;
 }
 
 std::string DuskObject::GetID() const
@@ -113,6 +137,10 @@ bool DuskObject::Enable(Ogre::SceneManager* scm)
   Ogre::SceneNode* ent_node = scm->getRootSceneNode()->createChildSceneNode(entity_name.str(), position);
   ent_node->attachObject(entity);
   ent_node->scale(m_Scale, m_Scale, m_Scale);
+  //not sure whether this is the best one for rotation
+  ent_node->rotate(Ogre::Vector3::UNIT_X, Ogre::Degree(rotation.x));
+  ent_node->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(rotation.y));
+  ent_node->rotate(Ogre::Vector3::UNIT_Z, Ogre::Degree(rotation.z));
   return (entity!=NULL);
 }
 

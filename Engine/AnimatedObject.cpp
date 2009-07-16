@@ -58,6 +58,11 @@ void AnimatedObject::Move(const float SecondsPassed)
     velocity = velocity + SecondsPassed * acceleration;
   }
   position = position + SecondsPassed * velocity;
+  //adjust position of scene node/ entity in Ogre
+  if (IsEnabled())
+  {
+    SetPosition(position);
+  }
 }
 
 }

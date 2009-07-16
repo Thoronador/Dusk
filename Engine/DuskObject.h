@@ -3,6 +3,7 @@
 
 #include <string>
 #include <OgreEntity.h>
+#include <OgreSceneManager.h>
 #include <OgreVector3.h>
 
 namespace Dusk{
