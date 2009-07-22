@@ -1,18 +1,22 @@
 #ifndef EDITORFRAMELISTENER_H
 #define EDITORFRAMELISTENER_H
 
-#include "Ogre.h"
-#include "OgreStringConverter.h"
-#include "OgreException.h"
+#include <Ogre.h>
+#include <OgreStringConverter.h>
 
 //Use this define to signify OIS will be used as a DLL
 //(so that dll import/export macros are in effect)
 #define OIS_DYNAMIC_LIB
 #include <OIS/OIS.h>
 
-//using namespace Ogre;
+#include <CEGUI/CEGUI.h>
 
-class EditorFrameListener: public Ogre::FrameListener, public Ogre::WindowEventListener
+namespace Dusk
+{
+
+
+class EditorFrameListener: public Ogre::FrameListener, public Ogre::WindowEventListener,
+                           public OIS::MouseListener, public OIS::KeyListener
 {
 protected:
 	virtual void updateStats(void)
@@ -60,7 +64,6 @@ public:
 		mAniso(1), mSceneDetailIndex(0), mMoveSpeed(100), mRotateSpeed(36), mDebugOverlay(0),
 		mInputManager(0), mMouse(0), mKeyboard(0), mJoy(0)
 	{
-
 		mDebugOverlay = Ogre::OverlayManager::getSingleton().getByName("Core/DebugOverlay");
 
 		Ogre::LogManager::getSingletonPtr()->logMessage("*** Initializing OIS ***");
@@ -91,7 +94,33 @@ public:
 
 		//Register as a Window listener
 		Ogre::WindowEventUtilities::addWindowEventListener(mWindow, this);
+
+        mContinue=true;
+		mMouse->setEventCallback(this);
+        mKeyboard->setEventCallback(this);
+
+        CEGUI::WindowManager *wmgr = CEGUI::WindowManager::getSingletonPtr();
+        CEGUI::Window *quit = wmgr->getWindow((CEGUI::utf8*)"Editor/QuitButton");
+
+        quit->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorFrameListener::quit, this));
 	}
+
+	bool frameStarted(const Ogre::FrameEvent &evt);
+
+	// MouseListener
+    bool mouseMoved(const OIS::MouseEvent &arg);
+
+    bool mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
+
+    bool mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
+
+    // KeyListener
+    bool keyPressed(const OIS::KeyEvent &arg);
+
+    bool keyReleased(const OIS::KeyEvent &arg);
+
+    bool quit(const CEGUI::EventArgs &e);
 
 	//Adjust mouse clipping area
 	virtual void windowResized(Ogre::RenderWindow* rw);
@@ -143,6 +172,10 @@ protected:
 	OIS::Mouse*    mMouse;
 	OIS::Keyboard* mKeyboard;
 	OIS::JoyStick* mJoy;
-};
+
+	bool mContinue;
+};//class
+
+}//namespace
 
 #endif // EDITORFRAMELISTENER_H

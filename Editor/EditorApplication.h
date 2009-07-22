@@ -1,12 +1,16 @@
 #ifndef EditorApplication_h
 #define EditorApplication_h
 
-#include "Ogre.h"
-#include "OgreConfigFile.h"
+#include <Ogre.h>
+#include <OgreConfigFile.h>
 #include "EditorFrameListener.h"
 
-using namespace Ogre;
+#include <OgreCEGUIRenderer.h>
+#include <CEGUI/CEGUI.h>
 
+
+namespace Dusk
+{
 
 class EditorApplication
 {
@@ -27,6 +31,9 @@ protected:
     Ogre::RenderWindow* mWindow;
 	//Ogre::String mResourcePath;
 
+	CEGUI::System *mSystem;
+    CEGUI::OgreCEGUIRenderer *mRenderer;
+
     // These internal methods package up the stages in the startup process
     /** Sets up the application - returns false if the user chooses to abandon configuration. */
     virtual bool setup(void);
@@ -37,7 +44,7 @@ protected:
     virtual void createCamera(void);
     virtual void createFrameListener(void);
 
-    virtual void createScene(void) = 0;    // pure virtual - this has to be overridden
+    virtual void createScene(void);
 
     virtual void destroyScene(void);    // Optional to override this
 
@@ -52,7 +59,8 @@ protected:
 	/// Optional override method where you can perform resource group loading
 	/// Must at least do ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
 	virtual void loadResources(void);
+};//class
 
-};
+}//namespace
 
 #endif

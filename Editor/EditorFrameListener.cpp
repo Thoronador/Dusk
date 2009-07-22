@@ -1,5 +1,76 @@
 #include "EditorFrameListener.h"
 
+namespace Dusk
+{
+
+
+CEGUI::MouseButton convertButton(OIS::MouseButtonID buttonID)
+{
+    switch (buttonID)
+    {
+    case OIS::MB_Left:
+        return CEGUI::LeftButton;
+
+    case OIS::MB_Right:
+        return CEGUI::RightButton;
+
+    case OIS::MB_Middle:
+        return CEGUI::MiddleButton;
+
+    default:
+        return CEGUI::LeftButton;
+    }
+}
+
+
+bool EditorFrameListener::frameStarted(const Ogre::FrameEvent &evt)
+{
+  mKeyboard->capture();
+  mMouse->capture();
+
+  return mContinue && !mKeyboard->isKeyDown(OIS::KC_ESCAPE);
+}
+
+// MouseListener
+bool EditorFrameListener::mouseMoved(const OIS::MouseEvent &arg)
+{
+  CEGUI::System::getSingleton().injectMouseMove(arg.state.X.rel, arg.state.Y.rel);
+  return true;
+}
+
+bool EditorFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
+{
+  CEGUI::System::getSingleton().injectMouseButtonDown(convertButton(id));
+  return true;
+}
+
+bool EditorFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
+{
+  CEGUI::System::getSingleton().injectMouseButtonUp(convertButton(id));
+  return true;
+}
+
+// KeyListener
+bool EditorFrameListener::keyPressed(const OIS::KeyEvent &arg)
+{
+  CEGUI::System *sys = CEGUI::System::getSingletonPtr();
+  sys->injectKeyDown(arg.key);
+  sys->injectChar(arg.text);
+  return true;
+}
+
+bool EditorFrameListener::keyReleased(const OIS::KeyEvent &arg)
+{
+  CEGUI::System::getSingleton().injectKeyUp(arg.key);
+  return true;
+}
+
+bool EditorFrameListener::quit(const CEGUI::EventArgs &e)
+{
+  mContinue = false;
+  return true;
+}
+
 //Adjust mouse clipping area
 void EditorFrameListener::windowResized(Ogre::RenderWindow* rw)
 {
@@ -249,3 +320,5 @@ bool EditorFrameListener::frameEnded(const Ogre::FrameEvent& evt)
   updateStats();
   return true;
 }
+
+}//namespace
