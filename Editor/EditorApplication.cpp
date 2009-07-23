@@ -1,4 +1,5 @@
 #include "EditorApplication.h"
+#include "../Engine/DuskFunctions.h"
 
 namespace Dusk
 {
@@ -122,18 +123,14 @@ void EditorApplication::createScene(void)
   mSystem->setDefaultMouseCursor((CEGUI::utf8*)"TaharezLook", (CEGUI::utf8*)"MouseArrow");
   mSystem->setDefaultFont((CEGUI::utf8*)"BlueHighway-12");
 
-  CEGUI::WindowManager *win = CEGUI::WindowManager::getSingletonPtr();
-  CEGUI::Window *sheet = win->createWindow("DefaultGUISheet", "Editor/Sheet");
-
-  CEGUI::Window *quit = win->createWindow("TaharezLook/Button", "Editor/QuitButton");
-  quit->setText("Quit");
-  quit->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.05, 0)));
-
-  sheet->addChildWindow(quit);
+  CreateCEGUIRootWindow();
+  CreateCEGUIMenu();
 
   //just for test purposes we add a MultiColumnList and fill it with some entries
+  CEGUI::WindowManager& win = CEGUI::WindowManager::getSingleton();
+
   CEGUI::MultiColumnList *mcl = NULL;
-  mcl = static_cast<CEGUI::MultiColumnList*> (win->createWindow("TaharezLook/MultiColumnList", "Editor/ObjectBaseList"));
+  mcl = static_cast<CEGUI::MultiColumnList*> (win.createWindow("TaharezLook/MultiColumnList", "Editor/ObjectBaseList"));
   mcl->setSize(CEGUI::UVector2(CEGUI::UDim(0.45, 0), CEGUI::UDim(0.85, 0)));
   mcl->setPosition(CEGUI::UVector2(CEGUI::UDim(0.5, 0), CEGUI::UDim(0.1, 0)));
   mcl->addColumn("ID", 0, CEGUI::UDim(0.25, 0));
@@ -162,6 +159,8 @@ void EditorApplication::createScene(void)
   lbi = new CEGUI::ListboxTextItem("50");
   mcl->setItem(lbi, 3, row);
 
+  CEGUI::Window * sheet = win.getWindow("Editor/Root");
+  mcl->setInheritsAlpha(false);
   sheet->addChildWindow(mcl);
 
   mSystem->setGUISheet(sheet);
@@ -184,7 +183,6 @@ void EditorApplication::createViewports(void)
 
 void EditorApplication::setupResources(void)
 {
-  std::cout << "DEBUG: entered setupResources()\n";
   // Load resource paths from config file
   Ogre::ConfigFile cf;
   cf.load("resources.cfg");
@@ -206,7 +204,6 @@ void EditorApplication::setupResources(void)
               archName, typeName, secName);
     }
   }
-  std::cout << "DEBUG: left setupResources()\n";
 }
 
 void EditorApplication::createResourceListener(void)
@@ -218,6 +215,227 @@ void EditorApplication::loadResources(void)
 {
   // Initialise, parse scripts etc
   Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
+}
+
+//CEGUI-based stuff
+void EditorApplication::CreateCEGUIRootWindow(void)
+{
+  CEGUI::WindowManager *winmgr = CEGUI::WindowManager::getSingletonPtr();
+  CEGUI::Window *sheet = winmgr->createWindow("DefaultGUISheet", "Editor/Root");
+  sheet->setAlpha(0.0);
+  sheet->setPosition(CEGUI::UVector2(CEGUI::UDim(0.0, 0), CEGUI::UDim(0.0, 0)));
+  sheet->setSize(CEGUI::UVector2(CEGUI::UDim(1.0, 0), CEGUI::UDim(1.0, 0)));
+}
+
+void EditorApplication::CreateCEGUIMenu(void)
+{
+  CEGUI::WindowManager &wmgr = CEGUI::WindowManager::getSingleton();
+
+  CEGUI::Window *button = wmgr.createWindow("TaharezLook/Button", "Editor/LoadButton");
+  button->setText("Load");
+  button->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.05, 0)));
+  button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.0, 0), CEGUI::UDim(0.0, 0)));
+  button->setInheritsAlpha(false);
+  CEGUI::Window* sheet = CEGUI::WindowManager::getSingleton().getWindow("Editor/Root");
+  sheet->addChildWindow(button);
+  button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplication::LoadButtonClicked, this));
+
+  button = wmgr.createWindow("TaharezLook/Button", "Editor/SaveButton");
+  button->setText("Save");
+  button->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.05, 0)));
+  button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.0, 0), CEGUI::UDim(0.05, 0)));
+  button->setInheritsAlpha(false);
+  sheet->addChildWindow(button);
+
+  button = wmgr.createWindow("TaharezLook/Button", "Editor/QuitButton");
+  button->setText("Quit");
+  button->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.05, 0)));
+  button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.0, 0), CEGUI::UDim(0.1, 0)));
+  button->setInheritsAlpha(false);
+  sheet->addChildWindow(button);
+}
+
+void EditorApplication::showCEGUILoadWindow(void)
+{
+  CEGUI::FrameWindow* frame = NULL;
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+
+  if (winmgr.isWindowPresent("Editor/LoadFrame"))
+  {
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.getWindow("Editor/LoadFrame"));
+  }
+  else
+  {
+    //create it
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.createWindow("TaharezLook/FrameWindow", "Editor/LoadFrame"));
+    frame->setInheritsAlpha(false);
+    frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.1, 0)));
+    frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.5, 0), CEGUI::UDim(0.75, 0)));
+    frame->setTitleBarEnabled(true);
+    frame->setText("Load file...");
+    frame->setCloseButtonEnabled(false);
+    frame->setFrameEnabled(true);
+    frame->setSizingEnabled(false);
+    winmgr.getWindow("Editor/Root")->addChildWindow(frame);
+
+    //create buttons
+    // Button "OK" - will load selected file (not implemented yet)
+    CEGUI::Window *button = winmgr.createWindow("TaharezLook/Button", "Editor/LoadFrame/OKButton");
+    button->setText("OK");
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.06667, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.9, 0)));
+    frame->addChildWindow(button);
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplication::LoadFrameOKClicked, this));
+
+    // Button "Cancel" - closes 'window', i.e. frame
+    button = winmgr.createWindow("TaharezLook/Button", "Editor/LoadFrame/CancelButton");
+    button->setText("Cancel");
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.06667, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.9, 0)));
+    frame->addChildWindow(button);
+
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplication::LoadFrameCancelClicked, this));
+
+    //static text field
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/LoadFrame/Label");
+    button->setText("Files in directory:");
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.8, 0), CEGUI::UDim(0.06667, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.05, 0)));
+    frame->addChildWindow(button);
+
+    //to do: add files in directory to list and display them
+
+    //debug: shows all files
+    std::vector<FileEntry> file_list = getDirectoryFileList("./");
+    unsigned int i;
+    std::cout << "Files in directory:\n";
+    for (i=0; i<file_list.size(); i++)
+    {
+      std::cout << file_list.at(i).FileName<<"; directory: ";
+      if (file_list.at(i).IsDirectory)
+      {
+        std::cout <<"yes\n";
+      }
+      else
+      {
+        std::cout << "no\n";
+      }
+    }//for
+    std::cout << "total: "<< file_list.size() <<"\n\n";
+
+    //listbox to show all files
+    CEGUI::Listbox* FileBox = static_cast<CEGUI::Listbox*> (winmgr.createWindow("TaharezLook/Listbox", "Editor/LoadFrame/Listbox"));
+    FileBox->setSize(CEGUI::UVector2(CEGUI::UDim(0.8, 0), CEGUI::UDim(0.65, 0)));
+    FileBox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.2, 0)));
+    FileBox->setMultiselectEnabled(false);
+    FileBox->setSortingEnabled(false);
+    frame->addChildWindow(FileBox);
+    // --- add file names from vector
+    CEGUI::ListboxTextItem* lbi = NULL;
+    for (i=0; i<file_list.size(); i++)
+    {
+      lbi = new CEGUI::ListboxTextItem(file_list.at(i).FileName);
+      FileBox->addItem(lbi);
+    }//for
+  }
+  frame->setVisible(true);
+  frame->setAlwaysOnTop(true);
+}
+
+void EditorApplication::showWarning(const std::string Text_of_warning)
+{
+  if (Text_of_warning=="")
+  {
+    return;
+  }
+
+  CEGUI::FrameWindow* frame = NULL;
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+
+  if (winmgr.isWindowPresent("Editor/WarningFrame"))
+  {
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.getWindow("Editor/WarningFrame"));
+  }
+  else
+  {
+    //create it (frame first)
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.createWindow("TaharezLook/FrameWindow", "Editor/WarningFrame"));
+    frame->setInheritsAlpha(false);
+    frame->setTitleBarEnabled(true);
+    frame->setText("Warning!");
+    frame->setCloseButtonEnabled(false);
+    frame->setFrameEnabled(true);
+    frame->setSizingEnabled(true);
+    winmgr.getWindow("Editor/Root")->addChildWindow(frame);
+    //add static label for message
+    CEGUI::Window* button;
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/WarningFrame/Label");
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.8, 0), CEGUI::UDim(0.65, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.05, 0)));
+    frame->addChildWindow(button);
+    //create OK button
+    button = winmgr.createWindow("TaharezLook/Button", "Editor/WarningFrame/OK");
+    button->setText("OK");
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.2, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.75, 0)));
+    frame->addChildWindow(button);
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplication::WarningFrameOKClicked, this));
+  }
+  winmgr.getWindow("Editor/WarningFrame/Label")->setText(Text_of_warning);
+  frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.2, 0)));
+  frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.5, 0), CEGUI::UDim(0.25, 0)));
+  frame->setAlwaysOnTop(true);
+}
+
+//callbacks for buttons
+
+bool EditorApplication::LoadButtonClicked(const CEGUI::EventArgs &e)
+{
+  showCEGUILoadWindow();
+  return true;
+}
+
+bool EditorApplication::LoadFrameCancelClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager::getSingleton().destroyWindow("Editor/LoadFrame");
+  return true;
+}
+
+bool EditorApplication::LoadFrameOKClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::Listbox* FileBox = static_cast<CEGUI::Listbox*> (CEGUI::WindowManager::getSingleton().getWindow("Editor/LoadFrame/Listbox"));
+  CEGUI::ListboxItem* lbi = FileBox->getFirstSelectedItem();
+  if (lbi==NULL)
+  {
+    //no item selected
+    showWarning("You have not selected a file which shall be loaded.");
+    return true;
+  }
+  else
+  {
+    //we have a selected item, load it...
+    std::string PathToFile = std::string(lbi->getText().c_str());
+    //  --- close window
+    CEGUI::WindowManager::getSingleton().destroyWindow("Editor/LoadFrame");
+    //  --- clear all previously loaded data
+    //  --- try to load file via Dusk::DataLoader
+    //  **** still needs to be implemented ****
+  }//else branch
+  return true;
+}
+
+bool EditorApplication::WarningFrameOKClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/WarningFrame"))
+  {
+    winmgr.destroyWindow("Editor/WarningFrame");
+  }
+  return true;
 }
 
 }//namespace

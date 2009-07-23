@@ -4,9 +4,9 @@
 #include <Ogre.h>
 #include <OgreConfigFile.h>
 #include "EditorFrameListener.h"
-
 #include <OgreCEGUIRenderer.h>
 #include <CEGUI/CEGUI.h>
+#include <string>
 
 
 namespace Dusk
@@ -59,6 +59,20 @@ protected:
 	/// Optional override method where you can perform resource group loading
 	/// Must at least do ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
 	virtual void loadResources(void);
+
+	//CEGUI related methods to create interface
+	void CreateCEGUIRootWindow(void);
+	void CreateCEGUIMenu(void);
+	void showCEGUILoadWindow(void);
+
+	void showWarning(const std::string Text_of_warning);
+
+	//callbacks for buttons
+	bool LoadButtonClicked(const CEGUI::EventArgs &e);
+	bool LoadFrameCancelClicked(const CEGUI::EventArgs &e);
+	bool LoadFrameOKClicked(const CEGUI::EventArgs &e);
+	bool WarningFrameOKClicked(const CEGUI::EventArgs &e);
+
 };//class
 
 }//namespace
