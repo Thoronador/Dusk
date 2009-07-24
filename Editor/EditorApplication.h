@@ -4,13 +4,19 @@
 #include <Ogre.h>
 #include <OgreConfigFile.h>
 #include "EditorFrameListener.h"
+#include "../Engine/ItemBase.h"
 #include <OgreCEGUIRenderer.h>
 #include <CEGUI/CEGUI.h>
 #include <string>
-
+#include <vector>
 
 namespace Dusk
 {
+
+typedef struct FileEntry {
+                 std::string FileName;
+                 bool IsDirectory;
+};//struct
 
 class EditorApplication
 {
@@ -29,10 +35,14 @@ protected:
     Ogre::SceneManager* mSceneMgr;
     EditorFrameListener* mFrameListener;
     Ogre::RenderWindow* mWindow;
-	//Ogre::String mResourcePath;
 
 	CEGUI::System *mSystem;
     CEGUI::OgreCEGUIRenderer *mRenderer;
+
+    //application specific
+    std::string LoadedDataFile;
+    std::string LoadFrameDirectory;
+    std::vector<FileEntry> LoadFrameFiles;
 
     // These internal methods package up the stages in the startup process
     /** Sets up the application - returns false if the user chooses to abandon configuration. */
@@ -63,15 +73,21 @@ protected:
 	//CEGUI related methods to create interface
 	void CreateCEGUIRootWindow(void);
 	void CreateCEGUIMenu(void);
+	void CreateCEGUICatalogue(void);
 	void showCEGUILoadWindow(void);
-
+	void UpdateLoadWindowFiles(const std::string Directory);
 	void showWarning(const std::string Text_of_warning);
+	void showHint(const std::string hint_text);
+
+	void addItemRecordToCatalogue(const std::string& ID, const ItemRecord& ItemData);
+	void addObjectRecordToCatalogue(const std::string& ID, const std::string& Mesh);
 
 	//callbacks for buttons
 	bool LoadButtonClicked(const CEGUI::EventArgs &e);
 	bool LoadFrameCancelClicked(const CEGUI::EventArgs &e);
 	bool LoadFrameOKClicked(const CEGUI::EventArgs &e);
 	bool WarningFrameOKClicked(const CEGUI::EventArgs &e);
+	bool HintFrameOKClicked(const CEGUI::EventArgs &e);
 
 };//class
 

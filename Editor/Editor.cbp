@@ -34,7 +34,20 @@
 		<Unit filename="EditorFrameListener.cpp" />
 		<Unit filename="EditorFrameListener.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="../Engine/DataLoader.cpp" />
+		<Unit filename="../Engine/DataLoader.h" />
+		<Unit filename="../Engine/DuskConstants.h" />
 		<Unit filename="../Engine/DuskFunctions.h" />
+		<Unit filename="../Engine/DuskObject.cpp" />
+		<Unit filename="../Engine/DuskObject.h" />
+		<Unit filename="../Engine/ItemBase.cpp" />
+		<Unit filename="../Engine/ItemBase.h" />
+		<Unit filename="../Engine/Landscape.cpp" />
+		<Unit filename="../Engine/Landscape.h" />
+		<Unit filename="../Engine/ObjectBase.cpp" />
+		<Unit filename="../Engine/ObjectBase.h" />
+		<Unit filename="../Engine/ObjectData.cpp" />
+		<Unit filename="../Engine/ObjectData.h" />
 		<Extensions>
 			<code_completion />
 			<debugger />

@@ -23,6 +23,7 @@ namespace Dusk
       bool LoadFromStream(std::ifstream* Stream);
       void EnableAllObjects(Ogre::SceneManager * scm);
       void DisableAllObjects();
+      void ClearData();
     private:
       ObjectData();
       ObjectData(const ObjectData& op){}

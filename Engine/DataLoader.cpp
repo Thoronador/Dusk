@@ -204,4 +204,34 @@ bool DataLoader::LoadFromFile(const std::string FileName)
   return true;
 }
 
+void DataLoader::ClearData(const unsigned int bits)
+{
+  if ((bits & OBJECT_REF_BIT) != 0)
+  {
+    ObjectData::GetSingleton().ClearData();
+  }//Object references
+
+  if ((bits & OBJECT_BIT) != 0)
+  {
+    ObjectBase::GetSingleton().ClearAllObjects();
+    if (ObjectData::GetSingleton().NumberOfReferences()>0)
+    { //kill object data, it's useless with an empty object base
+      ObjectData::GetSingleton().ClearData();
+    }
+  }//Object information
+
+  if ((bits & ITEM_BIT)!=0)
+  {
+    ItemBase::GetSingleton().ClearAllItems();
+  }//item data
+
+  if ((bits & LANDSCAPE_BIT) !=0)
+  {
+    Landscape::GetSingleton().ClearAllRecords();
+  }//landscape
+
+}//clear data function
+
+
+
 }//namespace

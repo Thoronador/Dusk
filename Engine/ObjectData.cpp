@@ -11,15 +11,7 @@ ObjectData::ObjectData()
 
 ObjectData::~ObjectData()
 {
-  DuskObject * ObjPtr;
-  while(!m_ReferenceList.empty())
-  {
-    ObjPtr = m_ReferenceList.back();
-    ObjPtr->Disable();
-    delete ObjPtr;
-    m_ReferenceList.pop_back();
-  }//while
-  m_ReferenceList.clear();
+  ClearData();
 }
 
 ObjectData& ObjectData::GetSingleton()
@@ -235,5 +227,18 @@ void ObjectData::DisableAllObjects()
     }
   }//for
 }
+
+void ObjectData::ClearData()
+{
+  DuskObject * ObjPtr;
+  while(!m_ReferenceList.empty())
+  {
+    ObjPtr = m_ReferenceList.back();
+    ObjPtr->Disable();
+    delete ObjPtr;
+    m_ReferenceList.pop_back();
+  }//while
+  m_ReferenceList.clear();
+}//clear data
 
 }//namespace

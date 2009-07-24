@@ -167,7 +167,6 @@ bool ItemBase::LoadFromFile(const std::string FileName)
 {
   std::ifstream input;
   unsigned int count, i;
-  bool success;
   input.open(FileName.c_str(), std::ios::in | std::ios::binary);
   if(!input)
   {
@@ -192,6 +191,7 @@ bool ItemBase::LoadFromFile(const std::string FileName)
   //How many items do we have in file?
   input.read((char*) &count, sizeof(unsigned int));
 
+  bool success = true;
   for (i=0; i<count; i++)
   {
     success = LoadFromStream(&input);
@@ -281,6 +281,16 @@ bool ItemBase::LoadFromStream(std::ifstream* Stream)
   addItem(std::string(ID_Buffer), std::string(Name_Buffer), value, weight,
           std::string(Mesh_Buffer));
   return true;
+}
+
+std::map<std::string, ItemRecord>::iterator ItemBase::GetFirst()
+{
+  return m_ItemList.begin();
+}
+
+std::map<std::string, ItemRecord>::iterator ItemBase::GetEnd()
+{
+  return m_ItemList.end();
 }
 
 }//namespace

@@ -5,6 +5,7 @@
 #include <string>
 #ifndef NO_OGRE_IN_LANDSCAPE
   #include <OgreManualObject.h>
+  #include <OgreSceneManager.h>
 #endif
 
 namespace Dusk
@@ -76,6 +77,7 @@ namespace Dusk
       unsigned int m_RecordID;
       #ifndef NO_OGRE_IN_LANDSCAPE
       Ogre::ManualObject * m_OgreObject;
+      Ogre::SceneManager * m_scm;
       #endif
   };
 
@@ -93,6 +95,7 @@ namespace Dusk
       unsigned int RecordsAvailable();
       LandscapeRecord* GetRecordByPosition(const unsigned int record);
       LandscapeRecord* GetRecordByID(const unsigned int recordID);
+      void ClearAllRecords();
       #ifndef NO_OGRE_IN_LANDSCAPE
       //send loaded data to scene manager
       bool SendToEngine(Ogre::SceneManager * scm);

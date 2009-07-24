@@ -1,8 +1,8 @@
 #include "Landscape.h"
 #include "DuskConstants.h"
-#ifndef NO_OGRE_IN_LANDSCAPE
-  #include "API.h"
-#endif
+//#ifndef NO_OGRE_IN_LANDSCAPE
+//  #include "API.h"
+//#endif
 #include <iostream>
 #include <sstream>
 
@@ -32,6 +32,7 @@ LandscapeRecord::LandscapeRecord()
   m_Loaded = false;
   #ifndef NO_OGRE_IN_LANDSCAPE
   m_OgreObject = NULL;
+  m_scm = NULL;
   #endif
   m_RecordID = GenerateUniqueID();
   m_OffsetX = 0.0;
@@ -47,8 +48,7 @@ LandscapeRecord::~LandscapeRecord()
   #ifndef NO_OGRE_IN_LANDSCAPE
   if (m_OgreObject != NULL)
   {
-    Dusk::getAPI().getOgreSceneManager()->destroyManualObject(m_OgreObject);
-    m_OgreObject = NULL;
+    RemoveDataFromEngine();
   }
   #endif
 }
@@ -307,8 +307,6 @@ bool LandscapeRecord::SendDataToEngine(Ogre::SceneManager * scm)
     return false;
   }
 
-  //Ogre::SceneManager * scm;
-  //scm = Dusk::getAPI().getOgreSceneManager();
   if (scm==NULL)
   {
     std::cout << "LandscapeRecord::SendDataToEngine: ERROR: Got NULL for scene manager.\n";
@@ -364,6 +362,7 @@ bool LandscapeRecord::SendDataToEngine(Ogre::SceneManager * scm)
   }//for j
   m_OgreObject->end();
   landnode->attachObject(m_OgreObject);
+  m_scm = scm;
   return true;
 }
 
@@ -669,6 +668,11 @@ LandscapeRecord* Landscape::GetRecordByID(const unsigned int recordID)
   return NULL;
 }
 
+void Landscape::ClearAllRecords()
+{
+  ChangeListSize(0);
+}
+
 #ifndef NO_OGRE_IN_LANDSCAPE
 bool Landscape::SendToEngine(Ogre::SceneManager * scm)
 {
@@ -683,8 +687,11 @@ bool Landscape::SendToEngine(Ogre::SceneManager * scm)
     return false;
   }
 
-  //create own scene node for landscape
-  scm->getRootSceneNode()->createChildSceneNode(cLandNodeName, Ogre::Vector3(0.0, 0.0, 0.0));
+  if (!scm->hasSceneNode(cLandNodeName))
+  {
+    //create own scene node for landscape
+    scm->getRootSceneNode()->createChildSceneNode(cLandNodeName, Ogre::Vector3(0.0, 0.0, 0.0));
+  }
 
   unsigned int i;
   for (i=0; i<m_numRec; i++)
@@ -712,8 +719,11 @@ bool Landscape::RemoveFromEngine(Ogre::SceneManager * scm)
   {
     m_RecordList[i]->RemoveDataFromEngine();
   }//for
-  //remove previously create scene node for landscape
-  scm->getRootSceneNode()->removeChild(cLandNodeName);
+  if (scm->hasSceneNode(cLandNodeName))
+  {
+    //remove previously create scene node for landscape
+    scm->getRootSceneNode()->removeChild(cLandNodeName);
+  }
   return true;
 }
 
