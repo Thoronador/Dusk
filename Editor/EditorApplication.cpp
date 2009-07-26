@@ -346,7 +346,7 @@ void EditorApplication::CreateCEGUICatalogue(void)
 
   //sample data
   CEGUI::ListboxItem *lbi;
-  uint row;
+  unsigned int row;
   lbi = new CEGUI::ListboxTextItem("apple");
   row = mcl->addRow(lbi, 0);
   lbi = new CEGUI::ListboxTextItem("Fresh Apple");
@@ -562,7 +562,7 @@ void EditorApplication::addItemRecordToCatalogue(const std::string& ID, const It
   }
   mcl = static_cast<CEGUI::MultiColumnList*> (CEGUI::WindowManager::getSingleton().getWindow("Editor/Catalogue/Tab/Item/List"));
   CEGUI::ListboxItem *lbi;
-  uint row;
+  unsigned int row;
   lbi = new CEGUI::ListboxTextItem(ID);
   row = mcl->addRow(lbi, 0);
   lbi = new CEGUI::ListboxTextItem(ItemData.Name);
@@ -584,7 +584,7 @@ void EditorApplication::addObjectRecordToCatalogue(const std::string& ID, const 
   }
   mcl = static_cast<CEGUI::MultiColumnList*> (CEGUI::WindowManager::getSingleton().getWindow("Editor/Catalogue/Tab/Object/List"));
   CEGUI::ListboxItem *lbi;
-  uint row;
+  unsigned int row;
   lbi = new CEGUI::ListboxTextItem(ID);
   row = mcl->addRow(lbi, 0);
   lbi = new CEGUI::ListboxTextItem(Mesh);
