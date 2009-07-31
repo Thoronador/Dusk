@@ -100,9 +100,8 @@ public:
         mKeyboard->setEventCallback(this);
 
         CEGUI::WindowManager *wmgr = CEGUI::WindowManager::getSingletonPtr();
-        CEGUI::Window *quit = wmgr->getWindow((CEGUI::utf8*)"Editor/QuitButton");
-
-        quit->subscribeEvent(CEGUI::PushButton::EventClicked,
+        CEGUI::MenuItem *quit = static_cast<CEGUI::MenuItem*> (wmgr->getWindow((CEGUI::utf8*)"Editor/MenuBar/File/PopUp/Quit"));
+        quit->subscribeEvent(CEGUI::MenuItem::EventClicked,
             CEGUI::Event::Subscriber(&EditorFrameListener::quit, this));
 	}
 

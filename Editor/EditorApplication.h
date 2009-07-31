@@ -72,8 +72,10 @@ protected:
 
 	//CEGUI related methods to create interface
 	void CreateCEGUIRootWindow(void);
-	void CreateCEGUIMenu(void);
+	//void CreateCEGUIMenu(void);
+	void CreateCEGUIMenuBar(void);
 	void CreateCEGUICatalogue(void);
+	void CreatePopupMenus(void);
 	void showCEGUILoadWindow(void);
 	void UpdateLoadWindowFiles(const std::string Directory);
 	void showWarning(const std::string Text_of_warning);
@@ -88,6 +90,12 @@ protected:
 	bool LoadFrameOKClicked(const CEGUI::EventArgs &e);
 	bool WarningFrameOKClicked(const CEGUI::EventArgs &e);
 	bool HintFrameOKClicked(const CEGUI::EventArgs &e);
+	bool ObjectTabClicked(const CEGUI::EventArgs &e);
+
+	//callbacks for popup menus
+	bool ObjectNewClicked(const CEGUI::EventArgs &e);
+	bool ObjectEditClicked(const CEGUI::EventArgs &e);
+	bool ObjectDeleteClicked(const CEGUI::EventArgs &e);
 
 };//class
 

@@ -33,6 +33,7 @@ namespace Dusk
       static ObjectBase& GetSingleton();
       bool hasObject(const std::string NameOfObject) const;
       void addObject(const std::string ID, const std::string Mesh);
+      bool deleteObject(const std::string ID_of_Object);
       void ClearAllObjects();
       unsigned int NumberOfObjects() const;
       std::string GetMeshName(const std::string ID, const bool UseMarkerOnError=true) const;

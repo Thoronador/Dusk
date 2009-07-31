@@ -193,8 +193,10 @@ void EditorApplication::createScene(void)
   mSystem->setDefaultFont((CEGUI::utf8*)"BlueHighway-12");
 
   CreateCEGUIRootWindow();
-  CreateCEGUIMenu();
+  //CreateCEGUIMenu();
+  CreateCEGUIMenuBar();
   CreateCEGUICatalogue();
+  CreatePopupMenus();
 }
 
 void EditorApplication::destroyScene(void)
@@ -259,7 +261,7 @@ void EditorApplication::CreateCEGUIRootWindow(void)
   mSystem->setGUISheet(sheet);
 }
 
-void EditorApplication::CreateCEGUIMenu(void)
+/*void EditorApplication::CreateCEGUIMenu(void)
 {
   CEGUI::WindowManager &wmgr = CEGUI::WindowManager::getSingleton();
 
@@ -286,6 +288,41 @@ void EditorApplication::CreateCEGUIMenu(void)
   button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.0, 0), CEGUI::UDim(0.1, 0)));
   button->setInheritsAlpha(false);
   sheet->addChildWindow(button);
+}*/
+
+void EditorApplication::CreateCEGUIMenuBar(void)
+{
+  CEGUI::WindowManager &wmgr = CEGUI::WindowManager::getSingleton();
+
+  CEGUI::Menubar *menu = static_cast<CEGUI::Menubar*> (wmgr.createWindow("TaharezLook/Menubar", "Editor/MenuBar"));
+  menu->setSize(CEGUI::UVector2(CEGUI::UDim(0.75, 0), CEGUI::UDim(0.05, 0)));
+  menu->setPosition(CEGUI::UVector2(CEGUI::UDim(0.0, 0), CEGUI::UDim(0.00, 0)));
+  menu->setInheritsAlpha(false);
+
+  CEGUI::Window* sheet = CEGUI::WindowManager::getSingleton().getWindow("Editor/Root");
+  sheet->addChildWindow(menu);
+
+
+  CEGUI::MenuItem* menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/File"));
+  menu_item->setText("File");
+  menu_item->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.8, 0)));
+  menu_item->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.10, 0)));
+  menu->addChildWindow(menu_item);
+  //menu_item->openPopupMenu
+
+  CEGUI::PopupMenu * popup = static_cast<CEGUI::PopupMenu*> (wmgr.createWindow("TaharezLook/PopupMenu", "Editor/MenuBar/File/PopUp"));
+  menu_item->setPopupMenu(popup);
+
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/File/PopUp/Load"));
+  menu_item->setText("Load");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::LoadButtonClicked, this));
+  popup->addItem(menu_item);
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/File/PopUp/Save"));
+  menu_item->setText("Save");
+  popup->addItem(menu_item);
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/File/PopUp/Quit"));
+  menu_item->setText("Quit");
+  popup->addItem(menu_item);
 }
 
 void EditorApplication::CreateCEGUICatalogue(void)
@@ -321,7 +358,9 @@ void EditorApplication::CreateCEGUICatalogue(void)
   mcl->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.05, 0)));
   mcl->addColumn("ID", 0, CEGUI::UDim(0.48, 0));
   mcl->addColumn("Mesh", 1, CEGUI::UDim(0.48, 0));
+  mcl->setUserColumnDraggingEnabled(false);
   pane->addChildWindow(mcl);
+  mcl->subscribeEvent(CEGUI::Window::EventMouseButtonUp, CEGUI::Event::Subscriber(&EditorApplication::ObjectTabClicked, this));
 
   //add some random data
   addObjectRecordToCatalogue("The_ID", "flora/Oak.mesh");
@@ -342,6 +381,7 @@ void EditorApplication::CreateCEGUICatalogue(void)
   mcl->addColumn("Value", 2, CEGUI::UDim(0.19, 0));
   mcl->addColumn("Weight", 3, CEGUI::UDim(0.19, 0));
   mcl->addColumn("Mesh", 4, CEGUI::UDim(0.19, 0));
+  mcl->setUserColumnDraggingEnabled(false);
   pane->addChildWindow(mcl);
 
   //sample data
@@ -357,7 +397,30 @@ void EditorApplication::CreateCEGUICatalogue(void)
   mcl->setItem(lbi, 3, row);
   lbi = new CEGUI::ListboxTextItem("food/golden_delicious.mesh");
   mcl->setItem(lbi, 4, row);
+}
 
+void EditorApplication::CreatePopupMenus(void)
+{
+  CEGUI::WindowManager &wmgr = CEGUI::WindowManager::getSingleton();
+
+  //PopUp Menu for static objects' tab
+  CEGUI::PopupMenu * popup = static_cast<CEGUI::PopupMenu*> (wmgr.createWindow("TaharezLook/PopupMenu", "Editor/Catalogue/ObjectPopUp"));
+  popup->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.3, 0)));
+  popup->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.3, 0)));
+  CEGUI::MenuItem* menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/Catalogue/ObjectPopUp/New"));
+  menu_item->setText("New...");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::ObjectNewClicked, this));
+  popup->addItem(menu_item);
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/Catalogue/ObjectPopUp/Edit"));
+  menu_item->setText("Edit...");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::ObjectEditClicked, this));
+  popup->addItem(menu_item);
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/Catalogue/ObjectPopUp/Delete"));
+  menu_item->setText("Delete");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::ObjectDeleteClicked, this));
+  popup->addItem(menu_item);
+  wmgr.getWindow("Editor/Catalogue/Tab/Object/List")->addChildWindow(popup);
+  popup->closePopupMenu();
 }
 
 void EditorApplication::showCEGUILoadWindow(void)
@@ -718,6 +781,62 @@ bool EditorApplication::HintFrameOKClicked(const CEGUI::EventArgs &e)
   {
     winmgr.destroyWindow("Editor/HintFrame");
   }
+  return true;
+}
+
+bool EditorApplication::ObjectTabClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  //maybe we should provide checks here
+  CEGUI::PopupMenu * popup = static_cast<CEGUI::PopupMenu*> (winmgr.getWindow("Editor/Catalogue/ObjectPopUp"));
+  if (!popup->isPopupMenuOpen())
+  {
+    const CEGUI::MouseEventArgs& mea = static_cast<const CEGUI::MouseEventArgs&> (e);
+    std::cout << "Debug: MouseEvent data:\n"
+              << "  position: x: "<<mea.position.d_x<<"; y: "<<mea.position.d_y<<"\n"
+              << "  button: ";
+    switch (mea.button)
+    {
+      case CEGUI::LeftButton: std::cout << "left\n"; break;
+      case CEGUI::RightButton: std::cout << "right\n"; break;
+      default: std::cout << "other\n"; break;
+    }//swi
+    if (mea.button == CEGUI::RightButton)
+    {
+      float pu_x, pu_y;
+      CEGUI::Rect mcl_rect = winmgr.getWindow("Editor/Catalogue/Tab/Object/List")->getPixelRect();
+      pu_x = (mea.position.d_x-mcl_rect.d_left)/mcl_rect.getWidth();
+      pu_y = (mea.position.d_y-mcl_rect.d_top)/mcl_rect.getHeight();
+      //std::cout << "Debug: pu position: x: "<<pu_x<<"; y: "<<pu_y<<"\n";
+      popup->setPosition(CEGUI::UVector2(CEGUI::UDim(pu_x, 0), CEGUI::UDim(pu_y, 0)));
+      popup->openPopupMenu();
+    }
+  }
+  else
+  {
+    popup->closePopupMenu();
+  }
+  return true;
+}
+
+bool EditorApplication::ObjectNewClicked(const CEGUI::EventArgs &e)
+{
+  /* not implemented */
+  //showNewObjectWindow();
+  return true;
+}
+
+bool EditorApplication::ObjectEditClicked(const CEGUI::EventArgs &e)
+{
+  /* not implemented */
+  //showEditObjectWindow();
+  return true;
+}
+
+bool EditorApplication::ObjectDeleteClicked(const CEGUI::EventArgs &e)
+{
+  /* not implemented */
+  //showConfirmDeleteWindow();
   return true;
 }
 

@@ -43,6 +43,18 @@ void ItemBase::addItem(const std::string ID, const std::string name,
   m_ItemList[ID] = (ItemRecord){name, value, weight, Mesh};
 }
 
+bool ItemBase::deleteItem(const std::string ID_of_item)
+{
+  std::map<std::string, ItemRecord>::iterator iter;
+  iter = m_ItemList.find(ID_of_item);
+  if (iter == m_ItemList.end())
+  {
+    return false;
+  }
+  m_ItemList.erase(iter);
+  return true;
+}
+
 void ItemBase::ClearAllItems()
 {
   m_ItemList.clear();

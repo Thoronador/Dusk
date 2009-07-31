@@ -36,6 +36,18 @@ void ObjectBase::addObject(const std::string ID, const std::string Mesh)
   m_ObjectList[ID] = Mesh;
 }
 
+bool ObjectBase::deleteObject(const std::string ID_of_Object)
+{
+  std::map<std::string, std::string>::iterator iter;
+  iter = m_ObjectList.find(ID_of_Object);
+  if (iter==m_ObjectList.end())
+  {
+    return false;
+  }
+  m_ObjectList.erase(iter);
+  return true;
+}
+
 void ObjectBase::ClearAllObjects()
 {
   m_ObjectList.clear();

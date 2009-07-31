@@ -46,6 +46,7 @@ namespace Dusk
       bool hasItem(const std::string ID_of_item) const;
       void addItem(const std::string ID, const std::string name, const int value,
                    const float weight, const std::string Mesh);
+      bool deleteItem(const std::string ID_of_item);
       void ClearAllItems();
       unsigned int NumberOfItems() const;
       std::string GetItemName(const std::string itemID);
