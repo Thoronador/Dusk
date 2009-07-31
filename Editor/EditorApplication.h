@@ -44,6 +44,9 @@ protected:
     std::string LoadFrameDirectory;
     std::vector<FileEntry> LoadFrameFiles;
 
+    // saved position of cursor when it triggered popup
+    float popup_pos_x, popup_pos_y;
+
     // These internal methods package up the stages in the startup process
     /** Sets up the application - returns false if the user chooses to abandon configuration. */
     virtual bool setup(void);
@@ -78,14 +81,23 @@ protected:
 	void CreatePopupMenus(void);
 	void showCEGUILoadWindow(void);
 	void UpdateLoadWindowFiles(const std::string Directory);
+
+	//general message windows
 	void showWarning(const std::string Text_of_warning);
 	void showHint(const std::string hint_text);
 
+    //windows for creating/ editing objects
+	void showObjectNewWindow(void);
+	void showObjectEditWindow(CEGUI::String ID_of_object_to_edit);
+
+    //methods to visually add Items or Objects to catalogue
+    //  (real data is not effected, methods only show new row in catalogue)
 	void addItemRecordToCatalogue(const std::string& ID, const ItemRecord& ItemData);
 	void addObjectRecordToCatalogue(const std::string& ID, const std::string& Mesh);
 
 	//callbacks for buttons
 	bool LoadButtonClicked(const CEGUI::EventArgs &e);
+	bool SaveButtonClicked(const CEGUI::EventArgs &e);
 	bool LoadFrameCancelClicked(const CEGUI::EventArgs &e);
 	bool LoadFrameOKClicked(const CEGUI::EventArgs &e);
 	bool WarningFrameOKClicked(const CEGUI::EventArgs &e);
@@ -96,6 +108,13 @@ protected:
 	bool ObjectNewClicked(const CEGUI::EventArgs &e);
 	bool ObjectEditClicked(const CEGUI::EventArgs &e);
 	bool ObjectDeleteClicked(const CEGUI::EventArgs &e);
+
+	//callbacks of window for creating new objects
+	bool ObjectNewFrameCancelClicked(const CEGUI::EventArgs &e);
+	bool ObjectNewFrameOKClicked(const CEGUI::EventArgs &e);
+	//callbacks of window for editing objects
+	bool ObjectEditFrameCancelClicked(const CEGUI::EventArgs &e);
+	bool ObjectEditFrameSaveClicked(const CEGUI::EventArgs &e);
 
 };//class
 
