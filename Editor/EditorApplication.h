@@ -43,6 +43,9 @@ protected:
     std::string LoadedDataFile;
     std::string LoadFrameDirectory;
     std::vector<FileEntry> LoadFrameFiles;
+    //id of item for deletion
+    std::string ID_of_object_to_delete;
+
 
     // saved position of cursor when it triggered popup
     float popup_pos_x, popup_pos_y;
@@ -89,6 +92,7 @@ protected:
     //windows for creating/ editing objects
 	void showObjectNewWindow(void);
 	void showObjectEditWindow(CEGUI::String ID_of_object_to_edit);
+	void showObjectConfirmDeleteWindow(void);
 
     //methods to visually add Items or Objects to catalogue
     //  (real data is not effected, methods only show new row in catalogue)
@@ -115,6 +119,9 @@ protected:
 	//callbacks of window for editing objects
 	bool ObjectEditFrameCancelClicked(const CEGUI::EventArgs &e);
 	bool ObjectEditFrameSaveClicked(const CEGUI::EventArgs &e);
+	//callbacks of window to delete objects
+	bool ObjectDeleteFrameNoClicked(const CEGUI::EventArgs &e);
+	bool ObjectDeleteFrameYesClicked(const CEGUI::EventArgs &e);
 
 };//class
 

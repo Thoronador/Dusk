@@ -16,6 +16,8 @@
 namespace Dusk
 {
 
+const CEGUI::colour cSelectionColour = CEGUI::colour(65.0f/255.0f, 105.0f/255.0f, 225.0f/255.0f, 0.5f);
+
 std::vector<FileEntry> get_DirectoryFileList(const std::string Directory)
 {
   std::vector<FileEntry> result;
@@ -79,6 +81,7 @@ EditorApplication::EditorApplication()
   LoadedDataFile = "";
   LoadFrameDirectory = "."+path_sep;
   LoadFrameFiles.clear();
+  ID_of_object_to_delete = "";
   popup_pos_x = 0.0f;
   popup_pos_y = 0.0f;
 }
@@ -411,15 +414,15 @@ void EditorApplication::CreatePopupMenus(void)
   popup->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.3, 0)));
   popup->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.3, 0)));
   CEGUI::MenuItem* menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/Catalogue/ObjectPopUp/New"));
-  menu_item->setText("New...");
+  menu_item->setText("New object...");
   menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::ObjectNewClicked, this));
   popup->addItem(menu_item);
   menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/Catalogue/ObjectPopUp/Edit"));
-  menu_item->setText("Edit...");
+  menu_item->setText("Edit selected object...");
   menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::ObjectEditClicked, this));
   popup->addItem(menu_item);
   menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/Catalogue/ObjectPopUp/Delete"));
-  menu_item->setText("Delete");
+  menu_item->setText("Delete selected object");
   menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::ObjectDeleteClicked, this));
   popup->addItem(menu_item);
   wmgr.getWindow("Editor/Catalogue/Tab/Object/List")->addChildWindow(popup);
@@ -772,6 +775,61 @@ void EditorApplication::showObjectEditWindow(CEGUI::String ID_of_object_to_edit)
   frame->moveToFront();
 }
 
+void EditorApplication::showObjectConfirmDeleteWindow(void)
+{
+
+  CEGUI::FrameWindow* frame = NULL;
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+
+  if (winmgr.isWindowPresent("Editor/ObjectDeleteFrame"))
+  {
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.getWindow("Editor/ObjectDeleteFrame"));
+  }
+  else
+  {
+    //create it (frame first)
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.createWindow("TaharezLook/FrameWindow", "Editor/ObjectDeleteFrame"));
+    frame->setInheritsAlpha(false);
+    frame->setTitleBarEnabled(true);
+    frame->setText("Delete Object...");
+    frame->setCloseButtonEnabled(false);
+    frame->setFrameEnabled(true);
+    frame->setSizingEnabled(true);
+    winmgr.getWindow("Editor/Root")->addChildWindow(frame);
+
+    //add static label for message
+    CEGUI::MultiLineEditbox* textbox;
+    textbox = static_cast<CEGUI::MultiLineEditbox*> (winmgr.createWindow("TaharezLook/MultiLineEditbox", "Editor/ObjectDeleteFrame/Label"));
+    textbox->setSize(CEGUI::UVector2(CEGUI::UDim(0.8, 0), CEGUI::UDim(0.55, 0)));
+    textbox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.15, 0)));
+    textbox->setWordWrapping(true);
+    textbox->setReadOnly(true);
+    textbox->setText("Do you really want to delete the object \""+ID_of_object_to_delete+"\" and all of its references?");
+    frame->addChildWindow(textbox);
+
+    //create yes button
+    CEGUI::Window* button = winmgr.createWindow("TaharezLook/Button", "Editor/ObjectDeleteFrame/Yes");
+    button->setText("Yes, go on.");
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.2, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.75, 0)));
+    frame->addChildWindow(button);
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplication::ObjectDeleteFrameYesClicked, this));
+
+    //create no button
+    button = winmgr.createWindow("TaharezLook/Button", "Editor/ObjectDeleteFrame/No");
+    button->setText("No, wait!");
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.2, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.75, 0)));
+    frame->addChildWindow(button);
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplication::ObjectDeleteFrameNoClicked, this));
+  }
+  frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.18, 0)));
+  frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.4, 0)));
+  frame->moveToFront();
+}
+
 //for catalogue:
 
 void EditorApplication::addItemRecordToCatalogue(const std::string& ID, const ItemRecord& ItemData)
@@ -785,14 +843,19 @@ void EditorApplication::addItemRecordToCatalogue(const std::string& ID, const It
   CEGUI::ListboxItem *lbi;
   unsigned int row;
   lbi = new CEGUI::ListboxTextItem(ID);
+  lbi->setSelectionColours(cSelectionColour);
   row = mcl->addRow(lbi, 0);
   lbi = new CEGUI::ListboxTextItem(ItemData.Name);
+  lbi->setSelectionColours(cSelectionColour);
   mcl->setItem(lbi, 1, row);
   lbi = new CEGUI::ListboxTextItem(FloatToString(ItemData.weight));
+  lbi->setSelectionColours(cSelectionColour);
   mcl->setItem(lbi, 2, row);
   lbi = new CEGUI::ListboxTextItem(IntToString(ItemData.value));
+  lbi->setSelectionColours(cSelectionColour);
   mcl->setItem(lbi, 3, row);
   lbi = new CEGUI::ListboxTextItem(ItemData.Mesh);
+  lbi->setSelectionColours(cSelectionColour);
   mcl->setItem(lbi, 4, row);
 }
 
@@ -807,8 +870,10 @@ void EditorApplication::addObjectRecordToCatalogue(const std::string& ID, const 
   CEGUI::ListboxItem *lbi;
   unsigned int row;
   lbi = new CEGUI::ListboxTextItem(ID);
+  lbi->setSelectionColours(cSelectionColour);
   row = mcl->addRow(lbi, 0);
   lbi = new CEGUI::ListboxTextItem(Mesh);
+  lbi->setSelectionColours(cSelectionColour);
   mcl->setItem(lbi, 1, row);
 }
 
@@ -884,6 +949,7 @@ bool EditorApplication::LoadFrameOKClicked(const CEGUI::EventArgs &e)
     // --- clear previously loaded data
     DataLoader::GetSingleton().ClearData(ALL_BITS);
     LoadedDataFile = "";
+    ID_of_object_to_delete = "";
     CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*>
              (CEGUI::WindowManager::getSingleton().getWindow("Editor/Catalogue/Tab/Item/List"));
     mcl->resetList();
@@ -1015,6 +1081,30 @@ bool EditorApplication::ObjectEditClicked(const CEGUI::EventArgs &e)
     std::cout << "Debug: No item selected.\n";
     return true;
   }
+
+  //Debug
+  std::cout << "DEBUG: selection colours:\n  top left:"
+            << lb_item->getSelectionColours().d_top_left.getRed() << "; "
+            << lb_item->getSelectionColours().d_top_left.getGreen() << "; "
+            << lb_item->getSelectionColours().d_top_left.getBlue() << "; "
+            << lb_item->getSelectionColours().d_top_left.getAlpha() << "\n"
+
+            << lb_item->getSelectionColours().d_top_right.getRed() << "; "
+            << lb_item->getSelectionColours().d_top_right.getGreen() << "; "
+            << lb_item->getSelectionColours().d_top_right.getBlue() << "; "
+            << lb_item->getSelectionColours().d_top_right.getAlpha() << "\n"
+
+            << lb_item->getSelectionColours().d_bottom_left.getRed() << "; "
+            << lb_item->getSelectionColours().d_bottom_left.getGreen() << "; "
+            << lb_item->getSelectionColours().d_bottom_left.getBlue() << "; "
+            << lb_item->getSelectionColours().d_bottom_left.getAlpha() << "\n"
+
+            << lb_item->getSelectionColours().d_bottom_right.getRed() << "; "
+            << lb_item->getSelectionColours().d_bottom_right.getGreen() << "; "
+            << lb_item->getSelectionColours().d_bottom_right.getBlue() << "; "
+            << lb_item->getSelectionColours().d_bottom_right.getAlpha() << "\n";
+  //DEBUG end
+
   unsigned int row_index = mcl->getItemRowIndex(lb_item);
   lb_item = mcl->getItemAtGridReference(CEGUI::MCLGridRef(row_index, 0));
  // lb_item->getText().c_str();
@@ -1025,8 +1115,21 @@ bool EditorApplication::ObjectEditClicked(const CEGUI::EventArgs &e)
 
 bool EditorApplication::ObjectDeleteClicked(const CEGUI::EventArgs &e)
 {
-  /* not implemented */
-  //showConfirmDeleteWindow();
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*>
+                                (winmgr.getWindow("Editor/Catalogue/Tab/Object/List"));
+  CEGUI::ListboxItem* lbi = mcl->getFirstSelectedItem();
+  if (lbi==NULL)
+  {
+    showHint("You have to select an object from the list to delete it.");
+  }
+  else
+  {
+    unsigned int row_index = mcl->getItemRowIndex(lbi);
+    lbi = mcl->getItemAtGridReference(CEGUI::MCLGridRef(row_index, 0));
+    ID_of_object_to_delete = std::string(lbi->getText().c_str());
+    showObjectConfirmDeleteWindow();
+  }
   return true;
 }
 
@@ -1089,6 +1192,56 @@ bool EditorApplication::ObjectEditFrameCancelClicked(const CEGUI::EventArgs &e)
 bool EditorApplication::ObjectEditFrameSaveClicked(const CEGUI::EventArgs &e)
 {
   //not yet implemented
+  return true;
+}
+
+bool EditorApplication::ObjectDeleteFrameNoClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/ObjectDeleteFrame"))
+  {
+    winmgr.destroyWindow("Editor/ObjectDeleteFrame");
+  }
+  return true;
+}
+
+bool EditorApplication::ObjectDeleteFrameYesClicked(const CEGUI::EventArgs &e)
+{
+  //not yet implemented
+  if (ID_of_object_to_delete == "")
+  {
+    showWarning("Error: object ID is empty string!");
+    //delete window
+    CEGUI::WindowManager::getSingleton().destroyWindow("Editor/ObjectDeleteFrame");
+    return true;
+  }
+  if (!ObjectBase::GetSingleton().deleteObject(ID_of_object_to_delete))
+  {
+    showHint("ObjectBase class holds no object of the given ID ("
+             +ID_of_object_to_delete+").");
+    //delete window
+    CEGUI::WindowManager::getSingleton().destroyWindow("Editor/ObjectDeleteFrame");
+    return true;
+  }
+  unsigned int refs_deleted = ObjectData::GetSingleton().deleteReferencesOfObject(ID_of_object_to_delete);
+  if (refs_deleted == 0)
+  {
+    showHint("Object \""+ID_of_object_to_delete+"\" deleted! It had no references which had to be deleted.");
+  }
+  else
+  {
+    showHint("Object \""+ID_of_object_to_delete+"\" and "+IntToString(refs_deleted)+" references of it were deleted!");
+  }
+  //delete row in multi column list of objects
+  CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*>
+                                (CEGUI::WindowManager::getSingleton().getWindow("Editor/Catalogue/Tab/Object/List"));
+  CEGUI::ListboxItem * lb_it = NULL;
+  lb_it = mcl->findColumnItemWithText(ID_of_object_to_delete, 0, NULL);
+  mcl->removeRow(mcl->getItemRowIndex(lb_it));
+  //reset ID to empty string
+  ID_of_object_to_delete = "";
+  //delete window
+  CEGUI::WindowManager::getSingleton().destroyWindow("Editor/ObjectDeleteFrame");
   return true;
 }
 

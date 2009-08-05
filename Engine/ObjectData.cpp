@@ -228,6 +228,32 @@ void ObjectData::DisableAllObjects()
   }//for
 }
 
+unsigned int ObjectData::deleteReferencesOfObject(const std::string ID)
+{
+  unsigned int deletedReferences = 0;
+  long int i;
+  for (i=m_ReferenceList.size()-1; i>=0; i--)
+  {
+    if (m_ReferenceList.at(i)!=NULL)
+    {
+      if (m_ReferenceList.at(i)->GetID()==ID)
+      {
+        delete m_ReferenceList.at(i);
+        deletedReferences++;
+        //swap position of deleted element mith one at the end
+        // (needed later do do only one call to erase)
+        m_ReferenceList.at(i) = m_ReferenceList.at(m_ReferenceList.size()-deletedReferences);
+        m_ReferenceList.at(m_ReferenceList.size()-deletedReferences) = NULL;
+      }//if
+    }//if
+  }//for
+  if (deletedReferences >0)
+  {
+    m_ReferenceList.erase(m_ReferenceList.begin()+m_ReferenceList.size()-deletedReferences, m_ReferenceList.end());
+  }//if
+  return deletedReferences;
+}
+
 void ObjectData::ClearData()
 {
   DuskObject * ObjPtr;
