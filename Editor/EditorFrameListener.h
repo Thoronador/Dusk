@@ -14,6 +14,10 @@
 namespace Dusk
 {
 
+enum EditorMode
+{
+  EM_Movement,EM_Landscape, EM_Lists
+};
 
 class EditorFrameListener: public Ogre::FrameListener, public Ogre::WindowEventListener,
                            public OIS::MouseListener, public OIS::KeyListener
@@ -103,6 +107,7 @@ public:
         CEGUI::MenuItem *quit = static_cast<CEGUI::MenuItem*> (wmgr->getWindow((CEGUI::utf8*)"Editor/MenuBar/File/PopUp/Quit"));
         quit->subscribeEvent(CEGUI::MenuItem::EventClicked,
             CEGUI::Event::Subscriber(&EditorFrameListener::quit, this));
+        m_Mode = EM_Lists;
 	}
 
 	bool frameStarted(const Ogre::FrameEvent &evt);
@@ -141,6 +146,9 @@ public:
 
 	bool frameEnded(const Ogre::FrameEvent& evt);
 
+	//mode for application
+	void setEditorMode(const EditorMode em);
+
 protected:
 	Ogre::Camera* mCamera;
 
@@ -171,6 +179,8 @@ protected:
 	OIS::Mouse*    mMouse;
 	OIS::Keyboard* mKeyboard;
 	OIS::JoyStick* mJoy;
+
+    EditorMode m_Mode;
 
 	bool mContinue;
 };//class

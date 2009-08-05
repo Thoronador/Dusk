@@ -31,7 +31,6 @@ public:
 
 protected:
     Ogre::Root *mRoot;
-    Ogre::Camera* mCamera;
     Ogre::SceneManager* mSceneMgr;
     EditorFrameListener* mFrameListener;
     Ogre::RenderWindow* mWindow;
@@ -99,9 +98,15 @@ protected:
 	void addItemRecordToCatalogue(const std::string& ID, const ItemRecord& ItemData);
 	void addObjectRecordToCatalogue(const std::string& ID, const std::string& Mesh);
 
-	//callbacks for buttons
+	//callbacks for menu items
 	bool LoadButtonClicked(const CEGUI::EventArgs &e);
 	bool SaveButtonClicked(const CEGUI::EventArgs &e);
+
+	bool ModeMoveClicked(const CEGUI::EventArgs &e);
+	bool ModeLandClicked(const CEGUI::EventArgs &e);
+	bool ModeListClicked(const CEGUI::EventArgs &e);
+
+	//callbacks for buttons
 	bool LoadFrameCancelClicked(const CEGUI::EventArgs &e);
 	bool LoadFrameOKClicked(const CEGUI::EventArgs &e);
 	bool WarningFrameOKClicked(const CEGUI::EventArgs &e);

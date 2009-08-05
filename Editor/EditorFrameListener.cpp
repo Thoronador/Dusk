@@ -1,4 +1,5 @@
 #include "EditorFrameListener.h"
+#include "EditorCamera.h"
 
 namespace Dusk
 {
@@ -34,6 +35,11 @@ bool EditorFrameListener::frameStarted(const Ogre::FrameEvent &evt)
 // MouseListener
 bool EditorFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 {
+  if ( m_Mode == EM_Movement && arg.state.buttonDown(OIS::MB_Right))
+  {
+    EditorCamera::GetSingleton().relativeRotation( arg.state.X.rel * 180.0f/800.0f);
+    return true;
+  }
   CEGUI::System::getSingleton().injectMouseMove(arg.state.X.rel, arg.state.Y.rel);
   return true;
 }
@@ -53,6 +59,42 @@ bool EditorFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseBu
 // KeyListener
 bool EditorFrameListener::keyPressed(const OIS::KeyEvent &arg)
 {
+  if (m_Mode == EM_Movement)
+  {
+    switch(arg.key)
+    {
+      case OIS::KC_W:
+      case OIS::KC_UP:
+           EditorCamera::GetSingleton().setTranslationVector(25*Ogre::Vector3::NEGATIVE_UNIT_Z);
+           return true;
+           break;
+      case OIS::KC_S:
+      case OIS::KC_DOWN:
+           EditorCamera::GetSingleton().setTranslationVector(25*Ogre::Vector3::UNIT_Z);
+           return true;
+           break;
+      case OIS::KC_A:
+      case OIS::KC_LEFT:
+           EditorCamera::GetSingleton().setTranslationVector(25*Ogre::Vector3::NEGATIVE_UNIT_X);
+           return true;
+           break;
+      case OIS::KC_D:
+      case OIS::KC_RIGHT:
+           EditorCamera::GetSingleton().setTranslationVector(25*Ogre::Vector3::UNIT_X);
+           return true;
+           break;
+      case OIS::KC_Q:
+           EditorCamera::GetSingleton().setRotationSpeed(60.0f);
+           return true;
+           break;
+      case OIS::KC_E:
+           EditorCamera::GetSingleton().setRotationSpeed(-60.0f);
+           return true;
+           break;
+      default: break;
+    }//swi
+  }//if
+
   CEGUI::System *sys = CEGUI::System::getSingletonPtr();
   sys->injectKeyDown(arg.key);
   sys->injectChar(arg.text);
@@ -61,6 +103,30 @@ bool EditorFrameListener::keyPressed(const OIS::KeyEvent &arg)
 
 bool EditorFrameListener::keyReleased(const OIS::KeyEvent &arg)
 {
+  if (m_Mode == EM_Movement)
+  {
+    switch(arg.key)
+    {
+      case OIS::KC_W:
+      case OIS::KC_UP:
+      case OIS::KC_S:
+      case OIS::KC_DOWN:
+      case OIS::KC_A:
+      case OIS::KC_LEFT:
+      case OIS::KC_D:
+      case OIS::KC_RIGHT:
+           EditorCamera::GetSingleton().setTranslationVector(Ogre::Vector3::ZERO);
+           return true;
+           break;
+      case OIS::KC_Q:
+      case OIS::KC_E:
+           EditorCamera::GetSingleton().setRotationSpeed(0.0f);
+           return true;
+           break;
+      default: break;
+    }//swi
+  }//if
+
   CEGUI::System::getSingleton().injectKeyUp(arg.key);
   return true;
 }
@@ -317,8 +383,16 @@ bool EditorFrameListener::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
 bool EditorFrameListener::frameEnded(const Ogre::FrameEvent& evt)
 {
+  //move camera
+  EditorCamera::GetSingleton().processMovement(evt);
+
   updateStats();
   return true;
+}
+
+void EditorFrameListener::setEditorMode(const EditorMode em)
+{
+  m_Mode = em;
 }
 
 }//namespace

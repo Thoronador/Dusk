@@ -1,4 +1,5 @@
 #include "EditorApplication.h"
+#include "EditorCamera.h"
 #include "../Engine/DuskConstants.h"
 #include "../Engine/DataLoader.h"
 #include "../Engine/DuskFunctions.h"
@@ -173,17 +174,21 @@ void EditorApplication::createSceneManager(void)
 
 void EditorApplication::createCamera(void)
 {
+  EditorCamera::GetSingleton().setupCamera(mSceneMgr);
+
+  /*
   mCamera = mSceneMgr->createCamera("EditorCam");
   // Position it at 500 in Z direction
   mCamera->setPosition(Ogre::Vector3(0,0,500));
   // Look back along -Z
   mCamera->lookAt(Ogre::Vector3(0,0,-300));
   mCamera->setNearClipDistance(5);
+  */
 }
 
 void EditorApplication::createFrameListener(void)
 {
-  mFrameListener= new EditorFrameListener(mWindow, mCamera, true, true);
+  mFrameListener= new EditorFrameListener(mWindow, EditorCamera::GetSingleton().getOgreCamera(), true, true);
   mFrameListener->showDebugOverlay(true);
   mRoot->addFrameListener(mFrameListener);
 }
@@ -212,10 +217,10 @@ void EditorApplication::destroyScene(void)
 void EditorApplication::createViewports(void)
 {
   // Create one viewport, entire window
-  Ogre::Viewport* vp = mWindow->addViewport(mCamera);
+  Ogre::Viewport* vp = mWindow->addViewport(EditorCamera::GetSingleton().getOgreCamera());
   vp->setBackgroundColour(Ogre::ColourValue(0,0,0));
   //alter the camera aspect ratio to match the viewport
-  mCamera->setAspectRatio(
+  EditorCamera::GetSingleton().getOgreCamera()->setAspectRatio(
         Ogre::Real(vp->getActualWidth()) / Ogre::Real(vp->getActualHeight()));
 }
 
@@ -266,35 +271,6 @@ void EditorApplication::CreateCEGUIRootWindow(void)
   mSystem->setGUISheet(sheet);
 }
 
-/*void EditorApplication::CreateCEGUIMenu(void)
-{
-  CEGUI::WindowManager &wmgr = CEGUI::WindowManager::getSingleton();
-
-  CEGUI::Window *button = wmgr.createWindow("TaharezLook/Button", "Editor/LoadButton");
-  button->setText("Load");
-  button->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.05, 0)));
-  button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.0, 0), CEGUI::UDim(0.0, 0)));
-  button->setInheritsAlpha(false);
-  CEGUI::Window* sheet = CEGUI::WindowManager::getSingleton().getWindow("Editor/Root");
-  sheet->addChildWindow(button);
-  button->subscribeEvent(CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&EditorApplication::LoadButtonClicked, this));
-
-  button = wmgr.createWindow("TaharezLook/Button", "Editor/SaveButton");
-  button->setText("Save");
-  button->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.05, 0)));
-  button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.0, 0), CEGUI::UDim(0.05, 0)));
-  button->setInheritsAlpha(false);
-  sheet->addChildWindow(button);
-
-  button = wmgr.createWindow("TaharezLook/Button", "Editor/QuitButton");
-  button->setText("Quit");
-  button->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.05, 0)));
-  button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.0, 0), CEGUI::UDim(0.1, 0)));
-  button->setInheritsAlpha(false);
-  sheet->addChildWindow(button);
-}*/
-
 void EditorApplication::CreateCEGUIMenuBar(void)
 {
   CEGUI::WindowManager &wmgr = CEGUI::WindowManager::getSingleton();
@@ -329,6 +305,36 @@ void EditorApplication::CreateCEGUIMenuBar(void)
   menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/File/PopUp/Quit"));
   menu_item->setText("Quit");
   popup->addItem(menu_item);
+
+  //"mode" menu
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/Mode"));
+  menu_item->setText("Mode");
+  menu_item->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.8, 0)));
+  menu_item->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.10, 0)));
+  menu->addChildWindow(menu_item);
+
+  popup = static_cast<CEGUI::PopupMenu*> (wmgr.createWindow("TaharezLook/PopupMenu", "Editor/MenuBar/Mode/PopUp"));
+  menu_item->setPopupMenu(popup);
+
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/Mode/PopUp/Move"));
+  menu_item->setText("Free Movement");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::ModeMoveClicked, this));
+  popup->addItem(menu_item);
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/Mode/PopUp/Land"));
+  menu_item->setText("Landscape Editing");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::ModeLandClicked, this));
+  popup->addItem(menu_item);
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/Mode/PopUp/Cata"));
+  menu_item->setText("Catalogue");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::ModeListClicked, this));
+  popup->addItem(menu_item);
+
+  CEGUI::Window* mode_indicator = wmgr.createWindow("TaharezLook/StaticText", "Editor/ModeIndicator");
+  mode_indicator->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.05, 0)));
+  mode_indicator->setPosition(CEGUI::UVector2(CEGUI::UDim(0.8, 0), CEGUI::UDim(0.00, 0)));
+  mode_indicator->setText("M: Catalogue");
+  mode_indicator->setInheritsAlpha(false);
+  sheet->addChildWindow(mode_indicator);
 }
 
 void EditorApplication::CreateCEGUICatalogue(void)
@@ -485,6 +491,8 @@ void EditorApplication::showCEGUILoadWindow(void)
     FileBox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.2, 0)));
     FileBox->setMultiselectEnabled(false);
     FileBox->setSortingEnabled(true);
+    FileBox->subscribeEvent(CEGUI::Listbox::EventMouseDoubleClick,
+            CEGUI::Event::Subscriber(&EditorApplication::LoadFrameOKClicked, this));
     frame->addChildWindow(FileBox);
     UpdateLoadWindowFiles(LoadFrameDirectory);
   }
@@ -1230,7 +1238,7 @@ bool EditorApplication::ObjectDeleteFrameYesClicked(const CEGUI::EventArgs &e)
   }
   else
   {
-    showHint("Object \""+ID_of_object_to_delete+"\" and "+IntToString(refs_deleted)+" references of it were deleted!");
+    showHint("Object \""+ID_of_object_to_delete+"\" and "+IntToString(refs_deleted)+" reference(s) of it were deleted!");
   }
   //delete row in multi column list of objects
   CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*>
@@ -1242,6 +1250,27 @@ bool EditorApplication::ObjectDeleteFrameYesClicked(const CEGUI::EventArgs &e)
   ID_of_object_to_delete = "";
   //delete window
   CEGUI::WindowManager::getSingleton().destroyWindow("Editor/ObjectDeleteFrame");
+  return true;
+}
+
+bool EditorApplication::ModeMoveClicked(const CEGUI::EventArgs &e)
+{
+  mFrameListener->setEditorMode(EM_Movement);
+  CEGUI::WindowManager::getSingleton().getWindow("Editor/ModeIndicator")->setText("Mode: Movement");
+  return true;
+}
+
+bool EditorApplication::ModeLandClicked(const CEGUI::EventArgs &e)
+{
+  mFrameListener->setEditorMode(EM_Landscape);
+  CEGUI::WindowManager::getSingleton().getWindow("Editor/ModeIndicator")->setText("Mode: Landscape");
+  return true;
+}
+
+bool EditorApplication::ModeListClicked(const CEGUI::EventArgs &e)
+{
+  mFrameListener->setEditorMode(EM_Lists);
+  CEGUI::WindowManager::getSingleton().getWindow("Editor/ModeIndicator")->setText("Mode: Catalogue");
   return true;
 }
 

@@ -7,14 +7,14 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Linux-Release">
-				<Option output="bin\Release\Editor" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\Release\" />
+				<Option output="bin/Release/Editor" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add directory="\usr\include\OGRE\" />
-					<Add directory="\usr\include\CEGUI\" />
+					<Add directory="/usr/include/OGRE/" />
+					<Add directory="/usr/include/CEGUI/" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -26,16 +26,16 @@
 				</Linker>
 			</Target>
 			<Target title="Windows-Release">
-				<Option output="bin\Release\Editor" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\Release\" />
+				<Option output="bin/Release/Editor" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add directory="$(OGRE_HOME)\include" />
-					<Add directory="$(CEGUI_HOME)\include" />
-					<Add directory="$(OGRE_HOME)\include\CEGUI\" />
-					<Add directory="$(OGRE_HOME)\samples\include" />
+					<Add directory="$(OGRE_HOME)/include" />
+					<Add directory="$(CEGUI_HOME)/include" />
+					<Add directory="$(OGRE_HOME)/include/CEGUI/" />
+					<Add directory="$(OGRE_HOME)/samples/include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -44,7 +44,7 @@
 					<Add library="OIS" />
 					<Add library="OgreGUIRenderer" />
 					<Add library="CEGUIBase" />
-					<Add directory="$(OGRE_HOME)\bin\release" />
+					<Add directory="$(OGRE_HOME)/bin/release" />
 				</Linker>
 			</Target>
 		</Build>
@@ -53,26 +53,29 @@
 		</Compiler>
 		<Unit filename="EditorApplication.cpp" />
 		<Unit filename="EditorApplication.h" />
+		<Unit filename="EditorCamera.cpp" />
+		<Unit filename="EditorCamera.h" />
 		<Unit filename="EditorFrameListener.cpp" />
 		<Unit filename="EditorFrameListener.h" />
 		<Unit filename="main.cpp" />
-		<Unit filename="..\Engine\DataLoader.cpp" />
-		<Unit filename="..\Engine\DataLoader.h" />
-		<Unit filename="..\Engine\DuskConstants.h" />
-		<Unit filename="..\Engine\DuskFunctions.h" />
-		<Unit filename="..\Engine\DuskObject.cpp" />
-		<Unit filename="..\Engine\DuskObject.h" />
-		<Unit filename="..\Engine\ItemBase.cpp" />
-		<Unit filename="..\Engine\ItemBase.h" />
-		<Unit filename="..\Engine\Landscape.cpp" />
-		<Unit filename="..\Engine\Landscape.h" />
-		<Unit filename="..\Engine\ObjectBase.cpp" />
-		<Unit filename="..\Engine\ObjectBase.h" />
-		<Unit filename="..\Engine\ObjectData.cpp" />
-		<Unit filename="..\Engine\ObjectData.h" />
+		<Unit filename="../Engine/DataLoader.cpp" />
+		<Unit filename="../Engine/DataLoader.h" />
+		<Unit filename="../Engine/DuskConstants.h" />
+		<Unit filename="../Engine/DuskFunctions.h" />
+		<Unit filename="../Engine/DuskObject.cpp" />
+		<Unit filename="../Engine/DuskObject.h" />
+		<Unit filename="../Engine/ItemBase.cpp" />
+		<Unit filename="../Engine/ItemBase.h" />
+		<Unit filename="../Engine/Landscape.cpp" />
+		<Unit filename="../Engine/Landscape.h" />
+		<Unit filename="../Engine/ObjectBase.cpp" />
+		<Unit filename="../Engine/ObjectBase.h" />
+		<Unit filename="../Engine/ObjectData.cpp" />
+		<Unit filename="../Engine/ObjectData.h" />
 		<Extensions>
 			<code_completion />
 			<debugger />
+			<envvars />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>
