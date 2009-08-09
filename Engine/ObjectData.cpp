@@ -254,6 +254,33 @@ unsigned int ObjectData::deleteReferencesOfObject(const std::string ID)
   return deletedReferences;
 }
 
+///method to update all enabled objects of one ID after the mesh path has changed
+/// currently only used by Editor
+unsigned int ObjectData::reenableReferencesOfObject(const std::string ID, Ogre::SceneManager * scm)
+{
+  unsigned int re_enabled = 0;
+  unsigned int position;
+
+  if (scm==NULL)
+  {
+    std::cout << "ObjectData::reenableReferencesOfObject: ERROR: Scene Manager is NULL pointer!";
+    return 0;
+  }
+  for (position = 0; position<m_ReferenceList.size(); position++)
+  {
+    if (m_ReferenceList.at(position)!=NULL)
+    {
+      if (m_ReferenceList.at(position)->GetID()==ID && m_ReferenceList.at(position)->IsEnabled())
+      {
+        m_ReferenceList.at(position)->Disable();
+        m_ReferenceList.at(position)->Enable(scm);
+        re_enabled++;
+      }//if
+    }//if
+  }//for
+  return re_enabled;
+}
+
 void ObjectData::ClearData()
 {
   DuskObject * ObjPtr;

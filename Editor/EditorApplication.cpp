@@ -536,6 +536,30 @@ void EditorApplication::UpdateLoadWindowFiles(const std::string Directory)
     FileBox->requestRedraw();
 }
 
+void EditorApplication::RefreshObjectList(void)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  CEGUI::MultiColumnList* mcl = NULL;
+  if (!winmgr.isWindowPresent("Editor/Catalogue/Tab/Object/List"))
+  {
+    showWarning("ERROR: Could not find ojbet list window in Window Manager!");
+    return;
+  }
+  mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/Catalogue/Tab/Object/List"));
+  mcl->resetList();
+
+  std::map<std::string, std::string>::iterator first;
+  std::map<std::string, std::string>::iterator end;
+  first = ObjectBase::GetSingleton().GetFirst();
+  end = ObjectBase::GetSingleton().GetEnd();
+  while (first != end)
+  {
+    addObjectRecordToCatalogue(first->first, first->second);
+    first++;
+  }//while
+  return;
+}
+
 void EditorApplication::showWarning(const std::string Text_of_warning)
 {
   if (Text_of_warning=="")
@@ -706,11 +730,19 @@ void EditorApplication::showObjectNewWindow(void)
   frame->moveToFront();
 }
 
-void EditorApplication::showObjectEditWindow(CEGUI::String ID_of_object_to_edit)
+void EditorApplication::showObjectEditWindow(void)
 {
   if (ID_of_object_to_edit=="")
   {
     std::cout << "ObjectEditWindow: No ID given.\n";
+    return;
+  }
+
+  if (!ObjectBase::GetSingleton().hasObject(ID_of_object_to_edit))
+  {
+    std::cout << "ObjectEditWindow: Object not present in database.\n";
+    showWarning("There seems to be no object with the ID \""+ID_of_object_to_edit
+                +"\". Aborting.");
     return;
   }
 
@@ -756,7 +788,7 @@ void EditorApplication::showObjectEditWindow(CEGUI::String ID_of_object_to_edit)
 
     //editbox for mesh path
     button = winmgr.createWindow("TaharezLook/Editbox", "Editor/ObjectEditFrame/Mesh_Edit");
-    button->setText(ObjectBase::GetSingleton().GetMeshName(std::string(ID_of_object_to_edit.c_str()),false));
+    button->setText(ObjectBase::GetSingleton().GetMeshName(ID_of_object_to_edit,false));
     button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.5, 0)));
     button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.1, 0)));
     frame->addChildWindow(button);
@@ -834,6 +866,77 @@ void EditorApplication::showObjectConfirmDeleteWindow(void)
             CEGUI::Event::Subscriber(&EditorApplication::ObjectDeleteFrameNoClicked, this));
   }
   frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.18, 0)));
+  frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.4, 0)));
+  frame->moveToFront();
+}
+
+void EditorApplication::showObjectEditConfirmIDChangeWindow(void)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  CEGUI::FrameWindow*  frame = NULL;
+
+  if (winmgr.isWindowPresent("Editor/ConfirmObjectIDChangeFrame"))
+  {
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.getWindow("Editor/ConfirmObjectIDChangeFrame"));
+  }
+  else
+  {
+    //create it
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.createWindow("TaharezLook/FrameWindow", "Editor/ConfirmObjectIDChangeFrame"));
+    frame->setTitleBarEnabled(true);
+    frame->setText("Rename Object?");
+    frame->setCloseButtonEnabled(false);
+    frame->setFrameEnabled(true);
+    frame->setSizingEnabled(true);
+    frame->setInheritsAlpha(false);
+    winmgr.getWindow("Editor/Root")->addChildWindow(frame);
+
+    //add box for message
+    CEGUI::MultiLineEditbox* textbox;
+    textbox = static_cast<CEGUI::MultiLineEditbox*> (winmgr.createWindow("TaharezLook/MultiLineEditbox",
+                                                        "Editor/ConfirmObjectIDChangeFrame/Text"));
+    textbox->setSize(CEGUI::UVector2(CEGUI::UDim(0.8, 0), CEGUI::UDim(0.55, 0)));
+    textbox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.15, 0)));
+    textbox->setWordWrapping(true);
+    textbox->setReadOnly(true);
+    textbox->setText("The ID of this object has changed.\nDo you want to rename the object \""
+                     +ID_of_object_to_edit+"\" to \">insert new ID here<\" or create a new one?");
+    frame->addChildWindow(textbox);
+
+    if (winmgr.isWindowPresent("Editor/ObjectEditFrame/ID_Edit"))
+    {
+      textbox->setText("The ID of this object has changed.\nDo you want to rename the object \""
+                   +ID_of_object_to_edit+"\" to \""
+                   +winmgr.getWindow("Editor/ObjectEditFrame/ID_Edit")->getText()
+                   +"\" or create a new one?");
+    }
+
+    //buttons: New, Rename, Cancel
+    CEGUI::Window* button = winmgr.createWindow("TaharezLook/Button", "Editor/ConfirmObjectIDChangeFrame/New");
+    button->setText("New Object");
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.1, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.06, 0), CEGUI::UDim(0.75, 0)));
+    frame->addChildWindow(button);
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplication::ObjectConfirmIDChangeNewClicked, this));
+
+    button = winmgr.createWindow("TaharezLook/Button", "Editor/ConfirmObjectIDChangeFrame/Rename");
+    button->setText("Rename Object");
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.1, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.37, 0), CEGUI::UDim(0.75, 0)));
+    frame->addChildWindow(button);
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplication::ObjectConfirmIDChangeRenameClicked, this));
+
+    button = winmgr.createWindow("TaharezLook/Button", "Editor/ConfirmObjectIDChangeFrame/Cancel");
+    button->setText("Cancel");
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.1, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.68, 0), CEGUI::UDim(0.75, 0)));
+    frame->addChildWindow(button);
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplication::ObjectConfirmIDChangeCancelClicked, this));
+  }
+  frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.18, 0)));
   frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.4, 0)));
   frame->moveToFront();
 }
@@ -1115,9 +1218,9 @@ bool EditorApplication::ObjectEditClicked(const CEGUI::EventArgs &e)
 
   unsigned int row_index = mcl->getItemRowIndex(lb_item);
   lb_item = mcl->getItemAtGridReference(CEGUI::MCLGridRef(row_index, 0));
- // lb_item->getText().c_str();
-//  std::string ID_CppString = std::string(lb_item->getText().c_str);
-  showObjectEditWindow(lb_item->getText().c_str());
+
+  ID_of_object_to_edit = std::string(lb_item->getText().c_str());
+  showObjectEditWindow();
   return true;
 }
 
@@ -1200,6 +1303,56 @@ bool EditorApplication::ObjectEditFrameCancelClicked(const CEGUI::EventArgs &e)
 bool EditorApplication::ObjectEditFrameSaveClicked(const CEGUI::EventArgs &e)
 {
   //not yet implemented
+
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  CEGUI::Editbox* id_edit;
+  CEGUI::Editbox* mesh_edit;
+
+  if (!winmgr.isWindowPresent("Editor/ObjectEditFrame/ID_Edit") ||
+      !winmgr.isWindowPresent("Editor/ObjectEditFrame/Mesh_Edit"))
+  {
+    showWarning("Error: Editbox(es) for ID and/or mesh is/are not registered at window manager!");
+    return true;
+  }//if
+  id_edit = static_cast<CEGUI::Editbox*> (winmgr.getWindow("Editor/ObjectEditFrame/ID_Edit"));
+  mesh_edit = static_cast<CEGUI::Editbox*> (winmgr.getWindow("Editor/ObjectEditFrame/Mesh_Edit"));
+
+  if (std::string(id_edit->getText().c_str())=="")
+  {
+    showHint("You have to enter an ID for this object!");
+    return true;
+  }
+  if (std::string(mesh_edit->getText().c_str())=="")
+  {
+    showHint("You have to enter a mesh path for this object!");
+    return true;
+  }
+  if (std::string(id_edit->getText().c_str())!=ID_of_object_to_edit)
+  {
+    //ID was changed
+   showObjectEditConfirmIDChangeWindow();
+   return true;
+  }
+  //check if mesh has remained the same
+  if (std::string(mesh_edit->getText().c_str())==ObjectBase::GetSingleton().GetMeshName(ID_of_object_to_edit))
+  {
+    showHint("You have not changed the data of this object, thus there are no changes to be saved.");
+    return true;
+  }
+
+  //save it
+  ObjectBase::GetSingleton().addObject(std::string(id_edit->getText().c_str()),
+                                     std::string(mesh_edit->getText().c_str()));
+  //update list
+  RefreshObjectList();
+  //update shown objects
+  ObjectData::GetSingleton().reenableReferencesOfObject(ID_of_object_to_edit, mSceneMgr);
+  //delete window
+  if (winmgr.isWindowPresent("Editor/ObjectEditFrame"))
+  {
+    winmgr.destroyWindow("Editor/ObjectEditFrame");
+  }
+  ID_of_object_to_edit = "";
   return true;
 }
 
@@ -1271,6 +1424,51 @@ bool EditorApplication::ModeListClicked(const CEGUI::EventArgs &e)
 {
   mFrameListener->setEditorMode(EM_Lists);
   CEGUI::WindowManager::getSingleton().getWindow("Editor/ModeIndicator")->setText("Mode: Catalogue");
+  return true;
+}
+
+bool EditorApplication::ObjectConfirmIDChangeRenameClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/ConfirmObjectIDChangeFrame") &&
+      winmgr.isWindowPresent("Editor/ObjectEditFrame/ID_Edit"))
+  {
+    winmgr.destroyWindow("Editor/ConfirmObjectIDChangeFrame");
+    //**** does not work as intended yet ****
+    /* should normally be handled seperately;
+       Rename also includes disabling all DuskObjects with the previous ID,
+       change their ID and enable it with new ID.
+       plus: it should delete row with old ID from catalogue and add new row.
+       */
+    ID_of_object_to_edit = std::string(winmgr.getWindow("Editor/ObjectEditFrame/ID_Edit")->getText().c_str());
+    ObjectEditFrameSaveClicked(e);
+  }
+  return true;
+}
+
+bool EditorApplication::ObjectConfirmIDChangeNewClicked(const CEGUI::EventArgs &e)
+{
+  //**** not implemented yet ****
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/ConfirmObjectIDChangeFrame") &&
+      winmgr.isWindowPresent("Editor/ObjectEditFrame/ID_Edit"))
+  {
+    //winmgr.destroyWindow("Editor/ConfirmObjectIDChangeFrame");
+    //**** does not work as intended yet ****
+    /* should normally be handled seperately;
+       Creation of new object also includes row updates in catalogue.
+       */
+  }
+  return true;
+}
+
+bool EditorApplication::ObjectConfirmIDChangeCancelClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/ConfirmObjectIDChangeFrame"))
+  {
+    winmgr.destroyWindow("Editor/ConfirmObjectIDChangeFrame");
+  }
   return true;
 }
 
