@@ -44,6 +44,7 @@ protected:
     std::vector<FileEntry> LoadFrameFiles;
     //id of item for deletion
     std::string ID_of_object_to_delete;
+    std::string ID_of_item_to_delete;
     //id for editing
     std::string ID_of_object_to_edit;
 
@@ -94,8 +95,9 @@ protected:
 	void showObjectNewWindow(void);
 	void showObjectEditWindow(void);
 	void showObjectConfirmDeleteWindow(void);
-
 	void showObjectEditConfirmIDChangeWindow(void);
+    //windows for creating/ editing items
+	void showItemConfirmDeleteWindow(void);
 
     //methods to visually add Items or Objects to catalogue
     //  (real data is not effected, methods only show new row in catalogue)
@@ -116,11 +118,16 @@ protected:
 	bool WarningFrameOKClicked(const CEGUI::EventArgs &e);
 	bool HintFrameOKClicked(const CEGUI::EventArgs &e);
 	bool ObjectTabClicked(const CEGUI::EventArgs &e);
+	bool ItemTabClicked(const CEGUI::EventArgs &e);
 
 	//callbacks for popup menus
 	bool ObjectNewClicked(const CEGUI::EventArgs &e);
 	bool ObjectEditClicked(const CEGUI::EventArgs &e);
 	bool ObjectDeleteClicked(const CEGUI::EventArgs &e);
+
+	bool ItemNewClicked(const CEGUI::EventArgs &e);
+	bool ItemEditClicked(const CEGUI::EventArgs &e);
+	bool ItemDeleteClicked(const CEGUI::EventArgs &e);
 
 	//callbacks of window for creating new objects
 	bool ObjectNewFrameCancelClicked(const CEGUI::EventArgs &e);

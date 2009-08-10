@@ -281,6 +281,62 @@ unsigned int ObjectData::reenableReferencesOfObject(const std::string ID, Ogre::
   return re_enabled;
 }
 
+/// method to update all references of an object after the ID was changed (by Editor application)
+unsigned int ObjectData::updateReferencesAfterIDChange(const std::string& oldID, const std::string& newID, Ogre::SceneManager* scm)
+{
+  unsigned int updated_references = 0;
+  unsigned int position;
+
+  if (oldID=="" or newID=="")
+  {
+    std::cout << "ObjectData::updateReferencesAfterIDChange: ERROR: old ID or "
+              << "new ID is empty string. We don't want empty ID strings!\n";
+    return 0;
+  }
+  if (!ObjectBase::GetSingleton().hasObject(newID))
+  {
+    std::cout << "ObjectData::updateReferencesAfterIDChange: ERROR: there is "
+              << "no record about object with the new ID \""+newID+"\" within "
+              << "the ObjectBase class. Aborting.\n";
+    return 0;
+  }
+  if (oldID==newID)
+  {
+    std::cout << "ObjectData::updateReferencesAfterIDChange: Hint: old ID is "
+              << " the same as new ID. No need to change anything here.\n";
+    return 0;
+  }
+  if (scm==NULL)
+  {
+    std::cout << "ObjectData::updateReferencesAfterIDChange: ERROR: got NULL "
+              << "pointer for scene manager. Unable to update enabled objects.\n";
+    return 0;
+  }
+
+  //now search and update
+  for (position = 0; position<m_ReferenceList.size(); position++)
+  {
+    if (m_ReferenceList.at(position)!=NULL)
+    {
+      if (m_ReferenceList.at(position)->GetID()==oldID)
+      { //got reference of object
+        if (m_ReferenceList.at(position)->IsEnabled())
+        { //we cannot change ID of enabled objects, so disable them first
+          m_ReferenceList.at(position)->Disable();
+          m_ReferenceList.at(position)->ChangeID(newID);
+          m_ReferenceList.at(position)->Enable(scm);
+        }
+        else
+        { //not enabled, so simply change ID
+          m_ReferenceList.at(position)->ChangeID(newID);
+        }
+        updated_references++;
+      }//if
+    }//if
+  }//for
+  return updated_references;
+}
+
 void ObjectData::ClearData()
 {
   DuskObject * ObjPtr;

@@ -25,6 +25,7 @@ namespace Dusk
       void DisableAllObjects();
       unsigned int deleteReferencesOfObject(const std::string ID);
       unsigned int reenableReferencesOfObject(const std::string ID, Ogre::SceneManager * scm);
+      unsigned int updateReferencesAfterIDChange(const std::string& oldID, const std::string& newID, Ogre::SceneManager* scm);
       void ClearData();
     private:
       ObjectData();

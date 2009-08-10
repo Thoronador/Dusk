@@ -83,6 +83,8 @@ EditorApplication::EditorApplication()
   LoadFrameDirectory = "."+path_sep;
   LoadFrameFiles.clear();
   ID_of_object_to_delete = "";
+  ID_of_item_to_delete = "";
+  ID_of_object_to_edit = "";
   popup_pos_x = 0.0f;
   popup_pos_y = 0.0f;
 }
@@ -203,7 +205,6 @@ void EditorApplication::createScene(void)
   mSystem->setDefaultFont((CEGUI::utf8*)"BlueHighway-12");
 
   CreateCEGUIRootWindow();
-  //CreateCEGUIMenu();
   CreateCEGUIMenuBar();
   CreateCEGUICatalogue();
   CreatePopupMenus();
@@ -332,7 +333,7 @@ void EditorApplication::CreateCEGUIMenuBar(void)
   CEGUI::Window* mode_indicator = wmgr.createWindow("TaharezLook/StaticText", "Editor/ModeIndicator");
   mode_indicator->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.05, 0)));
   mode_indicator->setPosition(CEGUI::UVector2(CEGUI::UDim(0.8, 0), CEGUI::UDim(0.00, 0)));
-  mode_indicator->setText("M: Catalogue");
+  mode_indicator->setText("Mode: Catalogue");
   mode_indicator->setInheritsAlpha(false);
   sheet->addChildWindow(mode_indicator);
 }
@@ -355,7 +356,6 @@ void EditorApplication::CreateCEGUICatalogue(void)
   CEGUI::TabControl * tab = static_cast<CEGUI::TabControl*> (winmgr.createWindow("TaharezLook/TabControl", "Editor/Catalogue/Tab"));
   tab->setSize(CEGUI::UVector2(CEGUI::UDim(0.96, 0), CEGUI::UDim(0.90, 0)));
   tab->setPosition(CEGUI::UVector2(CEGUI::UDim(0.02, 0), CEGUI::UDim(0.05, 0)));
-  //tab->setText("Object Catalogue");
   catalogue->addChildWindow(tab);
 
   CEGUI::Window* pane = winmgr.createWindow("TaharezLook/TabContentPane", "Editor/Catalogue/Tab/Object");
@@ -395,6 +395,7 @@ void EditorApplication::CreateCEGUICatalogue(void)
   mcl->addColumn("Mesh", 4, CEGUI::UDim(0.19, 0));
   mcl->setUserColumnDraggingEnabled(false);
   pane->addChildWindow(mcl);
+  mcl->subscribeEvent(CEGUI::Window::EventMouseButtonUp, CEGUI::Event::Subscriber(&EditorApplication::ItemTabClicked, this));
 
   //sample data
   CEGUI::ListboxItem *lbi;
@@ -432,6 +433,25 @@ void EditorApplication::CreatePopupMenus(void)
   menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::ObjectDeleteClicked, this));
   popup->addItem(menu_item);
   wmgr.getWindow("Editor/Catalogue/Tab/Object/List")->addChildWindow(popup);
+  popup->closePopupMenu();
+
+  //PopUp Menu for items' tab
+  popup = static_cast<CEGUI::PopupMenu*> (wmgr.createWindow("TaharezLook/PopupMenu", "Editor/Catalogue/ItemPopUp"));
+  popup->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.3, 0)));
+  popup->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.3, 0)));
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/Catalogue/ItemPopUp/New"));
+  menu_item->setText("New item...");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::ItemNewClicked, this));
+  popup->addItem(menu_item);
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/Catalogue/ItemPopUp/Edit"));
+  menu_item->setText("Edit selected item...");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::ItemEditClicked, this));
+  popup->addItem(menu_item);
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/Catalogue/ItemPopUp/Delete"));
+  menu_item->setText("Delete selected item");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::ItemDeleteClicked, this));
+  popup->addItem(menu_item);
+  wmgr.getWindow("Editor/Catalogue/Tab/Item/List")->addChildWindow(popup);
   popup->closePopupMenu();
 }
 
@@ -941,6 +961,11 @@ void EditorApplication::showObjectEditConfirmIDChangeWindow(void)
   frame->moveToFront();
 }
 
+void EditorApplication::showItemConfirmDeleteWindow(void)
+{
+  // *** not implemented yet ***
+}
+
 //for catalogue:
 
 void EditorApplication::addItemRecordToCatalogue(const std::string& ID, const ItemRecord& ItemData)
@@ -1175,9 +1200,33 @@ bool EditorApplication::ObjectTabClicked(const CEGUI::EventArgs &e)
   return true;
 }
 
+bool EditorApplication::ItemTabClicked(const CEGUI::EventArgs &e)
+{
+  // *** not implemented yet ***
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  CEGUI::PopupMenu * popup = static_cast<CEGUI::PopupMenu*> (winmgr.getWindow("Editor/Catalogue/ItemPopUp"));
+  if (!popup->isPopupMenuOpen())
+  {
+    const CEGUI::MouseEventArgs& mea = static_cast<const CEGUI::MouseEventArgs&> (e);
+    if (mea.button == CEGUI::RightButton)
+    {
+      float pu_x, pu_y;
+      CEGUI::Rect mcl_rect = winmgr.getWindow("Editor/Catalogue/Tab/Item/List")->getPixelRect();
+      pu_x = (mea.position.d_x-mcl_rect.d_left)/mcl_rect.getWidth();
+      pu_y = (mea.position.d_y-mcl_rect.d_top)/mcl_rect.getHeight();
+      popup->setPosition(CEGUI::UVector2(CEGUI::UDim(pu_x, 0), CEGUI::UDim(pu_y, 0)));
+      popup->openPopupMenu();
+    }
+  }
+  else
+  {
+    popup->closePopupMenu();
+  }
+  return true;
+}
+
 bool EditorApplication::ObjectNewClicked(const CEGUI::EventArgs &e)
 {
-  /* not implemented */
   showObjectNewWindow();
   return true;
 }
@@ -1240,6 +1289,38 @@ bool EditorApplication::ObjectDeleteClicked(const CEGUI::EventArgs &e)
     lbi = mcl->getItemAtGridReference(CEGUI::MCLGridRef(row_index, 0));
     ID_of_object_to_delete = std::string(lbi->getText().c_str());
     showObjectConfirmDeleteWindow();
+  }
+  return true;
+}
+
+bool EditorApplication::ItemNewClicked(const CEGUI::EventArgs &e)
+{
+  //**** not implemented yet
+  return true;
+}
+
+bool EditorApplication::ItemEditClicked(const CEGUI::EventArgs &e)
+{
+  //**** not implemented yet
+  return true;
+}
+
+bool EditorApplication::ItemDeleteClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*>
+                                (winmgr.getWindow("Editor/Catalogue/Tab/Item/List"));
+  CEGUI::ListboxItem* lbi = mcl->getFirstSelectedItem();
+  if (lbi==NULL)
+  {
+    showHint("You have to select an item from the list to delete it.");
+  }
+  else
+  {
+    unsigned int row_index = mcl->getItemRowIndex(lbi);
+    lbi = mcl->getItemAtGridReference(CEGUI::MCLGridRef(row_index, 0));
+    ID_of_item_to_delete = std::string(lbi->getText().c_str());
+    showItemConfirmDeleteWindow();
   }
   return true;
 }
@@ -1434,30 +1515,66 @@ bool EditorApplication::ObjectConfirmIDChangeRenameClicked(const CEGUI::EventArg
       winmgr.isWindowPresent("Editor/ObjectEditFrame/ID_Edit"))
   {
     winmgr.destroyWindow("Editor/ConfirmObjectIDChangeFrame");
-    //**** does not work as intended yet ****
-    /* should normally be handled seperately;
-       Rename also includes disabling all DuskObjects with the previous ID,
-       change their ID and enable it with new ID.
-       plus: it should delete row with old ID from catalogue and add new row.
-       */
-    ID_of_object_to_edit = std::string(winmgr.getWindow("Editor/ObjectEditFrame/ID_Edit")->getText().c_str());
-    ObjectEditFrameSaveClicked(e);
+    //get the editboxes with the needed entries
+    std::string ObjectID, ObjectMesh;
+    ObjectID = std::string(winmgr.getWindow("Editor/ObjectEditFrame/ID_Edit")->getText().c_str());
+    ObjectMesh = std::string(winmgr.getWindow("Editor/ObjectEditFrame/Mesh_Edit")->getText().c_str());
+
+    if (ObjectBase::GetSingleton().hasObject(ObjectID))
+    {
+      showWarning("An Object with the ID \""+ObjectID+"\" already exists. "
+                  +"Change that one as needed or delete it before giving another"
+                  +" object the same ID.");
+      return true;
+    }//if
+
+    //"rename", i.e. create object with new ID and delete object with old ID
+    ObjectBase::GetSingleton().addObject(ObjectID, ObjectMesh);
+    ObjectBase::GetSingleton().deleteObject(ID_of_object_to_edit);
+    //update all objects
+    ObjectData::GetSingleton().updateReferencesAfterIDChange( ID_of_object_to_edit, ObjectID, mSceneMgr);
+    //add row for new object to catalogue
+    addObjectRecordToCatalogue(ObjectID, ObjectMesh);
+    //remove row of old ID
+    CEGUI::MultiColumnList * mcl;
+    CEGUI::ListboxItem * lb_item = NULL;
+    mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/Catalogue/Tab/Object/List"));
+    lb_item = mcl->findColumnItemWithText(ID_of_object_to_edit, 0, NULL);
+    mcl->removeRow(mcl->getItemRowIndex(lb_item));
+    //close edit window
+    winmgr.destroyWindow("Editor/ObjectEditFrame");
+    ID_of_object_to_edit = "";
   }
   return true;
 }
 
 bool EditorApplication::ObjectConfirmIDChangeNewClicked(const CEGUI::EventArgs &e)
 {
-  //**** not implemented yet ****
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
   if (winmgr.isWindowPresent("Editor/ConfirmObjectIDChangeFrame") &&
       winmgr.isWindowPresent("Editor/ObjectEditFrame/ID_Edit"))
   {
-    //winmgr.destroyWindow("Editor/ConfirmObjectIDChangeFrame");
-    //**** does not work as intended yet ****
-    /* should normally be handled seperately;
-       Creation of new object also includes row updates in catalogue.
-       */
+    //close confirmation window
+    winmgr.destroyWindow("Editor/ConfirmObjectIDChangeFrame");
+    //get the editboxes with the needed entries
+    std::string ObjectID, ObjectMesh;
+    ObjectID = std::string(winmgr.getWindow("Editor/ObjectEditFrame/ID_Edit")->getText().c_str());
+    ObjectMesh = std::string(winmgr.getWindow("Editor/ObjectEditFrame/Mesh_Edit")->getText().c_str());
+
+    if (ObjectBase::GetSingleton().hasObject(ObjectID))
+    {
+      showWarning("An Object with the ID \""+ObjectID+"\" already exists. "
+                  +"Change that one as needed or delete it before giving another"
+                  +" object the same ID.");
+      return true;
+    }//if
+    //add new row to catalogue
+    addObjectRecordToCatalogue(ObjectID, ObjectMesh);
+    //add new object to database (ObjectBase)
+    ObjectBase::GetSingleton().addObject(ObjectID, ObjectMesh);
+    //close edit window
+    winmgr.destroyWindow("Editor/ObjectEditFrame");
+    ID_of_object_to_edit = "";
   }
   return true;
 }
