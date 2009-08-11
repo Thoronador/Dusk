@@ -6,14 +6,6 @@
 #include <iostream>
 #include <sstream>
 
-/*#if defined(_WIN32)
-  //Windows includes go here
-  #include <io.h>
-#else
-  //Linux directory entries
-  #include <dirent.h>
-#endif*/
-
 namespace Dusk
 {
 
@@ -24,11 +16,33 @@ std::string IntToString(int value)
   return s_str.str();
 }
 
+int StringToInt(const std::string& str_input, const int default_value)
+{
+  std::stringstream s_str(str_input);
+  int value = default_value;
+  if (!(s_str>>value))
+  { //error during conversion -> return given default value
+    return default_value;
+  }
+  return value;
+}
+
 std::string FloatToString(float value)
 {
   std::stringstream s_str;
   s_str << value;
   return s_str.str();
+}
+
+float StringToFloat(const std::string& str_input, const float default_value)
+{
+  std::stringstream s_str(str_input);
+  float value = default_value;
+  if (!(s_str>>value))
+  { //error during conversion -> return given default value
+    return default_value;
+  }
+  return value;
 }
 
 /*typedef struct FileEntry {

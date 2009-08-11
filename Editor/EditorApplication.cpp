@@ -398,18 +398,13 @@ void EditorApplication::CreateCEGUICatalogue(void)
   mcl->subscribeEvent(CEGUI::Window::EventMouseButtonUp, CEGUI::Event::Subscriber(&EditorApplication::ItemTabClicked, this));
 
   //sample data
-  CEGUI::ListboxItem *lbi;
-  unsigned int row;
-  lbi = new CEGUI::ListboxTextItem("apple");
-  row = mcl->addRow(lbi, 0);
-  lbi = new CEGUI::ListboxTextItem("Fresh Apple");
-  mcl->setItem(lbi, 1, row);
-  lbi = new CEGUI::ListboxTextItem("5");
-  mcl->setItem(lbi, 2, row);
-  lbi = new CEGUI::ListboxTextItem("0.2");
-  mcl->setItem(lbi, 3, row);
-  lbi = new CEGUI::ListboxTextItem("food/golden_delicious.mesh");
-  mcl->setItem(lbi, 4, row);
+  ItemRecord ir;
+  ir.Name = "Fresh Apple";
+  ir.value = 5;
+  ir.weight = 0.2;
+  ir.Mesh = "food/golden_delicious.mesh";
+  addItemRecordToCatalogue("apple", ir);
+  ItemBase::GetSingleton().addItem("apple", ir.Name, ir.value, ir.weight, ir.Mesh);
 }
 
 void EditorApplication::CreatePopupMenus(void)
@@ -963,7 +958,56 @@ void EditorApplication::showObjectEditConfirmIDChangeWindow(void)
 
 void EditorApplication::showItemConfirmDeleteWindow(void)
 {
-  // *** not implemented yet ***
+  CEGUI::FrameWindow* frame = NULL;
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/ItemDeleteFrame"))
+  {
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.getWindow("Editor/ItemDeleteFrame"));
+  }
+  else
+  {
+    //create it (frame first)
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.createWindow("TaharezLook/FrameWindow", "Editor/ItemDeleteFrame"));
+    frame->setInheritsAlpha(false);
+    frame->setTitleBarEnabled(true);
+    frame->setText("Delete Item...");
+    frame->setCloseButtonEnabled(false);
+    frame->setFrameEnabled(true);
+    frame->setSizingEnabled(true);
+    winmgr.getWindow("Editor/Root")->addChildWindow(frame);
+
+    //add static text box for message
+    CEGUI::MultiLineEditbox* textbox;
+    textbox = static_cast<CEGUI::MultiLineEditbox*> (winmgr.createWindow("TaharezLook/MultiLineEditbox", "Editor/ItemDeleteFrame/Label"));
+    textbox->setSize(CEGUI::UVector2(CEGUI::UDim(0.8, 0), CEGUI::UDim(0.55, 0)));
+    textbox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.15, 0)));
+    textbox->setWordWrapping(true);
+    textbox->setReadOnly(true);
+    textbox->setText("Do you really want to delete the item \""+ID_of_item_to_delete+"\"? (References of items are not "
+                     +"implemented and hence not deleted.)");
+    frame->addChildWindow(textbox);
+
+    //create yes button
+    CEGUI::Window* button = winmgr.createWindow("TaharezLook/Button", "Editor/ItemDeleteFrame/Yes");
+    button->setText("Yes, go on.");
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.2, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.75, 0)));
+    frame->addChildWindow(button);
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplication::ItemDeleteFrameYesClicked, this));
+
+    //create no button
+    button = winmgr.createWindow("TaharezLook/Button", "Editor/ItemDeleteFrame/No");
+    button->setText("No, wait!");
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.2, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.75, 0)));
+    frame->addChildWindow(button);
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplication::ItemDeleteFrameNoClicked, this));
+  }
+  frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.22, 0)));
+  frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.4, 0)));
+  frame->moveToFront();
 }
 
 //for catalogue:
@@ -1295,7 +1339,7 @@ bool EditorApplication::ObjectDeleteClicked(const CEGUI::EventArgs &e)
 
 bool EditorApplication::ItemNewClicked(const CEGUI::EventArgs &e)
 {
-  //**** not implemented yet
+  showItemNewWindow();
   return true;
 }
 
@@ -1449,7 +1493,6 @@ bool EditorApplication::ObjectDeleteFrameNoClicked(const CEGUI::EventArgs &e)
 
 bool EditorApplication::ObjectDeleteFrameYesClicked(const CEGUI::EventArgs &e)
 {
-  //not yet implemented
   if (ID_of_object_to_delete == "")
   {
     showWarning("Error: object ID is empty string!");
@@ -1585,6 +1628,247 @@ bool EditorApplication::ObjectConfirmIDChangeCancelClicked(const CEGUI::EventArg
   if (winmgr.isWindowPresent("Editor/ConfirmObjectIDChangeFrame"))
   {
     winmgr.destroyWindow("Editor/ConfirmObjectIDChangeFrame");
+  }
+  return true;
+}
+
+bool EditorApplication::ItemDeleteFrameNoClicked(const CEGUI::EventArgs &e)
+{
+  //delete window
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/ItemDeleteFrame"))
+  {
+    winmgr.destroyWindow("Editor/ItemDeleteFrame");
+  }
+  return true;
+}
+
+bool EditorApplication::ItemDeleteFrameYesClicked(const CEGUI::EventArgs &e)
+{
+  if (ID_of_item_to_delete == "")
+  {
+    showWarning("Error: item ID is empty string!");
+    //delete window
+    CEGUI::WindowManager::getSingleton().destroyWindow("Editor/ItemDeleteFrame");
+    return true;
+  }
+  if (!ItemBase::GetSingleton().deleteItem(ID_of_item_to_delete))
+  {
+    showHint("ItemBase class holds no item of the given ID ("
+             +ID_of_item_to_delete+").");
+    //delete window
+    CEGUI::WindowManager::getSingleton().destroyWindow("Editor/ItemDeleteFrame");
+    return true;
+  }
+  showHint("Item \""+ID_of_item_to_delete+"\" deleted!\n(References are not implemented yet, thus none were deleted.)");
+
+  //delete row in multi column list of items
+  CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*>
+                                (CEGUI::WindowManager::getSingleton().getWindow("Editor/Catalogue/Tab/Item/List"));
+  CEGUI::ListboxItem * lb_it = NULL;
+  lb_it = mcl->findColumnItemWithText(ID_of_item_to_delete, 0, NULL);
+  mcl->removeRow(mcl->getItemRowIndex(lb_it));
+  //reset ID to empty string
+  ID_of_item_to_delete = "";
+  //delete window
+  CEGUI::WindowManager::getSingleton().destroyWindow("Editor/ItemDeleteFrame");
+  return true;
+}
+
+void EditorApplication::showItemNewWindow(void)
+{
+  // *** not yet implemented ***
+  CEGUI::FrameWindow* frame = NULL;
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+
+  if (winmgr.isWindowPresent("Editor/ItemNewFrame"))
+  {
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.getWindow("Editor/ItemNewFrame"));
+  }
+  else
+  {
+    //create it (frame first)
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.createWindow("TaharezLook/FrameWindow", "Editor/ItemNewFrame"));
+    frame->setTitleBarEnabled(true);
+    frame->setText("New Item...");
+    frame->setCloseButtonEnabled(false);
+    frame->setFrameEnabled(true);
+    frame->setSizingEnabled(true);
+    frame->setInheritsAlpha(false);
+    winmgr.getWindow("Editor/Root")->addChildWindow(frame);
+
+    //static text for ID
+    CEGUI::Window * button = winmgr.createWindow("TaharezLook/StaticText", "Editor/ItemNewFrame/ID_Label");
+    button->setText("Item ID:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.2, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.1, 0)));
+    frame->addChildWindow(button);
+
+    //static text for name
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/ItemNewFrame/Name_Label");
+    button->setText("Name:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.35, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.1, 0)));
+    frame->addChildWindow(button);
+
+    //static text for weight
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/ItemNewFrame/Weight_Label");
+    button->setText("Weight:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.5, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.1, 0)));
+    frame->addChildWindow(button);
+
+    //static text for value
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/ItemNewFrame/Value_Label");
+    button->setText("Value:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.5, 0), CEGUI::UDim(0.5, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.1, 0)));
+    frame->addChildWindow(button);
+
+    //static text for mesh
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/ItemNewFrame/Mesh_Label");
+    button->setText("Mesh:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.65, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.1, 0)));
+    frame->addChildWindow(button);
+
+    //editbox for ID
+    button = winmgr.createWindow("TaharezLook/Editbox", "Editor/ItemNewFrame/ID_Edit");
+    button->setText("");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.2, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.1, 0)));
+    frame->addChildWindow(button);
+
+    //editbox for item name
+    button = winmgr.createWindow("TaharezLook/Editbox", "Editor/ItemNewFrame/Name_Edit");
+    button->setText("");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.35, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.1, 0)));
+    frame->addChildWindow(button);
+
+    //editbox for item weight
+    button = winmgr.createWindow("TaharezLook/Editbox", "Editor/ItemNewFrame/Weight_Edit");
+    button->setText("1.0");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.5, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.1, 0)));
+    frame->addChildWindow(button);
+
+    //editbox for item value
+    button = winmgr.createWindow("TaharezLook/Editbox", "Editor/ItemNewFrame/Value_Edit");
+    button->setText("1");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.75, 0), CEGUI::UDim(0.5, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.1, 0)));
+    frame->addChildWindow(button);
+
+    //editbox for item mesh
+    button = winmgr.createWindow("TaharezLook/Editbox", "Editor/ItemNewFrame/Mesh_Edit");
+    button->setText("");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.65, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.1, 0)));
+    frame->addChildWindow(button);
+
+    //OK button
+    button = winmgr.createWindow("TaharezLook/Button", "Editor/ItemNewFrame/OK");
+    button->setText("OK");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.8, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.1, 0)));
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplication::ItemNewFrameOKClicked, this));
+    frame->addChildWindow(button);
+
+    //Cancel button
+    button = winmgr.createWindow("TaharezLook/Button", "Editor/ItemNewFrame/Cancel");
+    button->setText("Cancel");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.8, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.1, 0)));
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplication::ItemNewFrameCancelClicked, this));
+    frame->addChildWindow(button);
+  }
+  frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.48, 0), CEGUI::UDim(0.22, 0)));
+  frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.4, 0)));
+  frame->moveToFront();
+  // *** not yet implemented ***
+}
+
+bool EditorApplication::ItemNewFrameCancelClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if ( winmgr.isWindowPresent("Editor/ItemNewFrame"))
+  {
+    winmgr.destroyWindow("Editor/ItemNewFrame");
+  }
+  return true;
+}
+
+bool EditorApplication::ItemNewFrameOKClicked(const CEGUI::EventArgs &e)
+{
+  // **** not implemented yet ****
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/ItemNewFrame"))
+  {
+    CEGUI::Editbox* id_edit = static_cast<CEGUI::Editbox*> (winmgr.getWindow("Editor/ItemNewFrame/ID_Edit"));
+    CEGUI::Editbox* name_edit = static_cast<CEGUI::Editbox*> (winmgr.getWindow("Editor/ItemNewFrame/Name_Edit"));
+    CEGUI::Editbox* value_edit = static_cast<CEGUI::Editbox*> (winmgr.getWindow("Editor/ItemNewFrame/Value_Edit"));
+    CEGUI::Editbox* weight_edit = static_cast<CEGUI::Editbox*> (winmgr.getWindow("Editor/ItemNewFrame/Weight_Edit"));
+    CEGUI::Editbox* mesh_edit = static_cast<CEGUI::Editbox*> (winmgr.getWindow("Editor/ItemNewFrame/Mesh_Edit"));
+    //make sure we have some data
+    if (id_edit->getText()=="")
+    {
+      showWarning("You have to enter an ID string to create a new item!");
+      return true;
+    }
+    if (name_edit->getText()=="")
+    {
+      showWarning("You have to enter a name for this new item!");
+      return true;
+    }
+    if (value_edit->getText()=="")
+    {
+      showWarning("You have to enter a value (integer) for this new item!");
+      return true;
+    }
+    if (weight_edit->getText()=="")
+    {
+      showWarning("You have to enter a weight (non-negative floating point value) for this new item!");
+      return true;
+    }
+    if (mesh_edit->getText()=="")
+    {
+      showWarning("You have to enter a mesh path to create a new item!");
+      return true;
+    }
+
+    //check for presence of item with same ID
+    if (ItemBase::GetSingleton().hasItem(std::string(id_edit->getText().c_str())))
+    {
+      showWarning("An Item with the given ID already exists.");
+      return true;
+    }
+
+    //finally add it to ItemBase
+    ItemRecord entered_data;
+    entered_data.Name = std::string(name_edit->getText().c_str());
+    entered_data.Mesh = std::string(mesh_edit->getText().c_str());
+    entered_data.weight = StringToFloat(std::string(weight_edit->getText().c_str()), -1.0f);
+    if (entered_data.weight<0.0f)
+    {
+      showWarning("The entered weight is either negative or not a valid floating point value!");
+      return true;
+    }
+    entered_data.value = StringToInt(std::string(value_edit->getText().c_str()), -1);
+    if (entered_data.value<0)
+    {
+      showWarning("The entered value is either negative or not a valid integer value!");
+      return true;
+    }
+
+    ItemBase::GetSingleton().addItem(std::string(id_edit->getText().c_str()), entered_data.Name,
+                                     entered_data.value, entered_data.weight, entered_data.Mesh);
+    //update item catalogue
+    addItemRecordToCatalogue(std::string(id_edit->getText().c_str()), entered_data);
+    //destroy window
+    winmgr.destroyWindow("Editor/ItemNewFrame");
   }
   return true;
 }

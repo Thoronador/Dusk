@@ -97,6 +97,7 @@ protected:
 	void showObjectConfirmDeleteWindow(void);
 	void showObjectEditConfirmIDChangeWindow(void);
     //windows for creating/ editing items
+    void showItemNewWindow(void);
 	void showItemConfirmDeleteWindow(void);
 
     //methods to visually add Items or Objects to catalogue
@@ -142,6 +143,14 @@ protected:
 	bool ObjectConfirmIDChangeRenameClicked(const CEGUI::EventArgs &e);
 	bool ObjectConfirmIDChangeNewClicked(const CEGUI::EventArgs &e);
 	bool ObjectConfirmIDChangeCancelClicked(const CEGUI::EventArgs &e);
+
+    //callbacks of window for creating new items
+	bool ItemNewFrameCancelClicked(const CEGUI::EventArgs &e);
+	bool ItemNewFrameOKClicked(const CEGUI::EventArgs &e);
+
+    //callbacks of window to delete items
+	bool ItemDeleteFrameNoClicked(const CEGUI::EventArgs &e);
+	bool ItemDeleteFrameYesClicked(const CEGUI::EventArgs &e);
 
 };//class
 
