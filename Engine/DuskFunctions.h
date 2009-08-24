@@ -16,6 +16,13 @@ std::string IntToString(int value)
   return s_str.str();
 }
 
+std::string IntToString(unsigned int value)
+{
+  std::stringstream s_str;
+  s_str << value;
+  return s_str.str();
+}
+
 int StringToInt(const std::string& str_input, const int default_value)
 {
   std::stringstream s_str(str_input);

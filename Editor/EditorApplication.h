@@ -47,6 +47,7 @@ protected:
     std::string ID_of_item_to_delete;
     //id for editing
     std::string ID_of_object_to_edit;
+    std::string ID_of_item_to_edit;
 
 
     // saved position of cursor when it triggered popup
@@ -87,6 +88,7 @@ protected:
 	void UpdateLoadWindowFiles(const std::string Directory);
 
     void RefreshObjectList(void);
+    void RefreshItemList(void);
 	//general message windows
 	void showWarning(const std::string Text_of_warning);
 	void showHint(const std::string hint_text);
@@ -98,7 +100,12 @@ protected:
 	void showObjectEditConfirmIDChangeWindow(void);
     //windows for creating/ editing items
     void showItemNewWindow(void);
+    void showItemEditWindow(void);
 	void showItemConfirmDeleteWindow(void);
+	void showItemEditConfirmIDChangeWindow(void);
+
+	//closing all windows for editing and creation of objects
+	void closeAllEditWindows(void);
 
     //methods to visually add Items or Objects to catalogue
     //  (real data is not effected, methods only show new row in catalogue)
@@ -147,10 +154,16 @@ protected:
     //callbacks of window for creating new items
 	bool ItemNewFrameCancelClicked(const CEGUI::EventArgs &e);
 	bool ItemNewFrameOKClicked(const CEGUI::EventArgs &e);
-
+	//callbacks of windwow for editing items
+	bool ItemEditFrameCancelClicked(const CEGUI::EventArgs &e);
+	bool ItemEditFrameSaveClicked(const CEGUI::EventArgs &e);
     //callbacks of window to delete items
 	bool ItemDeleteFrameNoClicked(const CEGUI::EventArgs &e);
 	bool ItemDeleteFrameYesClicked(const CEGUI::EventArgs &e);
+	//callbacks for window to confirm ID change (items)
+	bool ItemConfirmIDChangeRenameClicked(const CEGUI::EventArgs &e);
+	bool ItemConfirmIDChangeNewClicked(const CEGUI::EventArgs &e);
+	bool ItemConfirmIDChangeCancelClicked(const CEGUI::EventArgs &e);
 
 };//class
 
