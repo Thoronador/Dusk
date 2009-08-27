@@ -18,6 +18,16 @@ typedef struct FileEntry {
                  bool IsDirectory;
 };//struct
 
+struct drag_record
+{
+  bool LeftDown, RightDown, Dragging;
+  static const int drag_threshold = 4;
+  CEGUI::Point down, up;
+};//struct
+
+//helps us to locate a item within column lists
+CEGUI::ListboxItem * getLbItemAtPoint(const CEGUI::Point& pt, CEGUI::MultiColumnList* mcl);
+
 class EditorApplication
 {
 public:
@@ -49,9 +59,8 @@ protected:
     std::string ID_of_object_to_edit;
     std::string ID_of_item_to_edit;
 
-
-    // saved position of cursor when it triggered popup
-    float popup_pos_x, popup_pos_y;
+    //mouse handling data
+    drag_record drag;
 
     // These internal methods package up the stages in the startup process
     /** Sets up the application - returns false if the user chooses to abandon configuration. */
@@ -115,6 +124,7 @@ protected:
 	//callbacks for menu items
 	bool LoadButtonClicked(const CEGUI::EventArgs &e);
 	bool SaveButtonClicked(const CEGUI::EventArgs &e);
+	bool StatsButtonClicked(const CEGUI::EventArgs &e);
 
 	bool ModeMoveClicked(const CEGUI::EventArgs &e);
 	bool ModeLandClicked(const CEGUI::EventArgs &e);
@@ -164,6 +174,11 @@ protected:
 	bool ItemConfirmIDChangeRenameClicked(const CEGUI::EventArgs &e);
 	bool ItemConfirmIDChangeNewClicked(const CEGUI::EventArgs &e);
 	bool ItemConfirmIDChangeCancelClicked(const CEGUI::EventArgs &e);
+
+	//callbacks for window clicks / to implement object dragging
+	bool RootMouseDown(const CEGUI::EventArgs &e);
+	bool RootMouseUp(const CEGUI::EventArgs &e);
+	bool ObjectListMouseDown(const CEGUI::EventArgs &e);
 
 };//class
 

@@ -73,6 +73,38 @@ std::vector<FileEntry> get_DirectoryFileList(const std::string Directory)
 }//function
 
 
+//helps us to locate a item within column lists
+CEGUI::ListboxItem * getLbItemAtPoint(const CEGUI::Point& pt, CEGUI::MultiColumnList* mcl)
+{
+  //not implemented yet
+  if (mcl == NULL)
+  {
+    return NULL;
+  }
+
+  CEGUI::Rect listArea(mcl->getListRenderArea());
+  if (!listArea.isPointInRect(pt))
+  {
+    return NULL;
+  }
+  float y = listArea.d_top - mcl->getVertScrollbar()->getScrollPosition();
+
+  for (unsigned int i = 0; i < mcl->getRowCount(); ++i)
+  {
+    y += mcl->getHighestRowItemHeight(i);
+    if (pt.d_y < y)
+    {
+      return mcl->getItemAtGridReference(CEGUI::MCLGridRef(i,0));
+    }
+  }
+  return NULL;
+  //not implemented yet
+  return NULL;
+}
+
+
+
+
 EditorApplication::EditorApplication()
 {
   mFrameListener = 0;
@@ -86,8 +118,10 @@ EditorApplication::EditorApplication()
   ID_of_item_to_delete = "";
   ID_of_object_to_edit = "";
   ID_of_item_to_edit = "";
-  popup_pos_x = 0.0f;
-  popup_pos_y = 0.0f;
+
+  drag.LeftDown = drag.RightDown = drag.Dragging = false;
+  drag.down = CEGUI::Point(0.0f, 0.0f);
+  drag.up = CEGUI::Point(0.0f, 0.0f);
 }
 
 EditorApplication::~EditorApplication()
@@ -271,6 +305,9 @@ void EditorApplication::CreateCEGUIRootWindow(void)
   sheet->setPosition(CEGUI::UVector2(CEGUI::UDim(0.0, 0), CEGUI::UDim(0.0, 0)));
   sheet->setSize(CEGUI::UVector2(CEGUI::UDim(1.0, 0), CEGUI::UDim(1.0, 0)));
   mSystem->setGUISheet(sheet);
+
+  //sheet->subscribeEvent(CEGUI::Window::EventMouseButtonDown, CEGUI::Event::Subscriber(&EditorApplication::RootMouseDown, this));
+  //sheet->subscribeEvent(CEGUI::Window::EventMouseButtonUp, CEGUI::Event::Subscriber(&EditorApplication::RootMouseUp, this));
 }
 
 void EditorApplication::CreateCEGUIMenuBar(void)
@@ -303,6 +340,10 @@ void EditorApplication::CreateCEGUIMenuBar(void)
   menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/File/PopUp/Save"));
   menu_item->setText("Save");
   menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::SaveButtonClicked, this));
+  popup->addItem(menu_item);
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/File/PopUp/Stats"));
+  menu_item->setText("Statistics");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::StatsButtonClicked, this));
   popup->addItem(menu_item);
   menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/File/PopUp/Quit"));
   menu_item->setText("Quit");
@@ -374,6 +415,7 @@ void EditorApplication::CreateCEGUICatalogue(void)
   mcl->setUserColumnDraggingEnabled(false);
   pane->addChildWindow(mcl);
   mcl->subscribeEvent(CEGUI::Window::EventMouseButtonUp, CEGUI::Event::Subscriber(&EditorApplication::ObjectTabClicked, this));
+  //mcl->subscribeEvent(CEGUI::Window::EventMouseButtonDown, CEGUI::Event::Subscriber(&EditorApplication::ObjectListMouseDown, this));
 
   //add some random data
   addObjectRecordToCatalogue("The_ID", "flora/Oak.mesh");
@@ -1109,6 +1151,16 @@ bool EditorApplication::SaveButtonClicked(const CEGUI::EventArgs &e)
   return true;
 }
 
+bool EditorApplication::StatsButtonClicked(const CEGUI::EventArgs &e)
+{
+  showHint( "Current statistics:\n  Landscape records: "
+           + IntToString(Landscape::GetSingleton().RecordsAvailable())+"\n"
+           +"  Object records: "  + IntToString(ObjectBase::GetSingleton().NumberOfObjects())+"\n"
+           +"    Object references: "+ IntToString(ObjectData::GetSingleton().NumberOfReferences())+"\n"
+           +"  Items: " + IntToString(ItemBase::GetSingleton().NumberOfItems()));
+  return true;
+}
+
 bool EditorApplication::LoadFrameCancelClicked(const CEGUI::EventArgs &e)
 {
   CEGUI::WindowManager::getSingleton().destroyWindow("Editor/LoadFrame");
@@ -1259,9 +1311,6 @@ bool EditorApplication::ObjectTabClicked(const CEGUI::EventArgs &e)
       //std::cout << "Debug: pu position: x: "<<pu_x<<"; y: "<<pu_y<<"\n";
       popup->setPosition(CEGUI::UVector2(CEGUI::UDim(pu_x, 0), CEGUI::UDim(pu_y, 0)));
       popup->openPopupMenu();
-      //save cursor position for later use
-      popup_pos_x = mea.position.d_x;
-      popup_pos_y = mea.position.d_y;
     }
   }
   else
@@ -2359,6 +2408,63 @@ bool EditorApplication::ItemConfirmIDChangeNewClicked(const CEGUI::EventArgs &e)
     //close edit window
     winmgr.destroyWindow("Editor/ItemEditFrame");
     ID_of_item_to_edit = "";
+  }
+  return true;
+}
+
+bool EditorApplication::RootMouseDown(const CEGUI::EventArgs &e)
+{
+  //not implemented yet
+  const CEGUI::MouseEventArgs& mouse_ea = static_cast<const CEGUI::MouseEventArgs&> (e);
+  if (mouse_ea.button == CEGUI::LeftButton)
+  {
+    drag.LeftDown = true;
+    drag.down = mouse_ea.position;
+  }
+  return true;
+}
+bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
+{
+  //not implemented yet
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  CEGUI::ListboxItem * lbi = NULL;
+  const CEGUI::MouseEventArgs& mouse_ea = static_cast<const CEGUI::MouseEventArgs&> (e);
+  if (mouse_ea.button == CEGUI::LeftButton)
+  {
+    drag.LeftDown = false;
+    drag.up = mouse_ea.position;
+
+    //try to get list box item at "source"
+    CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/Catalogue/Tab/Object/List"));
+    lbi = getLbItemAtPoint(drag.down, mcl);
+    if (lbi != NULL)
+    {
+      //we got something, i.e. user dragged item from MCL to Root window
+      std::cout << "DEBUG: placing new referenced object.\n";
+      Ogre::Quaternion quat = EditorCamera::GetSingleton().getOrientation();
+      DuskObject* temp =
+      ObjectData::GetSingleton().addReference( std::string(lbi->getText().c_str()),
+                 EditorCamera::GetSingleton().getPosition() + quat*Ogre::Vector3(0.0f, 0.0f, -100.0f),
+                 Ogre::Vector3::ZERO, 1.0f);
+      temp->Enable(mSceneMgr);
+    }
+    else
+    {
+       std::cout << "DEBUG: no ListboxItem found.\n";
+    }
+    drag.Dragging = false;
+  }
+  return true;
+}
+
+bool EditorApplication::ObjectListMouseDown(const CEGUI::EventArgs &e)
+{
+  const CEGUI::MouseEventArgs& mouse_ea = static_cast<const CEGUI::MouseEventArgs&> (e);
+  if (mouse_ea.button == CEGUI::LeftButton)
+  {
+    drag.LeftDown = true;
+    drag.down = mouse_ea.position;
+    drag.Dragging = false;
   }
   return true;
 }

@@ -59,7 +59,28 @@ void EditorCamera::setupCamera(Ogre::SceneManager* scm)
 
 void EditorCamera::setPosition(const Ogre::Vector3& position)
 {
-  m_primaryCameraNode->setPosition(position);
+  if (m_primaryCameraNode != NULL)
+  {
+    m_primaryCameraNode->setPosition(position);
+  }
+}
+
+Ogre::Vector3 EditorCamera::getPosition(void)
+{
+  if (m_primaryCameraNode != NULL)
+  {
+    return m_primaryCameraNode->getPosition();
+  }
+  return Ogre::Vector3::ZERO;
+}
+
+Ogre::Quaternion EditorCamera::getOrientation(void)
+{
+  if (m_primaryCameraNode == NULL)
+  {
+    return Ogre::Quaternion::IDENTITY;
+  }
+  return m_primaryCameraNode->getOrientation();
 }
 
 void EditorCamera::setZoomDistance(const float distance)

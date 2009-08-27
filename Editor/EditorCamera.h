@@ -17,6 +17,8 @@ namespace Dusk
       void setupCamera(Ogre::SceneManager* scm);
       Ogre::Camera* getOgreCamera();
       void setPosition(const Ogre::Vector3& position);
+      Ogre::Vector3 getPosition(void);
+      Ogre::Quaternion getOrientation(void);
       void setZoomDistance(const float distance);
       float getZoomDistance(void);
       void setRotationSpeed(const float degrees);
