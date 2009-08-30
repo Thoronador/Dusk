@@ -117,9 +117,9 @@ EditorApplication::EditorApplication()
   ID_of_object_to_edit = "";
   ID_of_item_to_edit = "";
 
-  mouse.LeftButton.IsDown = mouse.RightButton.IsDown = false;
   mouse.LeftButton.down = mouse.LeftButton.up = CEGUI::Point(0.0f, 0.0f);
   mouse.RightButton.down = mouse.RightButton.up = CEGUI::Point(0.0f, 0.0f);
+  mouse_object = NULL;
 }
 
 EditorApplication::~EditorApplication()
@@ -2405,56 +2405,106 @@ bool EditorApplication::ItemConfirmIDChangeNewClicked(const CEGUI::EventArgs &e)
 
 bool EditorApplication::RootMouseDown(const CEGUI::EventArgs &e)
 {
-  //not implemented yet
+  mouse_object = NULL;
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
   const CEGUI::MouseEventArgs& mouse_ea = static_cast<const CEGUI::MouseEventArgs&> (e);
+  std::cout << "DEBUG: mouse down,  pos: x: "<<mouse_ea.position.d_x << "; y: "
+              << mouse_ea.position.d_y << "\n";
   CEGUI::Window * child = winmgr.getWindow("Editor/Root")->getChildAtPosition(mouse_ea.position);
   if ( child != NULL )
   { //got something
-    std::cout << "DEBUG: mouse down,  pos: x: "<<mouse_ea.position.d_x << "; y: "
-              << mouse_ea.position.d_y << "\n       Window: "<<child->getName().c_str()<< "\n";
+    std::cout << "       Window: "<<child->getName().c_str()<< "\n";
     return true;
   }//if
-  std::cout << "DEBUG: mouse down, pos: x: "<<mouse_ea.position.d_x << "; y: "
-            << mouse_ea.position.d_y << "\n       Window: NONE\n";
+  std::cout << "       Window: NONE\n";
 
   switch (mouse_ea.button)
   {
     case CEGUI::LeftButton:
-         mouse.LeftButton.IsDown = true;
          mouse.LeftButton.down = mouse_ea.position;
          break;
     case CEGUI::RightButton:
-         mouse.RightButton.IsDown = true;
          mouse.RightButton.down = mouse_ea.position;
          break;
     default: break;
   }//swi
+
+  //check for entity / object at mouse position
+  if (mouse_ea.button == CEGUI::LeftButton or mouse_ea.button == CEGUI::RightButton)
+  {
+    Ogre::Ray pickRay;
+    Ogre::RaySceneQuery * rsc_query = NULL;
+    pickRay = EditorCamera::GetSingleton().getOgreCamera()->getCameraToViewportRay(
+              mouse_ea.position.d_x/mWindow->getWidth(), mouse_ea.position.d_y/ mWindow->getHeight());
+    rsc_query = mSceneMgr->createRayQuery(pickRay);
+    rsc_query->setRay(pickRay);
+    //perform query
+    Ogre::RaySceneQueryResult &result = rsc_query->execute();
+    Ogre::RaySceneQueryResult::iterator rsq_iter = result.begin();
+
+    //hit something?
+    if (rsq_iter != result.end())
+    {
+       //we got something
+       while (rsq_iter != result.end() and (mouse_object == NULL))
+       {
+         if (rsq_iter->movable!=NULL)
+         {
+           //found movable object
+           std::cout << "DEBUG: found movable \"" <<rsq_iter->movable->getName()<<"\" in a distance of "
+                     << rsq_iter->distance << " units.\n";
+           if (rsq_iter->distance>0.1f)
+           { //try moving/rotating it?
+             if ( rsq_iter->movable->getUserObject() != NULL)
+             {
+                DuskObject * d_obj = static_cast<DuskObject*> (rsq_iter->movable->getUserObject());
+                std::cout << "DEBUG: found object of ID \""<< d_obj->GetID() <<"\" at position ("
+                          << d_obj->GetPosition().x<<","<< d_obj->GetPosition().y<<","
+                          << d_obj->GetPosition().z<<")\n";
+                std::cout << "       Rotation: V3("<< d_obj->GetRotation().x
+                          <<","<< d_obj->GetRotation().y<<","<< d_obj->GetRotation().z<<")\n";
+                mouse_object = d_obj;
+             }
+           }
+         }
+         else
+         {
+           std::cout << "DEBUG: RSQ result: entity is not a movable.\n";
+         }
+         rsq_iter++;
+       }//while
+    }
+    else
+    {
+      std::cout << "DEBUG: Query result was empty.\n";
+      mouse_object = NULL;
+    }
+    //destroy query object
+    mSceneMgr->destroyQuery(rsc_query);
+  }//if buttons down
   return true;
 }
 
 bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
 {
-  //not implemented yet
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
   const CEGUI::MouseEventArgs& mouse_ea = static_cast<const CEGUI::MouseEventArgs&> (e);
+  std::cout << "DEBUG: mouse up, pos: x: "<<mouse_ea.position.d_x << "; y: "
+            << mouse_ea.position.d_y << "\n";
+  mouse_object = NULL;
   //get window at mouse cursor
   CEGUI::Window * child = winmgr.getWindow("Editor/Root")->getChildAtPosition(mouse_ea.position);
   if ( child != NULL )
   { //got something
-    std::cout << "DEBUG: mouse up, pos: x: "<<mouse_ea.position.d_x << "; y: "
-              << mouse_ea.position.d_y << "\n       Window: "<< child->getName().c_str()<< "\n";
+    std::cout << "       Window: "<< child->getName().c_str()<< "\n";
     return true;
   }//if
-  std::cout << "DEBUG: mouse up, pos: x: "<<mouse_ea.position.d_x << "; y: "
-            << mouse_ea.position.d_y << "\n       Window: NONE\n";
+  std::cout << "       Window: NONE\n";
 
   CEGUI::ListboxItem * lbi = NULL;
   if (mouse_ea.button == CEGUI::LeftButton)
   {
-
     //now handle event
-    mouse.LeftButton.IsDown = false;
     mouse.LeftButton.up = mouse_ea.position;
     //try to get list box item at "source"
     CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/Catalogue/Tab/Object/List"));
@@ -2477,7 +2527,6 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
   }
   else if (mouse_ea.button == CEGUI::RightButton)
   {
-    mouse.RightButton.IsDown = false;
     mouse.RightButton.up = mouse_ea.position;
   }
   return true;
@@ -2485,84 +2534,45 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
 
 bool EditorApplication::RootMouseMove(const CEGUI::EventArgs &e)
 {
-  //not implemented yet
+  //not completely implemented yet
   const CEGUI::MouseEventArgs& mouse_ea = static_cast<const CEGUI::MouseEventArgs&> (e);
-  Ogre::Ray pickRay;
-  Ogre::RaySceneQuery * rsc_query = NULL;
-  if (mouse.LeftButton.IsDown or mouse.RightButton.IsDown)
+  if (mFrameListener->IsMouseDown(OIS::MB_Left) or mFrameListener->IsMouseDown(OIS::MB_Right))
   {
     //we are trying to move (left mouse)/rotate (right mouse) an object here
     std::cout << "DEBUG: mouse delta: x: " << mouse_ea.moveDelta.d_x<<", y: "
               << mouse_ea.moveDelta.d_y<<"\n";
-    //+++ get object and move/rotate it +++
-    pickRay = EditorCamera::GetSingleton().getOgreCamera()->getCameraToViewportRay(
-              mouse_ea.position.d_x/mWindow->getWidth(), mouse_ea.position.d_y/ mWindow->getHeight());
-    rsc_query = mSceneMgr->createRayQuery(pickRay);
-    rsc_query->setRay(pickRay);
-    //perform query
-    Ogre::RaySceneQueryResult &result = rsc_query->execute();
-    Ogre::RaySceneQueryResult::iterator rsq_iter = result.begin();
-    if ( rsq_iter != result.end())
+    //Do we have an object, which we can move or rotate?
+    if (mouse_object != NULL)
     {
-       //we got something
-       while (rsq_iter != result.end())
-       {
-         if (rsq_iter->movable!=NULL)
-         {
-           //found movable object
-           std::cout << "DEBUG: found movable \"" <<rsq_iter->movable->getName()<<"\" in a distance of "
-                     << rsq_iter->distance << " units.\n";
-           if (rsq_iter->distance>0.1f)
-           { //try moving/rotating it?
-             if ( rsq_iter->movable->getUserObject() != NULL)
-             {
-                DuskObject * d_obj = static_cast<DuskObject*> (rsq_iter->movable->getUserObject());
-                std::cout << "DEBUG: found object of ID \""<< d_obj->GetID() <<"\" at position ("
-                          << d_obj->GetPosition().x<<","<< d_obj->GetPosition().y<<","
-                          << d_obj->GetPosition().z<<")\n";
-                if (mouse.RightButton.IsDown)
-                { //rotate it
-                  Ogre::Vector3 temp = Ogre::Vector3(0.0f, 0.0f, 0.0f);
-                  if (mFrameListener->IsKeyDown(OIS::KC_X))
-                  { //only x-axis
-                    temp.x = cRotationFactor * mouse_ea.moveDelta.d_y;
-                  }
-                  else if (mFrameListener->IsKeyDown(OIS::KC_Y))
-                  { //only y-axis
-                    temp.y = cRotationFactor * mouse_ea.moveDelta.d_x;
-                  }
-                  else if (mFrameListener->IsKeyDown(OIS::KC_Z))
-                  { //only z-axis
-                    temp.z = cRotationFactor * mouse_ea.moveDelta.d_x;
-                  }
-                  else  //any axis
-                  {
-                    temp.x = cRotationFactor * mouse_ea.moveDelta.d_y;
-                    temp.y = cRotationFactor * mouse_ea.moveDelta.d_x;
-                  }
-                  d_obj->SetRotation(d_obj->GetRotation() + temp);
-                }//if
-                else
-                { //move it
-                    // not implemented yet
-                }//else
-             }
-           }//if
-         }//if
-         else
-         {
-           std::cout << "DEBUG: RSQ result: entity is not a movable.\n";
-         }
-         rsq_iter++;
-       }
-    }
-    else
-    {
-      std::cout << "DEBUG: Query result was empty.\n";
-    }
-    mSceneMgr->destroyQuery(rsc_query);
-  }
-  //not implemented yet
+      if (mFrameListener->IsMouseDown(OIS::MB_Right))
+      { //rotate it
+        Ogre::Vector3 temp = Ogre::Vector3(0.0f, 0.0f, 0.0f);
+        if (mFrameListener->IsKeyDown(OIS::KC_X))
+        { //only x-axis
+          temp.x = cRotationFactor * mouse_ea.moveDelta.d_y;
+        }
+        else if (mFrameListener->IsKeyDown(OIS::KC_Y))
+        { //only y-axis
+          temp.y = cRotationFactor * mouse_ea.moveDelta.d_x;
+        }
+        else if (mFrameListener->IsKeyDown(OIS::KC_Z))
+        { //only z-axis
+          temp.z = cRotationFactor * mouse_ea.moveDelta.d_x;
+        }
+        else  //any axis
+        {
+          temp.x = cRotationFactor * mouse_ea.moveDelta.d_y;
+          temp.y = cRotationFactor * mouse_ea.moveDelta.d_x;
+        }
+        mouse_object->SetRotation(mouse_object->GetRotation() + temp);
+      }//if
+      else
+      { //move it
+          // not implemented yet
+      }//else
+    }//if
+  }//if buttons (left | right) down
+  //not completely implemented yet
   return true;
 }
 
@@ -2571,7 +2581,6 @@ bool EditorApplication::ObjectListMouseDown(const CEGUI::EventArgs &e)
   const CEGUI::MouseEventArgs& mouse_ea = static_cast<const CEGUI::MouseEventArgs&> (e);
   if (mouse_ea.button == CEGUI::LeftButton)
   {
-    mouse.LeftButton.IsDown = true;
     mouse.LeftButton.down = mouse_ea.position;
   }
   return true;

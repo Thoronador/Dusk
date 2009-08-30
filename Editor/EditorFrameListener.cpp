@@ -293,7 +293,6 @@ bool EditorFrameListener::processUnbufferedMouseInput(const Ogre::FrameEvent& ev
   return true;
 }
 
-
 void EditorFrameListener::moveCamera()
 {
   // Make all the changes to the camera
@@ -397,9 +396,18 @@ void EditorFrameListener::setEditorMode(const EditorMode em)
 
 bool EditorFrameListener::IsKeyDown(const OIS::KeyCode kc)
 {
-  if ( mKeyboard != NULL)
+  if (mKeyboard!=NULL)
   {
     return mKeyboard->isKeyDown(kc);
+  }
+  return false;
+}
+
+bool EditorFrameListener::IsMouseDown(const OIS::MouseButtonID mb)
+{
+  if (mMouse!=NULL)
+  {
+    return mMouse->getMouseState().buttonDown(mb);
   }
   return false;
 }

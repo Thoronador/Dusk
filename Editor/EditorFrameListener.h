@@ -149,7 +149,9 @@ public:
 	//mode for application
 	void setEditorMode(const EditorMode em);
 
+    //wrapper functions to query keyboard and mouse state
 	bool IsKeyDown(const OIS::KeyCode kc);
+	bool IsMouseDown(const OIS::MouseButtonID mb);
 
 protected:
 	Ogre::Camera* mCamera;

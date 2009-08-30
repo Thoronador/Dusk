@@ -13,6 +13,34 @@ unsigned int GenerateUniqueObjectID()
   return m_genUID++;
 }
 
+void IntervalVector360(Ogre::Vector3& vec)
+{
+  if (vec.x>360.0f)
+  {
+    vec.x -= 360.0f;
+  }
+  else if (vec.x < 0.0f)
+  {
+    vec.x += 360.0f;
+  }
+  if (vec.y>360.0f)
+  {
+    vec.y -= 360.0f;
+  }
+  else if (vec.y < 0.0f)
+  {
+    vec.y += 360.0f;
+  }
+  if (vec.z>360.0f)
+  {
+    vec.z -= 360.0f;
+  }
+  else if (vec.z < 0.0f)
+  {
+    vec.z += 360.0f;
+  }
+}
+
 DuskObject::DuskObject()
 {
   //ctor
@@ -62,6 +90,7 @@ void DuskObject::SetPosition(const Ogre::Vector3 pos)
     entity->getParentSceneNode()->setPosition(pos);
   }
   position = pos;
+  IntervalVector360(position);
 }
 
 void DuskObject::SetRotation(const Ogre::Vector3 rot)
@@ -76,6 +105,7 @@ void DuskObject::SetRotation(const Ogre::Vector3 rot)
     entity->getParentSceneNode()->rotate(Ogre::Vector3::UNIT_Z, Ogre::Degree(rot.z));
   }
   rotation = rot;
+  IntervalVector360(rotation);
 }
 
 float DuskObject::GetScale() const

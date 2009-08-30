@@ -5,6 +5,7 @@
 #include <OgreConfigFile.h>
 #include "EditorFrameListener.h"
 #include "../Engine/ItemBase.h"
+#include "../Engine/DuskObject.h"
 #include <OgreCEGUIRenderer.h>
 #include <CEGUI/CEGUI.h>
 #include <string>
@@ -20,7 +21,6 @@ struct FileEntry {
 
 struct mouse_button_data
 {
-  bool IsDown;
   CEGUI::Point down, up;
 };//struct
 
@@ -67,6 +67,8 @@ protected:
 
     //mouse handling data
     mouse_record mouse;
+
+    DuskObject * mouse_object;
 
     // These internal methods package up the stages in the startup process
     /** Sets up the application - returns false if the user chooses to abandon configuration. */
