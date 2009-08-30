@@ -149,6 +149,8 @@ public:
 	//mode for application
 	void setEditorMode(const EditorMode em);
 
+	bool IsKeyDown(const OIS::KeyCode kc);
+
 protected:
 	Ogre::Camera* mCamera;
 

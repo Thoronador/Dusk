@@ -395,4 +395,13 @@ void EditorFrameListener::setEditorMode(const EditorMode em)
   m_Mode = em;
 }
 
+bool EditorFrameListener::IsKeyDown(const OIS::KeyCode kc)
+{
+  if ( mKeyboard != NULL)
+  {
+    return mKeyboard->isKeyDown(kc);
+  }
+  return false;
+}
+
 }//namespace

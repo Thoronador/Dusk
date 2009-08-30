@@ -141,6 +141,8 @@ bool DuskObject::Enable(Ogre::SceneManager* scm)
   ent_node->rotate(Ogre::Vector3::UNIT_X, Ogre::Degree(rotation.x));
   ent_node->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(rotation.y));
   ent_node->rotate(Ogre::Vector3::UNIT_Z, Ogre::Degree(rotation.z));
+  //set user defined object to this object as reverse link
+  entity->setUserObject(this);
   return (entity!=NULL);
 }
 

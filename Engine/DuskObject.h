@@ -2,6 +2,7 @@
 #define DUSKOBJECT_H
 
 #include <string>
+#include <OgreUserDefinedObject.h>
 #include <OgreEntity.h>
 #include <OgreSceneManager.h>
 #include <OgreVector3.h>
@@ -10,7 +11,7 @@ namespace Dusk{
 
 enum ObjectTypes {otUndefined, otStatic, otItem};
 
-class DuskObject
+class DuskObject: public Ogre::UserDefinedObject
 {
     public:
         DuskObject();

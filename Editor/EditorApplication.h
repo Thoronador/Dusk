@@ -13,16 +13,22 @@
 namespace Dusk
 {
 
-typedef struct FileEntry {
-                 std::string FileName;
-                 bool IsDirectory;
+struct FileEntry {
+           std::string FileName;
+           bool IsDirectory;
 };//struct
 
-struct drag_record
+struct mouse_button_data
 {
-  bool LeftDown, RightDown, Dragging;
-  static const int drag_threshold = 4;
+  bool IsDown;
   CEGUI::Point down, up;
+};//struct
+
+struct mouse_record
+{
+  mouse_button_data LeftButton;
+  mouse_button_data RightButton;
+  static const int drag_threshold = 4;
 };//struct
 
 //helps us to locate a item within column lists
@@ -60,7 +66,7 @@ protected:
     std::string ID_of_item_to_edit;
 
     //mouse handling data
-    drag_record drag;
+    mouse_record mouse;
 
     // These internal methods package up the stages in the startup process
     /** Sets up the application - returns false if the user chooses to abandon configuration. */
@@ -178,6 +184,7 @@ protected:
 	//callbacks for window clicks / to implement object dragging
 	bool RootMouseDown(const CEGUI::EventArgs &e);
 	bool RootMouseUp(const CEGUI::EventArgs &e);
+	bool RootMouseMove(const CEGUI::EventArgs &e);
 	bool ObjectListMouseDown(const CEGUI::EventArgs &e);
 
 };//class

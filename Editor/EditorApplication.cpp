@@ -18,6 +18,7 @@ namespace Dusk
 {
 
 const CEGUI::colour cSelectionColour = CEGUI::colour(65.0f/255.0f, 105.0f/255.0f, 225.0f/255.0f, 0.5f);
+const float cRotationFactor = 2.5f;
 
 std::vector<FileEntry> get_DirectoryFileList(const std::string Directory)
 {
@@ -76,7 +77,6 @@ std::vector<FileEntry> get_DirectoryFileList(const std::string Directory)
 //helps us to locate a item within column lists
 CEGUI::ListboxItem * getLbItemAtPoint(const CEGUI::Point& pt, CEGUI::MultiColumnList* mcl)
 {
-  //not implemented yet
   if (mcl == NULL)
   {
     return NULL;
@@ -98,8 +98,6 @@ CEGUI::ListboxItem * getLbItemAtPoint(const CEGUI::Point& pt, CEGUI::MultiColumn
     }
   }
   return NULL;
-  //not implemented yet
-  return NULL;
 }
 
 
@@ -119,9 +117,9 @@ EditorApplication::EditorApplication()
   ID_of_object_to_edit = "";
   ID_of_item_to_edit = "";
 
-  drag.LeftDown = drag.RightDown = drag.Dragging = false;
-  drag.down = CEGUI::Point(0.0f, 0.0f);
-  drag.up = CEGUI::Point(0.0f, 0.0f);
+  mouse.LeftButton.IsDown = mouse.RightButton.IsDown = false;
+  mouse.LeftButton.down = mouse.LeftButton.up = CEGUI::Point(0.0f, 0.0f);
+  mouse.RightButton.down = mouse.RightButton.up = CEGUI::Point(0.0f, 0.0f);
 }
 
 EditorApplication::~EditorApplication()
@@ -212,15 +210,6 @@ void EditorApplication::createSceneManager(void)
 void EditorApplication::createCamera(void)
 {
   EditorCamera::GetSingleton().setupCamera(mSceneMgr);
-
-  /*
-  mCamera = mSceneMgr->createCamera("EditorCam");
-  // Position it at 500 in Z direction
-  mCamera->setPosition(Ogre::Vector3(0,0,500));
-  // Look back along -Z
-  mCamera->lookAt(Ogre::Vector3(0,0,-300));
-  mCamera->setNearClipDistance(5);
-  */
 }
 
 void EditorApplication::createFrameListener(void)
@@ -306,8 +295,10 @@ void EditorApplication::CreateCEGUIRootWindow(void)
   sheet->setSize(CEGUI::UVector2(CEGUI::UDim(1.0, 0), CEGUI::UDim(1.0, 0)));
   mSystem->setGUISheet(sheet);
 
-  //sheet->subscribeEvent(CEGUI::Window::EventMouseButtonDown, CEGUI::Event::Subscriber(&EditorApplication::RootMouseDown, this));
-  //sheet->subscribeEvent(CEGUI::Window::EventMouseButtonUp, CEGUI::Event::Subscriber(&EditorApplication::RootMouseUp, this));
+  sheet->subscribeEvent(CEGUI::Window::EventMouseButtonDown, CEGUI::Event::Subscriber(&EditorApplication::RootMouseDown, this));
+  sheet->subscribeEvent(CEGUI::Window::EventMouseButtonUp, CEGUI::Event::Subscriber(&EditorApplication::RootMouseUp, this));
+  sheet->subscribeEvent(CEGUI::Window::EventMouseMove, CEGUI::Event::Subscriber(&EditorApplication::RootMouseMove, this));
+
 }
 
 void EditorApplication::CreateCEGUIMenuBar(void)
@@ -2392,7 +2383,7 @@ bool EditorApplication::ItemConfirmIDChangeNewClicked(const CEGUI::EventArgs &e)
     i_rec.Mesh = std::string(winmgr.getWindow("Editor/ItemEditFrame/Mesh_Edit")->getText().c_str());
     i_rec.Name = std::string(winmgr.getWindow("Editor/ItemEditFrame/Name_Edit")->getText().c_str());
     i_rec.value = StringToInt(std::string(winmgr.getWindow("Editor/ItemEditFrame/Value_Edit")->getText().c_str()), -1);
-    i_rec.weight = StringToInt(std::string(winmgr.getWindow("Editor/ItemEditFrame/Weight_Edit")->getText().c_str()), -1.0f);
+    i_rec.weight = StringToFloat(std::string(winmgr.getWindow("Editor/ItemEditFrame/Weight_Edit")->getText().c_str()), -1.0f);
 
     if (ItemBase::GetSingleton().hasItem(ItemID))
     {
@@ -2415,28 +2406,59 @@ bool EditorApplication::ItemConfirmIDChangeNewClicked(const CEGUI::EventArgs &e)
 bool EditorApplication::RootMouseDown(const CEGUI::EventArgs &e)
 {
   //not implemented yet
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
   const CEGUI::MouseEventArgs& mouse_ea = static_cast<const CEGUI::MouseEventArgs&> (e);
-  if (mouse_ea.button == CEGUI::LeftButton)
+  CEGUI::Window * child = winmgr.getWindow("Editor/Root")->getChildAtPosition(mouse_ea.position);
+  if ( child != NULL )
+  { //got something
+    std::cout << "DEBUG: mouse down,  pos: x: "<<mouse_ea.position.d_x << "; y: "
+              << mouse_ea.position.d_y << "\n       Window: "<<child->getName().c_str()<< "\n";
+    return true;
+  }//if
+  std::cout << "DEBUG: mouse down, pos: x: "<<mouse_ea.position.d_x << "; y: "
+            << mouse_ea.position.d_y << "\n       Window: NONE\n";
+
+  switch (mouse_ea.button)
   {
-    drag.LeftDown = true;
-    drag.down = mouse_ea.position;
-  }
+    case CEGUI::LeftButton:
+         mouse.LeftButton.IsDown = true;
+         mouse.LeftButton.down = mouse_ea.position;
+         break;
+    case CEGUI::RightButton:
+         mouse.RightButton.IsDown = true;
+         mouse.RightButton.down = mouse_ea.position;
+         break;
+    default: break;
+  }//swi
   return true;
 }
+
 bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
 {
   //not implemented yet
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
-  CEGUI::ListboxItem * lbi = NULL;
   const CEGUI::MouseEventArgs& mouse_ea = static_cast<const CEGUI::MouseEventArgs&> (e);
+  //get window at mouse cursor
+  CEGUI::Window * child = winmgr.getWindow("Editor/Root")->getChildAtPosition(mouse_ea.position);
+  if ( child != NULL )
+  { //got something
+    std::cout << "DEBUG: mouse up, pos: x: "<<mouse_ea.position.d_x << "; y: "
+              << mouse_ea.position.d_y << "\n       Window: "<< child->getName().c_str()<< "\n";
+    return true;
+  }//if
+  std::cout << "DEBUG: mouse up, pos: x: "<<mouse_ea.position.d_x << "; y: "
+            << mouse_ea.position.d_y << "\n       Window: NONE\n";
+
+  CEGUI::ListboxItem * lbi = NULL;
   if (mouse_ea.button == CEGUI::LeftButton)
   {
-    drag.LeftDown = false;
-    drag.up = mouse_ea.position;
 
+    //now handle event
+    mouse.LeftButton.IsDown = false;
+    mouse.LeftButton.up = mouse_ea.position;
     //try to get list box item at "source"
     CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/Catalogue/Tab/Object/List"));
-    lbi = getLbItemAtPoint(drag.down, mcl);
+    lbi = getLbItemAtPoint(mouse.LeftButton.down, mcl);
     if (lbi != NULL)
     {
       //we got something, i.e. user dragged item from MCL to Root window
@@ -2452,8 +2474,95 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
     {
        std::cout << "DEBUG: no ListboxItem found.\n";
     }
-    drag.Dragging = false;
   }
+  else if (mouse_ea.button == CEGUI::RightButton)
+  {
+    mouse.RightButton.IsDown = false;
+    mouse.RightButton.up = mouse_ea.position;
+  }
+  return true;
+}
+
+bool EditorApplication::RootMouseMove(const CEGUI::EventArgs &e)
+{
+  //not implemented yet
+  const CEGUI::MouseEventArgs& mouse_ea = static_cast<const CEGUI::MouseEventArgs&> (e);
+  Ogre::Ray pickRay;
+  Ogre::RaySceneQuery * rsc_query = NULL;
+  if (mouse.LeftButton.IsDown or mouse.RightButton.IsDown)
+  {
+    //we are trying to move (left mouse)/rotate (right mouse) an object here
+    std::cout << "DEBUG: mouse delta: x: " << mouse_ea.moveDelta.d_x<<", y: "
+              << mouse_ea.moveDelta.d_y<<"\n";
+    //+++ get object and move/rotate it +++
+    pickRay = EditorCamera::GetSingleton().getOgreCamera()->getCameraToViewportRay(
+              mouse_ea.position.d_x/mWindow->getWidth(), mouse_ea.position.d_y/ mWindow->getHeight());
+    rsc_query = mSceneMgr->createRayQuery(pickRay);
+    rsc_query->setRay(pickRay);
+    //perform query
+    Ogre::RaySceneQueryResult &result = rsc_query->execute();
+    Ogre::RaySceneQueryResult::iterator rsq_iter = result.begin();
+    if ( rsq_iter != result.end())
+    {
+       //we got something
+       while (rsq_iter != result.end())
+       {
+         if (rsq_iter->movable!=NULL)
+         {
+           //found movable object
+           std::cout << "DEBUG: found movable \"" <<rsq_iter->movable->getName()<<"\" in a distance of "
+                     << rsq_iter->distance << " units.\n";
+           if (rsq_iter->distance>0.1f)
+           { //try moving/rotating it?
+             if ( rsq_iter->movable->getUserObject() != NULL)
+             {
+                DuskObject * d_obj = static_cast<DuskObject*> (rsq_iter->movable->getUserObject());
+                std::cout << "DEBUG: found object of ID \""<< d_obj->GetID() <<"\" at position ("
+                          << d_obj->GetPosition().x<<","<< d_obj->GetPosition().y<<","
+                          << d_obj->GetPosition().z<<")\n";
+                if (mouse.RightButton.IsDown)
+                { //rotate it
+                  Ogre::Vector3 temp = Ogre::Vector3(0.0f, 0.0f, 0.0f);
+                  if (mFrameListener->IsKeyDown(OIS::KC_X))
+                  { //only x-axis
+                    temp.x = cRotationFactor * mouse_ea.moveDelta.d_y;
+                  }
+                  else if (mFrameListener->IsKeyDown(OIS::KC_Y))
+                  { //only y-axis
+                    temp.y = cRotationFactor * mouse_ea.moveDelta.d_x;
+                  }
+                  else if (mFrameListener->IsKeyDown(OIS::KC_Z))
+                  { //only z-axis
+                    temp.z = cRotationFactor * mouse_ea.moveDelta.d_x;
+                  }
+                  else  //any axis
+                  {
+                    temp.x = cRotationFactor * mouse_ea.moveDelta.d_y;
+                    temp.y = cRotationFactor * mouse_ea.moveDelta.d_x;
+                  }
+                  d_obj->SetRotation(d_obj->GetRotation() + temp);
+                }//if
+                else
+                { //move it
+                    // not implemented yet
+                }//else
+             }
+           }//if
+         }//if
+         else
+         {
+           std::cout << "DEBUG: RSQ result: entity is not a movable.\n";
+         }
+         rsq_iter++;
+       }
+    }
+    else
+    {
+      std::cout << "DEBUG: Query result was empty.\n";
+    }
+    mSceneMgr->destroyQuery(rsc_query);
+  }
+  //not implemented yet
   return true;
 }
 
@@ -2462,9 +2571,8 @@ bool EditorApplication::ObjectListMouseDown(const CEGUI::EventArgs &e)
   const CEGUI::MouseEventArgs& mouse_ea = static_cast<const CEGUI::MouseEventArgs&> (e);
   if (mouse_ea.button == CEGUI::LeftButton)
   {
-    drag.LeftDown = true;
-    drag.down = mouse_ea.position;
-    drag.Dragging = false;
+    mouse.LeftButton.IsDown = true;
+    mouse.LeftButton.down = mouse_ea.position;
   }
   return true;
 }
