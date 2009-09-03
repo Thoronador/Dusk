@@ -5,6 +5,7 @@
 #include "../Engine/DuskFunctions.h"
 #include "../Engine/Landscape.h"
 #include "../Engine/ObjectData.h"
+#include <OgreVector3.h>
 
 #if defined(_WIN32)
   //Windows includes go here
@@ -19,6 +20,7 @@ namespace Dusk
 
 const CEGUI::colour cSelectionColour = CEGUI::colour(65.0f/255.0f, 105.0f/255.0f, 225.0f/255.0f, 0.5f);
 const float cRotationFactor = 2.5f;
+const float cMovementFactor = 3.5f;
 
 std::vector<FileEntry> get_DirectoryFileList(const std::string Directory)
 {
@@ -1252,6 +1254,7 @@ bool EditorApplication::LoadFrameOKClicked(const CEGUI::EventArgs &e)
     Landscape::GetSingleton().SendToEngine(mSceneMgr);
     std::cout << "DEBUG: EnableAllObjects...\n";
     ObjectData::GetSingleton().EnableAllObjects(mSceneMgr);
+    EditorCamera::GetSingleton().resetToOrigin();
   }//else branch
   return true;
 }
@@ -2568,6 +2571,16 @@ bool EditorApplication::RootMouseMove(const CEGUI::EventArgs &e)
       }//if
       else
       { //move it
+          // not implemented yet
+          if (mFrameListener->getEditorMode() != EM_Movement)
+          {
+            Ogre::Vector3 vec(0.0f, 0.0f, 0.0f);
+            vec.x = cMovementFactor*mouse_ea.moveDelta.d_x;
+            vec.y = -cMovementFactor*mouse_ea.moveDelta.d_y;
+            vec = EditorCamera::GetSingleton().getOrientation() * vec;
+            std::cout << "vec: "<<vec<<"\n";
+            mouse_object->SetPosition(mouse_object->GetPosition()+vec);
+          }
           // not implemented yet
       }//else
     }//if

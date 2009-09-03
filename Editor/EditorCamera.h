@@ -21,6 +21,7 @@ namespace Dusk
       Ogre::Quaternion getOrientation(void);
       void setZoomDistance(const float distance);
       float getZoomDistance(void);
+      void resetToOrigin(void);
       void setRotationSpeed(const float degrees);
       float getRotationSpeed(void);
       void relativeRotation(const float degrees);

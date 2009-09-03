@@ -100,6 +100,19 @@ float EditorCamera::getZoomDistance(void)
   return 0.0f;
 }
 
+void EditorCamera::resetToOrigin(void)
+{
+  if (m_primaryCameraNode != NULL)
+  {
+    m_primaryCameraNode->setPosition(Ogre::Vector3(0,0,500));
+    m_primaryCameraNode->lookAt(Ogre::Vector3(0,0,-300), Ogre::Node::TS_WORLD);
+  }
+  if (m_secondaryCameraNode != NULL)
+  {
+    m_secondaryCameraNode->setPosition(0.0f, 0.0f, 0.0f);
+  }
+}
+
 void EditorCamera::processMovement(const Ogre::FrameEvent& evt)
 {
   if ( m_primaryCameraNode == NULL )

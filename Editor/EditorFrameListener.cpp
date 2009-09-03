@@ -394,6 +394,11 @@ void EditorFrameListener::setEditorMode(const EditorMode em)
   m_Mode = em;
 }
 
+EditorMode EditorFrameListener::getEditorMode(void)
+{
+  return m_Mode;
+}
+
 bool EditorFrameListener::IsKeyDown(const OIS::KeyCode kc)
 {
   if (mKeyboard!=NULL)

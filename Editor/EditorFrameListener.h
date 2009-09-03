@@ -148,6 +148,7 @@ public:
 
 	//mode for application
 	void setEditorMode(const EditorMode em);
+	EditorMode getEditorMode(void);
 
     //wrapper functions to query keyboard and mouse state
 	bool IsKeyDown(const OIS::KeyCode kc);
