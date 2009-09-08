@@ -121,7 +121,7 @@ EditorApplication::EditorApplication()
 
   mouse.LeftButton.down = mouse.LeftButton.up = CEGUI::Point(0.0f, 0.0f);
   mouse.RightButton.down = mouse.RightButton.up = CEGUI::Point(0.0f, 0.0f);
-  mouse_object = NULL;
+  mouse_object = edit_object = NULL;
 }
 
 EditorApplication::~EditorApplication()
@@ -300,6 +300,7 @@ void EditorApplication::CreateCEGUIRootWindow(void)
   sheet->subscribeEvent(CEGUI::Window::EventMouseButtonDown, CEGUI::Event::Subscriber(&EditorApplication::RootMouseDown, this));
   sheet->subscribeEvent(CEGUI::Window::EventMouseButtonUp, CEGUI::Event::Subscriber(&EditorApplication::RootMouseUp, this));
   sheet->subscribeEvent(CEGUI::Window::EventMouseMove, CEGUI::Event::Subscriber(&EditorApplication::RootMouseMove, this));
+  sheet->subscribeEvent(CEGUI::Window::EventMouseDoubleClick, CEGUI::Event::Subscriber(&EditorApplication::RootDoubleClicked, this));
 
 }
 
@@ -1202,6 +1203,7 @@ bool EditorApplication::LoadFrameOKClicked(const CEGUI::EventArgs &e)
     closeAllEditWindows();
     LoadedDataFile = "";
     ID_of_object_to_delete = "";
+    mouse_object = NULL;
     CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*>
              (CEGUI::WindowManager::getSingleton().getWindow("Editor/Catalogue/Tab/Item/List"));
     mcl->resetList();
@@ -1994,6 +1996,11 @@ void EditorApplication::closeAllEditWindows(void)
   {
     winmgr.destroyWindow("Editor/ConfirmItemIDChangeFrame");
   }
+  //frame for editing object references
+  if (winmgr.isWindowPresent("Editor/ObjectReference"))
+  {
+    winmgr.destroyWindow("Editor/ObjectReference");
+  }
 }
 
 void EditorApplication::showItemEditWindow(void)
@@ -2435,7 +2442,7 @@ bool EditorApplication::RootMouseDown(const CEGUI::EventArgs &e)
   //check for entity / object at mouse position
   if (mouse_ea.button == CEGUI::LeftButton or mouse_ea.button == CEGUI::RightButton)
   {
-    Ogre::Ray pickRay;
+    /*Ogre::Ray pickRay;
     Ogre::RaySceneQuery * rsc_query = NULL;
     pickRay = EditorCamera::GetSingleton().getOgreCamera()->getCameraToViewportRay(
               mouse_ea.position.d_x/mWindow->getWidth(), mouse_ea.position.d_y/ mWindow->getHeight());
@@ -2483,7 +2490,8 @@ bool EditorApplication::RootMouseDown(const CEGUI::EventArgs &e)
       mouse_object = NULL;
     }
     //destroy query object
-    mSceneMgr->destroyQuery(rsc_query);
+    mSceneMgr->destroyQuery(rsc_query);*/
+    mouse_object = GetObjectAtMouse(mouse_ea.position);
   }//if buttons down
   return true;
 }
@@ -2589,6 +2597,23 @@ bool EditorApplication::RootMouseMove(const CEGUI::EventArgs &e)
   return true;
 }
 
+bool EditorApplication::RootDoubleClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  const CEGUI::MouseEventArgs& mouse_ea = static_cast<const CEGUI::MouseEventArgs&> (e);
+  std::cout << "DEBUG: mouse double, pos: x: "<<mouse_ea.position.d_x << "; y: "
+            << mouse_ea.position.d_y << "\n";
+  //get window at mouse cursor
+  CEGUI::Window * child = winmgr.getWindow("Editor/Root")->getChildAtPosition(mouse_ea.position);
+  if (child != NULL)
+  { //got something
+    std::cout << "       Window: "<< child->getName().c_str()<< "\n";
+    return true;
+  }//if
+  showObjectReferenceEditWindow(mouse_ea.position);
+  return true;
+}
+
 bool EditorApplication::ObjectListMouseDown(const CEGUI::EventArgs &e)
 {
   const CEGUI::MouseEventArgs& mouse_ea = static_cast<const CEGUI::MouseEventArgs&> (e);
@@ -2597,6 +2622,303 @@ bool EditorApplication::ObjectListMouseDown(const CEGUI::EventArgs &e)
     mouse.LeftButton.down = mouse_ea.position;
   }
   return true;
+}
+
+void EditorApplication::showObjectReferenceEditWindow(const CEGUI::Point& pt)
+{
+  DuskObject* target = GetObjectAtMouse(pt);
+  if (target==NULL)
+  { //no object found
+    return;
+  }
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  CEGUI::FrameWindow* frame = NULL;
+  CEGUI::Window* element = NULL;
+  CEGUI::Spinner* spin = NULL;
+  if (winmgr.isWindowPresent("Editor/ObjectReference"))
+  {
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.getWindow("Editor/ObjectReference"));
+  }
+  else
+  { //create window
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.createWindow("TaharezLook/FrameWindow", "Editor/ObjectReference"));
+    frame->setText("Object");
+    frame->setCloseButtonEnabled(false);
+    frame->setFrameEnabled(true);
+    frame->setSizingEnabled(true);
+    frame->setInheritsAlpha(false);
+    winmgr.getWindow("Editor/Root")->addChildWindow(frame);
+
+    //static text for ID
+    element = winmgr.createWindow("TaharezLook/StaticText", "Editor/ObjectReference/ID");
+    element->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.1, 0)));
+    element->setSize(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.1, 0)));
+    element->setText("ID: <not specified>");
+    frame->addChildWindow(element);
+
+    //static text for scale
+    element = winmgr.createWindow("TaharezLook/StaticText", "Editor/ObjectReference/ScaleLabel");
+    element->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.22, 0)));
+    element->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.1, 0)));
+    element->setText("3D Scale");
+    frame->addChildWindow(element);
+    //editbox for scale
+    element = winmgr.createWindow("TaharezLook/Editbox", "Editor/ObjectReference/ScaleEdit");
+    element->setPosition(CEGUI::UVector2(CEGUI::UDim(0.45, 0), CEGUI::UDim(0.22, 0)));
+    element->setSize(CEGUI::UVector2(CEGUI::UDim(0.16, 0), CEGUI::UDim(0.1, 0)));
+    element->setText("1.0(?)");
+    frame->addChildWindow(element);
+
+    //static text for position
+    element = winmgr.createWindow("TaharezLook/StaticText", "Editor/ObjectReference/PosLabel");
+    element->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.34, 0)));
+    element->setSize(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.1, 0)));
+    element->setText("Position");
+    frame->addChildWindow(element);
+    //static text for rotation
+    element = winmgr.createWindow("TaharezLook/StaticText", "Editor/ObjectReference/RotLabel");
+    element->setPosition(CEGUI::UVector2(CEGUI::UDim(0.55, 0), CEGUI::UDim(0.34, 0)));
+    element->setSize(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.1, 0)));
+    element->setText("Rotation");
+    frame->addChildWindow(element);
+
+    //static text X
+    element = winmgr.createWindow("TaharezLook/StaticText", "Editor/ObjectReference/PosXLabel");
+    element->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.46, 0)));
+    element->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.1, 0)));
+    element->setText("X");
+    frame->addChildWindow(element);
+    //static text Y
+    element = winmgr.createWindow("TaharezLook/StaticText", "Editor/ObjectReference/PosYLabel");
+    element->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.58, 0)));
+    element->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.1, 0)));
+    element->setText("Y");
+    frame->addChildWindow(element);
+    //static text Z
+    element = winmgr.createWindow("TaharezLook/StaticText", "Editor/ObjectReference/PosZLabel");
+    element->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.7, 0)));
+    element->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.1, 0)));
+    element->setText("Z");
+    frame->addChildWindow(element);
+
+    //static text X
+    element = winmgr.createWindow("TaharezLook/StaticText", "Editor/ObjectReference/RotXLabel");
+    element->setPosition(CEGUI::UVector2(CEGUI::UDim(0.55, 0), CEGUI::UDim(0.46, 0)));
+    element->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.1, 0)));
+    element->setText("X");
+    frame->addChildWindow(element);
+    //static text Y
+    element = winmgr.createWindow("TaharezLook/StaticText", "Editor/ObjectReference/RotYLabel");
+    element->setPosition(CEGUI::UVector2(CEGUI::UDim(0.55, 0), CEGUI::UDim(0.58, 0)));
+    element->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.1, 0)));
+    element->setText("Y");
+    frame->addChildWindow(element);
+    //static text Z
+    element = winmgr.createWindow("TaharezLook/StaticText", "Editor/ObjectReference/RotZLabel");
+    element->setPosition(CEGUI::UVector2(CEGUI::UDim(0.55, 0), CEGUI::UDim(0.7, 0)));
+    element->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.1, 0)));
+    element->setText("Z");
+    frame->addChildWindow(element);
+
+    //spinner for position X
+    spin = static_cast<CEGUI::Spinner*> (winmgr.createWindow("TaharezLook/Spinner", "Editor/ObjectReference/PosXSpin"));
+    spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.22, 0), CEGUI::UDim(0.46, 0)));
+    spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.23, 0), CEGUI::UDim(0.1, 0)));
+    spin->setTextInputMode(CEGUI::Spinner::FloatingPoint);
+    spin->setText("123.4");
+    frame->addChildWindow(spin);
+    //spinner for position Y
+    spin = static_cast<CEGUI::Spinner*> (winmgr.createWindow("TaharezLook/Spinner", "Editor/ObjectReference/PosYSpin"));
+    spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.22, 0), CEGUI::UDim(0.58, 0)));
+    spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.23, 0), CEGUI::UDim(0.1, 0)));
+    spin->setTextInputMode(CEGUI::Spinner::FloatingPoint);
+    spin->setText("123.4");
+    frame->addChildWindow(spin);
+    //spinner for position Z
+    spin = static_cast<CEGUI::Spinner*> (winmgr.createWindow("TaharezLook/Spinner", "Editor/ObjectReference/PosZSpin"));
+    spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.22, 0), CEGUI::UDim(0.7, 0)));
+    spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.23, 0), CEGUI::UDim(0.1, 0)));
+    spin->setTextInputMode(CEGUI::Spinner::FloatingPoint);
+    spin->setText("123.4");
+    frame->addChildWindow(spin);
+
+    //spinner for rotation X
+    spin = static_cast<CEGUI::Spinner*> (winmgr.createWindow("TaharezLook/Spinner", "Editor/ObjectReference/RotXSpin"));
+    spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.67, 0), CEGUI::UDim(0.46, 0)));
+    spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.23, 0), CEGUI::UDim(0.1, 0)));
+    spin->setTextInputMode(CEGUI::Spinner::FloatingPoint);
+    spin->setText("123.4");
+    frame->addChildWindow(spin);
+    //spinner for rotation Y
+    spin = static_cast<CEGUI::Spinner*> (winmgr.createWindow("TaharezLook/Spinner", "Editor/ObjectReference/RotYSpin"));
+    spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.67, 0), CEGUI::UDim(0.58, 0)));
+    spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.23, 0), CEGUI::UDim(0.1, 0)));
+    spin->setTextInputMode(CEGUI::Spinner::FloatingPoint);
+    spin->setText("123.4");
+    frame->addChildWindow(spin);
+    //spinner for rotation Z
+    spin = static_cast<CEGUI::Spinner*> (winmgr.createWindow("TaharezLook/Spinner", "Editor/ObjectReference/RotZSpin"));
+    spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.67, 0), CEGUI::UDim(0.7, 0)));
+    spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.23, 0), CEGUI::UDim(0.1, 0)));
+    spin->setTextInputMode(CEGUI::Spinner::FloatingPoint);
+    spin->setText("123.4");
+    frame->addChildWindow(spin);
+
+    //Save button
+    element = winmgr.createWindow("TaharezLook/Button", "Editor/ObjectReference/Save");
+    element->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.85, 0)));
+    element->setSize(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.1, 0)));
+    element->setText("Save");
+    frame->addChildWindow(element);
+    element->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplication::ObjectReferenceEditSaveClicked, this));
+    //Cancel button
+    element = winmgr.createWindow("TaharezLook/Button", "Editor/ObjectReference/Cancel");
+    element->setPosition(CEGUI::UVector2(CEGUI::UDim(0.55, 0), CEGUI::UDim(0.85, 0)));
+    element->setSize(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.1, 0)));
+    element->setText("Cancel");
+    frame->addChildWindow(element);
+    element->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplication::ObjectReferenceEditCancelClicked, this));
+
+  }//else
+  frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.2, 0)));
+  frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.5, 0), CEGUI::UDim(0.5, 0)));
+  frame->moveToFront();
+  //content
+  winmgr.getWindow("Editor/ObjectReference/ID")->setText("ID: "+target->GetID());
+  winmgr.getWindow("Editor/ObjectReference/ScaleEdit")->setText(FloatToString(target->GetScale()));
+  Ogre::Vector3 vec = target->GetPosition();
+  winmgr.getWindow("Editor/ObjectReference/PosXSpin")->setText(FloatToString(vec.x));
+  winmgr.getWindow("Editor/ObjectReference/PosYSpin")->setText(FloatToString(vec.y));
+  winmgr.getWindow("Editor/ObjectReference/PosZSpin")->setText(FloatToString(vec.z));
+  vec = target->GetRotation();
+  winmgr.getWindow("Editor/ObjectReference/RotXSpin")->setText(FloatToString(vec.x));
+  winmgr.getWindow("Editor/ObjectReference/RotYSpin")->setText(FloatToString(vec.y));
+  winmgr.getWindow("Editor/ObjectReference/RotZSpin")->setText(FloatToString(vec.z));
+  edit_object = target;
+}
+
+bool EditorApplication::ObjectReferenceEditCancelClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/ObjectReference"))
+  {
+    winmgr.destroyWindow("Editor/ObjectReference");
+  }
+  return true;
+}
+
+bool EditorApplication::ObjectReferenceEditSaveClicked(const CEGUI::EventArgs &e)
+{
+  if (edit_object == NULL)
+  {
+    showHint("No object was chosen! (Got NULL pointer.)");
+    return true;
+  }
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.getWindow("Editor/ObjectReference/ScaleEdit") &&
+      winmgr.getWindow("Editor/ObjectReference/PosXSpin") &&
+      winmgr.getWindow("Editor/ObjectReference/PosYSpin") &&
+      winmgr.getWindow("Editor/ObjectReference/PosZSpin") &&
+      winmgr.getWindow("Editor/ObjectReference/RotXSpin") &&
+      winmgr.getWindow("Editor/ObjectReference/RotYSpin") &&
+      winmgr.getWindow("Editor/ObjectReference/RotZSpin"))
+  {
+    float new_scale = StringToFloat( std::string(winmgr.getWindow("Editor/ObjectReference/ScaleEdit")->getText().c_str()), -1.0f);
+    if (new_scale<=0.0f)
+    {
+      showWarning("The scaling factor has to be a valid floating point value and must not be zero or less!");
+      return true;
+    }
+    Ogre::Vector3 pos, rot;
+    CEGUI::Spinner* spin = NULL;
+    spin = static_cast<CEGUI::Spinner*> (winmgr.getWindow("Editor/ObjectReference/PosXSpin"));
+    pos.x = spin->getCurrentValue();
+    spin = static_cast<CEGUI::Spinner*> (winmgr.getWindow("Editor/ObjectReference/PosYSpin"));
+    pos.y = spin->getCurrentValue();
+    spin = static_cast<CEGUI::Spinner*> (winmgr.getWindow("Editor/ObjectReference/PosZSpin"));
+    pos.z = spin->getCurrentValue();
+    spin = static_cast<CEGUI::Spinner*> (winmgr.getWindow("Editor/ObjectReference/RotXSpin"));
+    rot.x = spin->getCurrentValue();
+    spin = static_cast<CEGUI::Spinner*> (winmgr.getWindow("Editor/ObjectReference/RotYSpin"));
+    rot.y = spin->getCurrentValue();
+    spin = static_cast<CEGUI::Spinner*> (winmgr.getWindow("Editor/ObjectReference/RotZSpin"));
+    rot.z = spin->getCurrentValue();
+    //set the new values
+    edit_object->SetPosition(pos);
+    edit_object->SetRotation(rot);
+    if (edit_object->IsEnabled())
+    {
+      edit_object->Disable();
+      edit_object->SetScale(new_scale);
+      edit_object->Enable(mSceneMgr);
+    }
+    else
+    {
+      edit_object->SetScale(new_scale);
+    }
+    winmgr.destroyWindow("Editor/ObjectReference");
+    edit_object = NULL;
+  }//if
+  return true;
+}
+
+//scene query wrapper
+DuskObject* EditorApplication::GetObjectAtMouse(const CEGUI::Point& pt)
+{
+  DuskObject* mo = NULL;
+
+  Ogre::Ray pickRay;
+  Ogre::RaySceneQuery * rsc_query = NULL;
+  pickRay = EditorCamera::GetSingleton().getOgreCamera()->getCameraToViewportRay(
+            pt.d_x/mWindow->getWidth(), pt.d_y/ mWindow->getHeight());
+  rsc_query = mSceneMgr->createRayQuery(pickRay);
+  rsc_query->setRay(pickRay);
+  //perform query
+  Ogre::RaySceneQueryResult &result = rsc_query->execute();
+  Ogre::RaySceneQueryResult::iterator rsq_iter = result.begin();
+
+  //hit something?
+  if (rsq_iter != result.end())
+  {
+     //we got something
+     while (rsq_iter != result.end() and (mo == NULL))
+     {
+       if (rsq_iter->movable!=NULL)
+       {
+         //found movable object
+         std::cout << "DEBUG: found movable \"" <<rsq_iter->movable->getName()<<"\" in a distance of "
+                   << rsq_iter->distance << " units.\n";
+         if (rsq_iter->distance>0.1f)
+         { //try moving/rotating it?
+           if ( rsq_iter->movable->getUserObject() != NULL)
+           {
+              DuskObject * d_obj = static_cast<DuskObject*> (rsq_iter->movable->getUserObject());
+              std::cout << "DEBUG: found object of ID \""<< d_obj->GetID() <<"\" at position ("
+                        << d_obj->GetPosition().x<<","<< d_obj->GetPosition().y<<","
+                        << d_obj->GetPosition().z<<")\n";
+              std::cout << "       Rotation: V3("<< d_obj->GetRotation().x
+                        <<","<< d_obj->GetRotation().y<<","<< d_obj->GetRotation().z<<")\n";
+              mo = d_obj;
+           }
+         }
+       }
+       else
+       {
+         std::cout << "DEBUG: RSQ result: entity is not a movable.\n";
+       }
+       rsq_iter++;
+     }//while
+  }
+  else
+  {
+    std::cout << "DEBUG: Query result was empty.\n";
+    mo = NULL;
+  }
+  //destroy query object
+  mSceneMgr->destroyQuery(rsc_query);
+  return mo;
 }
 
 }//namespace

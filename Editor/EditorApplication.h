@@ -28,7 +28,6 @@ struct mouse_record
 {
   mouse_button_data LeftButton;
   mouse_button_data RightButton;
-  static const int drag_threshold = 4;
 };//struct
 
 //helps us to locate a item within column lists
@@ -69,6 +68,7 @@ protected:
     mouse_record mouse;
 
     DuskObject * mouse_object;
+    DuskObject * edit_object;
 
     // These internal methods package up the stages in the startup process
     /** Sets up the application - returns false if the user chooses to abandon configuration. */
@@ -120,6 +120,8 @@ protected:
     void showItemEditWindow(void);
 	void showItemConfirmDeleteWindow(void);
 	void showItemEditConfirmIDChangeWindow(void);
+	//for editing object references
+	void showObjectReferenceEditWindow(const CEGUI::Point& pt);
 
 	//closing all windows for editing and creation of objects
 	void closeAllEditWindows(void);
@@ -187,8 +189,15 @@ protected:
 	bool RootMouseDown(const CEGUI::EventArgs &e);
 	bool RootMouseUp(const CEGUI::EventArgs &e);
 	bool RootMouseMove(const CEGUI::EventArgs &e);
+	bool RootDoubleClicked(const CEGUI::EventArgs &e);
 	bool ObjectListMouseDown(const CEGUI::EventArgs &e);
 
+	//callbacks for ref edit window
+	bool ObjectReferenceEditCancelClicked(const CEGUI::EventArgs &e);
+	bool ObjectReferenceEditSaveClicked(const CEGUI::EventArgs &e);
+
+	//scene query wrapper
+	DuskObject* GetObjectAtMouse(const CEGUI::Point& pt);
 };//class
 
 }//namespace

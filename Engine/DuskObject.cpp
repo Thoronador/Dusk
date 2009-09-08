@@ -90,7 +90,6 @@ void DuskObject::SetPosition(const Ogre::Vector3 pos)
     entity->getParentSceneNode()->setPosition(pos);
   }
   position = pos;
-  IntervalVector360(position);
 }
 
 void DuskObject::SetRotation(const Ogre::Vector3 rot)
