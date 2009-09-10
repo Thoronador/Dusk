@@ -9,7 +9,9 @@
 
 namespace Dusk{
 
-enum ObjectTypes {otUndefined, otStatic, otItem};
+enum ObjectTypes {otUndefined, otStatic, otItem, otAnimated};
+
+unsigned int GenerateUniqueObjectID();
 
 class DuskObject: public Ogre::UserDefinedObject
 {

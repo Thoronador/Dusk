@@ -5,6 +5,8 @@
 #include "DuskConstants.h"
 #include "DataLoader.h"
 #include "ObjectData.h"
+#include "AnimatedObject.h"
+#include "AnimationData.h"
 
 namespace Dusk
 {
@@ -93,6 +95,17 @@ void Scene::createGrassMesh()
           ObjectData::GetSingleton().EnableAllObjects(getAPI().getOgreSceneManager());
         }
 
+        //create animated object (for test purposes)
+        AnimatedObject* aniObj = NULL;
+        aniObj = AnimationData::GetSingleton().addReference("robot",
+                                    Ogre::Vector3(0.0f, 0.0f, 30.0f),
+                                    Ogre::Vector3(0.0f, 0.0f, 0.0f), 0.55f);
+        aniObj->Enable(m_SceneManager);
+        aniObj->SetSpeed(12.5f);
+        aniObj->TravelToDestination(Ogre::Vector3(200.0f, 30.0f, 0.0f));
+        aniObj->PlayAnimation("Walk", true);
+        //end of animated object
+
         Ogre::Plane plane;
         plane.normal = Ogre::Vector3::UNIT_Y;
         plane.d = 0;
@@ -130,5 +143,6 @@ void Scene::createGrassMesh()
     void Scene::destroyScene()
     {
       Landscape::GetSingleton().RemoveFromEngine(getAPI().getOgreSceneManager());
+      ObjectData::GetSingleton().ClearData();
     }
 }

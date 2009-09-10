@@ -1203,7 +1203,7 @@ bool EditorApplication::LoadFrameOKClicked(const CEGUI::EventArgs &e)
     closeAllEditWindows();
     LoadedDataFile = "";
     ID_of_object_to_delete = "";
-    mouse_object = NULL;
+    mouse_object = edit_object = NULL;
     CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*>
              (CEGUI::WindowManager::getSingleton().getWindow("Editor/Catalogue/Tab/Item/List"));
     mcl->resetList();
@@ -2442,55 +2442,6 @@ bool EditorApplication::RootMouseDown(const CEGUI::EventArgs &e)
   //check for entity / object at mouse position
   if (mouse_ea.button == CEGUI::LeftButton or mouse_ea.button == CEGUI::RightButton)
   {
-    /*Ogre::Ray pickRay;
-    Ogre::RaySceneQuery * rsc_query = NULL;
-    pickRay = EditorCamera::GetSingleton().getOgreCamera()->getCameraToViewportRay(
-              mouse_ea.position.d_x/mWindow->getWidth(), mouse_ea.position.d_y/ mWindow->getHeight());
-    rsc_query = mSceneMgr->createRayQuery(pickRay);
-    rsc_query->setRay(pickRay);
-    //perform query
-    Ogre::RaySceneQueryResult &result = rsc_query->execute();
-    Ogre::RaySceneQueryResult::iterator rsq_iter = result.begin();
-
-    //hit something?
-    if (rsq_iter != result.end())
-    {
-       //we got something
-       while (rsq_iter != result.end() and (mouse_object == NULL))
-       {
-         if (rsq_iter->movable!=NULL)
-         {
-           //found movable object
-           std::cout << "DEBUG: found movable \"" <<rsq_iter->movable->getName()<<"\" in a distance of "
-                     << rsq_iter->distance << " units.\n";
-           if (rsq_iter->distance>0.1f)
-           { //try moving/rotating it?
-             if ( rsq_iter->movable->getUserObject() != NULL)
-             {
-                DuskObject * d_obj = static_cast<DuskObject*> (rsq_iter->movable->getUserObject());
-                std::cout << "DEBUG: found object of ID \""<< d_obj->GetID() <<"\" at position ("
-                          << d_obj->GetPosition().x<<","<< d_obj->GetPosition().y<<","
-                          << d_obj->GetPosition().z<<")\n";
-                std::cout << "       Rotation: V3("<< d_obj->GetRotation().x
-                          <<","<< d_obj->GetRotation().y<<","<< d_obj->GetRotation().z<<")\n";
-                mouse_object = d_obj;
-             }
-           }
-         }
-         else
-         {
-           std::cout << "DEBUG: RSQ result: entity is not a movable.\n";
-         }
-         rsq_iter++;
-       }//while
-    }
-    else
-    {
-      std::cout << "DEBUG: Query result was empty.\n";
-      mouse_object = NULL;
-    }
-    //destroy query object
-    mSceneMgr->destroyQuery(rsc_query);*/
     mouse_object = GetObjectAtMouse(mouse_ea.position);
   }//if buttons down
   return true;
@@ -2512,30 +2463,41 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
   }//if
   std::cout << "       Window: NONE\n";
 
-  CEGUI::ListboxItem * lbi = NULL;
   if (mouse_ea.button == CEGUI::LeftButton)
   {
     //now handle event
     mouse.LeftButton.up = mouse_ea.position;
-    //try to get list box item at "source"
-    CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/Catalogue/Tab/Object/List"));
-    lbi = getLbItemAtPoint(mouse.LeftButton.down, mcl);
-    if (lbi != NULL)
+    //Left CTRL pressed?
+    if (mFrameListener->IsKeyDown(OIS::KC_LCONTROL))
     {
-      //we got something, i.e. user dragged item from MCL to Root window
-      std::cout << "DEBUG: placing new referenced object.\n";
-      Ogre::Quaternion quat = EditorCamera::GetSingleton().getOrientation();
-      DuskObject* temp =
-      ObjectData::GetSingleton().addReference( std::string(lbi->getText().c_str()),
-                 EditorCamera::GetSingleton().getPosition() + quat*Ogre::Vector3(0.0f, 0.0f, -100.0f),
-                 Ogre::Vector3::ZERO, 1.0f);
-      temp->Enable(mSceneMgr);
-    }
-    else
-    {
-       std::cout << "DEBUG: no ListboxItem found.\n";
-    }
-  }
+      CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/Catalogue/Tab/Object/List"));
+      CEGUI::ListboxItem * lbi = NULL;
+      lbi = mcl->getFirstSelectedItem();
+      if (lbi != NULL)
+      {
+        //we got something, i.e. user wants to place an object
+        std::cout << "DEBUG: placing new referenced object of ID \""
+                  <<std::string(lbi->getText().c_str())<<"\"\n";
+        if (!ObjectBase::GetSingleton().hasObject(std::string(lbi->getText().c_str())))
+        {
+          showWarning("There is no Object with the ID \""
+                      +std::string(lbi->getText().c_str())+"\", thus you can't "
+                      +"place it.");
+          return true;
+        }
+        Ogre::Quaternion quat = EditorCamera::GetSingleton().getOrientation();
+        DuskObject* temp =
+        ObjectData::GetSingleton().addReference( std::string(lbi->getText().c_str()),
+                   EditorCamera::GetSingleton().getPosition() + quat*Ogre::Vector3(0.0f, 0.0f, -100.0f),
+                   Ogre::Vector3::ZERO, 1.0f);
+        temp->Enable(mSceneMgr);
+      }
+      else
+      {
+        std::cout << "DEBUG: no selected ListboxItem found.\n";
+      }
+    }//if left CTRL down
+  }//if left button
   else if (mouse_ea.button == CEGUI::RightButton)
   {
     mouse.RightButton.up = mouse_ea.position;

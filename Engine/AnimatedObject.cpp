@@ -1,4 +1,5 @@
 #include "AnimatedObject.h"
+#include "ObjectBase.h" //should replace this one later
 
 namespace Dusk
 {
@@ -8,9 +9,29 @@ AnimatedObject::AnimatedObject()
   //ctor
   position = Ogre::Vector3::ZERO;
   rotation = Ogre::Vector3::ZERO;
-  velocity = Ogre::Vector3::ZERO;
-  acceleration = Ogre::Vector3::ZERO;
-  m_ApplyGravitation = true;
+  m_Direction = Ogre::Vector3::ZERO;
+  objectType = otAnimated;
+  m_Speed = 0.0f;
+  m_Travel = false;
+
+  m_Anim = "";
+  m_DoPlayAnim = false;
+  m_LoopAnim = false;
+}
+
+AnimatedObject::AnimatedObject(const std::string _ID, const Ogre::Vector3 pos, const Ogre::Vector3 rot, const float Scale)
+{
+  ID = _ID;
+  position = pos;
+  rotation = rot;
+  if (m_Scale>0.0f)
+  {
+    m_Scale = Scale;
+  } else {
+    m_Scale = 1.0f;
+  }
+  objectType = otAnimated;
+  entity = NULL;
 }
 
 AnimatedObject::~AnimatedObject()
@@ -18,29 +39,136 @@ AnimatedObject::~AnimatedObject()
   //dtor
 }
 
-Ogre::Vector3 AnimatedObject::GetVelocity() const
+Ogre::Vector3 AnimatedObject::GetDirection() const
 {
-  return velocity;
+  return m_Direction;
 }
 
-void AnimatedObject::SetVelocity(const Ogre::Vector3 v)
+void AnimatedObject::SetDirection(const Ogre::Vector3& direc)
 {
-  velocity = v;
+  m_Direction = direc;
+  m_Direction.normalise();
+  std::cout << "Länge des Vektors: "<<m_Direction.length()<<"\n";
 }
 
-Ogre::Vector3 AnimatedObject::GetAcceleration() const
+float AnimatedObject::GetSpeed() const
 {
-  return acceleration;
+  return m_Speed;
 }
 
-void AnimatedObject::SetAcceleration(const Ogre::Vector3 a)
+void AnimatedObject::SetSpeed(const float v)
 {
-  acceleration = a;
+  m_Speed = v;
 }
 
-void AnimatedObject::UseGravitation(const bool use)
+void AnimatedObject::TravelToDestination(const Ogre::Vector3& dest)
 {
-  m_ApplyGravitation = use;
+  m_Destination = dest;
+  m_Travel = true;
+  SetDirection(dest-GetPosition());
+}
+
+Ogre::Vector3 AnimatedObject::GetDestination() const
+{
+  return m_Destination;
+}
+
+bool AnimatedObject::IsOnTravel() const
+{
+  return m_Travel;
+}
+
+bool AnimatedObject::Enable(Ogre::SceneManager* scm)
+{
+  if (entity!=NULL)
+  {
+    return true;
+  }
+  if (scm==NULL)
+  {
+    std::cout << "AnimatedObject::Enable: ERROR: no scene manager present.\n";
+    return false;
+  }
+
+  //generate unique entity name
+  std::stringstream entity_name;
+  entity_name << ID << GenerateUniqueObjectID();
+  //create entity + node and attach entity to node
+  entity = scm->createEntity(entity_name.str(), ObjectBase::GetSingleton().GetMeshName(ID));
+  Ogre::SceneNode* ent_node = scm->getRootSceneNode()->createChildSceneNode(entity_name.str(), position);
+  ent_node->attachObject(entity);
+  ent_node->scale(m_Scale, m_Scale, m_Scale);
+  //not sure whether this is the best one for rotation
+  ent_node->rotate(Ogre::Vector3::UNIT_X, Ogre::Degree(rotation.x));
+  ent_node->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(rotation.y));
+  ent_node->rotate(Ogre::Vector3::UNIT_Z, Ogre::Degree(rotation.z));
+  //set user defined object to this object as reverse link
+  entity->setUserObject(this);
+  if (m_Anim != "")
+  {
+    Ogre::AnimationStateSet* anim_set = entity->getAllAnimationStates();
+    if (anim_set->hasAnimationState(m_Anim))
+    {
+      Ogre::AnimationState* state = anim_set->getAnimationState(m_Anim);
+      state->setTimePosition(0.0f);
+      state->setLoop(m_LoopAnim);
+      state->setEnabled(true);
+    }
+  }
+  return (entity!=NULL);
+}
+
+void AnimatedObject::PlayAnimation(const std::string& AnimName, const bool DoLoop)
+{
+  if (AnimName == m_Anim and DoLoop==m_LoopAnim)
+  { //no work to do here
+    return;
+  }
+  if (entity!=NULL)
+  {
+    Ogre::AnimationState* state = NULL;
+    Ogre::AnimationStateSet * anim_set = NULL;
+    anim_set = entity->getAllAnimationStates();
+    if (m_Anim != "")
+    {
+      if (anim_set == NULL)
+      {
+        std::cout << "AnimatedObject::PlayAnimation: Error: mesh has no animations!\n";
+        return;
+      }
+      //stop old animation
+      state = entity->getAnimationState(m_Anim);
+      state->setEnabled(false);
+    }
+    //new animation
+    if (AnimName!="")
+    {
+      if (anim_set == NULL)
+      {
+        std::cout << "AnimatedObject::PlayAnimation: Error: mesh has no animations!\n";
+        return;
+      }
+      if (!anim_set->hasAnimationState(AnimName))
+      {
+        std::cout << "AnimatedObject::PlayAnimation: Error: mesh has no animation named \""
+                  << AnimName<<"\"!\n";
+        return;
+      }
+      //new anim
+      state = entity->getAnimationState(AnimName);
+      state->setTimePosition(0.0f);
+      state->setLoop(DoLoop);
+      state->setEnabled(true);
+    }
+  }//if
+  m_Anim = AnimName;
+  m_LoopAnim = DoLoop;
+  m_DoPlayAnim = (AnimName != "");
+}
+
+std::string AnimatedObject::GetAnimation() const
+{
+  return m_Anim;
 }
 
 void AnimatedObject::Move(const float SecondsPassed)
@@ -49,19 +177,34 @@ void AnimatedObject::Move(const float SecondsPassed)
   {
     return;
   }
-  if (m_ApplyGravitation)
+  if (m_Travel)
   {
-    velocity = velocity + SecondsPassed * (acceleration+Gravitation);
+    float Distance = Ogre::Vector3(m_Destination-GetPosition()).squaredLength();
+    //are we moving to fast?
+    if (m_Speed*SecondsPassed>Distance)
+    { //finished travelling
+      SetPosition(m_Destination);
+      m_Travel = false;
+      m_Direction = Ogre::Vector3::ZERO;
+      m_Speed = 0.0f;
+    }
+    else
+    {
+      position = position + SecondsPassed*m_Speed*m_Direction;
+    }
   }
   else
   {
-    velocity = velocity + SecondsPassed * acceleration;
+    position = position + SecondsPassed*m_Speed*m_Direction;
   }
-  position = position + SecondsPassed * velocity;
   //adjust position of scene node/ entity in Ogre
   if (IsEnabled())
   {
     SetPosition(position);
+    if (m_Anim!="")
+    {
+      entity->getAnimationState(m_Anim)->addTime(SecondsPassed);
+    }
   }
 }
 

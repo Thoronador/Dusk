@@ -1744,8 +1744,6 @@ bool Sound::CreateOggMedia(const std::string MediaIdentifier, const std::string 
     return false;
   }
 
-  //here we go... now
-
   OggVorbis_File ov;
   vorbis_info * vinfo;
   FILE * dat;

@@ -95,6 +95,8 @@
 		<Unit filename="API.h" />
 		<Unit filename="AnimatedObject.cpp" />
 		<Unit filename="AnimatedObject.h" />
+		<Unit filename="AnimationData.cpp" />
+		<Unit filename="AnimationData.h" />
 		<Unit filename="Application.cpp" />
 		<Unit filename="Application.h" />
 		<Unit filename="Camera.cpp" />

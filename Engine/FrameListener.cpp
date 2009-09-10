@@ -7,6 +7,7 @@
 #include "InputSystem.h"
 #include "API.h"
 #include "Camera.h"
+#include "AnimationData.h"
 
 namespace Dusk
 {
@@ -27,6 +28,7 @@ bool FrameListener::frameStarted(const Ogre::FrameEvent& evt)
     InputSystem::captureInput();
     Console::getInstance()->processScripts();
     getAPI().getDuskCamera()->move(evt);
+    AnimationData::GetSingleton().InjectAnimationTime(evt.timeSinceLastFrame);
     return m_Continue;
 }
 //-----------------------------------------------------------------------------------
