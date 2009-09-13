@@ -21,14 +21,14 @@ ItemBase& ItemBase::GetSingleton()
   return Instance;
 }
 
-bool ItemBase::hasItem(const std::string ID_of_item) const
+bool ItemBase::hasItem(const std::string& ID_of_item) const
 {
   return (m_ItemList.find(ID_of_item) != m_ItemList.end());
 }
 
-void ItemBase::addItem(const std::string ID, const std::string name,
+void ItemBase::addItem(const std::string& ID, const std::string& name,
                        const int value, const float weight,
-                       const std::string Mesh)
+                       const std::string& Mesh)
 {
   if (ID=="" or name=="" or Mesh=="")
   {
@@ -43,7 +43,12 @@ void ItemBase::addItem(const std::string ID, const std::string name,
   m_ItemList[ID] = (ItemRecord){name, value, weight, Mesh};
 }
 
-bool ItemBase::deleteItem(const std::string ID_of_item)
+void ItemBase::addItem(const std::string& ID, const ItemRecord& record)
+{
+  addItem(ID, record.Name, record.value, record.weight, record.Mesh);
+}
+
+bool ItemBase::deleteItem(const std::string& ID_of_item)
 {
   std::map<std::string, ItemRecord>::iterator iter;
   iter = m_ItemList.find(ID_of_item);
@@ -65,7 +70,7 @@ unsigned int ItemBase::NumberOfItems() const
   return m_ItemList.size();
 }
 
-std::string ItemBase::GetItemName(const std::string itemID)
+std::string ItemBase::GetItemName(const std::string& itemID)
 {
   std::map<std::string, ItemRecord>::iterator iter;
   iter = m_ItemList.find(itemID);
@@ -76,7 +81,7 @@ std::string ItemBase::GetItemName(const std::string itemID)
   return "";
 }
 
-int ItemBase::GetItemValue(const std::string itemID)
+int ItemBase::GetItemValue(const std::string& itemID)
 {
   std::map<std::string, ItemRecord>::iterator iter;
   iter = m_ItemList.find(itemID);
@@ -87,7 +92,7 @@ int ItemBase::GetItemValue(const std::string itemID)
   return -1;
 }
 
-float ItemBase::GetItemWeight(const std::string itemID)
+float ItemBase::GetItemWeight(const std::string& itemID)
 {
   std::map<std::string, ItemRecord>::iterator iter;
   iter = m_ItemList.find(itemID);
@@ -98,7 +103,7 @@ float ItemBase::GetItemWeight(const std::string itemID)
   return 0.0;
 }
 
-std::string ItemBase::GetMeshName(const std::string itemID, const bool UseMarkerOnError)
+std::string ItemBase::GetMeshName(const std::string& itemID, const bool UseMarkerOnError)
 {
   std::map<std::string, ItemRecord>::iterator iter;
   iter = m_ItemList.find(itemID);
@@ -117,7 +122,7 @@ std::string ItemBase::GetMeshName(const std::string itemID, const bool UseMarker
   }
 }
 
-bool ItemBase::SaveToFile(const std::string FileName)
+bool ItemBase::SaveToFile(const std::string& FileName)
 {
   std::ofstream output;
   output.open(FileName.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
@@ -175,7 +180,7 @@ bool ItemBase::SaveToStream(std::ofstream* Stream)
   return true;
 }
 
-bool ItemBase::LoadFromFile(const std::string FileName)
+bool ItemBase::LoadFromFile(const std::string& FileName)
 {
   std::ifstream input;
   unsigned int count, i;

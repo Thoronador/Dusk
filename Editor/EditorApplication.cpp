@@ -441,7 +441,30 @@ void EditorApplication::CreateCEGUICatalogue(void)
   ir.weight = 0.2;
   ir.Mesh = "food/golden_delicious.mesh";
   addItemRecordToCatalogue("apple", ir);
-  ItemBase::GetSingleton().addItem("apple", ir.Name, ir.value, ir.weight, ir.Mesh);
+  ItemBase::GetSingleton().addItem("apple", ir);
+
+  //Light tab
+  pane = winmgr.createWindow("TaharezLook/TabContentPane", "Editor/Catalogue/Tab/Light");
+  pane->setSize(CEGUI::UVector2(CEGUI::UDim(1.0, 0), CEGUI::UDim(1.0, 0)));
+  pane->setPosition(CEGUI::UVector2(CEGUI::UDim(0.0, 0), CEGUI::UDim(0.0, 0)));
+  pane->setText("Lights");
+  tab->addTab(pane);
+
+  mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.createWindow("TaharezLook/MultiColumnList", "Editor/Catalogue/Tab/Light/List"));
+  mcl->setSize(CEGUI::UVector2(CEGUI::UDim(0.9, 0), CEGUI::UDim(0.9, 0)));
+  mcl->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.05, 0)));
+  mcl->addColumn("ID", 0, CEGUI::UDim(0.19, 0));
+  mcl->addColumn("Red", 1, CEGUI::UDim(0.19, 0));
+  mcl->addColumn("Green", 2, CEGUI::UDim(0.19, 0));
+  mcl->addColumn("Blue", 3, CEGUI::UDim(0.19, 0));
+  mcl->addColumn("Radius", 4, CEGUI::UDim(0.19, 0));
+  mcl->setUserColumnDraggingEnabled(false);
+  pane->addChildWindow(mcl);
+
+  //sample data
+  addLightRecordToCatalogue("light_red", LightRecord::GetRed(123.4));
+  addLightRecordToCatalogue("light_green", LightRecord::GetGreen(23.4));
+  addLightRecordToCatalogue("light_blue", LightRecord::GetBlue(3.4));
 }
 
 void EditorApplication::CreatePopupMenus(void)
@@ -1101,6 +1124,33 @@ void EditorApplication::addItemRecordToCatalogue(const std::string& ID, const It
   mcl->setItem(lbi, 4, row);
 }
 
+void EditorApplication::addLightRecordToCatalogue(const std::string& ID, const LightRecord& Record)
+{
+  CEGUI::MultiColumnList* mcl = NULL;
+  if (!CEGUI::WindowManager::getSingleton().isWindowPresent("Editor/Catalogue/Tab/Light/List"))
+  {
+    return;
+  }
+  mcl = static_cast<CEGUI::MultiColumnList*> (CEGUI::WindowManager::getSingleton().getWindow("Editor/Catalogue/Tab/Light/List"));
+  CEGUI::ListboxItem *lbi;
+  unsigned int row;
+  lbi = new CEGUI::ListboxTextItem(ID);
+  lbi->setSelectionColours(cSelectionColour);
+  row = mcl->addRow(lbi, 0);
+  lbi = new CEGUI::ListboxTextItem(FloatToString(Record.red));
+  lbi->setSelectionColours(cSelectionColour);
+  mcl->setItem(lbi, 1, row);
+  lbi = new CEGUI::ListboxTextItem(FloatToString(Record.green));
+  lbi->setSelectionColours(cSelectionColour);
+  mcl->setItem(lbi, 2, row);
+  lbi = new CEGUI::ListboxTextItem(FloatToString(Record.blue));
+  lbi->setSelectionColours(cSelectionColour);
+  mcl->setItem(lbi, 3, row);
+  lbi = new CEGUI::ListboxTextItem(FloatToString(Record.radius));
+  lbi->setSelectionColours(cSelectionColour);
+  mcl->setItem(lbi, 4, row);
+}
+
 void EditorApplication::addObjectRecordToCatalogue(const std::string& ID, const std::string& Mesh)
 {
   CEGUI::MultiColumnList* mcl = NULL;
@@ -1151,7 +1201,8 @@ bool EditorApplication::StatsButtonClicked(const CEGUI::EventArgs &e)
            + IntToString(Landscape::GetSingleton().RecordsAvailable())+"\n"
            +"  Object records: "  + IntToString(ObjectBase::GetSingleton().NumberOfObjects())+"\n"
            +"    Object references: "+ IntToString(ObjectData::GetSingleton().NumberOfReferences())+"\n"
-           +"  Items: " + IntToString(ItemBase::GetSingleton().NumberOfItems()));
+           +"  Items: " + IntToString(ItemBase::GetSingleton().NumberOfItems())+"\n"
+           +"  Lights: " + IntToString(LightBase::GetSingleton().NumberOfLights()));
   return true;
 }
 

@@ -43,18 +43,19 @@ namespace Dusk
     public:
       virtual ~ItemBase();
       static ItemBase& GetSingleton();
-      bool hasItem(const std::string ID_of_item) const;
-      void addItem(const std::string ID, const std::string name, const int value,
-                   const float weight, const std::string Mesh);
-      bool deleteItem(const std::string ID_of_item);
+      bool hasItem(const std::string& ID_of_item) const;
+      void addItem(const std::string& ID, const std::string& name, const int value,
+                   const float weight, const std::string& Mesh);
+      void addItem(const std::string& ID, const ItemRecord& record);
+      bool deleteItem(const std::string& ID_of_item);
       void ClearAllItems();
       unsigned int NumberOfItems() const;
-      std::string GetItemName(const std::string itemID);
-      int GetItemValue(const std::string itemID);
-      float GetItemWeight(const std::string itemID);
-      std::string GetMeshName(const std::string itemID, const bool UseMarkerOnError=true);
-      bool SaveToFile(const std::string FileName);
-      bool LoadFromFile(const std::string FileName);
+      std::string GetItemName(const std::string& itemID);
+      int GetItemValue(const std::string& itemID);
+      float GetItemWeight(const std::string& itemID);
+      std::string GetMeshName(const std::string& itemID, const bool UseMarkerOnError=true);
+      bool SaveToFile(const std::string& FileName);
+      bool LoadFromFile(const std::string& FileName);
       bool SaveToStream(std::ofstream* Stream);
       bool LoadFromStream(std::ifstream* Stream);
       std::map<std::string, ItemRecord>::iterator GetFirst();

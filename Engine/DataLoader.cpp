@@ -1,6 +1,7 @@
 #include "DataLoader.h"
 #include <fstream>
 #include "Landscape.h"
+#include "LightBase.h"
 #include "ItemBase.h"
 #include "ObjectBase.h"
 #include "ObjectData.h"
@@ -46,6 +47,10 @@ bool DataLoader::SaveToFile(const std::string FileName, const unsigned int bits)
   {
     data_records += Landscape::GetSingleton().RecordsAvailable();
   }
+  if ((bits & LIGHT_BIT) !=0)
+  {
+    data_records += LightBase::GetSingleton().NumberOfLights();
+  }
   if ((bits & ITEM_BIT) !=0)
   {
     data_records += ItemBase::GetSingleton().NumberOfItems();
@@ -79,6 +84,18 @@ bool DataLoader::SaveToFile(const std::string FileName, const unsigned int bits)
       }//if
     }//for
   }//if landscape
+
+  //save lights
+  if ((bits & LANDSCAPE_BIT) !=0)
+  {
+    if(!LightBase::GetSingleton().SaveAllToStream(output))
+    {
+      std::cout << "DataLoader::SaveToFile: ERROR: could not write Light data "
+                << "to file \""<<FileName<<"\".\n";
+      output.close();
+      return false;
+    }
+  }
 
   //save items
   if ((bits & ITEM_BIT) !=0)
@@ -174,6 +191,9 @@ bool DataLoader::LoadFromFile(const std::string FileName)
            {
              Landscape::GetSingleton().DestroyRecord(land_rec);
            }
+           break;
+      case cHeaderLight:
+           success = LightBase::GetSingleton().LoadRecordFromStream(input);
            break;
       case cHeaderObjS:
            success = ObjectBase::GetSingleton().LoadFromStream(&input);

@@ -18,6 +18,7 @@ namespace Dusk
       void ClearData();
     private:
       AnimationData();
+      AnimationData(const AnimationData& op) {}
       std::vector<AnimatedObject*> m_ReferenceList;
   };//class
 }//namespace

@@ -5,6 +5,7 @@
 #include <OgreConfigFile.h>
 #include "EditorFrameListener.h"
 #include "../Engine/ItemBase.h"
+#include "../Engine/LightBase.h"
 #include "../Engine/DuskObject.h"
 #include <OgreCEGUIRenderer.h>
 #include <CEGUI/CEGUI.h>
@@ -129,6 +130,7 @@ protected:
     //methods to visually add Items or Objects to catalogue
     //  (real data is not effected, methods only show new row in catalogue)
 	void addItemRecordToCatalogue(const std::string& ID, const ItemRecord& ItemData);
+	void addLightRecordToCatalogue(const std::string& ID, const LightRecord& Record);
 	void addObjectRecordToCatalogue(const std::string& ID, const std::string& Mesh);
 
 	//callbacks for menu items
