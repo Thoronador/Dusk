@@ -6,6 +6,7 @@
 #include "../Engine/Landscape.h"
 #include "../Engine/ObjectData.h"
 #include <OgreVector3.h>
+#include <OgreLight.h>
 
 #if defined(_WIN32)
   //Windows includes go here
@@ -21,6 +22,20 @@ namespace Dusk
 const CEGUI::colour cSelectionColour = CEGUI::colour(65.0f/255.0f, 105.0f/255.0f, 225.0f/255.0f, 0.5f);
 const float cRotationFactor = 2.5f;
 const float cMovementFactor = 3.5f;
+
+std::string OgreLightTypeToString(const Ogre::Light::LightTypes val)
+{
+  switch (val)
+  {
+    case Ogre::Light::LT_POINT:
+         return "Point"; break;
+    case Ogre::Light::LT_DIRECTIONAL:
+         return "Directional"; break;
+    case Ogre::Light::LT_SPOTLIGHT:
+         return "Spotlight"; break;
+    default: return "(unknown)"; //should never occur
+  }//swi
+}
 
 std::vector<FileEntry> get_DirectoryFileList(const std::string Directory)
 {
@@ -118,6 +133,8 @@ EditorApplication::EditorApplication()
   ID_of_item_to_delete = "";
   ID_of_object_to_edit = "";
   ID_of_item_to_edit = "";
+  ID_of_light_to_delete = "";
+  ID_of_light_to_edit = "";
 
   mouse.LeftButton.down = mouse.LeftButton.up = CEGUI::Point(0.0f, 0.0f);
   mouse.RightButton.down = mouse.RightButton.up = CEGUI::Point(0.0f, 0.0f);
@@ -453,13 +470,15 @@ void EditorApplication::CreateCEGUICatalogue(void)
   mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.createWindow("TaharezLook/MultiColumnList", "Editor/Catalogue/Tab/Light/List"));
   mcl->setSize(CEGUI::UVector2(CEGUI::UDim(0.9, 0), CEGUI::UDim(0.9, 0)));
   mcl->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.05, 0)));
-  mcl->addColumn("ID", 0, CEGUI::UDim(0.19, 0));
-  mcl->addColumn("Red", 1, CEGUI::UDim(0.19, 0));
-  mcl->addColumn("Green", 2, CEGUI::UDim(0.19, 0));
-  mcl->addColumn("Blue", 3, CEGUI::UDim(0.19, 0));
-  mcl->addColumn("Radius", 4, CEGUI::UDim(0.19, 0));
+  mcl->addColumn("ID", 0, CEGUI::UDim(0.16, 0));
+  mcl->addColumn("Red", 1, CEGUI::UDim(0.16, 0));
+  mcl->addColumn("Green", 2, CEGUI::UDim(0.16, 0));
+  mcl->addColumn("Blue", 3, CEGUI::UDim(0.16, 0));
+  mcl->addColumn("Radius", 4, CEGUI::UDim(0.16, 0));
+  mcl->addColumn("Type", 5, CEGUI::UDim(0.16, 0));
   mcl->setUserColumnDraggingEnabled(false);
   pane->addChildWindow(mcl);
+  mcl->subscribeEvent(CEGUI::Window::EventMouseButtonUp, CEGUI::Event::Subscriber(&EditorApplication::LightTabClicked, this));
 
   //sample data
   addLightRecordToCatalogue("light_red", LightRecord::GetRed(123.4));
@@ -507,6 +526,25 @@ void EditorApplication::CreatePopupMenus(void)
   menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::ItemDeleteClicked, this));
   popup->addItem(menu_item);
   wmgr.getWindow("Editor/Catalogue/Tab/Item/List")->addChildWindow(popup);
+  popup->closePopupMenu();
+
+  //PopUp Menu for lights' tab
+  popup = static_cast<CEGUI::PopupMenu*> (wmgr.createWindow("TaharezLook/PopupMenu", "Editor/Catalogue/LightPopUp"));
+  popup->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.3, 0)));
+  popup->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.3, 0)));
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/Catalogue/LightPopUp/New"));
+  menu_item->setText("New light...");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::LightNewClicked, this));
+  popup->addItem(menu_item);
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/Catalogue/LightPopUp/Edit"));
+  menu_item->setText("Edit selected light...");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::LightEditClicked, this));
+  popup->addItem(menu_item);
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/Catalogue/LightPopUp/Delete"));
+  menu_item->setText("Delete selected light");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::LightDeleteClicked, this));
+  popup->addItem(menu_item);
+  wmgr.getWindow("Editor/Catalogue/Tab/Light/List")->addChildWindow(popup);
   popup->closePopupMenu();
 }
 
@@ -637,7 +675,6 @@ void EditorApplication::RefreshObjectList(void)
 
 void EditorApplication::RefreshItemList(void)
 {
-  // not implemented yet ****
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
   CEGUI::MultiColumnList* mcl = NULL;
   if (!winmgr.isWindowPresent("Editor/Catalogue/Tab/Item/List"))
@@ -660,7 +697,31 @@ void EditorApplication::RefreshItemList(void)
   return;
 }
 
-void EditorApplication::showWarning(const std::string Text_of_warning)
+void EditorApplication::RefreshLightList(void)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  CEGUI::MultiColumnList* mcl = NULL;
+  if (!winmgr.isWindowPresent("Editor/Catalogue/Tab/Light/List"))
+  {
+    showWarning("ERROR: Could not find light list window in CEGUI Window Manager!");
+    return;
+  }
+  mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/Catalogue/Tab/Light/List"));
+  mcl->resetList();
+
+  std::map<std::string, LightRecord>::iterator first;
+  std::map<std::string, LightRecord>::iterator end;
+  first = LightBase::GetSingleton().GetFirst();
+  end = LightBase::GetSingleton().GetEnd();
+  while (first != end)
+  {
+    addLightRecordToCatalogue(first->first, first->second);
+    first++;
+  }//while
+  return;
+}
+
+void EditorApplication::showWarning(const std::string& Text_of_warning)
 {
   if (Text_of_warning=="")
   {
@@ -710,7 +771,7 @@ void EditorApplication::showWarning(const std::string Text_of_warning)
   frame->setAlwaysOnTop(true);
 }
 
-void EditorApplication::showHint(const std::string hint_text)
+void EditorApplication::showHint(const std::string& hint_text)
 {
   if (hint_text=="")
   {
@@ -1149,6 +1210,9 @@ void EditorApplication::addLightRecordToCatalogue(const std::string& ID, const L
   lbi = new CEGUI::ListboxTextItem(FloatToString(Record.radius));
   lbi->setSelectionColours(cSelectionColour);
   mcl->setItem(lbi, 4, row);
+  lbi = new CEGUI::ListboxTextItem(OgreLightTypeToString(Record.type));
+  lbi->setSelectionColours(cSelectionColour);
+  mcl->setItem(lbi, 5, row);
 }
 
 void EditorApplication::addObjectRecordToCatalogue(const std::string& ID, const std::string& Mesh)
@@ -1167,6 +1231,19 @@ void EditorApplication::addObjectRecordToCatalogue(const std::string& ID, const 
   lbi = new CEGUI::ListboxTextItem(Mesh);
   lbi->setSelectionColours(cSelectionColour);
   mcl->setItem(lbi, 1, row);
+}
+
+void EditorApplication::ClearCatalogue(void)
+{
+  CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*>
+             (CEGUI::WindowManager::getSingleton().getWindow("Editor/Catalogue/Tab/Item/List"));
+  mcl->resetList();
+  mcl = static_cast<CEGUI::MultiColumnList*>
+           (CEGUI::WindowManager::getSingleton().getWindow("Editor/Catalogue/Tab/Object/List"));
+  mcl->resetList();
+  mcl = static_cast<CEGUI::MultiColumnList*>
+           (CEGUI::WindowManager::getSingleton().getWindow("Editor/Catalogue/Tab/Light/List"));
+  mcl->resetList();
 }
 
 //callbacks for buttons
@@ -1255,12 +1332,7 @@ bool EditorApplication::LoadFrameOKClicked(const CEGUI::EventArgs &e)
     LoadedDataFile = "";
     ID_of_object_to_delete = "";
     mouse_object = edit_object = NULL;
-    CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*>
-             (CEGUI::WindowManager::getSingleton().getWindow("Editor/Catalogue/Tab/Item/List"));
-    mcl->resetList();
-    mcl = static_cast<CEGUI::MultiColumnList*>
-             (CEGUI::WindowManager::getSingleton().getWindow("Editor/Catalogue/Tab/Object/List"));
-    mcl->resetList();
+    ClearCatalogue();
     // --- load file
     if (!(DataLoader::GetSingleton().LoadFromFile(LoadFrameDirectory+PathToFile)))
     {
@@ -1369,7 +1441,6 @@ bool EditorApplication::ObjectTabClicked(const CEGUI::EventArgs &e)
 
 bool EditorApplication::ItemTabClicked(const CEGUI::EventArgs &e)
 {
-  // *** not implemented yet ***
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
   CEGUI::PopupMenu * popup = static_cast<CEGUI::PopupMenu*> (winmgr.getWindow("Editor/Catalogue/ItemPopUp"));
   if (!popup->isPopupMenuOpen())
@@ -1379,6 +1450,30 @@ bool EditorApplication::ItemTabClicked(const CEGUI::EventArgs &e)
     {
       float pu_x, pu_y;
       CEGUI::Rect mcl_rect = winmgr.getWindow("Editor/Catalogue/Tab/Item/List")->getPixelRect();
+      pu_x = (mea.position.d_x-mcl_rect.d_left)/mcl_rect.getWidth();
+      pu_y = (mea.position.d_y-mcl_rect.d_top)/mcl_rect.getHeight();
+      popup->setPosition(CEGUI::UVector2(CEGUI::UDim(pu_x, 0), CEGUI::UDim(pu_y, 0)));
+      popup->openPopupMenu();
+    }
+  }
+  else
+  {
+    popup->closePopupMenu();
+  }
+  return true;
+}
+
+bool EditorApplication::LightTabClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  CEGUI::PopupMenu * popup = static_cast<CEGUI::PopupMenu*> (winmgr.getWindow("Editor/Catalogue/LightPopUp"));
+  if (!popup->isPopupMenuOpen())
+  {
+    const CEGUI::MouseEventArgs& mea = static_cast<const CEGUI::MouseEventArgs&> (e);
+    if (mea.button == CEGUI::RightButton)
+    {
+      float pu_x, pu_y;
+      CEGUI::Rect mcl_rect = winmgr.getWindow("Editor/Catalogue/Tab/Light/List")->getPixelRect();
       pu_x = (mea.position.d_x-mcl_rect.d_left)/mcl_rect.getWidth();
       pu_y = (mea.position.d_y-mcl_rect.d_top)/mcl_rect.getHeight();
       popup->setPosition(CEGUI::UVector2(CEGUI::UDim(pu_x, 0), CEGUI::UDim(pu_y, 0)));
@@ -2932,6 +3027,149 @@ DuskObject* EditorApplication::GetObjectAtMouse(const CEGUI::Point& pt)
   //destroy query object
   mSceneMgr->destroyQuery(rsc_query);
   return mo;
+}
+
+bool EditorApplication::LightNewClicked(const CEGUI::EventArgs &e)
+{
+  showLightNewWindow();
+  return true;
+}
+
+bool EditorApplication::LightEditClicked(const CEGUI::EventArgs &e)
+{
+  //not implemented yet
+  return true;
+}
+bool EditorApplication::LightDeleteClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*>
+                                (winmgr.getWindow("Editor/Catalogue/Tab/Light/List"));
+  CEGUI::ListboxItem* lbi = mcl->getFirstSelectedItem();
+  if (lbi==NULL)
+  {
+    showHint("You have to select a light from the list to delete it.");
+  }
+  else
+  {
+    unsigned int row_index = mcl->getItemRowIndex(lbi);
+    lbi = mcl->getItemAtGridReference(CEGUI::MCLGridRef(row_index, 0));
+    ID_of_light_to_delete = std::string(lbi->getText().c_str());
+    showLightConfirmDeleteWindow();
+  }
+  return true;
+}
+
+void EditorApplication::showLightNewWindow(void)
+{
+  //not implemented yet
+}
+
+void EditorApplication::showLightEditWindow(void)
+{
+  //not implemented yet
+}
+
+void EditorApplication::showLightConfirmDeleteWindow(void)
+{
+  CEGUI::FrameWindow* frame = NULL;
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/LightDeleteFrame"))
+  {
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.getWindow("Editor/LightDeleteFrame"));
+  }
+  else
+  {
+    //create it (frame first)
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.createWindow("TaharezLook/FrameWindow", "Editor/LightDeleteFrame"));
+    frame->setInheritsAlpha(false);
+    frame->setTitleBarEnabled(true);
+    frame->setText("Delete Light...");
+    frame->setCloseButtonEnabled(false);
+    frame->setFrameEnabled(true);
+    frame->setSizingEnabled(true);
+    winmgr.getWindow("Editor/Root")->addChildWindow(frame);
+
+    //add static text box for message
+    CEGUI::MultiLineEditbox* textbox;
+    textbox = static_cast<CEGUI::MultiLineEditbox*> (winmgr.createWindow("TaharezLook/MultiLineEditbox", "Editor/LightDeleteFrame/Label"));
+    textbox->setSize(CEGUI::UVector2(CEGUI::UDim(0.8, 0), CEGUI::UDim(0.55, 0)));
+    textbox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.15, 0)));
+    textbox->setWordWrapping(true);
+    textbox->setReadOnly(true);
+    textbox->setText("Do you really want to delete the light \""+ID_of_light_to_delete+"\"? (References of lights are not "
+                     +"implemented and hence not deleted.)");
+    frame->addChildWindow(textbox);
+
+    //create yes button
+    CEGUI::Window* button = winmgr.createWindow("TaharezLook/Button", "Editor/LightDeleteFrame/Yes");
+    button->setText("Yes, go on.");
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.2, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.75, 0)));
+    frame->addChildWindow(button);
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplication::LightDeleteFrameYesClicked, this));
+
+    //create no button
+    button = winmgr.createWindow("TaharezLook/Button", "Editor/LightDeleteFrame/No");
+    button->setText("No, wait!");
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.2, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.75, 0)));
+    frame->addChildWindow(button);
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplication::LightDeleteFrameNoClicked, this));
+  }
+  frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.22, 0)));
+  frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.4, 0)));
+  frame->moveToFront();
+}
+
+void EditorApplication::showLightEditConfirmIDChangeWindow(void)
+{
+  //not implemented yet
+}
+
+bool EditorApplication::LightDeleteFrameNoClicked(const CEGUI::EventArgs &e)
+{
+  //delete window
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/LightDeleteFrame"))
+  {
+    winmgr.destroyWindow("Editor/LightDeleteFrame");
+  }
+  return true;
+}
+
+bool EditorApplication::LightDeleteFrameYesClicked(const CEGUI::EventArgs &e)
+{
+  if (ID_of_light_to_delete == "")
+  {
+    showWarning("Error: light ID is empty string!");
+    //delete window
+    CEGUI::WindowManager::getSingleton().destroyWindow("Editor/LightDeleteFrame");
+    return true;
+  }
+  if (!LightBase::GetSingleton().deleteLight(ID_of_light_to_delete))
+  {
+    showHint("LightBase class holds no item of the given ID ("
+             +ID_of_light_to_delete+").");
+    //delete window
+    CEGUI::WindowManager::getSingleton().destroyWindow("Editor/LightDeleteFrame");
+    return true;
+  }
+  showHint("Light \""+ID_of_light_to_delete+"\" deleted!\n(References are not implemented yet, thus none were deleted.)");
+
+  //delete row in multi column list of lights
+  CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*>
+                                (CEGUI::WindowManager::getSingleton().getWindow("Editor/Catalogue/Tab/Light/List"));
+  CEGUI::ListboxItem * lb_it = NULL;
+  lb_it = mcl->findColumnItemWithText(ID_of_light_to_delete, 0, NULL);
+  mcl->removeRow(mcl->getItemRowIndex(lb_it));
+  //reset ID to empty string
+  ID_of_light_to_delete = "";
+  //delete window
+  CEGUI::WindowManager::getSingleton().destroyWindow("Editor/LightDeleteFrame");
+  return true;
 }
 
 }//namespace

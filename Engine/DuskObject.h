@@ -9,7 +9,7 @@
 
 namespace Dusk{
 
-enum ObjectTypes {otUndefined, otStatic, otItem, otAnimated};
+enum ObjectTypes {otUndefined, otStatic, otItem, otAnimated, otLight};
 
 unsigned int GenerateUniqueObjectID();
 
@@ -17,19 +17,20 @@ class DuskObject: public Ogre::UserDefinedObject
 {
     public:
         DuskObject();
-        DuskObject(const std::string _ID, const Ogre::Vector3 pos, const Ogre::Vector3 rot, const float Scale);
+        DuskObject(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale);
         virtual ~DuskObject();
         Ogre::Vector3 GetPosition() const;
         Ogre::Vector3 GetRotation() const;
-        void SetPosition(const Ogre::Vector3 pos);
-        void SetRotation(const Ogre::Vector3 rot);
+        void SetPosition(const Ogre::Vector3& pos);
+        void SetRotation(const Ogre::Vector3& rot);
         float GetScale() const;
         bool SetScale(const float newScale);
         std::string GetID() const;
-        bool ChangeID(const std::string newID);
-        bool Enable(Ogre::SceneManager* scm);
-        bool Disable();
-        bool IsEnabled();
+        bool ChangeID(const std::string& newID);
+        virtual bool Enable(Ogre::SceneManager* scm);
+        virtual bool Disable();
+        virtual bool IsEnabled();
+        ObjectTypes GetType() const;
     protected:
         std::string ID;
         ObjectTypes objectType;

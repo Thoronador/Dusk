@@ -47,6 +47,7 @@ LightRecord LightRecord::GetBlack(const float d)
   LightRecord temp;
   temp.red = temp.green = temp.blue = 0.0f;
   temp.radius = d;
+  temp.type = Ogre::Light::LT_POINT;
   return temp;
 }
 
@@ -56,6 +57,7 @@ LightRecord LightRecord::GetRed(const float d)
   temp.red = 1.0f;
   temp.green = temp.blue = 0.0f;
   temp.radius = d;
+  temp.type = Ogre::Light::LT_POINT;
   return temp;
 }
 
@@ -65,6 +67,7 @@ LightRecord LightRecord::GetGreen(const float d)
   temp.red = temp.blue = 0.0f;
   temp.green = 1.0f;
   temp.radius = d;
+  temp.type = Ogre::Light::LT_POINT;
   return temp;
 }
 
@@ -74,6 +77,7 @@ LightRecord LightRecord::GetBlue(const float d)
   temp.red = temp.green = 0.0f;
   temp.blue = 1.0f;
   temp.radius = d;
+  temp.type = Ogre::Light::LT_POINT;
   return temp;
 }
 
@@ -95,7 +99,8 @@ LightBase& LightBase::GetSingleton()
   return Instance;
 }
 
-void LightBase::addLight(const std::string& ID, const float r, const float g, const float b, const float radius)
+void LightBase::addLight(const std::string& ID, const float r, const float g,
+         const float b, const float radius, const Ogre::Light::LightTypes _type)
 {
   if (ID != "")
   {
@@ -104,6 +109,7 @@ void LightBase::addLight(const std::string& ID, const float r, const float g, co
     rec.green = g;
     rec.blue = b;
     rec.radius = radius;
+    rec.type = _type;
     rec.Normalise();
     m_LightList[ID] = rec;
   }
@@ -111,7 +117,7 @@ void LightBase::addLight(const std::string& ID, const float r, const float g, co
 
 void LightBase::addLight(const std::string& ID, const LightRecord& record)
 {
-  addLight(ID, record.red, record.green, record.blue, record.radius);
+  addLight(ID, record.red, record.green, record.blue, record.radius, record.type);
 }
 
 bool LightBase::hasLight(const std::string& ID) const
@@ -121,15 +127,13 @@ bool LightBase::hasLight(const std::string& ID) const
 
 LightRecord LightBase::getLightData(const std::string& ID)
 {
-  LightRecord temp;
   std::map<std::string, LightRecord>::iterator l_iter = m_LightList.find(ID);
   if (l_iter != m_LightList.end())
   {
     return l_iter->second;
   }
   //nothing found, so wie give them a black light
-  temp.red = temp.green = temp.blue = temp.radius = 0.0f;
-  return temp;
+  return LightRecord::GetBlack(0.0f);
 }
 
 bool LightBase::deleteLight(const std::string& ID)
@@ -171,6 +175,8 @@ bool LightBase::SaveAllToStream(std::ofstream& out_stream)
     out_stream.write((char*) &(l_iter->second.green), sizeof(float));
     out_stream.write((char*) &(l_iter->second.blue), sizeof(float));
     out_stream.write((char*) &(l_iter->second.radius), sizeof(float));
+    //write light type
+    out_stream.write((char*) &(l_iter->second.type), sizeof(Ogre::Light::LightTypes));
     l_iter++;
   }//while
   return out_stream.good();
@@ -215,6 +221,8 @@ bool LightBase::LoadRecordFromStream(std::ifstream& in_stream)
   in_stream.read((char*) &(temp.green), sizeof(float));
   in_stream.read((char*) &(temp.blue), sizeof(float));
   in_stream.read((char*) &(temp.radius), sizeof(float));
+  //read light type
+  in_stream.read((char*) &(temp.type), sizeof(Ogre::Light::LightTypes));
   if (!in_stream.good())
   {
     std::cout << "LightBase::LoadRecordFromStream: ERROR while reading light's"
@@ -223,6 +231,16 @@ bool LightBase::LoadRecordFromStream(std::ifstream& in_stream)
   }
   addLight(std::string(ID_Buffer), temp);
   return true;
+}
+
+std::map<std::string, LightRecord>::iterator LightBase::GetFirst()
+{
+  return m_LightList.begin();
+}
+
+std::map<std::string, LightRecord>::iterator LightBase::GetEnd()
+{
+  return m_LightList.end();
 }
 
 }//namespace

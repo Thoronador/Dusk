@@ -4,6 +4,7 @@
 #include <string>
 #include <map>
 #include <fstream>
+#include <OgreLight.h>
 
 namespace Dusk
 {
@@ -13,6 +14,7 @@ namespace Dusk
     public:
       float red,green,blue;
       float radius;
+      Ogre::Light::LightTypes type;
       bool IsBlack() const;
       void Normalise();
       static LightRecord GetBlack(const float d=0.0f);
@@ -26,7 +28,8 @@ namespace Dusk
     public:
       virtual ~LightBase();
       static LightBase& GetSingleton();
-      void addLight(const std::string& ID, const float r, const float g, const float b, const float radius);
+      void addLight(const std::string& ID, const float r, const float g, const float b, const float radius,
+                    const Ogre::Light::LightTypes _type = Ogre::Light::LT_POINT);
       void addLight(const std::string& ID, const LightRecord& record);
       bool hasLight(const std::string& ID) const;
       LightRecord getLightData(const std::string& ID);
@@ -35,6 +38,8 @@ namespace Dusk
       unsigned int NumberOfLights() const;
       bool SaveAllToStream(std::ofstream& out_stream);
       bool LoadRecordFromStream(std::ifstream& in_stream);
+      std::map<std::string, LightRecord>::iterator GetFirst();
+      std::map<std::string, LightRecord>::iterator GetEnd();
     private:
       LightBase();
       LightBase(const LightBase& op){} //copy constructor

@@ -68,6 +68,8 @@
 		<Unit filename="../Engine/ItemBase.h" />
 		<Unit filename="../Engine/Landscape.cpp" />
 		<Unit filename="../Engine/Landscape.h" />
+		<Unit filename="../Engine/Light.cpp" />
+		<Unit filename="../Engine/Light.h" />
 		<Unit filename="../Engine/LightBase.cpp" />
 		<Unit filename="../Engine/LightBase.h" />
 		<Unit filename="../Engine/ObjectBase.cpp" />

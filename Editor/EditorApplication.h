@@ -61,9 +61,11 @@ protected:
     //id of item for deletion
     std::string ID_of_object_to_delete;
     std::string ID_of_item_to_delete;
+    std::string ID_of_light_to_delete;
     //id for editing
     std::string ID_of_object_to_edit;
     std::string ID_of_item_to_edit;
+    std::string ID_of_light_to_edit;
 
     //mouse handling data
     mouse_record mouse;
@@ -107,9 +109,10 @@ protected:
 
     void RefreshObjectList(void);
     void RefreshItemList(void);
+    void RefreshLightList(void);
 	//general message windows
-	void showWarning(const std::string Text_of_warning);
-	void showHint(const std::string hint_text);
+	void showWarning(const std::string& Text_of_warning);
+	void showHint(const std::string& hint_text);
 
     //windows for creating/ editing objects
 	void showObjectNewWindow(void);
@@ -121,6 +124,12 @@ protected:
     void showItemEditWindow(void);
 	void showItemConfirmDeleteWindow(void);
 	void showItemEditConfirmIDChangeWindow(void);
+	//windows for creating/ editing lights
+	void showLightNewWindow(void);
+    void showLightEditWindow(void);
+	void showLightConfirmDeleteWindow(void);
+	void showLightEditConfirmIDChangeWindow(void);
+
 	//for editing object references
 	void showObjectReferenceEditWindow(const CEGUI::Point& pt);
 
@@ -132,6 +141,9 @@ protected:
 	void addItemRecordToCatalogue(const std::string& ID, const ItemRecord& ItemData);
 	void addLightRecordToCatalogue(const std::string& ID, const LightRecord& Record);
 	void addObjectRecordToCatalogue(const std::string& ID, const std::string& Mesh);
+	//clear items/ lights/ objects in catalogue
+	//  (real data is not affected, methods only delete all shown new rows catalogue)
+	void ClearCatalogue(void);
 
 	//callbacks for menu items
 	bool LoadButtonClicked(const CEGUI::EventArgs &e);
@@ -149,6 +161,7 @@ protected:
 	bool HintFrameOKClicked(const CEGUI::EventArgs &e);
 	bool ObjectTabClicked(const CEGUI::EventArgs &e);
 	bool ItemTabClicked(const CEGUI::EventArgs &e);
+	bool LightTabClicked(const CEGUI::EventArgs &e);
 
 	//callbacks for popup menus
 	bool ObjectNewClicked(const CEGUI::EventArgs &e);
@@ -158,6 +171,10 @@ protected:
 	bool ItemNewClicked(const CEGUI::EventArgs &e);
 	bool ItemEditClicked(const CEGUI::EventArgs &e);
 	bool ItemDeleteClicked(const CEGUI::EventArgs &e);
+
+	bool LightNewClicked(const CEGUI::EventArgs &e);
+	bool LightEditClicked(const CEGUI::EventArgs &e);
+	bool LightDeleteClicked(const CEGUI::EventArgs &e);
 
 	//callbacks of window for creating new objects
 	bool ObjectNewFrameCancelClicked(const CEGUI::EventArgs &e);
@@ -186,6 +203,10 @@ protected:
 	bool ItemConfirmIDChangeRenameClicked(const CEGUI::EventArgs &e);
 	bool ItemConfirmIDChangeNewClicked(const CEGUI::EventArgs &e);
 	bool ItemConfirmIDChangeCancelClicked(const CEGUI::EventArgs &e);
+
+	//callbacks of window to delete lights
+	bool LightDeleteFrameNoClicked(const CEGUI::EventArgs &e);
+	bool LightDeleteFrameYesClicked(const CEGUI::EventArgs &e);
 
 	//callbacks for window clicks / to implement object dragging
 	bool RootMouseDown(const CEGUI::EventArgs &e);

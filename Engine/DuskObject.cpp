@@ -52,7 +52,7 @@ DuskObject::DuskObject()
   m_Scale = 1.0f;
 }
 
-DuskObject::DuskObject(const std::string _ID, const Ogre::Vector3 pos, const Ogre::Vector3 rot, const float Scale)
+DuskObject::DuskObject(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale)
 {
   ID = _ID;
   position = pos;
@@ -83,7 +83,7 @@ Ogre::Vector3 DuskObject::GetRotation() const
   return rotation;
 }
 
-void DuskObject::SetPosition(const Ogre::Vector3 pos)
+void DuskObject::SetPosition(const Ogre::Vector3& pos)
 {
   if(entity!=NULL)
   {
@@ -92,7 +92,7 @@ void DuskObject::SetPosition(const Ogre::Vector3 pos)
   position = pos;
 }
 
-void DuskObject::SetRotation(const Ogre::Vector3 rot)
+void DuskObject::SetRotation(const Ogre::Vector3& rot)
 {
   if (entity != NULL)
   {
@@ -135,7 +135,7 @@ std::string DuskObject::GetID() const
   return ID;
 }
 
-bool DuskObject::ChangeID(const std::string newID)
+bool DuskObject::ChangeID(const std::string& newID)
 {
   if (newID!="" and entity==NULL)
   {
@@ -202,5 +202,9 @@ bool DuskObject::IsEnabled()
   return (entity!=NULL);
 }
 
+ObjectTypes DuskObject::GetType() const
+{
+  return objectType;
+}
 
 }
