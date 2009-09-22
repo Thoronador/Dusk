@@ -2,6 +2,7 @@
 #define DUSKOBJECT_H
 
 #include <string>
+#include <fstream>
 #include <OgreUserDefinedObject.h>
 #include <OgreEntity.h>
 #include <OgreSceneManager.h>
@@ -31,6 +32,8 @@ class DuskObject: public Ogre::UserDefinedObject
         virtual bool Disable();
         virtual bool IsEnabled();
         ObjectTypes GetType() const;
+        virtual bool SaveToStream(std::ofstream& OutStream);
+        virtual bool LoadFromStream(std::ifstream& InStream);
     protected:
         std::string ID;
         ObjectTypes objectType;

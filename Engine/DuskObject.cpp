@@ -1,5 +1,6 @@
 #include "DuskObject.h"
 #include "ObjectBase.h"
+#include "DuskConstants.h"
 #include <sstream>
 #include <OgreSceneNode.h>
 
@@ -48,7 +49,7 @@ DuskObject::DuskObject()
   position = Ogre::Vector3::ZERO;
   rotation = Ogre::Vector3::ZERO;
   entity = NULL;
-  objectType = otUndefined;
+  objectType = otStatic;
   m_Scale = 1.0f;
 }
 
@@ -63,7 +64,7 @@ DuskObject::DuskObject(const std::string& _ID, const Ogre::Vector3& pos, const O
   } else {
     m_Scale = 1.0f;
   }
-  objectType = otUndefined;
+  objectType = otStatic;
   entity = NULL;
 }
 
@@ -151,7 +152,6 @@ bool DuskObject::Enable(Ogre::SceneManager* scm)
   {
     return true;
   }
-
   if (scm==NULL)
   {
     std::cout << "DuskObject::Enable: ERROR: no scene manager present.\n";
@@ -205,6 +205,107 @@ bool DuskObject::IsEnabled()
 ObjectTypes DuskObject::GetType() const
 {
   return objectType;
+}
+
+bool DuskObject::SaveToStream(std::ofstream& OutStream)
+{
+  if (!OutStream.good())
+  {
+    std::cout << "DuskObject::SaveToStream: ERROR: Stream contains errors!\n";
+    return false;
+  }
+  unsigned int len;
+  float xyz;
+
+  //write header "RefO" (reference of Object)
+  OutStream.write((char*) &cHeaderRefO, sizeof(unsigned int)); //header
+  //write ID
+  len = ID.length();
+  OutStream.write((char*) &len, sizeof(unsigned int));
+  OutStream.write(ID.c_str(), len);
+
+  //write position and rotation, and scale
+  // -- position
+  xyz = position.x;
+  OutStream.write((char*) &xyz, sizeof(float));
+  xyz = position.y;
+  OutStream.write((char*) &xyz, sizeof(float));
+  xyz = position.z;
+  OutStream.write((char*) &xyz, sizeof(float));
+  // -- rotation
+  xyz = rotation.x;
+  OutStream.write((char*) &xyz, sizeof(float));
+  xyz = rotation.y;
+  OutStream.write((char*) &xyz, sizeof(float));
+  xyz = rotation.z;
+  OutStream.write((char*) &xyz, sizeof(float));
+  // -- scale
+  OutStream.write((char*) &m_Scale, sizeof(float));
+  return (OutStream.good());
+}
+
+bool DuskObject::LoadFromStream(std::ifstream& InStream)
+{
+  if (entity!=NULL)
+  {
+    std::cout << "DuskObject::LoadFromStream: ERROR: Cannot load from stream "
+              << "while object is enabled.\n";
+    return false;
+  }
+  if (!InStream.good())
+  {
+    std::cout << "DuskObject::LoadFromStream: ERROR: Stream contains errors!\n";
+    return false;
+  }
+
+  char ID_Buffer[256];
+  float f_temp;
+  unsigned int Header, len;
+
+  //read header "RefO"
+  Header = 0;
+  InStream.read((char*) &Header, sizeof(unsigned int));
+  if (Header!=cHeaderRefO)
+  {
+    std::cout << "DuskObject::LoadFromStream: ERROR: Stream contains invalid "
+              << "reference header.\n";
+    return false;
+  }
+  //read ID
+  InStream.read((char*) &len, sizeof(unsigned int));
+  if (len>255)
+  {
+    std::cout << "DuskObject::LoadFromStream: ERROR: ID cannot be longer than "
+              << "255 characters.\n";
+    return false;
+  }
+  InStream.read(ID_Buffer, len);
+  ID_Buffer[len] = '\0';
+  if (!InStream.good())
+  {
+    std::cout << "DuskObject::LoadFromStream: ERROR while reading data (ID).\n";
+    return false;
+  }
+  ID = std::string(ID_Buffer);
+
+  //position
+  InStream.read((char*) &f_temp, sizeof(float));
+  position.x = f_temp;
+  InStream.read((char*) &f_temp, sizeof(float));
+  position.y = f_temp;
+  InStream.read((char*) &f_temp, sizeof(float));
+  position.z = f_temp;
+  //rotation
+  InStream.read((char*) &f_temp, sizeof(float));
+  rotation.x = f_temp;
+  InStream.read((char*) &f_temp, sizeof(float));
+  rotation.y = f_temp;
+  InStream.read((char*) &f_temp, sizeof(float));
+  rotation.z = f_temp;
+  //scale
+  InStream.read((char*) &f_temp, sizeof(float));
+  m_Scale = f_temp;
+  return (InStream.good());
 }
 
 }

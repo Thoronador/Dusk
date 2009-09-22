@@ -25,16 +25,23 @@ unsigned int ObjectData::NumberOfReferences() const
   return m_ReferenceList.size();
 }
 
-DuskObject* ObjectData::addReference(const std::string ID,
-    const Ogre::Vector3 position, const Ogre::Vector3 rotation, const float scale)
+DuskObject* ObjectData::addObjectReference(const std::string& ID,
+    const Ogre::Vector3& position, const Ogre::Vector3& rotation, const float scale)
 {
   DuskObject * ObjectPointer = new DuskObject(ID, position, rotation, scale);
   m_ReferenceList.push_back(ObjectPointer);
   return ObjectPointer;
 }
 
+Light* ObjectData::addLightReference(const std::string& ID, const Ogre::Vector3& position)
+{
+  Light * LightPointer = new Light(ID, position);
+  m_ReferenceList.push_back(LightPointer);
+  return LightPointer;
+}
 
-bool ObjectData::SaveToFile(const std::string FileName)
+
+bool ObjectData::SaveToFile(const std::string& FileName)
 {
   std::ofstream output;
   output.open(FileName.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
@@ -53,47 +60,22 @@ bool ObjectData::SaveToFile(const std::string FileName)
   output.write((char*) &cHeaderDusk, sizeof(unsigned int));
   //number of elements to write (and later to read, on loading)
   output.write((char*) &len, sizeof(unsigned int));
-  success = SaveToStream(&output);
+  success = SaveAllToStream(output);
   output.close();
   return success;
 }
 
-bool ObjectData::SaveToStream(std::ofstream* Stream)
+bool ObjectData::SaveAllToStream(std::ofstream& Stream)
 {
-  unsigned int i, len;
-  float x,y,z;
+  unsigned int i;
 
   for (i=0; i<m_ReferenceList.size(); i++)
   {
     if (m_ReferenceList.at(i)!=NULL)
     {
-      //write header "RefO" (reference of Object)
-      Stream->write((char*) &cHeaderRefO, sizeof(unsigned int)); //header
-      //write ID
-      len = m_ReferenceList.at(i)->GetID().length();
-      Stream->write((char*) &len, sizeof(unsigned int));
-      Stream->write(m_ReferenceList.at(i)->GetID().c_str(), len);
-
-      //write position and rotation
-      x = m_ReferenceList.at(i)->GetPosition().x;
-      y = m_ReferenceList.at(i)->GetPosition().y;
-      z = m_ReferenceList.at(i)->GetPosition().z;
-      Stream->write((char*) &x, sizeof(float));
-      Stream->write((char*) &y, sizeof(float));
-      Stream->write((char*) &z, sizeof(float));
-      x = m_ReferenceList.at(i)->GetRotation().x;
-      y = m_ReferenceList.at(i)->GetRotation().y;
-      z = m_ReferenceList.at(i)->GetRotation().z;
-      Stream->write((char*) &x, sizeof(float));
-      Stream->write((char*) &y, sizeof(float));
-      Stream->write((char*) &z, sizeof(float));
-      //scale
-      x = m_ReferenceList.at(i)->GetScale();
-      Stream->write((char*) &x, sizeof(float));
-      //everything OK?
-      if (!Stream->good())
+      if (!(m_ReferenceList.at(i)->SaveToStream(Stream)) or (!Stream.good()))
       {
-        std::cout << "ObjectData::SaveToStream: ERROR while writing reference data.\n";
+        std::cout << "ObjectData::SaveAllToStream: ERROR while writing reference data.\n";
         return false;
       }
     }//if
@@ -101,7 +83,7 @@ bool ObjectData::SaveToStream(std::ofstream* Stream)
   return true;
 }
 
-bool ObjectData::LoadFromFile(const std::string FileName)
+bool ObjectData::LoadFromFile(const std::string& FileName)
 {
   std::ifstream input;
   unsigned int count, i;
@@ -131,7 +113,10 @@ bool ObjectData::LoadFromFile(const std::string FileName)
   input.read((char*) &count, sizeof(unsigned int));
   for (i=0; i<count; i++)
   {
-    if (!LoadFromStream(&input))
+    Header = 0;
+    input.read((char*) &Header, sizeof(unsigned int));
+    input.seekg(-4, std::ios::cur);
+    if (!LoadNextFromStream(input, Header))
     {
       std::cout << "ObjectData::LoadFromFile: ERROR while reading record.\n";
       input.close();
@@ -142,61 +127,34 @@ bool ObjectData::LoadFromFile(const std::string FileName)
   return true;
 }
 
-bool ObjectData::LoadFromStream(std::ifstream* Stream)
+bool ObjectData::LoadNextFromStream(std::ifstream& Stream, const unsigned int PrefetchedHeader)
 {
-  static char ID_Buffer[256];
-  float x, y, z, rx, ry, rz, scl;
   DuskObject * objPtr = NULL;
-  unsigned int Header, len;
-
-  //read header "RefO"
-  Header = 0;
-  Stream->read((char*) &Header, sizeof(unsigned int));
-  if (Header!=cHeaderRefO)
+  switch(PrefetchedHeader)
   {
-    std::cout << "ObjectData::LoadFromStream: ERROR: Stream contains invalid "
-              << "reference header.\n";
-    return false;
-  }
-  //read ID
-  Stream->read((char*) &len, sizeof(unsigned int));
-  if (len>255)
-  {
-    std::cout << "ObjectData::LoadFromStream: ERROR: ID cannot be longer than "
-              << "255 characters.\n";
-    return false;
-  }
-  Stream->read(ID_Buffer, len);
-  ID_Buffer[len] = '\0';
-  if (!Stream->good())
-  {
-    std::cout << "ObjectData::LoadFromStream: ERROR while reading data (ID).\n";
-    return false;
-  }
-  //position
-  Stream->read((char*) &x, sizeof(float));
-  Stream->read((char*) &y, sizeof(float));
-  Stream->read((char*) &z, sizeof(float));
-
-  //rotation
-  Stream->read((char*) &rx, sizeof(float));
-  Stream->read((char*) &ry, sizeof(float));
-  Stream->read((char*) &rz, sizeof(float));
-
-  //scale
-  Stream->read((char*) &scl, sizeof(float));
-
-  if (!Stream->good())
-  {
-    std::cout << "ObjectData::LoadFromStream: ERROR while reading data "
-              << "(position, rotation or scale).\n";
-    return false;
-  }
-
-  objPtr = new DuskObject(std::string(ID_Buffer), Ogre::Vector3(x,y,z),
-                          Ogre::Vector3(rx,ry,rz), scl);
-  m_ReferenceList.push_back(objPtr);
-  return true;
+    case cHeaderRefO:
+         objPtr = new DuskObject;
+         if (objPtr->LoadFromStream(Stream))
+         {
+           m_ReferenceList.push_back(objPtr);
+           return true;
+         }
+         delete objPtr;
+         break;
+    case cHeaderRefL:
+         objPtr = new Light;
+         if (objPtr->LoadFromStream(Stream))
+         {
+           m_ReferenceList.push_back(objPtr);
+           return true;
+         }
+         delete objPtr;
+         break;
+    default:
+         std::cout << "ObjectData::LoadNextFromStream: ERROR: unexpected header.\n";
+         break;
+  }//swi
+  return false;
 }
 
 void ObjectData::EnableAllObjects(Ogre::SceneManager * scm)
@@ -228,7 +186,7 @@ void ObjectData::DisableAllObjects()
   }//for
 }
 
-unsigned int ObjectData::deleteReferencesOfObject(const std::string ID)
+unsigned int ObjectData::deleteReferencesOfObject(const std::string& ID)
 {
   unsigned int deletedReferences = 0;
   long int i;
@@ -256,7 +214,7 @@ unsigned int ObjectData::deleteReferencesOfObject(const std::string ID)
 
 ///method to update all enabled objects of one ID after the mesh path has changed
 /// currently only used by Editor
-unsigned int ObjectData::reenableReferencesOfObject(const std::string ID, Ogre::SceneManager * scm)
+unsigned int ObjectData::reenableReferencesOfObject(const std::string& ID, Ogre::SceneManager * scm)
 {
   unsigned int re_enabled = 0;
   unsigned int position;

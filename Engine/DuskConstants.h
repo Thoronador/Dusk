@@ -27,6 +27,7 @@ namespace Dusk
   const unsigned int cHeaderLand = 1684955468; //"Land" (for landscape records)
   const unsigned int cHeaderLight = 1751607628; //"Ligh" (for Light records)
   const unsigned int cHeaderObjS = 1399480911; //"ObjS" (for static objects)
+  const unsigned int cHeaderRefL = 1281779026; //"RefL" (for Referenced Light)
   const unsigned int cHeaderRefO = 1332110674; //"RefO" (for Referenced Object)
 }//namespace
 

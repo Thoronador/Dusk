@@ -26,7 +26,7 @@ DataLoader& DataLoader::GetSingleton()
   return Instance;
 }
 
-bool DataLoader::SaveToFile(const std::string FileName, const unsigned int bits)
+bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits)
 {
   std::ofstream output;
   unsigned int data_records;
@@ -86,7 +86,7 @@ bool DataLoader::SaveToFile(const std::string FileName, const unsigned int bits)
   }//if landscape
 
   //save lights
-  if ((bits & LANDSCAPE_BIT) !=0)
+  if ((bits & LIGHT_BIT) !=0)
   {
     if(!LightBase::GetSingleton().SaveAllToStream(output))
     {
@@ -124,7 +124,7 @@ bool DataLoader::SaveToFile(const std::string FileName, const unsigned int bits)
   //save object references
   if ((bits & OBJECT_REF_BIT) !=0)
   {
-    if (!ObjectData::GetSingleton().SaveToStream(&output))
+    if (!ObjectData::GetSingleton().SaveAllToStream(output))
     {
       std::cout << "DataLoader::SaveToFile: ERROR: could not write object "
                 << "reference data to file \""<<FileName<<"\".\n";
@@ -136,7 +136,7 @@ bool DataLoader::SaveToFile(const std::string FileName, const unsigned int bits)
   return true;
 }
 
-bool DataLoader::LoadFromFile(const std::string FileName)
+bool DataLoader::LoadFromFile(const std::string& FileName)
 {
   std::ifstream input;
   input.open(FileName.c_str(), std::ios::in | std::ios::binary);
@@ -198,8 +198,9 @@ bool DataLoader::LoadFromFile(const std::string FileName)
       case cHeaderObjS:
            success = ObjectBase::GetSingleton().LoadFromStream(&input);
            break;
+      case cHeaderRefL:
       case cHeaderRefO:
-           success = ObjectData::GetSingleton().LoadFromStream(&input);
+           success = ObjectData::GetSingleton().LoadNextFromStream(input, Header);
            break;
       default:
           std::cout << "DataLoader::LoadFromFile: ERROR: Got unexpected header "

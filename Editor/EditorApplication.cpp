@@ -481,9 +481,10 @@ void EditorApplication::CreateCEGUICatalogue(void)
   mcl->subscribeEvent(CEGUI::Window::EventMouseButtonUp, CEGUI::Event::Subscriber(&EditorApplication::LightTabClicked, this));
 
   //sample data
-  addLightRecordToCatalogue("light_red", LightRecord::GetRed(123.4));
-  addLightRecordToCatalogue("light_green", LightRecord::GetGreen(23.4));
-  addLightRecordToCatalogue("light_blue", LightRecord::GetBlue(3.4));
+  LightBase::GetSingleton().addLight("light_red", LightRecord::GetRed(123.4));
+  LightBase::GetSingleton().addLight("light_green", LightRecord::GetGreen(23.4));
+  LightBase::GetSingleton().addLight("light_blue", LightRecord::GetBlue(3.4));
+  RefreshLightList();
 }
 
 void EditorApplication::CreatePopupMenus(void)
@@ -1277,9 +1278,9 @@ bool EditorApplication::StatsButtonClicked(const CEGUI::EventArgs &e)
   showHint( "Current statistics:\n  Landscape records: "
            + IntToString(Landscape::GetSingleton().RecordsAvailable())+"\n"
            +"  Object records: "  + IntToString(ObjectBase::GetSingleton().NumberOfObjects())+"\n"
-           +"    Object references: "+ IntToString(ObjectData::GetSingleton().NumberOfReferences())+"\n"
            +"  Items: " + IntToString(ItemBase::GetSingleton().NumberOfItems())+"\n"
-           +"  Lights: " + IntToString(LightBase::GetSingleton().NumberOfLights()));
+           +"  Lights: " + IntToString(LightBase::GetSingleton().NumberOfLights())+"\n"
+           +"    Object & Light references: "+ IntToString(ObjectData::GetSingleton().NumberOfReferences()));
   return true;
 }
 
@@ -2613,29 +2614,78 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
   {
     //now handle event
     mouse.LeftButton.up = mouse_ea.position;
-    //Left CTRL pressed?
+    //Left CTRL pressed? -> place object
     if (mFrameListener->IsKeyDown(OIS::KC_LCONTROL))
     {
-      CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/Catalogue/Tab/Object/List"));
+      //get tab and active pane
+      CEGUI::TabControl* tab = static_cast<CEGUI::TabControl*> (winmgr.getWindow("Editor/Catalogue/Tab"));
+      CEGUI::Window* wnd = tab->getTabContentsAtIndex(tab->getSelectedTabIndex());
+      std::cout << "Debug: Got window named \""<<wnd->getName()<<"\"\n";
+      //now get the list
+      CEGUI::MultiColumnList* mcl = NULL;
+      if (winmgr.isWindowPresent(wnd->getName()+"/List"))
+      {
+        mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow(wnd->getName()+"/List"));
+      }//if
+      else
+      {
+        std::cout << "Debug: no Window with the name \""<< wnd->getName()+"/List" << "\" found.\n";
+        return true;
+      }
+      if (mcl->getName() != "Editor/Catalogue/Tab/Object/List" &&
+          mcl->getName() != "Editor/Catalogue/Tab/Light/List")
+      {
+        std::cout << "Debug: List \""<< mcl->getName()+"/List" << "\" found, "
+                  << "but that's not the Object or Light list.\n";
+        return true;
+      }
+
+      //CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/Catalogue/Tab/Object/List"));
       CEGUI::ListboxItem * lbi = NULL;
       lbi = mcl->getFirstSelectedItem();
       if (lbi != NULL)
       {
         //we got something, i.e. user wants to place an object
-        std::cout << "DEBUG: placing new referenced object of ID \""
+        std::cout << "DEBUG: placing new referenced object/ light of ID \""
                   <<std::string(lbi->getText().c_str())<<"\"\n";
-        if (!ObjectBase::GetSingleton().hasObject(std::string(lbi->getText().c_str())))
-        {
-          showWarning("There is no Object with the ID \""
-                      +std::string(lbi->getText().c_str())+"\", thus you can't "
-                      +"place it.");
-          return true;
+        bool PlaceLight = (mcl->getName() == "Editor/Catalogue/Tab/Light/List");
+
+        if (PlaceLight)
+        { //place a light
+          if (!LightBase::GetSingleton().hasLight(std::string(lbi->getText().c_str())))
+          {
+            showWarning("There is no Light with the ID \""
+                        +std::string(lbi->getText().c_str())+"\", thus you can't "
+                        +"place it.");
+            return true;
+          }
         }
+        else
+        { //place an object
+          if (!ObjectBase::GetSingleton().hasObject(std::string(lbi->getText().c_str())))
+          {
+            showWarning("There is no Object with the ID \""
+                        +std::string(lbi->getText().c_str())+"\", thus you can't "
+                        +"place it.");
+            return true;
+          }
+        }
+
         Ogre::Quaternion quat = EditorCamera::GetSingleton().getOrientation();
-        DuskObject* temp =
-        ObjectData::GetSingleton().addReference( std::string(lbi->getText().c_str()),
-                   EditorCamera::GetSingleton().getPosition() + quat*Ogre::Vector3(0.0f, 0.0f, -100.0f),
-                   Ogre::Vector3::ZERO, 1.0f);
+        DuskObject* temp = NULL;
+        if (!PlaceLight)
+        {
+          temp =
+          ObjectData::GetSingleton().addObjectReference( std::string(lbi->getText().c_str()),
+                     EditorCamera::GetSingleton().getPosition() + quat*Ogre::Vector3(0.0f, 0.0f, -100.0f),
+                     Ogre::Vector3::ZERO, 1.0f);
+        }
+        else
+        {
+          temp =
+          ObjectData::GetSingleton().addLightReference( std::string(lbi->getText().c_str()),
+                     EditorCamera::GetSingleton().getPosition() + quat*Ogre::Vector3(0.0f, 0.0f, -100.0f));
+        }
         temp->Enable(mSceneMgr);
       }
       else
@@ -2750,7 +2800,15 @@ void EditorApplication::showObjectReferenceEditWindow(const CEGUI::Point& pt)
   else
   { //create window
     frame = static_cast<CEGUI::FrameWindow*> (winmgr.createWindow("TaharezLook/FrameWindow", "Editor/ObjectReference"));
-    frame->setText("Object");
+    switch(target->GetType())
+    {
+      case otStatic:
+           frame->setText("Object"); break;
+      case otLight:
+           frame->setText("Light"); break;
+      default:
+           frame->setText("Object (undefined type)"); break;
+    }//swi
     frame->setCloseButtonEnabled(false);
     frame->setFrameEnabled(true);
     frame->setSizingEnabled(true);
@@ -3097,8 +3155,8 @@ void EditorApplication::showLightConfirmDeleteWindow(void)
     textbox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.15, 0)));
     textbox->setWordWrapping(true);
     textbox->setReadOnly(true);
-    textbox->setText("Do you really want to delete the light \""+ID_of_light_to_delete+"\"? (References of lights are not "
-                     +"implemented and hence not deleted.)");
+    textbox->setText("Do you really want to delete the light \""+ID_of_light_to_delete
+                     +"\" and all of its references?");
     frame->addChildWindow(textbox);
 
     //create yes button
@@ -3157,8 +3215,16 @@ bool EditorApplication::LightDeleteFrameYesClicked(const CEGUI::EventArgs &e)
     CEGUI::WindowManager::getSingleton().destroyWindow("Editor/LightDeleteFrame");
     return true;
   }
-  showHint("Light \""+ID_of_light_to_delete+"\" deleted!\n(References are not implemented yet, thus none were deleted.)");
-
+  //kill references
+  unsigned int refs_deleted = ObjectData::GetSingleton().deleteReferencesOfObject(ID_of_light_to_delete);
+  if (refs_deleted == 0)
+  {
+    showHint("Light \""+ID_of_light_to_delete+"\" deleted! It had no references which had to be deleted.");
+  }
+  else
+  {
+    showHint("Light \""+ID_of_light_to_delete+"\" and "+IntToString(refs_deleted)+" reference(s) of it were deleted!");
+  }
   //delete row in multi column list of lights
   CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*>
                                 (CEGUI::WindowManager::getSingleton().getWindow("Editor/Catalogue/Tab/Light/List"));

@@ -29,8 +29,8 @@ class DataLoader
   public:
     virtual ~DataLoader();
     static DataLoader& GetSingleton();
-    bool SaveToFile(const std::string FileName, const unsigned int bits = ALL_BITS);
-    bool LoadFromFile(const std::string FileName);
+    bool SaveToFile(const std::string& FileName, const unsigned int bits = ALL_BITS);
+    bool LoadFromFile(const std::string& FileName);
     void ClearData(const unsigned int bits = ALL_BITS);
   private:
     DataLoader();

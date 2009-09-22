@@ -2,6 +2,7 @@
 #define LIGHT_H
 #include "DuskObject.h"
 #include <string>
+#include <fstream>
 #include <OgreVector3.h>
 #include <OgreSceneManager.h>
 #include <OgreLight.h>
@@ -19,6 +20,8 @@ namespace Dusk
       bool Disable();
       void SetDirection(const Ogre::Vector3& dir);
       Ogre::Vector3 GetDirection() const;
+      bool SaveToStream(std::ofstream& OutStream);
+      bool LoadFromStream(std::ifstream& InStream);
     protected:
       Ogre::Light* entity;
       Ogre::Vector3 m_Direction;

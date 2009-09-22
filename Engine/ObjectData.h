@@ -3,6 +3,7 @@
 
 #include "ObjectBase.h"
 #include "DuskObject.h"
+#include "Light.h"
 #include <vector>
 #include <fstream>
 
@@ -15,16 +16,17 @@ namespace Dusk
       virtual ~ObjectData();
       static ObjectData& GetSingleton();
       unsigned int NumberOfReferences() const;
-      DuskObject* addReference(const std::string ID, const Ogre::Vector3 position,
-                               const Ogre::Vector3 rotation, const float scale);
-      bool LoadFromFile(const std::string FileName);
-      bool SaveToFile(const std::string FileName);
-      bool SaveToStream(std::ofstream* Stream);
-      bool LoadFromStream(std::ifstream* Stream);
+      DuskObject* addObjectReference(const std::string& ID, const Ogre::Vector3& position,
+                               const Ogre::Vector3& rotation, const float scale);
+      Light* addLightReference(const std::string& ID, const Ogre::Vector3& position);
+      bool LoadFromFile(const std::string& FileName);
+      bool SaveToFile(const std::string& FileName);
+      bool SaveAllToStream(std::ofstream& Stream);
+      bool LoadNextFromStream(std::ifstream& Stream, const unsigned int PrefetchedHeader);
       void EnableAllObjects(Ogre::SceneManager * scm);
       void DisableAllObjects();
-      unsigned int deleteReferencesOfObject(const std::string ID);
-      unsigned int reenableReferencesOfObject(const std::string ID, Ogre::SceneManager * scm);
+      unsigned int deleteReferencesOfObject(const std::string& ID);
+      unsigned int reenableReferencesOfObject(const std::string& ID, Ogre::SceneManager * scm);
       unsigned int updateReferencesAfterIDChange(const std::string& oldID, const std::string& newID, Ogre::SceneManager* scm);
       void ClearData();
     private:
