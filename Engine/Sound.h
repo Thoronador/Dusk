@@ -14,14 +14,13 @@
 #include "oggvorbis/vorbisfile.h" //Vorbis header
 
 //Types for wave format:
-typedef struct riff_chunk
+struct TRiffChunk
 {
   char Riff[4];
   unsigned long len; //32 bit unsigned int; file size-8
   char Wave[4];
 };
-typedef riff_chunk TRiffChunk;
-typedef struct fmt_chunk
+struct TFmtChunk
 {
   char fmt_[4];
   unsigned long chunk_size;//32 bit unsigned int;
@@ -32,35 +31,31 @@ typedef struct fmt_chunk
   unsigned short BlockAlign;
   unsigned short BitsPerSample;
 };
-typedef fmt_chunk TFmtChunk;
-typedef struct data_chunk
+struct TDataChunk
 {
   char data[4];
   unsigned long length_of_data;
 };
-typedef data_chunk TDataChunk;
 
 //buffer management type
-typedef struct media_rec
+struct TMediaRec
 {
   std::string MediaName; //unique name, case sensitive
   std::string FileName; //pro forma, not really needed after file is loaded
   ALuint num_buffers;
   ALuint * buffers;
   std::vector<std::string> attached_to;
-  media_rec * next;
+  TMediaRec * next;
 };
-typedef media_rec TMediaRec;
 
 //source management type
-typedef struct noise_rec
+struct TNoiseRec
 {
   std::string NoiseName; //unique name, case sensitive
   ALuint sourceID;
   TMediaRec * attachedMedia;
-  noise_rec * next;
+  TNoiseRec * next;
 };
-typedef noise_rec TNoiseRec;
 
 //type declaration for OggVorbis function pointers
 typedef int (*P_ov_clear)(OggVorbis_File *vf);
@@ -84,43 +79,43 @@ class Sound
     bool Exit();//deinitializes OpenAL
 
     // **presence checks**
-    bool IsMediaPresent(const std::string MediaIdentifier) const;
-    bool IsNoisePresent(const std::string NoiseIdentifier) const;
+    bool IsMediaPresent(const std::string& MediaIdentifier) const;
+    bool IsNoisePresent(const std::string& NoiseIdentifier) const;
     std::vector<std::string> GetNoiseList(const bool with_attached_media = false) const;
     std::vector<std::string> GetMediaList(const bool with_file_names = false) const;
 
     // **noise management routines**
-    bool CreateNoise(const std::string NoiseIdentifier);
-    bool DestroyNoise(const std::string NoiseIdentifier);
+    bool CreateNoise(const std::string& NoiseIdentifier);
+    bool DestroyNoise(const std::string& NoiseIdentifier);
     //   Attach: associates existing Noise with a Media
-    bool Attach(const std::string NoiseIdentifier, const std::string MediaIdentifier);
+    bool Attach(const std::string& NoiseIdentifier, const std::string& MediaIdentifier);
     //   Detach: revokes association between Noise and its attached Media
-    bool Detach(const std::string NoiseIdentifier);
+    bool Detach(const std::string& NoiseIdentifier);
     //   noise playback management
-    bool PlayNoise(const std::string NoiseIdentifier);
-    bool PauseNoise(const std::string NoiseIdentifier);
-    bool UnPauseNoise(const std::string NoiseIdentifier);
-    bool StopNoise(const std::string NoiseIdentifier);
-    bool LoopNoise(const std::string NoiseIdentifier, const bool DoLoop = true);
-    bool SetNoiseOffset(const std::string NoiseIdentifier, const float seconds);
-    float GetNoiseOffset(const std::string NoiseIdentifier) const;
+    bool PlayNoise(const std::string& NoiseIdentifier);
+    bool PauseNoise(const std::string& NoiseIdentifier);
+    bool UnPauseNoise(const std::string& NoiseIdentifier);
+    bool StopNoise(const std::string& NoiseIdentifier);
+    bool LoopNoise(const std::string& NoiseIdentifier, const bool DoLoop = true);
+    bool SetNoiseOffset(const std::string& NoiseIdentifier, const float seconds);
+    float GetNoiseOffset(const std::string& NoiseIdentifier) const;
     //   state retrieval functions
-    bool IsPlayingNoise(const std::string NoiseIdentifier) const;
-    bool IsLoopingNoise(const std::string FileName) const;
+    bool IsPlayingNoise(const std::string& NoiseIdentifier) const;
+    bool IsLoopingNoise(const std::string& FileName) const;
     //   noise volume functions
-    bool SetNoiseVolume(const std::string NoiseIdentifier, const float volume = 1.0f);
-    float GetNoiseVolume(const std::string NoiseIdentifier, const bool consider_MinMax = false) const;
+    bool SetNoiseVolume(const std::string& NoiseIdentifier, const float volume = 1.0f);
+    float GetNoiseVolume(const std::string& NoiseIdentifier, const bool consider_MinMax = false) const;
     //   position of noises
-    bool SetNoisePosition(const std::string NoiseIdentifier, const float x, const float y, const float z);
-    std::vector<float> GetNoisePosition(const std::string NoiseIdentifier) const;
+    bool SetNoisePosition(const std::string& NoiseIdentifier, const float x, const float y, const float z);
+    std::vector<float> GetNoisePosition(const std::string& NoiseIdentifier) const;
     //   velocity of noises
-    bool SetNoiseVelocity(const std::string NoiseIdentifier, const float x, const float y, const float z);
-    std::vector<float> GetNoiseVelocity(const std::string NoiseIdentifier) const;
+    bool SetNoiseVelocity(const std::string& NoiseIdentifier, const float x, const float y, const float z);
+    std::vector<float> GetNoiseVelocity(const std::string& NoiseIdentifier) const;
 
 
     // **media management routines**
-    bool CreateMedia(const std::string MediaIdentifier, const std::string PathToMedia);
-    bool DestroyMedia(const std::string MediaIdentifier);
+    bool CreateMedia(const std::string& MediaIdentifier, const std::string& PathToMedia);
+    bool DestroyMedia(const std::string& MediaIdentifier);
 
     // **general state query/set functions**
     float GetSpeedOfSound() const;

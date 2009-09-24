@@ -1,8 +1,5 @@
 #include "Landscape.h"
 #include "DuskConstants.h"
-//#ifndef NO_OGRE_IN_LANDSCAPE
-//  #include "API.h"
-//#endif
 #include <iostream>
 #include <sstream>
 
@@ -53,33 +50,35 @@ LandscapeRecord::~LandscapeRecord()
   #endif
 }
 
-float LandscapeRecord::Highest()
+float LandscapeRecord::Highest() const
 {
   return m_Highest;
 }
 
-float LandscapeRecord::Lowest()
+float LandscapeRecord::Lowest() const
 {
   return m_Lowest;
 }
 
-float LandscapeRecord::OffsetX()
+float LandscapeRecord::OffsetX() const
 {
   return m_OffsetX;
 }
 
-float LandscapeRecord::OffsetY()
+float LandscapeRecord::OffsetY() const
 {
   return m_OffsetY;
 }
 
-bool LandscapeRecord::LoadFromStream(std::ifstream *AStream)
+bool LandscapeRecord::LoadFromStream(std::ifstream &AStream)
 {
-  if (m_Loaded || AStream==NULL)
+  if (m_Loaded)
   {
+    std::cout << "LandscapeRecord::LoadFromStream: ERROR: record already "
+              << "contains data.\n";
     return false;
   }
-  if (!AStream->good())
+  if (!AStream.good())
   {
     std::cout << "LandscapeRecord::LoadFromStream: ERROR: passed stream "
               << "argument contains error(s).\n";
@@ -89,7 +88,7 @@ bool LandscapeRecord::LoadFromStream(std::ifstream *AStream)
   unsigned int Land;
   Land = 0;
   //read header "Land"
-  AStream->read((char*) &Land, sizeof(unsigned int));
+  AStream.read((char*) &Land, sizeof(unsigned int));
   if (Land!=cHeaderLand)
   {
     std::cout << "LandscapeRecord::LoadFromStream: Stream contains invalid "
@@ -97,11 +96,11 @@ bool LandscapeRecord::LoadFromStream(std::ifstream *AStream)
     return false;
   }
   //read offsets
-  AStream->read((char*) &m_OffsetX, sizeof(float));
-  AStream->read((char*) &m_OffsetY, sizeof(float));
+  AStream.read((char*) &m_OffsetX, sizeof(float));
+  AStream.read((char*) &m_OffsetY, sizeof(float));
   //stride
-  AStream->read((char*) &Stride, sizeof(float));
-  if (!AStream->good())
+  AStream.read((char*) &Stride, sizeof(float));
+  if (!AStream.good())
   {
     std::cout << "LandscapeRecord::LoadFromStream: ERROR: Stream seems to "
               << "have invalid Land record data.\n";
@@ -116,8 +115,8 @@ bool LandscapeRecord::LoadFromStream(std::ifstream *AStream)
   }//if
 
   //read the height data
-  AStream->read((char*) &Height[0][0], 65*65*sizeof(float));
-  if (!AStream->good())
+  AStream.read((char*) &Height[0][0], 65*65*sizeof(float));
+  if (!AStream.good())
   {
     std::cout << "LandscapeRecord::LoadFromStream: ERROR: Stream seems to have"
               << " invalid Land record height data.\n";
@@ -125,8 +124,8 @@ bool LandscapeRecord::LoadFromStream(std::ifstream *AStream)
   }
 
   //colour data
-  AStream->read((char*) &Colour[0][0][0], 65*65*3);
-  if (!AStream->good())
+  AStream.read((char*) &Colour[0][0][0], 65*65*3);
+  if (!AStream.good())
   {
     std::cout << "LandscapeRecord::LoadFromStream: ERROR: Stream seems to "
               << "have invalid Land record colour data.\n";
@@ -156,32 +155,31 @@ bool LandscapeRecord::LoadFromStream(std::ifstream *AStream)
   return true;
 }//LoadFromStream
 
-bool LandscapeRecord::SaveToStream(std::ofstream *AStream)
+bool LandscapeRecord::SaveToStream(std::ofstream &AStream) const
 {
-  if (!m_Loaded || AStream==NULL)
+  if (!m_Loaded)
   {
-    std::cout << "LandscapeRecord::SaveToStream: ERROR: record is not loaded "
-              << " or stream parameter is NULL.\n";
+    std::cout << "LandscapeRecord::SaveToStream: ERROR: record is not loaded.\n";
     return false;
   }
-  if (!AStream->good())
+  if (!AStream.good())
   {
     std::cout << "LandscapeRecord::SaveToStream: ERROR: passed stream argument"
               << " contains error(s).\n";
     return false;
   }
   //write header "Land"
-  AStream->write((char*) &cHeaderLand, sizeof(unsigned int));
+  AStream.write((char*) &cHeaderLand, sizeof(unsigned int));
   //write offsets
-  AStream->write((char*) &m_OffsetX, sizeof(float));
-  AStream->write((char*) &m_OffsetY, sizeof(float));
+  AStream.write((char*) &m_OffsetX, sizeof(float));
+  AStream.write((char*) &m_OffsetY, sizeof(float));
   //stride
-  AStream->write((char*) &Stride, sizeof(float));
+  AStream.write((char*) &Stride, sizeof(float));
   //height data
-  AStream->write((char*) &Height[0][0], 65*65*sizeof(float));
+  AStream.write((char*) &Height[0][0], 65*65*sizeof(float));
   //colour data
-  AStream->write((char*) &Colour[0][0][0], 65*65*3);
-  if (!AStream->good())
+  AStream.write((char*) &Colour[0][0][0], 65*65*3);
+  if (!AStream.good())
   {
     std::cout << "LandscapeRecord::SaveToStream: Error while writing record to"
               << " stream.\n";
@@ -190,7 +188,7 @@ bool LandscapeRecord::SaveToStream(std::ofstream *AStream)
   return true;
 }//SaveToStream
 
-bool LandscapeRecord::IsLoaded()
+bool LandscapeRecord::IsLoaded() const
 {
   return m_Loaded;
 }
@@ -255,7 +253,7 @@ bool LandscapeRecord::MakePlain(const float value)
   return true;
 }
 
-bool LandscapeRecord::IsPlain()
+bool LandscapeRecord::IsPlain() const
 {
   return m_Highest==m_Lowest;
 }
@@ -397,7 +395,7 @@ bool LandscapeRecord::RemoveDataFromEngine()
 }
 #endif //ifndef NO_OGRE_IN_LANDSCAPE
 
-unsigned int LandscapeRecord::GetID()
+unsigned int LandscapeRecord::GetID() const
 {
   return m_RecordID;
 }
@@ -440,7 +438,7 @@ Landscape& Landscape::GetSingleton()
     return Instance;
 }
 
-bool Landscape::LoadFromFile(const std::string FileName)
+bool Landscape::LoadFromFile(const std::string& FileName)
 {
   if (m_numRec!=0)
   {
@@ -496,7 +494,7 @@ bool Landscape::LoadFromFile(const std::string FileName)
   for (i=0; i<numRecords; i=i+1)
   {
     LandscapeRecord* tr = CreateRecord();
-    if (!tr->LoadFromStream(&input))
+    if (!tr->LoadFromStream(input))
     {
       std::cout << "Landscape::LoadFromFile: File \""<<FileName<< "\" has "
                 << "invalid record data. Clearing loaded data.\n";
@@ -512,7 +510,7 @@ bool Landscape::LoadFromFile(const std::string FileName)
   return true;
 }
 
-bool Landscape::SaveToFile(const std::string FileName)
+bool Landscape::SaveToFile(const std::string& FileName)
 {
   if (m_numRec==0)
   {
@@ -538,7 +536,7 @@ bool Landscape::SaveToFile(const std::string FileName)
 
   for (i=0; i<m_numRec; i=i+1)
   {
-    if (!m_RecordList[i]->SaveToStream(&output))
+    if (!m_RecordList[i]->SaveToStream(output))
     {
       std::cout << "Landscape::SaveToFile: Error while writing record "<<i+1
                 << " to file \"" <<FileName<<"\".\n";

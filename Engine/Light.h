@@ -20,7 +20,7 @@ namespace Dusk
       bool Disable();
       void SetDirection(const Ogre::Vector3& dir);
       Ogre::Vector3 GetDirection() const;
-      bool SaveToStream(std::ofstream& OutStream);
+      bool SaveToStream(std::ofstream& OutStream) const;
       bool LoadFromStream(std::ifstream& InStream);
     protected:
       Ogre::Light* entity;

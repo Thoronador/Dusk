@@ -662,8 +662,8 @@ void EditorApplication::RefreshObjectList(void)
   mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/Catalogue/Tab/Object/List"));
   mcl->resetList();
 
-  std::map<std::string, std::string>::iterator first;
-  std::map<std::string, std::string>::iterator end;
+  std::map<std::string, std::string>::const_iterator first;
+  std::map<std::string, std::string>::const_iterator end;
   first = ObjectBase::GetSingleton().GetFirst();
   end = ObjectBase::GetSingleton().GetEnd();
   while (first != end)
@@ -686,8 +686,8 @@ void EditorApplication::RefreshItemList(void)
   mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/Catalogue/Tab/Item/List"));
   mcl->resetList();
 
-  std::map<std::string, ItemRecord>::iterator first;
-  std::map<std::string, ItemRecord>::iterator end;
+  std::map<std::string, ItemRecord>::const_iterator first;
+  std::map<std::string, ItemRecord>::const_iterator end;
   first = ItemBase::GetSingleton().GetFirst();
   end = ItemBase::GetSingleton().GetEnd();
   while (first != end)
@@ -710,8 +710,8 @@ void EditorApplication::RefreshLightList(void)
   mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/Catalogue/Tab/Light/List"));
   mcl->resetList();
 
-  std::map<std::string, LightRecord>::iterator first;
-  std::map<std::string, LightRecord>::iterator end;
+  std::map<std::string, LightRecord>::const_iterator first;
+  std::map<std::string, LightRecord>::const_iterator end;
   first = LightBase::GetSingleton().GetFirst();
   end = LightBase::GetSingleton().GetEnd();
   while (first != end)
@@ -1348,32 +1348,13 @@ bool EditorApplication::LoadFrameOKClicked(const CEGUI::EventArgs &e)
     LoadedDataFile = LoadFrameDirectory+PathToFile;
     //  --- close window
     CEGUI::WindowManager::getSingleton().destroyWindow("Editor/LoadFrame");
-    //  --- show data in grid
-    //  **** still needs to be implemented ****
-
+    // show data in grid
     // --- items
-    std::cout << "DEBUG: item iterators...\n";
-    std::map<std::string, ItemRecord>::iterator anfang;
-    std::map<std::string, ItemRecord>::iterator ende;
-    anfang = ItemBase::GetSingleton().GetFirst();
-    ende = ItemBase::GetSingleton().GetEnd();
-    while (anfang != ende)
-    {
-      addItemRecordToCatalogue(anfang->first, anfang->second);
-      anfang++;
-    }//while
-
+    RefreshItemList();
     // --- objects
-    std::cout << "DEBUG: object iterators...\n";
-    std::map<std::string, std::string>::iterator one;
-    std::map<std::string, std::string>::iterator two;
-    one = ObjectBase::GetSingleton().GetFirst();
-    two = ObjectBase::GetSingleton().GetEnd();
-    while (one != two)
-    {
-      addObjectRecordToCatalogue(one->first, one->second);
-      one++;
-    }//while
+    RefreshObjectList();
+    // --- lights
+    RefreshLightList();
 
     //  --- make loaded stuff visible via Ogre
     std::cout << "DEBUG: SendToEngine...\n";

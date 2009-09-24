@@ -125,14 +125,14 @@ bool LightBase::hasLight(const std::string& ID) const
   return (m_LightList.find(ID)!=m_LightList.end());
 }
 
-LightRecord LightBase::getLightData(const std::string& ID)
+LightRecord LightBase::getLightData(const std::string& ID) const
 {
-  std::map<std::string, LightRecord>::iterator l_iter = m_LightList.find(ID);
+  std::map<std::string, LightRecord>::const_iterator l_iter = m_LightList.find(ID);
   if (l_iter != m_LightList.end())
   {
     return l_iter->second;
   }
-  //nothing found, so wie give them a black light
+  //nothing found, so we give them a black light
   return LightRecord::GetBlack(0.0f);
 }
 
@@ -158,10 +158,10 @@ unsigned int LightBase::NumberOfLights() const
   return m_LightList.size();
 }
 
-bool LightBase::SaveAllToStream(std::ofstream& out_stream)
+bool LightBase::SaveAllToStream(std::ofstream& out_stream) const
 {
   unsigned int len = 0;
-  std::map<std::string, LightRecord>::iterator l_iter = m_LightList.begin();
+  std::map<std::string, LightRecord>::const_iterator l_iter = m_LightList.begin();
   while (l_iter != m_LightList.end() && out_stream.good())
   {
     //write header Light
@@ -233,12 +233,12 @@ bool LightBase::LoadRecordFromStream(std::ifstream& in_stream)
   return true;
 }
 
-std::map<std::string, LightRecord>::iterator LightBase::GetFirst()
+std::map<std::string, LightRecord>::const_iterator LightBase::GetFirst()
 {
   return m_LightList.begin();
 }
 
-std::map<std::string, LightRecord>::iterator LightBase::GetEnd()
+std::map<std::string, LightRecord>::const_iterator LightBase::GetEnd()
 {
   return m_LightList.end();
 }

@@ -20,8 +20,8 @@ namespace Dusk
                                const Ogre::Vector3& rotation, const float scale);
       Light* addLightReference(const std::string& ID, const Ogre::Vector3& position);
       bool LoadFromFile(const std::string& FileName);
-      bool SaveToFile(const std::string& FileName);
-      bool SaveAllToStream(std::ofstream& Stream);
+      bool SaveToFile(const std::string& FileName) const;
+      bool SaveAllToStream(std::ofstream& Stream) const;
       bool LoadNextFromStream(std::ifstream& Stream, const unsigned int PrefetchedHeader);
       void EnableAllObjects(Ogre::SceneManager * scm);
       void DisableAllObjects();

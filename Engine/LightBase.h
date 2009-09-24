@@ -32,14 +32,14 @@ namespace Dusk
                     const Ogre::Light::LightTypes _type = Ogre::Light::LT_POINT);
       void addLight(const std::string& ID, const LightRecord& record);
       bool hasLight(const std::string& ID) const;
-      LightRecord getLightData(const std::string& ID);
+      LightRecord getLightData(const std::string& ID) const;
       bool deleteLight(const std::string& ID);
       void ClearAllData();
       unsigned int NumberOfLights() const;
-      bool SaveAllToStream(std::ofstream& out_stream);
+      bool SaveAllToStream(std::ofstream& out_stream) const;
       bool LoadRecordFromStream(std::ifstream& in_stream);
-      std::map<std::string, LightRecord>::iterator GetFirst();
-      std::map<std::string, LightRecord>::iterator GetEnd();
+      std::map<std::string, LightRecord>::const_iterator GetFirst();
+      std::map<std::string, LightRecord>::const_iterator GetEnd();
     private:
       LightBase();
       LightBase(const LightBase& op){} //copy constructor

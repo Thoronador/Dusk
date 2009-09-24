@@ -123,6 +123,10 @@
 		<Unit filename="CommandSoundVolume.h" />
 		<Unit filename="Console.cpp" />
 		<Unit filename="Console.h" />
+		<Unit filename="Container.cpp" />
+		<Unit filename="Container.h" />
+		<Unit filename="ContainerBase.cpp" />
+		<Unit filename="ContainerBase.h" />
 		<Unit filename="DataLoader.cpp" />
 		<Unit filename="DataLoader.h" />
 		<Unit filename="Dispatcher.cpp" />
@@ -148,6 +152,10 @@
 		<Unit filename="ItemBase.h" />
 		<Unit filename="Landscape.cpp" />
 		<Unit filename="Landscape.h" />
+		<Unit filename="Light.cpp" />
+		<Unit filename="Light.h" />
+		<Unit filename="LightBase.cpp" />
+		<Unit filename="LightBase.h" />
 		<Unit filename="ObjectBase.cpp" />
 		<Unit filename="ObjectBase.h" />
 		<Unit filename="ObjectData.cpp" />

@@ -70,10 +70,9 @@ unsigned int ItemBase::NumberOfItems() const
   return m_ItemList.size();
 }
 
-std::string ItemBase::GetItemName(const std::string& itemID)
+std::string ItemBase::GetItemName(const std::string& itemID) const
 {
-  std::map<std::string, ItemRecord>::iterator iter;
-  iter = m_ItemList.find(itemID);
+  std::map<std::string, ItemRecord>::const_iterator iter = m_ItemList.find(itemID);
   if (iter != m_ItemList.end())
   {
     return iter->second.Name;
@@ -81,9 +80,9 @@ std::string ItemBase::GetItemName(const std::string& itemID)
   return "";
 }
 
-int ItemBase::GetItemValue(const std::string& itemID)
+int ItemBase::GetItemValue(const std::string& itemID) const
 {
-  std::map<std::string, ItemRecord>::iterator iter;
+  std::map<std::string, ItemRecord>::const_iterator iter;
   iter = m_ItemList.find(itemID);
   if (iter != m_ItemList.end())
   {
@@ -92,9 +91,9 @@ int ItemBase::GetItemValue(const std::string& itemID)
   return -1;
 }
 
-float ItemBase::GetItemWeight(const std::string& itemID)
+float ItemBase::GetItemWeight(const std::string& itemID) const
 {
-  std::map<std::string, ItemRecord>::iterator iter;
+  std::map<std::string, ItemRecord>::const_iterator iter;
   iter = m_ItemList.find(itemID);
   if (iter != m_ItemList.end())
   {
@@ -103,9 +102,9 @@ float ItemBase::GetItemWeight(const std::string& itemID)
   return 0.0;
 }
 
-std::string ItemBase::GetMeshName(const std::string& itemID, const bool UseMarkerOnError)
+std::string ItemBase::GetMeshName(const std::string& itemID, const bool UseMarkerOnError) const
 {
-  std::map<std::string, ItemRecord>::iterator iter;
+  std::map<std::string, ItemRecord>::const_iterator iter;
   iter = m_ItemList.find(itemID);
   if (iter != m_ItemList.end())
   {
@@ -122,7 +121,7 @@ std::string ItemBase::GetMeshName(const std::string& itemID, const bool UseMarke
   }
 }
 
-bool ItemBase::SaveToFile(const std::string& FileName)
+bool ItemBase::SaveToFile(const std::string& FileName) const
 {
   std::ofstream output;
   output.open(FileName.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
@@ -140,38 +139,38 @@ bool ItemBase::SaveToFile(const std::string& FileName)
   output.write((char*) &cHeaderDusk, sizeof(unsigned int));
   //number of elements to write (and later to read, on loading)
   output.write((char*) &len, sizeof(unsigned int));
-  success = SaveToStream(&output);
+  success = SaveToStream(output);
   output.close();
   return success;
 }
 
-bool ItemBase::SaveToStream(std::ofstream* Stream)
+bool ItemBase::SaveToStream(std::ofstream& Stream) const
 {
-  std::map<std::string, ItemRecord>::iterator iter;
+  std::map<std::string, ItemRecord>::const_iterator iter;
   unsigned int len = 0;
 
   for(iter=m_ItemList.begin(); iter!=m_ItemList.end(); iter++)
   {
     //write header "Item"
-    Stream->write((char*) &cHeaderItem, sizeof(unsigned int));
+    Stream.write((char*) &cHeaderItem, sizeof(unsigned int));
     //write ID
     len = iter->first.length();
-    Stream->write((char*) &len, sizeof(unsigned int));
-    Stream->write(iter->first.c_str(), len);
+    Stream.write((char*) &len, sizeof(unsigned int));
+    Stream.write(iter->first.c_str(), len);
     //write name
     len = iter->second.Name.length();
-    Stream->write((char*) &len, sizeof(unsigned int));
-    Stream->write(iter->second.Name.c_str(), len);
+    Stream.write((char*) &len, sizeof(unsigned int));
+    Stream.write(iter->second.Name.c_str(), len);
     //write value
-    Stream->write((char*) &(iter->second.value), sizeof(int));
+    Stream.write((char*) &(iter->second.value), sizeof(int));
     //write weight
-    Stream->write((char*) &(iter->second.weight), sizeof(float));
+    Stream.write((char*) &(iter->second.weight), sizeof(float));
     //write Mesh name
     len = iter->second.Mesh.length();
-    Stream->write((char*) &len, sizeof(unsigned int));
-    Stream->write(iter->second.Mesh.c_str(), len);
+    Stream.write((char*) &len, sizeof(unsigned int));
+    Stream.write(iter->second.Mesh.c_str(), len);
 
-    if (!Stream->good())
+    if (!Stream.good())
     {
       std::cout << "ItemBase::SaveToStream: ERROR while writing data.\n";
       return false;
@@ -300,12 +299,12 @@ bool ItemBase::LoadFromStream(std::ifstream* Stream)
   return true;
 }
 
-std::map<std::string, ItemRecord>::iterator ItemBase::GetFirst()
+std::map<std::string, ItemRecord>::const_iterator ItemBase::GetFirst()
 {
   return m_ItemList.begin();
 }
 
-std::map<std::string, ItemRecord>::iterator ItemBase::GetEnd()
+std::map<std::string, ItemRecord>::const_iterator ItemBase::GetEnd()
 {
   return m_ItemList.end();
 }

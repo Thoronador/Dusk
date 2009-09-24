@@ -31,18 +31,18 @@ namespace Dusk
     public:
       virtual ~ObjectBase();
       static ObjectBase& GetSingleton();
-      bool hasObject(const std::string NameOfObject) const;
-      void addObject(const std::string ID, const std::string Mesh);
-      bool deleteObject(const std::string ID_of_Object);
+      bool hasObject(const std::string& NameOfObject) const;
+      void addObject(const std::string& ID, const std::string& Mesh);
+      bool deleteObject(const std::string& ID_of_Object);
       void ClearAllObjects();
       unsigned int NumberOfObjects() const;
-      std::string GetMeshName(const std::string ID, const bool UseMarkerOnError=true) const;
-      bool SaveToFile(const std::string FileName);
-      bool LoadFromFile(const std::string FileName);
-      bool SaveToStream(std::ofstream* Stream);
-      bool LoadFromStream(std::ifstream* Stream);
-      std::map<std::string, std::string>::iterator GetFirst();
-      std::map<std::string, std::string>::iterator GetEnd();
+      std::string GetMeshName(const std::string& ID, const bool UseMarkerOnError=true) const;
+      bool SaveToFile(const std::string& FileName) const;
+      bool LoadFromFile(const std::string& FileName);
+      bool SaveToStream(std::ofstream& Stream) const;
+      bool LoadFromStream(std::ifstream& Stream);
+      std::map<std::string, std::string>::const_iterator GetFirst();
+      std::map<std::string, std::string>::const_iterator GetEnd();
     private:
       ObjectBase();
       ObjectBase(const ObjectBase& op){}

@@ -41,7 +41,7 @@ Light* ObjectData::addLightReference(const std::string& ID, const Ogre::Vector3&
 }
 
 
-bool ObjectData::SaveToFile(const std::string& FileName)
+bool ObjectData::SaveToFile(const std::string& FileName) const
 {
   std::ofstream output;
   output.open(FileName.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
@@ -65,7 +65,7 @@ bool ObjectData::SaveToFile(const std::string& FileName)
   return success;
 }
 
-bool ObjectData::SaveAllToStream(std::ofstream& Stream)
+bool ObjectData::SaveAllToStream(std::ofstream& Stream) const
 {
   unsigned int i;
 

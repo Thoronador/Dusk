@@ -1103,7 +1103,7 @@ bool Sound::Exit()
   return true;
 }
 
-bool Sound::IsMediaPresent(const std::string MediaIdentifier) const
+bool Sound::IsMediaPresent(const std::string& MediaIdentifier) const
 {
   //no check for AL_Ready or InitInProgress, since it should work in every state
   //of the class instance
@@ -1120,7 +1120,7 @@ bool Sound::IsMediaPresent(const std::string MediaIdentifier) const
   return false;
 }
 
-bool Sound::IsNoisePresent(const std::string NoiseIdentifier) const
+bool Sound::IsNoisePresent(const std::string& NoiseIdentifier) const
 {
   //no check for AL_Ready or InitInProgress, since it should work in every state
   //of the class instance
@@ -1196,7 +1196,7 @@ std::vector<std::string> Sound::GetMediaList(const bool with_file_names) const
   return result;
 }
 
-bool Sound::CreateNoise(const std::string NoiseIdentifier)
+bool Sound::CreateNoise(const std::string& NoiseIdentifier)
 {
   if (!AL_Ready || InitInProgress)
   {
@@ -1251,7 +1251,7 @@ bool Sound::CreateNoise(const std::string NoiseIdentifier)
   return true;
 }
 
-bool Sound::DestroyNoise(const std::string NoiseIdentifier)
+bool Sound::DestroyNoise(const std::string& NoiseIdentifier)
 {
   if (!AL_Ready)
   {
@@ -1352,7 +1352,7 @@ bool Sound::DestroyNoise(const std::string NoiseIdentifier)
 
 //media management routines
 
-bool Sound::CreateMedia(const std::string MediaIdentifier, const std::string PathToMedia)
+bool Sound::CreateMedia(const std::string& MediaIdentifier, const std::string& PathToMedia)
 {
   if (!AL_Ready)
   {
@@ -1988,7 +1988,7 @@ bool Sound::CreateOggMedia(const std::string MediaIdentifier, const std::string 
   return true;
 }
 
-bool Sound::DestroyMedia(const std::string MediaIdentifier)
+bool Sound::DestroyMedia(const std::string& MediaIdentifier)
 {
   if (!AL_Ready)
   {
@@ -2107,7 +2107,7 @@ bool Sound::DestroyMedia(const std::string MediaIdentifier)
   return true;
 }
 
-bool Sound::Attach(const std::string NoiseIdentifier, const std::string MediaIdentifier)
+bool Sound::Attach(const std::string& NoiseIdentifier, const std::string& MediaIdentifier)
 {
   if (!AL_Ready)
   {
@@ -2196,7 +2196,7 @@ bool Sound::Attach(const std::string NoiseIdentifier, const std::string MediaIde
   return true;
 }
 
-bool Sound::Detach(const std::string NoiseIdentifier)
+bool Sound::Detach(const std::string& NoiseIdentifier)
 {
   if (!AL_Ready)
   {
@@ -2279,7 +2279,7 @@ bool Sound::Detach(const std::string NoiseIdentifier)
   return true;
 }
 
-bool Sound::PlayNoise(const std::string NoiseIdentifier)
+bool Sound::PlayNoise(const std::string& NoiseIdentifier)
 {
   if (!AL_Ready)
   {
@@ -2336,7 +2336,7 @@ bool Sound::PlayNoise(const std::string NoiseIdentifier)
 //    -pausing a noise that is either paused or stopped is a legal no-op
 //    -trying to pause a non-existing noise is an no-op and will
 //     return false and print a warning/hint
-bool Sound::PauseNoise(const std::string NoiseIdentifier)
+bool Sound::PauseNoise(const std::string& NoiseIdentifier)
 {
   if (!AL_Ready)
   {
@@ -2390,7 +2390,7 @@ bool Sound::PauseNoise(const std::string NoiseIdentifier)
 
 //Resumes a previously paused noise.
 //Unpausing a playing or stopped noise is legal no-op, which will return true.
-bool Sound::UnPauseNoise(const std::string NoiseIdentifier)
+bool Sound::UnPauseNoise(const std::string& NoiseIdentifier)
 {
   if (!AL_Ready)
   {
@@ -2481,7 +2481,7 @@ bool Sound::UnPauseNoise(const std::string NoiseIdentifier)
 
 //Stops a playing noise and returns true on success, false on failure/error.
 // Stopping an already stopped noise is legal no-op and will return true.
-bool Sound::StopNoise(const std::string NoiseIdentifier)
+bool Sound::StopNoise(const std::string& NoiseIdentifier)
 {
   if (!AL_Ready)
   {
@@ -2535,7 +2535,7 @@ bool Sound::StopNoise(const std::string NoiseIdentifier)
 
 //Sets a noise into looping mode if DoLoop==true, otherwise it gets the noise
 // out of looping mode. Returns true on success, false otherwise.
-bool Sound::LoopNoise(const std::string NoiseIdentifier, const bool DoLoop)
+bool Sound::LoopNoise(const std::string& NoiseIdentifier, const bool DoLoop)
 {
   if (!AL_Ready)
   {
@@ -2598,7 +2598,7 @@ bool Sound::LoopNoise(const std::string NoiseIdentifier, const bool DoLoop)
   return true;
 }
 
-bool Sound::SetNoiseOffset(const std::string NoiseIdentifier, const float seconds)
+bool Sound::SetNoiseOffset(const std::string& NoiseIdentifier, const float seconds)
 {
   if (!AL_Ready)
   {
@@ -2663,7 +2663,7 @@ bool Sound::SetNoiseOffset(const std::string NoiseIdentifier, const float second
 }//SetNoiseOffset
 
 // retrieves noise offset in seconds. On error, -1.0 is returned
-float Sound::GetNoiseOffset(const std::string NoiseIdentifier) const
+float Sound::GetNoiseOffset(const std::string& NoiseIdentifier) const
 {
   if (!AL_Ready)
   {
@@ -2724,7 +2724,7 @@ float Sound::GetNoiseOffset(const std::string NoiseIdentifier) const
 
 
 //state retrieval
-bool Sound::IsPlayingNoise(const std::string NoiseIdentifier) const
+bool Sound::IsPlayingNoise(const std::string& NoiseIdentifier) const
 {
   if (!AL_Ready || InitInProgress)
   {
@@ -2779,7 +2779,7 @@ bool Sound::IsPlayingNoise(const std::string NoiseIdentifier) const
 //Determines, whether a noise is in loop mode.
 // -return value: true if noise is looping, false otherwise.
 //                false is also returned on error.
-bool Sound::IsLoopingNoise(const std::string NoiseIdentifier) const
+bool Sound::IsLoopingNoise(const std::string& NoiseIdentifier) const
 {
   if (!AL_Ready || InitInProgress)
   {
@@ -2835,7 +2835,7 @@ bool Sound::IsLoopingNoise(const std::string NoiseIdentifier) const
 // Sets the volume for a noise and returns true on success, false otherwise.
 // Default volume for every noise is 1.0f, a value of zero means muted.
 // Some implementations cut values >1.0f down to 1.0f, due to optimization.
-bool Sound::SetNoiseVolume(const std::string NoiseIdentifier, const float volume)
+bool Sound::SetNoiseVolume(const std::string& NoiseIdentifier, const float volume)
 {
   if (!AL_Ready)
   {
@@ -2915,7 +2915,7 @@ bool Sound::SetNoiseVolume(const std::string NoiseIdentifier, const float volume
                             and allowed maximum value and adjusts return value
                             accordingly
 */
-float Sound::GetNoiseVolume(const std::string NoiseIdentifier, const bool consider_MinMax) const
+float Sound::GetNoiseVolume(const std::string& NoiseIdentifier, const bool consider_MinMax) const
 {
   if (!AL_Ready || InitInProgress)
   {
@@ -3027,7 +3027,7 @@ float Sound::GetNoiseVolume(const std::string NoiseIdentifier, const bool consid
 }
 
 //sets the position of the noise in 3D. Returns true on success, false otherwise
-bool Sound::SetNoisePosition(const std::string NoiseIdentifier, const float x, const float y, const float z)
+bool Sound::SetNoisePosition(const std::string& NoiseIdentifier, const float x, const float y, const float z)
 {
   if (!AL_Ready)
   {
@@ -3086,7 +3086,7 @@ bool Sound::SetNoisePosition(const std::string NoiseIdentifier, const float x, c
 //Retrieves the position of a noise entity. Returns vector of zeroes on failure.
 // However, a zero vector does not neccessarily indicate failure, because
 // the zero vector is also a valid position for a noise placed in the origin.
-std::vector<float> Sound::GetNoisePosition(const std::string NoiseIdentifier) const
+std::vector<float> Sound::GetNoisePosition(const std::string& NoiseIdentifier) const
 {
   if (!AL_Ready || InitInProgress)
   {
@@ -3142,7 +3142,7 @@ std::vector<float> Sound::GetNoisePosition(const std::string NoiseIdentifier) co
 //Sets velocity vector of noise and returns true on success.
 //Noise position is not changed after certain time intveral; position changes
 //are up to the application. Velocity is just needed for doppler calculations.
-bool Sound::SetNoiseVelocity(const std::string NoiseIdentifier, const float x, const float y, const float z)
+bool Sound::SetNoiseVelocity(const std::string& NoiseIdentifier, const float x, const float y, const float z)
 {
   if (!AL_Ready || InitInProgress)
   {
@@ -3198,7 +3198,7 @@ bool Sound::SetNoiseVelocity(const std::string NoiseIdentifier, const float x, c
 // returns (0.0, 0.0, 0.0), if velocity could not be determined. However, a return
 // value of (0.0, 0.0, 0.0) does not necessarily indicate an error, since this
 // is also a legal return value for a non-moving source.
-std::vector<float> Sound::GetNoiseVelocity(const std::string NoiseIdentifier) const
+std::vector<float> Sound::GetNoiseVelocity(const std::string& NoiseIdentifier) const
 {
   if (!AL_Ready || InitInProgress)
   {

@@ -7,22 +7,19 @@ namespace Dusk
     class Scene
     {
     public:
-
         virtual ~Scene();
         static Scene& get();
 
         void createScene();
         void destroyScene();
-    protected:
     private:
-    void createGrassMesh();
-    Scene();
-    Scene(const Scene& op){}
+        void createGrassMesh();
+        Scene();
+        Scene(const Scene& op){}
 
-    Ogre::SceneManager* m_SceneManager;
-    Ogre::Camera* m_Camera;
+        Ogre::SceneManager* m_SceneManager;
+        Ogre::Camera* m_Camera;
     };
 }
-
 
 #endif // SCENE_H

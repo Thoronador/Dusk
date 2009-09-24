@@ -93,7 +93,7 @@ Ogre::Vector3 Light::GetDirection() const
   return m_Direction;
 }
 
-bool Light::SaveToStream(std::ofstream& OutStream)
+bool Light::SaveToStream(std::ofstream& OutStream) const
 {
   if (!OutStream.good())
   {
@@ -138,8 +138,6 @@ bool Light::SaveToStream(std::ofstream& OutStream)
 
 bool Light::LoadFromStream(std::ifstream& InStream)
 {
-  //not implemented yet
-
   if (entity!=NULL)
   {
     std::cout << "Light::LoadFromStream: ERROR: Cannot load from stream while "

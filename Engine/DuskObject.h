@@ -10,7 +10,7 @@
 
 namespace Dusk{
 
-enum ObjectTypes {otUndefined, otStatic, otItem, otAnimated, otLight};
+enum ObjectTypes {otUndefined, otStatic, otItem, otAnimated, otLight, otContainer};
 
 unsigned int GenerateUniqueObjectID();
 
@@ -30,9 +30,9 @@ class DuskObject: public Ogre::UserDefinedObject
         bool ChangeID(const std::string& newID);
         virtual bool Enable(Ogre::SceneManager* scm);
         virtual bool Disable();
-        virtual bool IsEnabled();
+        virtual bool IsEnabled() const;
         ObjectTypes GetType() const;
-        virtual bool SaveToStream(std::ofstream& OutStream);
+        virtual bool SaveToStream(std::ofstream& OutStream) const;
         virtual bool LoadFromStream(std::ifstream& InStream);
     protected:
         std::string ID;

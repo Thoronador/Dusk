@@ -197,7 +197,7 @@ bool DuskObject::Disable()
   return true;
 }
 
-bool DuskObject::IsEnabled()
+bool DuskObject::IsEnabled() const
 {
   return (entity!=NULL);
 }
@@ -207,7 +207,7 @@ ObjectTypes DuskObject::GetType() const
   return objectType;
 }
 
-bool DuskObject::SaveToStream(std::ofstream& OutStream)
+bool DuskObject::SaveToStream(std::ofstream& OutStream) const
 {
   if (!OutStream.good())
   {

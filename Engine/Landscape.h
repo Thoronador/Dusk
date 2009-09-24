@@ -12,7 +12,7 @@ namespace Dusk
 {
   unsigned int GenerateUniqueID();
 
-  /*typedef struct land_rec
+  /*struct land_rec
   {
     char Land[4]; //"Land"
     float OffsetX, OffsetY; //shift of land via x and z axis
@@ -22,7 +22,7 @@ namespace Dusk
     //not part of actual data, but calculated during loading process
     float Highest, Lowest;
   };
-  typedef land_rec TLandscapeRecord;*/
+  */
 
   class LandscapeRecord
   {
@@ -30,19 +30,19 @@ namespace Dusk
       LandscapeRecord();
       virtual ~LandscapeRecord();
        //shift of land via x and z axis
-      float OffsetX();
-      float OffsetY();
+      float OffsetX() const;
+      float OffsetY() const;
       float Stride; //probably used in case the distances are not fixed
       float Height[65][65]; //height of the land
       unsigned char Colour[65][65][3]; //colour of the land in RGB-byte values
       //Highest + lowest altitude in record (calculated during loading process)
-      float Highest();
-      float Lowest();
+      float Highest() const;
+      float Lowest() const;
       //load and save functions
-      bool LoadFromStream(std::ifstream *AStream);
-      bool SaveToStream(std::ofstream *AStream);
+      bool LoadFromStream(std::ifstream& AStream);
+      bool SaveToStream(std::ofstream& AStream) const;
       //function for determining whether data is loaded or not
-      bool IsLoaded();
+      bool IsLoaded() const;
       //mainpulate loading state directly, use with care, or better: not at all
       void SetLoadedState(const bool value);
       //manipulating landscape data
@@ -53,7 +53,7 @@ namespace Dusk
       //   make it plain at level value (i.e. all is as high as value indicates)
       bool MakePlain(const float value);
       //   is it plain?
-      bool IsPlain();
+      bool IsPlain() const;
       //   create landscape data by generator function
       //   (function has to be able to produce values for x and z in [0;1])
       bool GenerateByFunction( float (*func) (const float x, const float z));
@@ -62,10 +62,11 @@ namespace Dusk
       #ifndef NO_OGRE_IN_LANDSCAPE
       //send loaded data to scene manager
       bool SendDataToEngine(Ogre::SceneManager * scm);
+      //remove data from scene manager
       bool RemoveDataFromEngine();
       #endif
       //"identifier"
-      unsigned int GetID();
+      unsigned int GetID() const;
       static const float cDefaultStride;
       static const float cMinScale;
     private:
@@ -88,8 +89,8 @@ namespace Dusk
       static Landscape& GetSingleton();
 
       //load and save (all) records from/to file
-      bool LoadFromFile(const std::string FileName);
-      bool SaveToFile(const std::string FileName);
+      bool LoadFromFile(const std::string& FileName);
+      bool SaveToFile(const std::string& FileName);
       LandscapeRecord* CreateRecord();
       void DestroyRecord(const LandscapeRecord* recPtr);
       unsigned int RecordsAvailable();

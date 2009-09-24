@@ -50,16 +50,16 @@ namespace Dusk
       bool deleteItem(const std::string& ID_of_item);
       void ClearAllItems();
       unsigned int NumberOfItems() const;
-      std::string GetItemName(const std::string& itemID);
-      int GetItemValue(const std::string& itemID);
-      float GetItemWeight(const std::string& itemID);
-      std::string GetMeshName(const std::string& itemID, const bool UseMarkerOnError=true);
-      bool SaveToFile(const std::string& FileName);
+      std::string GetItemName(const std::string& itemID) const;
+      int GetItemValue(const std::string& itemID) const;
+      float GetItemWeight(const std::string& itemID) const;
+      std::string GetMeshName(const std::string& itemID, const bool UseMarkerOnError=true) const;
+      bool SaveToFile(const std::string& FileName) const;
       bool LoadFromFile(const std::string& FileName);
-      bool SaveToStream(std::ofstream* Stream);
+      bool SaveToStream(std::ofstream& Stream) const;
       bool LoadFromStream(std::ifstream* Stream);
-      std::map<std::string, ItemRecord>::iterator GetFirst();
-      std::map<std::string, ItemRecord>::iterator GetEnd();
+      std::map<std::string, ItemRecord>::const_iterator GetFirst();
+      std::map<std::string, ItemRecord>::const_iterator GetEnd();
     private:
       ItemBase();
       ItemBase(const ItemBase& op){}

@@ -21,12 +21,12 @@ ObjectBase& ObjectBase::GetSingleton()
   return Instance;
 }
 
-bool ObjectBase::hasObject(const std::string NameOfObject) const
+bool ObjectBase::hasObject(const std::string& NameOfObject) const
 {
   return (m_ObjectList.find(NameOfObject) != m_ObjectList.end());
 }
 
-void ObjectBase::addObject(const std::string ID, const std::string Mesh)
+void ObjectBase::addObject(const std::string& ID, const std::string& Mesh)
 {
   if (ID=="" or Mesh=="")
   {
@@ -36,7 +36,7 @@ void ObjectBase::addObject(const std::string ID, const std::string Mesh)
   m_ObjectList[ID] = Mesh;
 }
 
-bool ObjectBase::deleteObject(const std::string ID_of_Object)
+bool ObjectBase::deleteObject(const std::string& ID_of_Object)
 {
   std::map<std::string, std::string>::iterator iter;
   iter = m_ObjectList.find(ID_of_Object);
@@ -58,24 +58,22 @@ unsigned int ObjectBase::NumberOfObjects() const
   return m_ObjectList.size();
 }
 
-std::string ObjectBase::GetMeshName(const std::string ID, const bool UseMarkerOnError) const
+std::string ObjectBase::GetMeshName(const std::string& ID, const bool UseMarkerOnError) const
 {
-  if (hasObject(ID))
+  std::map<std::string, std::string>::const_iterator iter = m_ObjectList.find(ID);
+  if (iter!=m_ObjectList.end())
   {
-    return m_ObjectList.find(ID)->second;
+    return iter->second;
   }
   //if we get to this point, object is not present in list
   if (UseMarkerOnError)
   {
     return cErrorMesh;
   }
-  else
-  {
-    return "";
-  }
+  return "";
 }
 
-bool ObjectBase::SaveToFile(const std::string FileName)
+bool ObjectBase::SaveToFile(const std::string& FileName) const
 {
   std::ofstream output;
   bool success = false;
@@ -94,36 +92,36 @@ bool ObjectBase::SaveToFile(const std::string FileName)
   output.write((char*) &cHeaderDusk, sizeof(unsigned int));
   //number of elements to write (and later to read, on loading)
   output.write((char*) &i, sizeof(unsigned int));
-  success = SaveToStream(&output);
+  success = SaveToStream(output);
   output.close();
   return success;
 }
 
-bool ObjectBase::SaveToStream(std::ofstream* Stream)
+bool ObjectBase::SaveToStream(std::ofstream& Stream) const
 {
-  std::map<std::string, std::string>::iterator iter;
+  std::map<std::string, std::string>::const_iterator iter;
   unsigned int len;
 
   for (iter = m_ObjectList.begin(); iter != m_ObjectList.end(); iter++)
   {
     //write header "ObjS"
-    Stream->write((char*) &cHeaderObjS, sizeof(unsigned int)); //Object, Static
+    Stream.write((char*) &cHeaderObjS, sizeof(unsigned int)); //Object, Static
     len = iter->first.length();
-    Stream->write((char*) &len, sizeof(unsigned int));
-    Stream->write(iter->first.c_str(), len);
+    Stream.write((char*) &len, sizeof(unsigned int));
+    Stream.write(iter->first.c_str(), len);
     len = iter->second.length();
-    Stream->write((char*) &len, sizeof(unsigned int));
-    Stream->write(iter->second.c_str(), len);
-    if (!Stream->good())
+    Stream.write((char*) &len, sizeof(unsigned int));
+    Stream.write(iter->second.c_str(), len);
+    if (!Stream.good())
     {
       std::cout << "ObjectBase::SaveToStream: Error while writing data to stream.\n";
       return false;
     }
   }//for
-  return Stream->good();
+  return Stream.good();
 }
 
-bool ObjectBase::LoadFromFile(const std::string FileName)
+bool ObjectBase::LoadFromFile(const std::string& FileName)
 {
   std::ifstream input;
   unsigned int count, i;
@@ -153,7 +151,7 @@ bool ObjectBase::LoadFromFile(const std::string FileName)
   input.read((char*) &count, sizeof(unsigned int));
   for (i=0; i<count; i++)
   {
-    if (!LoadFromStream(&input));
+    if (!LoadFromStream(input));
     {
       std::cout << "ObjectBase::LoadFromFile: ERROR: while reading data.\n";
       input.close();
@@ -164,14 +162,14 @@ bool ObjectBase::LoadFromFile(const std::string FileName)
   return true;
 }
 
-bool ObjectBase::LoadFromStream(std::ifstream* Stream)
+bool ObjectBase::LoadFromStream(std::ifstream& Stream)
 {
   unsigned int len;
   unsigned int Header = 0;
   static char ID_Buffer[256], Mesh_Buffer[256];
 
   //read header "ObjS" (Object, Static)
-  Stream->read((char*) &Header, sizeof(unsigned int));
+  Stream.read((char*) &Header, sizeof(unsigned int));
   if (Header!=cHeaderObjS)
   {
     std::cout << "ObjectBase::LoadFromStream: ERROR: Stream contains invalid "
@@ -179,7 +177,7 @@ bool ObjectBase::LoadFromStream(std::ifstream* Stream)
     return false;
   }//if
   //read length of ID
-  Stream->read((char*) &len, sizeof(unsigned int));
+  Stream.read((char*) &len, sizeof(unsigned int));
   if (len>255)
   {
     std::cout << "ObjectBase::LoadFromStream: ERROR: ID cannot be longer than "
@@ -187,15 +185,15 @@ bool ObjectBase::LoadFromStream(std::ifstream* Stream)
     return false;
   }
   //read ID
-  Stream->read(ID_Buffer, len);
+  Stream.read(ID_Buffer, len);
   ID_Buffer[len] = '\0'; //add terminating null character
-  if (!(Stream->good()))
+  if (!(Stream.good()))
   {
     std::cout << "ObjectBase::LoadFromStream: ERROR while reading data.\n";
     return false;
   }
   //read length of mesh name
-  Stream->read((char*) &len, sizeof(unsigned int));
+  Stream.read((char*) &len, sizeof(unsigned int));
   if (len>255)
   {
     std::cout << "ObjectBase::LoadFromStream: ERROR: Name of Mesh cannot be "
@@ -203,9 +201,9 @@ bool ObjectBase::LoadFromStream(std::ifstream* Stream)
     return false;
   }
   //read ID
-  Stream->read(Mesh_Buffer, len);
+  Stream.read(Mesh_Buffer, len);
   Mesh_Buffer[len] = '\0'; //add terminating null character
-  if (!(Stream->good()))
+  if (!(Stream.good()))
   {
     std::cout << "ObjectBase::LoadFromStream: ERROR while reading data.\n";
     return false;
@@ -215,12 +213,12 @@ bool ObjectBase::LoadFromStream(std::ifstream* Stream)
   return true;
 }
 
-std::map<std::string, std::string>::iterator ObjectBase::GetFirst()
+std::map<std::string, std::string>::const_iterator ObjectBase::GetFirst()
 {
   return m_ObjectList.begin();
 }
 
-std::map<std::string, std::string>::iterator ObjectBase::GetEnd()
+std::map<std::string, std::string>::const_iterator ObjectBase::GetEnd()
 {
   return m_ObjectList.end();
 }

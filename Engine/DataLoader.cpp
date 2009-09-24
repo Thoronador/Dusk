@@ -75,7 +75,7 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
     for (i=0; i<data_records; i++)
     {
       land = Landscape::GetSingleton().GetRecordByPosition(i);
-      if (!(land->SaveToStream(&output)))
+      if (!(land->SaveToStream(output)))
       {
         std::cout << "DataLoader::SaveToFile: ERROR: could not write landscape "
                   << "record "<<i<<" to file \""<<FileName<<"\".\n";
@@ -100,7 +100,7 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   //save items
   if ((bits & ITEM_BIT) !=0)
   {
-    if (!ItemBase::GetSingleton().SaveToStream(&output))
+    if (!ItemBase::GetSingleton().SaveToStream(output))
     {
       std::cout << "DataLoader::SaveToFile: ERROR: could not write item data to"
                 << " file \""<<FileName<<"\".\n";
@@ -112,7 +112,7 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   //save objects
   if ((bits & OBJECT_BIT) !=0)
   {
-    if (!ObjectBase::GetSingleton().SaveToStream(&output))
+    if (!ObjectBase::GetSingleton().SaveToStream(output))
     {
       std::cout << "DataLoader::SaveToFile: ERROR: could not write object data "
                 << "to file \""<<FileName<<"\".\n";
@@ -186,7 +186,7 @@ bool DataLoader::LoadFromFile(const std::string& FileName)
            break;
       case cHeaderLand:
            land_rec = Landscape::GetSingleton().CreateRecord();
-           success = land_rec->LoadFromStream(&input);
+           success = land_rec->LoadFromStream(input);
            if (!success)
            {
              Landscape::GetSingleton().DestroyRecord(land_rec);
@@ -196,7 +196,7 @@ bool DataLoader::LoadFromFile(const std::string& FileName)
            success = LightBase::GetSingleton().LoadRecordFromStream(input);
            break;
       case cHeaderObjS:
-           success = ObjectBase::GetSingleton().LoadFromStream(&input);
+           success = ObjectBase::GetSingleton().LoadFromStream(input);
            break;
       case cHeaderRefL:
       case cHeaderRefO:
@@ -252,7 +252,5 @@ void DataLoader::ClearData(const unsigned int bits)
   }//landscape
 
 }//clear data function
-
-
 
 }//namespace
