@@ -81,6 +81,12 @@ LightRecord LightRecord::GetBlue(const float d)
   return temp;
 }
 
+bool operator==(const LightRecord& l, const LightRecord& r)
+{
+  return (l.red == r.red && l.green == r.green && l.blue == r.blue
+          && l.type == r.type && l.radius == r.radius);
+}
+
 LightBase::LightBase()
 {
   //constructor

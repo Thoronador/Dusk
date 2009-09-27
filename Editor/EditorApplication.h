@@ -207,10 +207,17 @@ protected:
     //callbacks of window for creating new lights
 	bool LightNewFrameCancelClicked(const CEGUI::EventArgs &e);
 	bool LightNewFrameOKClicked(const CEGUI::EventArgs &e);
+	//callbacks of windwow for editing light
+	bool LightEditFrameCancelClicked(const CEGUI::EventArgs &e);
+	bool LightEditFrameSaveClicked(const CEGUI::EventArgs &e);
 
 	//callbacks of window to delete lights
 	bool LightDeleteFrameNoClicked(const CEGUI::EventArgs &e);
 	bool LightDeleteFrameYesClicked(const CEGUI::EventArgs &e);
+	//callbacks for window to confirm ID change (light)
+	bool LightConfirmIDChangeRenameClicked(const CEGUI::EventArgs &e);
+	bool LightConfirmIDChangeNewClicked(const CEGUI::EventArgs &e);
+	bool LightConfirmIDChangeCancelClicked(const CEGUI::EventArgs &e);
 
 	//callbacks for window clicks / to implement object dragging
 	bool RootMouseDown(const CEGUI::EventArgs &e);

@@ -23,6 +23,8 @@ namespace Dusk
       static LightRecord GetBlue(const float d=0.0f);
   };
 
+  bool operator==(const LightRecord& l, const LightRecord& r);
+
   class LightBase
   {
     public:

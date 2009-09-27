@@ -47,6 +47,8 @@ bool Light::Enable(Ogre::SceneManager* scm)
   }
   entity->setDiffuseColour(lr.red, lr.green, lr.blue);
   entity->setSpecularColour(lr.red, lr.green, lr.blue);
+  entity->setAttenuation(lr.radius, entity->getAttenuationConstant(),
+              entity->getAttenuationLinear(), entity->getAttenuationQuadric());
 
   Ogre::SceneNode* ent_node = scm->getRootSceneNode()->createChildSceneNode(entity_name.str(), position);
   ent_node->attachObject(entity);
