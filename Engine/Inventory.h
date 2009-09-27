@@ -3,6 +3,7 @@
 
 #include <string>
 #include <map>
+#include <fstream>
 
 namespace Dusk
 {
@@ -47,9 +48,24 @@ class Inventory
     /* GetTotalValue: returns the sum of the values of all items currently in
        the inventory. */
     int GetTotalValue() const;
+
+    /* utility function to easily get access to an empty Inventory */
     static const Inventory& GetEmptyInventory();
+
+    /* saves contents of inventory to given stream and returns true on success,
+       false otherwise */
+    bool SaveToStream(std::ofstream& OutStream) const;
+
+    /* Loads contents of inventory from stream and returns true on success,
+       false otherwise. The Inventory content is probably inconsistent after
+       that function failed, so don't rely on its contents in that case. */
+    bool LoadFromStream(std::ifstream& InStream);
+
     std::map<std::string, unsigned int>::const_iterator GetFirst() const;
     std::map<std::string, unsigned int>::const_iterator GetEnd() const;
+
+    /* comparison operator for Inventory - returns true, if two Inventorys
+       contain the same items (ID) and same amount of them  */
     bool operator==(const Inventory& other) const;
   private:
     std::map<std::string, unsigned int> m_Items;

@@ -4,6 +4,7 @@
 #include "ObjectBase.h"
 #include "DuskObject.h"
 #include "Light.h"
+#include "Container.h"
 #include <vector>
 #include <fstream>
 
@@ -19,6 +20,8 @@ namespace Dusk
       DuskObject* addObjectReference(const std::string& ID, const Ogre::Vector3& position,
                                const Ogre::Vector3& rotation, const float scale);
       Light* addLightReference(const std::string& ID, const Ogre::Vector3& position);
+      Container* addContainerReference(const std::string& ID, const Ogre::Vector3& position,
+                               const Ogre::Vector3& rotation, const float scale);
       bool LoadFromFile(const std::string& FileName);
       bool SaveToFile(const std::string& FileName) const;
       bool SaveAllToStream(std::ofstream& Stream) const;

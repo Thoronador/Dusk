@@ -2011,7 +2011,6 @@ bool EditorApplication::ItemNewFrameCancelClicked(const CEGUI::EventArgs &e)
 
 bool EditorApplication::ItemNewFrameOKClicked(const CEGUI::EventArgs &e)
 {
-  // **** not implemented yet ****
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
   if (winmgr.isWindowPresent("Editor/ItemNewFrame"))
   {
@@ -2787,6 +2786,8 @@ void EditorApplication::showObjectReferenceEditWindow(const CEGUI::Point& pt)
            frame->setText("Object"); break;
       case otLight:
            frame->setText("Light"); break;
+      case otContainer:
+           frame->setText("Container"); break;
       default:
            frame->setText("Object (undefined type)"); break;
     }//swi
@@ -3076,7 +3077,18 @@ bool EditorApplication::LightNewClicked(const CEGUI::EventArgs &e)
 
 bool EditorApplication::LightEditClicked(const CEGUI::EventArgs &e)
 {
-  //not implemented yet
+  CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*>
+                                (CEGUI::WindowManager::getSingleton().getWindow("Editor/Catalogue/Tab/Light/List"));
+  CEGUI::ListboxItem* lb_item = mcl->getFirstSelectedItem();
+  if (lb_item==NULL)
+  {
+    std::cout << "Debug: No light selected.\n";
+    return true;
+  }
+  unsigned int row_index = mcl->getItemRowIndex(lb_item);
+  lb_item = mcl->getItemAtGridReference(CEGUI::MCLGridRef(row_index, 0));
+  ID_of_light_to_edit = std::string(lb_item->getText().c_str());
+  showLightEditWindow();
   return true;
 }
 bool EditorApplication::LightDeleteClicked(const CEGUI::EventArgs &e)
@@ -3101,7 +3113,141 @@ bool EditorApplication::LightDeleteClicked(const CEGUI::EventArgs &e)
 
 void EditorApplication::showLightNewWindow(void)
 {
-  //not implemented yet
+  //not completely implemented yet
+  CEGUI::FrameWindow* frame = NULL;
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+
+  if (winmgr.isWindowPresent("Editor/LightNewFrame"))
+  {
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.getWindow("Editor/LightNewFrame"));
+  }
+  else
+  {
+    //create it (frame first)
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.createWindow("TaharezLook/FrameWindow", "Editor/LightNewFrame"));
+    frame->setTitleBarEnabled(true);
+    frame->setText("New Light...");
+    frame->setCloseButtonEnabled(false);
+    frame->setFrameEnabled(true);
+    frame->setSizingEnabled(true);
+    frame->setInheritsAlpha(false);
+    winmgr.getWindow("Editor/Root")->addChildWindow(frame);
+
+    CEGUI::Window * button = NULL;
+
+    //static text for ID
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/LightNewFrame/ID_Label");
+    button->setText("ID:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.15, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.1, 0)));
+    frame->addChildWindow(button);
+
+    //editbox for ID
+    button = winmgr.createWindow("TaharezLook/Editbox", "Editor/LightNewFrame/ID_Edit");
+    button->setText("");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.15, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.1, 0)));
+    frame->addChildWindow(button);
+
+    //static text for colour
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/LightNewFrame/Colour_Label");
+    button->setText("Colour");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.275, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.1, 0)));
+    frame->addChildWindow(button);
+
+    //static text for red
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/LightNewFrame/Red_Label");
+    button->setText("Red");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.4, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.1, 0)));
+    frame->addChildWindow(button);
+    //static text for green
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/LightNewFrame/Green_Label");
+    button->setText("Green");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.525, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.1, 0)));
+    frame->addChildWindow(button);
+    //static text for blue
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/LightNewFrame/Blue_Label");
+    button->setText("Blue");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.65, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.1, 0)));
+    frame->addChildWindow(button);
+
+    CEGUI::Spinner* spin = NULL;
+    //spinner for red
+    spin = static_cast<CEGUI::Spinner*> (winmgr.createWindow("TaharezLook/Spinner", "Editor/LightNewFrame/RedSpin"));
+    spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.4, 0)));
+    spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.1, 0)));
+    spin->setTextInputMode(CEGUI::Spinner::FloatingPoint);
+    spin->setStepSize(0.1); spin->setMaximumValue(1.0f); spin->setMinimumValue(0.0f);
+    spin->setText("1.0");
+    frame->addChildWindow(spin);
+    //spinner for green
+    spin = static_cast<CEGUI::Spinner*> (winmgr.createWindow("TaharezLook/Spinner", "Editor/LightNewFrame/GreenSpin"));
+    spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.525, 0)));
+    spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.1, 0)));
+    spin->setTextInputMode(CEGUI::Spinner::FloatingPoint);
+    spin->setStepSize(0.1); spin->setMaximumValue(1.0f); spin->setMinimumValue(0.0f);
+    spin->setText("1.0");
+    frame->addChildWindow(spin);
+    //spinner for blue
+    spin = static_cast<CEGUI::Spinner*> (winmgr.createWindow("TaharezLook/Spinner", "Editor/LightNewFrame/BlueSpin"));
+    spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.65, 0)));
+    spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.1, 0)));
+    spin->setTextInputMode(CEGUI::Spinner::FloatingPoint);
+    spin->setStepSize(0.1); spin->setMaximumValue(1.0f); spin->setMinimumValue(0.0f);
+    spin->setText("1.0");
+    frame->addChildWindow(spin);
+
+    //static text for light type
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/LightNewFrame/Type_Label");
+    button->setText("Type");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.55, 0), CEGUI::UDim(0.275, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.1, 0)));
+    frame->addChildWindow(button);
+
+    CEGUI::RadioButton* radio = NULL;
+    //radio button for point light
+    radio = static_cast<CEGUI::RadioButton*> (winmgr.createWindow("TaharezLook/RadioButton", "Editor/LightNewFrame/RadioPoint"));
+    radio->setText("Point");
+    radio->setPosition(CEGUI::UVector2(CEGUI::UDim(0.55, 0), CEGUI::UDim(0.4, 0)));
+    radio->setSize(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.1, 0)));
+    radio->setSelected(true);
+    radio->setGroupID(444);
+    frame->addChildWindow(radio);
+    //radio button for directional light
+    radio = static_cast<CEGUI::RadioButton*> (winmgr.createWindow("TaharezLook/RadioButton", "Editor/LightNewFrame/RadioDirectional"));
+    radio->setText("Directional");
+    radio->setPosition(CEGUI::UVector2(CEGUI::UDim(0.55, 0), CEGUI::UDim(0.525, 0)));
+    radio->setSize(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.1, 0)));
+    radio->setSelected(false);
+    radio->setGroupID(444);
+    frame->addChildWindow(radio);
+
+    //OK button
+    button = winmgr.createWindow("TaharezLook/Button", "Editor/LightNewFrame/OK");
+    button->setText("OK");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.8, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.1, 0)));
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplication::LightNewFrameOKClicked, this));
+    frame->addChildWindow(button);
+
+    //Cancel button
+    button = winmgr.createWindow("TaharezLook/Button", "Editor/LightNewFrame/Cancel");
+    button->setText("Cancel");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.8, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.1, 0)));
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplication::LightNewFrameCancelClicked, this));
+    frame->addChildWindow(button);
+  }
+  frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.38, 0), CEGUI::UDim(0.17, 0)));
+  frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.5, 0)));
+  frame->moveToFront();
+  //not completely implemented yet
 }
 
 void EditorApplication::showLightEditWindow(void)
@@ -3216,6 +3362,61 @@ bool EditorApplication::LightDeleteFrameYesClicked(const CEGUI::EventArgs &e)
   ID_of_light_to_delete = "";
   //delete window
   CEGUI::WindowManager::getSingleton().destroyWindow("Editor/LightDeleteFrame");
+  return true;
+}
+
+bool EditorApplication::LightNewFrameCancelClicked(const CEGUI::EventArgs &e)
+{
+  if (CEGUI::WindowManager::getSingleton().isWindowPresent("Editor/LightNewFrame"))
+  {
+    CEGUI::WindowManager::getSingleton().destroyWindow("Editor/LightNewFrame");
+  }
+  return true;
+}
+
+bool EditorApplication::LightNewFrameOKClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/LightNewFrame"))
+  {
+    CEGUI::Editbox* id_edit = static_cast<CEGUI::Editbox*> (winmgr.getWindow("Editor/LightNewFrame/ID_Edit"));
+    CEGUI::Spinner* red_spin = static_cast<CEGUI::Spinner*> (winmgr.getWindow("Editor/LightNewFrame/RedSpin"));
+    CEGUI::Spinner* green_spin = static_cast<CEGUI::Spinner*> (winmgr.getWindow("Editor/LightNewFrame/GreenSpin"));
+    CEGUI::Spinner* blue_spin = static_cast<CEGUI::Spinner*> (winmgr.getWindow("Editor/LightNewFrame/BlueSpin"));
+    CEGUI::RadioButton* point_radio = static_cast<CEGUI::RadioButton*> (winmgr.getWindow("Editor/LightNewFrame/RadioPoint"));
+    //make sure we have some data
+    if (id_edit->getText()=="")
+    {
+      showWarning("You have to enter an ID string to create a new light!");
+      return true;
+    }
+    //check for presence of light with same ID
+    if (LightBase::GetSingleton().hasLight(std::string(id_edit->getText().c_str())))
+    {
+      showWarning("A Light with the given ID already exists!");
+      return true;
+    }
+    //add it to LightBase
+    LightRecord entered_data;
+    entered_data.red = red_spin->getCurrentValue();
+    entered_data.green = green_spin->getCurrentValue();
+    entered_data.blue = blue_spin->getCurrentValue();
+    if (point_radio->isSelected())
+    {
+      entered_data.type = Ogre::Light::LT_POINT;
+    }
+    else
+    {
+      entered_data.type = Ogre::Light::LT_DIRECTIONAL;
+    }
+    //assume radius
+    entered_data.radius = 250.0f;
+    LightBase::GetSingleton().addLight( std::string(id_edit->getText().c_str()), entered_data);
+    //update item catalogue
+    addLightRecordToCatalogue(std::string(id_edit->getText().c_str()), entered_data);
+    //destroy window
+    winmgr.destroyWindow("Editor/LightNewFrame");
+  }
   return true;
 }
 

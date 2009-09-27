@@ -1,5 +1,6 @@
 #include "Inventory.h"
 #include "ItemBase.h"
+#include "DuskConstants.h"
 #include <iostream>
 
 namespace Dusk
@@ -123,6 +124,81 @@ int Inventory::GetTotalValue() const
     iter++;
   }//while
   return sum;
+}
+
+bool Inventory::SaveToStream(std::ofstream& OutStream) const
+{
+  if (!OutStream.good())
+  {
+    std::cout << "Inventory::SaveToStream: ERROR: stream contains errors!\n";
+    return false;
+  }
+  OutStream.write((char*) &cHeaderInve, sizeof(unsigned int));
+  //write number of items
+  unsigned int len = m_Items.size();
+  OutStream.write((char*) &len, sizeof(unsigned int));
+  //write items (ID and amount)
+  std::map<std::string, unsigned int>::const_iterator traverse;
+  traverse = m_Items.begin();
+  while (traverse != m_Items.end())
+  {
+    //ID
+    len = traverse->first.length();
+    OutStream.write((char*) &len, sizeof(unsigned int));
+    OutStream.write(traverse->first.c_str(), len);
+    //amount
+    OutStream.write((char*) &(traverse->second), sizeof(unsigned int));
+    traverse++;
+  }//while
+  return OutStream.good();
+}
+
+bool Inventory::LoadFromStream(std::ifstream& InStream)
+{
+  if (!InStream.good())
+  {
+    std::cout << "Inventory::LoadFromStream: ERROR: stream contains errors!\n";
+    return false;
+  }
+  unsigned int len=0, i, count=0;
+  InStream.read((char*) &len, sizeof(unsigned int));
+  if (len!=cHeaderInve)
+  {
+    std::cout << "Inventory::LoadFromStream: ERROR: stream contains unexpected header!\n";
+    return false;
+  }
+  //read number of items
+  InStream.read((char*) &count, sizeof(unsigned int));
+  MakeEmpty();
+  char ID_Buffer[256];
+  ID_Buffer[0] = ID_Buffer[255] = '\0';
+  for (i=0; i<count; i++)
+  { //read loop
+    //ID
+    len=0;
+    InStream.read((char*) &len, sizeof(unsigned int));
+    if (len>255)
+    {
+      std::cout << "Inventory::LoadFromStream: ERROR: ID is longer than 255 characters!\n";
+      return false;
+    }
+    InStream.read(ID_Buffer, len);
+    if (!InStream.good())
+    {
+      std::cout << "Inventory::LoadFromStream: ERROR while reading item ID!\n";
+      return false;
+    }
+    ID_Buffer[len] = '\0';
+    //amount
+    InStream.read((char*) &len, sizeof(unsigned int));
+    if (!InStream.good())
+    {
+      std::cout << "Inventory::LoadFromStream: ERROR while reading item amount!\n";
+      return false;
+    }
+    AddItem(std::string(ID_Buffer), len);
+  }//for
+  return InStream.good();
 }
 
 std::map<std::string, unsigned int>::const_iterator Inventory::GetFirst() const

@@ -210,7 +210,7 @@ bool ItemBase::LoadFromFile(const std::string& FileName)
   bool success = true;
   for (i=0; i<count; i++)
   {
-    success = LoadFromStream(&input);
+    success = LoadFromStream(input);
     if (!success)
     {
       break;
@@ -220,7 +220,7 @@ bool ItemBase::LoadFromFile(const std::string& FileName)
   return success;
 }
 
-bool ItemBase::LoadFromStream(std::ifstream* Stream)
+bool ItemBase::LoadFromStream(std::ifstream& Stream)
 {
   unsigned int Header, len;
   //buffers declared static to avoid multiple allocation and deallocation
@@ -231,7 +231,7 @@ bool ItemBase::LoadFromStream(std::ifstream* Stream)
 
   //read header "Item"
   Header = 0;
-  Stream->read((char*) &Header, sizeof(unsigned int));
+  Stream.read((char*) &Header, sizeof(unsigned int));
   if (Header!=cHeaderItem)
   {
     std::cout << "ItemBase::LoadFromStream: ERROR: Stream contains invalid "
@@ -240,7 +240,7 @@ bool ItemBase::LoadFromStream(std::ifstream* Stream)
   }//if
 
   //read length of ID
-  Stream->read((char*) &len, sizeof(unsigned int));
+  Stream.read((char*) &len, sizeof(unsigned int));
   if (len>255)
   {
     std::cout << "ItemBase::LoadFromStream: ERROR: ID cannot be longer than "
@@ -248,16 +248,16 @@ bool ItemBase::LoadFromStream(std::ifstream* Stream)
     return false;
   }
   //read ID
-  Stream->read(ID_Buffer, len);
+  Stream.read(ID_Buffer, len);
   ID_Buffer[len] = '\0'; //add terminating null character
-  if (!(Stream->good()))
+  if (!(Stream.good()))
   {
     std::cout << "ItemBase::LoadFromStream: ERROR while reading data (ID).\n";
     return false;
   }
 
   //read length of item name
-  Stream->read((char*) &len, sizeof(unsigned int));
+  Stream.read((char*) &len, sizeof(unsigned int));
   if (len>255)
   {
     std::cout << "ItemBase::LoadFromStream: ERROR: item name cannot be longer "
@@ -265,21 +265,21 @@ bool ItemBase::LoadFromStream(std::ifstream* Stream)
     return false;
   }
   //read item name
-  Stream->read(Name_Buffer, len);
+  Stream.read(Name_Buffer, len);
   Name_Buffer[len] = '\0'; //add terminating null character
-  if (!(Stream->good()))
+  if (!(Stream.good()))
   {
     std::cout << "ItemBase::LoadFromStream: ERROR while reading data (name).\n";
     return false;
   }
 
   //read value
-  Stream->read((char*) &value, sizeof(int));
+  Stream.read((char*) &value, sizeof(int));
   //read weight
-  Stream->read((char*) &weight, sizeof(float));
+  Stream.read((char*) &weight, sizeof(float));
 
   //read length of mesh name
-  Stream->read((char*) &len, sizeof(unsigned int));
+  Stream.read((char*) &len, sizeof(unsigned int));
   if (len>255)
   {
     std::cout << "ItemBase::LoadFromStream: ERROR: mesh name cannot be longer "
@@ -287,9 +287,9 @@ bool ItemBase::LoadFromStream(std::ifstream* Stream)
     return false;
   }
   //read mesh name
-  Stream->read(Mesh_Buffer, len);
+  Stream.read(Mesh_Buffer, len);
   Mesh_Buffer[len] = '\0'; //add terminating null character
-  if (!(Stream->good()))
+  if (!(Stream.good()))
   {
     std::cout << "ItemBase::LoadFromStream: ERROR while reading data (mesh).\n";
     return false;
@@ -299,12 +299,12 @@ bool ItemBase::LoadFromStream(std::ifstream* Stream)
   return true;
 }
 
-std::map<std::string, ItemRecord>::const_iterator ItemBase::GetFirst()
+std::map<std::string, ItemRecord>::const_iterator ItemBase::GetFirst() const
 {
   return m_ItemList.begin();
 }
 
-std::map<std::string, ItemRecord>::const_iterator ItemBase::GetEnd()
+std::map<std::string, ItemRecord>::const_iterator ItemBase::GetEnd() const
 {
   return m_ItemList.end();
 }

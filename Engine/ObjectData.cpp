@@ -40,6 +40,14 @@ Light* ObjectData::addLightReference(const std::string& ID, const Ogre::Vector3&
   return LightPointer;
 }
 
+Container* ObjectData::addContainerReference(const std::string& ID,
+    const Ogre::Vector3& position, const Ogre::Vector3& rotation, const float scale)
+{
+  Container* ContainerPointer = new Container(ID, position, rotation, scale);
+  m_ReferenceList.push_back(ContainerPointer);
+  return ContainerPointer;
+}
+
 
 bool ObjectData::SaveToFile(const std::string& FileName) const
 {
@@ -143,6 +151,15 @@ bool ObjectData::LoadNextFromStream(std::ifstream& Stream, const unsigned int Pr
          break;
     case cHeaderRefL:
          objPtr = new Light;
+         if (objPtr->LoadFromStream(Stream))
+         {
+           m_ReferenceList.push_back(objPtr);
+           return true;
+         }
+         delete objPtr;
+         break;
+    case cHeaderRefC:
+         objPtr = new Container;
          if (objPtr->LoadFromStream(Stream))
          {
            m_ReferenceList.push_back(objPtr);

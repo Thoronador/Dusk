@@ -38,8 +38,8 @@ namespace Dusk
       unsigned int NumberOfLights() const;
       bool SaveAllToStream(std::ofstream& out_stream) const;
       bool LoadRecordFromStream(std::ifstream& in_stream);
-      std::map<std::string, LightRecord>::const_iterator GetFirst();
-      std::map<std::string, LightRecord>::const_iterator GetEnd();
+      std::map<std::string, LightRecord>::const_iterator GetFirst() const;
+      std::map<std::string, LightRecord>::const_iterator GetEnd() const;
     private:
       LightBase();
       LightBase(const LightBase& op){} //copy constructor

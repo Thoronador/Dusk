@@ -57,9 +57,9 @@ namespace Dusk
       bool SaveToFile(const std::string& FileName) const;
       bool LoadFromFile(const std::string& FileName);
       bool SaveToStream(std::ofstream& Stream) const;
-      bool LoadFromStream(std::ifstream* Stream);
-      std::map<std::string, ItemRecord>::const_iterator GetFirst();
-      std::map<std::string, ItemRecord>::const_iterator GetEnd();
+      bool LoadFromStream(std::ifstream& Stream);
+      std::map<std::string, ItemRecord>::const_iterator GetFirst() const;
+      std::map<std::string, ItemRecord>::const_iterator GetEnd() const;
     private:
       ItemBase();
       ItemBase(const ItemBase& op){}

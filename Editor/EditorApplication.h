@@ -204,6 +204,10 @@ protected:
 	bool ItemConfirmIDChangeNewClicked(const CEGUI::EventArgs &e);
 	bool ItemConfirmIDChangeCancelClicked(const CEGUI::EventArgs &e);
 
+    //callbacks of window for creating new lights
+	bool LightNewFrameCancelClicked(const CEGUI::EventArgs &e);
+	bool LightNewFrameOKClicked(const CEGUI::EventArgs &e);
+
 	//callbacks of window to delete lights
 	bool LightDeleteFrameNoClicked(const CEGUI::EventArgs &e);
 	bool LightDeleteFrameYesClicked(const CEGUI::EventArgs &e);

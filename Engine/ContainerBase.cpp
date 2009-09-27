@@ -99,4 +99,107 @@ void ContainerBase::DeleteAllContainers()
   m_ContainerList.clear();
 }
 
+unsigned int ContainerBase::NumberOfContainers() const
+{
+  return m_ContainerList.size();
+}
+
+bool ContainerBase::SaveAllToStream(std::ofstream& OutStream) const
+{
+  if (!OutStream.good())
+  {
+    std::cout << "ContainerBase::SaveAllToStream: ERROR: stream contains errors!\n";
+    return false;
+  }
+  unsigned int len = 0;
+  std::map<std::string, ContainerRecord>::const_iterator traverse;
+  traverse = m_ContainerList.begin();
+  while (traverse != m_ContainerList.end())
+  {
+    //header "Cont"
+    OutStream.write((char*) &cHeaderCont, sizeof(unsigned int));
+    //ID
+    len = traverse->first.length();
+    OutStream.write((char*) &len, sizeof(unsigned int));
+    OutStream.write(traverse->first.c_str(), len);
+    //Mesh
+    len = traverse->second.Mesh.length();
+    OutStream.write((char*) &len, sizeof(unsigned int));
+    OutStream.write(traverse->second.Mesh.c_str(), len);
+    //Inventory
+    if (!(traverse->second.ContainerInventory.SaveToStream(OutStream)))
+    {
+      std::cout << "ContainerBase::SaveAllToStream: ERROR while writing "
+                << "container's inventory.\n";
+      return false;
+    }//if
+    traverse++;
+  }//while
+  return OutStream.good();
+}
+
+bool ContainerBase::LoadNextContainerFromStream(std::ifstream& InStream)
+{
+  if (!InStream.good())
+  {
+    std::cout << "ContainerBase::LoadNextContainerFromStream: ERROR: stream "
+              << "contains errors!\n";
+    return false;
+  }
+  unsigned int len = 0;
+  InStream.read((char*) &len, sizeof(unsigned int));
+  if (len != cHeaderCont)
+  {
+    std::cout << "ContainerBase::LoadNextContainerFromStream: ERROR: stream "
+              << "contains unexpected header!\n";
+    return false;
+  }
+  char ID_Buffer[256];
+  ID_Buffer[0] = ID_Buffer[255] = '\0';
+  //read ID
+  len = 0;
+  InStream.read((char*) &len, sizeof(unsigned int));
+  if (len>255)
+  {
+    std::cout << "ContainerBase::LoadNextContainerFromStream: ERROR: ID is "
+              << "longer than 255 characters!\n";
+    return false;
+  }
+  InStream.read(ID_Buffer, len);
+  if (!InStream.good())
+  {
+    std::cout << "ContainerBase::LoadNextContainerFromStream: ERROR while "
+              << "reading ID from stream!\n";
+    return false;
+  }
+  //read Mesh
+  char Mesh_Buffer[256];
+  Mesh_Buffer[0] = Mesh_Buffer[255] = '\0';
+  len = 0;
+  InStream.read((char*) &len, sizeof(unsigned int));
+  if (len>255)
+  {
+    std::cout << "ContainerBase::LoadNextContainerFromStream: ERROR: mesh path "
+              << "is longer than 255 characters!\n";
+    return false;
+  }
+  InStream.read(Mesh_Buffer, len);
+  if (!InStream.good())
+  {
+    std::cout << "ContainerBase::LoadNextContainerFromStream: ERROR while "
+              << "reading mesh path from stream!\n";
+    return false;
+  }
+  Inventory temp;
+  if (!temp.LoadFromStream(InStream))
+  {
+    std::cout << "ContainerBase::LoadNextContainerFromStream: ERROR while "
+              << "reading inventory contens from stream!\n";
+    return false;
+  }
+  //all right so far, add new container
+  AddContainer(std::string(ID_Buffer), std::string(Mesh_Buffer), temp);
+  return InStream.good();
+}
+
 }//namespace

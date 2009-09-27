@@ -6,14 +6,16 @@
 namespace Dusk
 {
   //Flags to indicate which portions to load/ save
-  const unsigned int LANDSCAPE_BIT = 1;
-  const unsigned int LIGHT_BIT = 2;
-  const unsigned int ITEM_BIT = 4;
-  const unsigned int OBJECT_BIT = 8;
-  const unsigned int OBJECT_REF_BIT = 16;
+  const unsigned int CONTAINER_BIT = 1;
+  const unsigned int LANDSCAPE_BIT = 2;
+  const unsigned int LIGHT_BIT = 4;
+  const unsigned int ITEM_BIT = 8;
+  const unsigned int OBJECT_BIT = 16;
+  const unsigned int REFERENCE_BIT = 32;
 
 
-  const unsigned int ALL_BITS = LANDSCAPE_BIT | LIGHT_BIT | ITEM_BIT | OBJECT_BIT | OBJECT_REF_BIT;
+  const unsigned int ALL_BITS = CONTAINER_BIT | LANDSCAPE_BIT | LIGHT_BIT |
+                                ITEM_BIT | OBJECT_BIT | REFERENCE_BIT;
 
 
 /*class DataLoader:

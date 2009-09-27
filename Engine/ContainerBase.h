@@ -4,6 +4,7 @@
 #include <string>
 #include <map>
 #include "Inventory.h"
+#include <fstream>
 
 namespace Dusk
 {
@@ -38,6 +39,19 @@ namespace Dusk
 
       /* Removes all containers from list. */
       void DeleteAllContainers();
+
+      /* Returns number of currently available containers */
+      unsigned int NumberOfContainers() const;
+
+      /* Saves all Containers to stream; returns true on success */
+      bool SaveAllToStream(std::ofstream& OutStream) const;
+
+      /* Loads one(!) single container from stream; returns true on success,
+         false otherwise. The data of the last loaded container is probably
+         inconsistent after that function failed, so don't rely on it in that
+         case. */
+      bool LoadNextContainerFromStream(std::ifstream& InStream);
+
     private:
       ContainerBase();
       // copy constructor

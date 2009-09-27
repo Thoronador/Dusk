@@ -19,6 +19,8 @@ namespace Dusk
       unsigned int RemoveItem(const std::string& ItemID, const unsigned int count);
       unsigned int GetItemCount(const std::string& ItemID) const;
       bool Enable(Ogre::SceneManager* scm);
+      bool SaveToStream(std::ofstream& OutStream) const;
+      bool LoadFromStream(std::ifstream& InStream);
     private:
       Inventory m_Contents;
       bool m_Changed;

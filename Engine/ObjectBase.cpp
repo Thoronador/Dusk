@@ -213,12 +213,12 @@ bool ObjectBase::LoadFromStream(std::ifstream& Stream)
   return true;
 }
 
-std::map<std::string, std::string>::const_iterator ObjectBase::GetFirst()
+std::map<std::string, std::string>::const_iterator ObjectBase::GetFirst() const
 {
   return m_ObjectList.begin();
 }
 
-std::map<std::string, std::string>::const_iterator ObjectBase::GetEnd()
+std::map<std::string, std::string>::const_iterator ObjectBase::GetEnd() const
 {
   return m_ObjectList.end();
 }

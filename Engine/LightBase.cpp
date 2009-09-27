@@ -233,12 +233,12 @@ bool LightBase::LoadRecordFromStream(std::ifstream& in_stream)
   return true;
 }
 
-std::map<std::string, LightRecord>::const_iterator LightBase::GetFirst()
+std::map<std::string, LightRecord>::const_iterator LightBase::GetFirst() const
 {
   return m_LightList.begin();
 }
 
-std::map<std::string, LightRecord>::const_iterator LightBase::GetEnd()
+std::map<std::string, LightRecord>::const_iterator LightBase::GetEnd() const
 {
   return m_LightList.end();
 }

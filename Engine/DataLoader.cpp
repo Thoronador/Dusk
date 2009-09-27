@@ -1,5 +1,6 @@
 #include "DataLoader.h"
 #include <fstream>
+#include "ContainerBase.h"
 #include "Landscape.h"
 #include "LightBase.h"
 #include "ItemBase.h"
@@ -43,6 +44,11 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   output.write((char*) &cHeaderDusk, sizeof(unsigned int));
   //determine number of records
   data_records = 0;
+
+  if ((bits & CONTAINER_BIT) !=0)
+  {
+    data_records += ContainerBase::GetSingleton().NumberOfContainers();
+  }
   if ((bits & LANDSCAPE_BIT) !=0)
   {
     data_records += Landscape::GetSingleton().RecordsAvailable();
@@ -59,12 +65,24 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   {
     data_records += ObjectBase::GetSingleton().NumberOfObjects();
   }
-  if ((bits & OBJECT_REF_BIT) !=0)
+  if ((bits & REFERENCE_BIT) !=0)
   {
     data_records += ObjectData::GetSingleton().NumberOfReferences();
   }
   //write number of records
   output.write((char*) &data_records, sizeof(unsigned int));
+
+  //save containers
+  if ((bits & CONTAINER_BIT)!=0)
+  {
+    if (!ContainerBase::GetSingleton().SaveAllToStream(output))
+    {
+      std::cout << "DataLoader::SaveToFile: ERROR: could not write Container "
+                << "data to file \""<<FileName<<"\".\n";
+      output.close();
+      return false;
+    }
+  }//containers
 
   //save landscape
   if ((bits & LANDSCAPE_BIT) !=0)
@@ -122,7 +140,7 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   }//if objects
 
   //save object references
-  if ((bits & OBJECT_REF_BIT) !=0)
+  if ((bits & REFERENCE_BIT) !=0)
   {
     if (!ObjectData::GetSingleton().SaveAllToStream(output))
     {
@@ -181,8 +199,11 @@ bool DataLoader::LoadFromFile(const std::string& FileName)
     input.seekg(-4, std::ios::cur);
     switch (Header)
     {
+      case cHeaderCont:
+           success = ContainerBase::GetSingleton().LoadNextContainerFromStream(input);
+           break;
       case cHeaderItem:
-           success = ItemBase::GetSingleton().LoadFromStream(&input);
+           success = ItemBase::GetSingleton().LoadFromStream(input);
            break;
       case cHeaderLand:
            land_rec = Landscape::GetSingleton().CreateRecord();
@@ -198,6 +219,7 @@ bool DataLoader::LoadFromFile(const std::string& FileName)
       case cHeaderObjS:
            success = ObjectBase::GetSingleton().LoadFromStream(input);
            break;
+      case cHeaderRefC:
       case cHeaderRefL:
       case cHeaderRefO:
            success = ObjectData::GetSingleton().LoadNextFromStream(input, Header);
@@ -227,19 +249,24 @@ bool DataLoader::LoadFromFile(const std::string& FileName)
 
 void DataLoader::ClearData(const unsigned int bits)
 {
-  if ((bits & OBJECT_REF_BIT) != 0)
+  if ((bits & REFERENCE_BIT) != 0)
   {
     ObjectData::GetSingleton().ClearData();
-  }//Object references
+  }//object references
 
   if ((bits & OBJECT_BIT) != 0)
   {
     ObjectBase::GetSingleton().ClearAllObjects();
-    if (ObjectData::GetSingleton().NumberOfReferences()>0)
+    /*if (ObjectData::GetSingleton().NumberOfReferences()>0)
     { //kill object data, it's useless with an empty object base
       ObjectData::GetSingleton().ClearData();
-    }
+    }*/
   }//Object information
+
+  if ((bits & CONTAINER_BIT)!=0)
+  {
+    ContainerBase::GetSingleton().DeleteAllContainers();
+  }//container data
 
   if ((bits & ITEM_BIT)!=0)
   {
@@ -250,6 +277,11 @@ void DataLoader::ClearData(const unsigned int bits)
   {
     Landscape::GetSingleton().ClearAllRecords();
   }//landscape
+
+  if ((bits & LIGHT_BIT) !=0)
+  {
+    LightBase::GetSingleton().ClearAllData();
+  }//lights
 
 }//clear data function
 
