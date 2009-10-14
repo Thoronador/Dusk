@@ -2,6 +2,7 @@
 #define INPUTSYSTEMBINDING_H_INCLUDED
 
 #include "InputSystem.h"
+#include "Script.h"
 
 #include <map>
 

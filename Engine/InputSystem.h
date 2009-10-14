@@ -4,7 +4,6 @@
 #include <Ogre.h>
 #include <OIS/OIS.h>
 
-#include "Script.h"
 #include "InputEvent.h"
 
 namespace Dusk
