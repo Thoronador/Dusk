@@ -34,7 +34,7 @@ LandscapeRecord::LandscapeRecord()
   m_RecordID = GenerateUniqueID();
   m_OffsetX = 0.0;
   m_OffsetY = 0.0;
-  Stride = cDefaultStride;
+  m_Stride = cDefaultStride;
   m_Highest = 0.0;
   m_Lowest = 0.0;
 }
@@ -70,6 +70,11 @@ float LandscapeRecord::OffsetY() const
   return m_OffsetY;
 }
 
+float LandscapeRecord::Stride() const
+{
+  return m_Stride;
+}
+
 bool LandscapeRecord::LoadFromStream(std::ifstream &AStream)
 {
   if (m_Loaded)
@@ -99,18 +104,18 @@ bool LandscapeRecord::LoadFromStream(std::ifstream &AStream)
   AStream.read((char*) &m_OffsetX, sizeof(float));
   AStream.read((char*) &m_OffsetY, sizeof(float));
   //stride
-  AStream.read((char*) &Stride, sizeof(float));
+  AStream.read((char*) &m_Stride, sizeof(float));
   if (!AStream.good())
   {
     std::cout << "LandscapeRecord::LoadFromStream: ERROR: Stream seems to "
               << "have invalid Land record data.\n";
     return false;
   }
-  if (Stride <=0.0f)
+  if (m_Stride <=0.0f)
   {
     std::cout << "LandscapeRecord::LoadFromStream: Stream contains an invalid "
-              << "stride value of "<< Stride <<". Setting default value. Exit.\n";
-    Stride = cDefaultStride;
+              << "stride value of "<< m_Stride <<". Setting default value. Exit.\n";
+    m_Stride = cDefaultStride;
     return false;
   }//if
 
@@ -174,7 +179,7 @@ bool LandscapeRecord::SaveToStream(std::ofstream &AStream) const
   AStream.write((char*) &m_OffsetX, sizeof(float));
   AStream.write((char*) &m_OffsetY, sizeof(float));
   //stride
-  AStream.write((char*) &Stride, sizeof(float));
+  AStream.write((char*) &m_Stride, sizeof(float));
   //height data
   AStream.write((char*) &Height[0][0], 65*65*sizeof(float));
   //colour data
@@ -294,6 +299,36 @@ void LandscapeRecord::MoveTo(const float Offset_X, const float Offset_Y)
 {
   m_OffsetX = Offset_X;
   m_OffsetY = Offset_Y;
+}
+
+bool LandscapeRecord::Terraform(const float x, const float z, const float delta)
+{
+  if (x>=m_OffsetX && x<=m_OffsetX+64*m_Stride
+     && z>=m_OffsetY && z<=m_OffsetY+64*m_Stride)
+  {
+    unsigned int x_idx, y_idx;
+    x_idx = (x-m_OffsetX)/m_Stride;
+    y_idx = (z-m_OffsetY)/m_Stride;
+    Height[x_idx][y_idx] += delta;
+    return true;
+  }
+  return false;
+}
+
+bool LandscapeRecord::SetColour(const float x, const float z, const unsigned char r,const unsigned char g, const unsigned char b)
+{
+  if (x>=m_OffsetX && x<=m_OffsetX+64*m_Stride
+     && z>=m_OffsetY && z<=m_OffsetY+64*m_Stride)
+  {
+    unsigned int x_idx, y_idx;
+    x_idx = (x-m_OffsetX)/m_Stride;
+    y_idx = (z-m_OffsetY)/m_Stride;
+    Colour[x_idx][y_idx][0] = r;
+    Colour[x_idx][y_idx][1] = g;
+    Colour[x_idx][y_idx][2] = b;
+    return true;
+  }
+  return false;
 }
 
 #ifndef NO_OGRE_IN_LANDSCAPE
@@ -643,6 +678,21 @@ LandscapeRecord* Landscape::GetRecordByPosition(const unsigned int record)
     return NULL;
   }
   return m_RecordList[record];
+}
+
+//get pointer to first record which covers position (x,-inf,z)
+LandscapeRecord* Landscape::GetRecordAtXZ(const float x, const float z) const
+{
+  unsigned int i;
+  for(i=0; i<m_numRec; i++)
+  {
+    if ((x>=m_RecordList[i]->OffsetX()) && (x<=m_RecordList[i]->OffsetX()+64*LandscapeRecord::cDefaultStride)
+       &&(z>=m_RecordList[i]->OffsetY()) && (z<=m_RecordList[i]->OffsetY()+64*LandscapeRecord::cDefaultStride))
+    {
+      return m_RecordList[i];
+    }//if
+  }//for
+  return NULL;
 }
 
 //gets pointer to record with given ID

@@ -133,8 +133,14 @@ protected:
 	//for editing object references
 	void showObjectReferenceEditWindow(const CEGUI::Point& pt);
 
+	//window for landscape editing
+	void showLandscapeEditWindow(void);
+
 	//closing all windows for editing and creation of objects
 	void closeAllEditWindows(void);
+
+	//shows or hides catalogue window
+	void SetCatalogueVisibility(const bool visible);
 
     //methods to visually add Items or Objects to catalogue
     //  (real data is not effected, methods only show new row in catalogue)
@@ -151,7 +157,10 @@ protected:
 	bool StatsButtonClicked(const CEGUI::EventArgs &e);
 
 	bool ModeMoveClicked(const CEGUI::EventArgs &e);
-	bool ModeLandClicked(const CEGUI::EventArgs &e);
+	//bool ModeLandClicked(const CEGUI::EventArgs &e);
+	bool ModeLandUpClicked(const CEGUI::EventArgs &e);
+	bool ModeLandDownClicked(const CEGUI::EventArgs &e);
+	bool ModeLandColourClicked(const CEGUI::EventArgs &e);
 	bool ModeListClicked(const CEGUI::EventArgs &e);
 
 	//callbacks for buttons
@@ -229,6 +238,9 @@ protected:
 	//callbacks for ref edit window
 	bool ObjectReferenceEditCancelClicked(const CEGUI::EventArgs &e);
 	bool ObjectReferenceEditSaveClicked(const CEGUI::EventArgs &e);
+
+	//callbacks for landscape window
+	bool LandscapeFrameFinishClicked(const CEGUI::EventArgs &e);
 
 	//scene query wrapper
 	DuskObject* GetObjectAtMouse(const CEGUI::Point& pt);

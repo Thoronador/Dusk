@@ -16,7 +16,7 @@ namespace Dusk
 
 enum EditorMode
 {
-  EM_Movement,EM_Landscape, EM_Lists
+  EM_Movement, EM_Lists, EM_LandscapeUp, EM_LandscapeDown, EM_LandscapeColour
 };
 
 class EditorFrameListener: public Ogre::FrameListener, public Ogre::WindowEventListener,

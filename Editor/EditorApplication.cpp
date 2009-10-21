@@ -375,14 +375,33 @@ void EditorApplication::CreateCEGUIMenuBar(void)
   menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::ModeMoveClicked, this));
   popup->addItem(menu_item);
   menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/Mode/PopUp/Land"));
-  menu_item->setText("Landscape Editing");
-  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::ModeLandClicked, this));
+  menu_item->setText("Landscape Editing >");
+  //menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::ModeLandClicked, this));
   popup->addItem(menu_item);
   menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/Mode/PopUp/Cata"));
   menu_item->setText("Catalogue");
   menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::ModeListClicked, this));
   popup->addItem(menu_item);
 
+  //add landscape submenues
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.getWindow("Editor/MenuBar/Mode/PopUp/Land"));
+  popup = static_cast<CEGUI::PopupMenu*> (wmgr.createWindow("TaharezLook/PopupMenu", "Editor/MenuBar/Mode/PopUp/Land/PopUp2"));
+  menu_item->setPopupMenu(popup);
+
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/Mode/PopUp/Land/PopUp2/Colour"));
+  menu_item->setText("Edit Colours");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::ModeLandColourClicked, this));
+  popup->addItem(menu_item);
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/Mode/PopUp/Land/PopUp2/Up"));
+  menu_item->setText("Terraform: Up");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::ModeLandUpClicked, this));
+  popup->addItem(menu_item);
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/Mode/PopUp/Land/PopUp2/Down"));
+  menu_item->setText("Terraform: Down");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::ModeLandDownClicked, this));
+  popup->addItem(menu_item);
+
+  //static text to show mode
   CEGUI::Window* mode_indicator = wmgr.createWindow("TaharezLook/StaticText", "Editor/ModeIndicator");
   mode_indicator->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.05, 0)));
   mode_indicator->setPosition(CEGUI::UVector2(CEGUI::UDim(0.8, 0), CEGUI::UDim(0.00, 0)));
@@ -1742,22 +1761,53 @@ bool EditorApplication::ObjectDeleteFrameYesClicked(const CEGUI::EventArgs &e)
 
 bool EditorApplication::ModeMoveClicked(const CEGUI::EventArgs &e)
 {
+  LandscapeFrameFinishClicked(e);
   mFrameListener->setEditorMode(EM_Movement);
   CEGUI::WindowManager::getSingleton().getWindow("Editor/ModeIndicator")->setText("Mode: Movement");
+  SetCatalogueVisibility(true);
   return true;
 }
 
-bool EditorApplication::ModeLandClicked(const CEGUI::EventArgs &e)
+/*bool EditorApplication::ModeLandClicked(const CEGUI::EventArgs &e)
 {
   mFrameListener->setEditorMode(EM_Landscape);
   CEGUI::WindowManager::getSingleton().getWindow("Editor/ModeIndicator")->setText("Mode: Landscape");
+  return true;
+}*/
+
+bool EditorApplication::ModeLandUpClicked(const CEGUI::EventArgs &e)
+{
+  mFrameListener->setEditorMode(EM_LandscapeUp);
+  CEGUI::WindowManager::getSingleton().getWindow("Editor/ModeIndicator")->setText("Mode: Landscape (Up)");
+  SetCatalogueVisibility(false);
+  showLandscapeEditWindow();
+  return true;
+}
+
+bool EditorApplication::ModeLandDownClicked(const CEGUI::EventArgs &e)
+{
+  mFrameListener->setEditorMode(EM_LandscapeDown);
+  CEGUI::WindowManager::getSingleton().getWindow("Editor/ModeIndicator")->setText("Mode: Landscape (Down)");
+  SetCatalogueVisibility(false);
+  showLandscapeEditWindow();
+  return true;
+}
+
+bool EditorApplication::ModeLandColourClicked(const CEGUI::EventArgs &e)
+{
+  mFrameListener->setEditorMode(EM_LandscapeColour);
+  CEGUI::WindowManager::getSingleton().getWindow("Editor/ModeIndicator")->setText("Mode: Landscape (Colour)");
+  SetCatalogueVisibility(false);
+  showLandscapeEditWindow();
   return true;
 }
 
 bool EditorApplication::ModeListClicked(const CEGUI::EventArgs &e)
 {
+  LandscapeFrameFinishClicked(e);
   mFrameListener->setEditorMode(EM_Lists);
   CEGUI::WindowManager::getSingleton().getWindow("Editor/ModeIndicator")->setText("Mode: Catalogue");
+  SetCatalogueVisibility(true);
   return true;
 }
 
@@ -3917,6 +3967,64 @@ bool EditorApplication::LightConfirmIDChangeCancelClicked(const CEGUI::EventArgs
   {
     winmgr.destroyWindow("Editor/ConfirmLightIDChangeFrame");
   }
+  return true;
+}
+
+void EditorApplication::SetCatalogueVisibility(const bool visible)
+{
+  CEGUI::Window* win = CEGUI::WindowManager::getSingleton().getWindow("Editor/Catalogue");
+  win->setVisible(visible);
+  if (visible)
+  {
+    win->moveToFront();
+  }
+}
+
+void EditorApplication::showLandscapeEditWindow(void)
+{
+  //not completely implemented yet
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  CEGUI::FrameWindow*  frame = NULL;
+
+  if (winmgr.isWindowPresent("Editor/LandscapeFrame"))
+  {
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.getWindow("Editor/LandscapeFrame"));
+  }
+  else
+  {
+    //create it
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.createWindow("TaharezLook/FrameWindow", "Editor/LandscapeFrame"));
+    frame->setTitleBarEnabled(true);
+    frame->setText("Landscape Editing");
+    frame->setCloseButtonEnabled(false);
+    frame->setFrameEnabled(true);
+    frame->setSizingEnabled(true);
+    frame->setInheritsAlpha(false);
+    winmgr.getWindow("Editor/Root")->addChildWindow(frame);
+
+    CEGUI::Window* button = NULL;
+    button = winmgr.createWindow("TaharezLook/Button", "Editor/LandscapeFrame/Finish");
+    button->setText("Exit Landscape Editing");
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.7, 0), CEGUI::UDim(0.1, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.8, 0)));
+    frame->addChildWindow(button);
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplication::LandscapeFrameFinishClicked, this));
+  }//else
+  frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.2, 0)));
+  frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.6, 0)));
+  frame->moveToFront();
+  //not completely implemented yet
+}
+
+bool EditorApplication::LandscapeFrameFinishClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/LandscapeFrame"))
+  {
+    winmgr.destroyWindow("Editor/LandscapeFrame");
+    ModeListClicked(e);
+  }//if
   return true;
 }
 

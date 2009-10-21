@@ -32,7 +32,7 @@ namespace Dusk
        //shift of land via x and z axis
       float OffsetX() const;
       float OffsetY() const;
-      float Stride; //probably used in case the distances are not fixed
+      float Stride() const; //probably used in case the distances are not fixed
       float Height[65][65]; //height of the land
       unsigned char Colour[65][65][3]; //colour of the land in RGB-byte values
       //Highest + lowest altitude in record (calculated during loading process)
@@ -59,6 +59,10 @@ namespace Dusk
       bool GenerateByFunction( float (*func) (const float x, const float z));
       //move to new position
       void MoveTo(const float Offset_X, const float Offset_Y);
+      //funtion to move a certain point up/ down
+      bool Terraform(const float x, const float z, const float delta);
+      //funtion to set colour at certain point
+      bool SetColour(const float x, const float z, const unsigned char r,const unsigned char g, const unsigned char b);
       #ifndef NO_OGRE_IN_LANDSCAPE
       //send loaded data to scene manager
       bool SendDataToEngine(Ogre::SceneManager * scm);
@@ -74,6 +78,7 @@ namespace Dusk
       //not part of actual data, but calculated during loading process
       float m_Highest, m_Lowest;
       float m_OffsetX, m_OffsetY; //shift of land via x and z axis
+      float m_Stride; //distance between points
       bool m_Loaded;
       unsigned int m_RecordID;
       #ifndef NO_OGRE_IN_LANDSCAPE
@@ -96,6 +101,7 @@ namespace Dusk
       unsigned int RecordsAvailable();
       LandscapeRecord* GetRecordByPosition(const unsigned int record);
       LandscapeRecord* GetRecordByID(const unsigned int recordID);
+      LandscapeRecord* GetRecordAtXZ(const float x, const float y) const;
       void ClearAllRecords();
       #ifndef NO_OGRE_IN_LANDSCAPE
       //send loaded data to scene manager
@@ -104,7 +110,7 @@ namespace Dusk
       bool RemoveFromEngine(Ogre::SceneManager * scm);
       #endif
       //for collision detection
-      float GetHeightAtPosition(const float x, const float y) const;
+      float GetHeightAtPosition(const float x, const float z) const;
       static const std::string cLandNodeName;
       static const unsigned int cMaxLandRecords;
     private:
