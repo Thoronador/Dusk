@@ -135,6 +135,9 @@ EditorApplication::EditorApplication()
   ID_of_item_to_edit = "";
   ID_of_light_to_delete = "";
   ID_of_light_to_edit = "";
+  LandscapeColour.red = 254;
+  LandscapeColour.green = 128;
+  LandscapeColour.blue = 0;
 
   mouse.LeftButton.down = mouse.LeftButton.up = CEGUI::Point(0.0f, 0.0f);
   mouse.RightButton.down = mouse.RightButton.up = CEGUI::Point(0.0f, 0.0f);
@@ -1763,22 +1766,13 @@ bool EditorApplication::ModeMoveClicked(const CEGUI::EventArgs &e)
 {
   LandscapeFrameFinishClicked(e);
   mFrameListener->setEditorMode(EM_Movement);
-  CEGUI::WindowManager::getSingleton().getWindow("Editor/ModeIndicator")->setText("Mode: Movement");
   SetCatalogueVisibility(true);
   return true;
 }
 
-/*bool EditorApplication::ModeLandClicked(const CEGUI::EventArgs &e)
-{
-  mFrameListener->setEditorMode(EM_Landscape);
-  CEGUI::WindowManager::getSingleton().getWindow("Editor/ModeIndicator")->setText("Mode: Landscape");
-  return true;
-}*/
-
 bool EditorApplication::ModeLandUpClicked(const CEGUI::EventArgs &e)
 {
   mFrameListener->setEditorMode(EM_LandscapeUp);
-  CEGUI::WindowManager::getSingleton().getWindow("Editor/ModeIndicator")->setText("Mode: Landscape (Up)");
   SetCatalogueVisibility(false);
   showLandscapeEditWindow();
   return true;
@@ -1787,7 +1781,6 @@ bool EditorApplication::ModeLandUpClicked(const CEGUI::EventArgs &e)
 bool EditorApplication::ModeLandDownClicked(const CEGUI::EventArgs &e)
 {
   mFrameListener->setEditorMode(EM_LandscapeDown);
-  CEGUI::WindowManager::getSingleton().getWindow("Editor/ModeIndicator")->setText("Mode: Landscape (Down)");
   SetCatalogueVisibility(false);
   showLandscapeEditWindow();
   return true;
@@ -1796,7 +1789,6 @@ bool EditorApplication::ModeLandDownClicked(const CEGUI::EventArgs &e)
 bool EditorApplication::ModeLandColourClicked(const CEGUI::EventArgs &e)
 {
   mFrameListener->setEditorMode(EM_LandscapeColour);
-  CEGUI::WindowManager::getSingleton().getWindow("Editor/ModeIndicator")->setText("Mode: Landscape (Colour)");
   SetCatalogueVisibility(false);
   showLandscapeEditWindow();
   return true;
@@ -1806,7 +1798,6 @@ bool EditorApplication::ModeListClicked(const CEGUI::EventArgs &e)
 {
   LandscapeFrameFinishClicked(e);
   mFrameListener->setEditorMode(EM_Lists);
-  CEGUI::WindowManager::getSingleton().getWindow("Editor/ModeIndicator")->setText("Mode: Catalogue");
   SetCatalogueVisibility(true);
   return true;
 }
@@ -3985,6 +3976,8 @@ void EditorApplication::showLandscapeEditWindow(void)
   //not completely implemented yet
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
   CEGUI::FrameWindow*  frame = NULL;
+  CEGUI::Spinner* spin = NULL;
+  CEGUI::RadioButton* radio = NULL;
 
   if (winmgr.isWindowPresent("Editor/LandscapeFrame"))
   {
@@ -4002,7 +3995,123 @@ void EditorApplication::showLandscapeEditWindow(void)
     frame->setInheritsAlpha(false);
     winmgr.getWindow("Editor/Root")->addChildWindow(frame);
 
+    // -- radio buttons
+    // ---- raise
+    radio = static_cast<CEGUI::RadioButton*> (winmgr.createWindow("TaharezLook/RadioButton", "Editor/LandscapeFrame/TerraUp"));
+    radio->setText("Raise");
+    radio->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.05, 0)));
+    radio->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.1, 0)));
+    radio->setGroupID(555);
+    frame->addChildWindow(radio);
+    radio->setSelected(true);
+    radio->subscribeEvent(CEGUI::RadioButton::EventSelectStateChanged,
+            CEGUI::Event::Subscriber(&EditorApplication::LandscapeFrameRadioButtonClicked, this));
+    //---- lower
+    radio = static_cast<CEGUI::RadioButton*> (winmgr.createWindow("TaharezLook/RadioButton", "Editor/LandscapeFrame/TerraDown"));
+    radio->setText("Lower");
+    radio->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.05, 0)));
+    radio->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.16, 0)));
+    radio->setGroupID(555);
+    frame->addChildWindow(radio);
+    radio->subscribeEvent(CEGUI::RadioButton::EventSelectStateChanged,
+            CEGUI::Event::Subscriber(&EditorApplication::LandscapeFrameRadioButtonClicked, this));
+    //---- colour radio button
+    radio = static_cast<CEGUI::RadioButton*> (winmgr.createWindow("TaharezLook/RadioButton", "Editor/LandscapeFrame/Colour"));
+    radio->setText("Colour");
+    radio->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.05, 0)));
+    radio->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.22, 0)));
+    radio->setGroupID(555);
+    frame->addChildWindow(radio);
+    radio->subscribeEvent(CEGUI::RadioButton::EventSelectStateChanged,
+            CEGUI::Event::Subscriber(&EditorApplication::LandscapeFrameRadioButtonClicked, this));
+    //--radius
+    //---- static text
     CEGUI::Window* button = NULL;
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/LandscapeFrame/RadiusLabel");
+    button->setText("Radius:");
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.08, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.45, 0), CEGUI::UDim(0.1, 0)));
+    frame->addChildWindow(button);
+    //---- edit/spinner
+    spin = static_cast<CEGUI::Spinner*> (winmgr.createWindow("TaharezLook/Spinner", "Editor/LandscapeFrame/RadiusSpin"));
+    spin->setTextInputMode(CEGUI::Spinner::FloatingPoint);
+    spin->setMinimumValue(1.0f);
+    spin->setMaximumValue(200.0f); //Let's see, if these limits are appropriate.
+    spin->setText("20.0");
+    spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.08, 0)));
+    spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.75, 0), CEGUI::UDim(0.1, 0)));
+    frame->addChildWindow(spin);
+    //--falloff
+    //---- static text
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/LandscapeFrame/FalloffLabel");
+    button->setText("Falloff (%):");
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.08, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.45, 0), CEGUI::UDim(0.2, 0)));
+    frame->addChildWindow(button);
+    //---- spinner
+    spin = static_cast<CEGUI::Spinner*> (winmgr.createWindow("TaharezLook/Spinner", "Editor/LandscapeFrame/FalloffSpin"));
+    spin->setTextInputMode(CEGUI::Spinner::Integer);
+    spin->setMinimumValue(0.0f);
+    spin->setMaximumValue(100.0f);
+    spin->setText("80");
+    spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.08, 0)));
+    spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.75, 0), CEGUI::UDim(0.2, 0)));
+    frame->addChildWindow(spin);
+
+    //--colour values
+    //---- caption
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/LandscapeFrame/ColourLabel");
+    button->setText("Colour:");
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.08, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.3, 0)));
+    frame->addChildWindow(button);
+    //---- red label
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/LandscapeFrame/RedLabel");
+    button->setText("Red:");
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.08, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.125, 0), CEGUI::UDim(0.4, 0)));
+    frame->addChildWindow(button);
+    //---- green label
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/LandscapeFrame/GreenLabel");
+    button->setText("Green:");
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.08, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.125, 0), CEGUI::UDim(0.5, 0)));
+    frame->addChildWindow(button);
+    //---- blue label
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/LandscapeFrame/BlueLabel");
+    button->setText("Blue:");
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.08, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.125, 0), CEGUI::UDim(0.6, 0)));
+    frame->addChildWindow(button);
+    //---red spinner
+    spin = static_cast<CEGUI::Spinner*> (winmgr.createWindow("TaharezLook/Spinner", "Editor/LandscapeFrame/RedSpin"));
+    spin->setTextInputMode(CEGUI::Spinner::Integer);
+    spin->setMinimumValue(0.0f);
+    spin->setMaximumValue(255.0f);
+    spin->setText("255");
+    spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.08, 0)));
+    spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.4, 0)));
+    frame->addChildWindow(spin);
+    //---green spinner
+    spin = static_cast<CEGUI::Spinner*> (winmgr.createWindow("TaharezLook/Spinner", "Editor/LandscapeFrame/GreenSpin"));
+    spin->setTextInputMode(CEGUI::Spinner::Integer);
+    spin->setMinimumValue(0.0f);
+    spin->setMaximumValue(255.0f);
+    spin->setText("127");
+    spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.08, 0)));
+    spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.5, 0)));
+    frame->addChildWindow(spin);
+    //---blue spinner
+    spin = static_cast<CEGUI::Spinner*> (winmgr.createWindow("TaharezLook/Spinner", "Editor/LandscapeFrame/BlueSpin"));
+    spin->setTextInputMode(CEGUI::Spinner::Integer);
+    spin->setMinimumValue(0.0f);
+    spin->setMaximumValue(255.0f);
+    spin->setText("0");
+    spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.08, 0)));
+    spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.6, 0)));
+    frame->addChildWindow(spin);
+
+    //---- exit button
     button = winmgr.createWindow("TaharezLook/Button", "Editor/LandscapeFrame/Finish");
     button->setText("Exit Landscape Editing");
     button->setSize(CEGUI::UVector2(CEGUI::UDim(0.7, 0), CEGUI::UDim(0.1, 0)));
@@ -4011,6 +4120,29 @@ void EditorApplication::showLandscapeEditWindow(void)
     button->subscribeEvent(CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&EditorApplication::LandscapeFrameFinishClicked, this));
   }//else
+  //values
+  //-- mode
+  switch (mFrameListener->getEditorMode())
+  {
+    case EM_LandscapeUp:
+         radio = static_cast<CEGUI::RadioButton*> (winmgr.getWindow("Editor/LandscapeFrame/TerraUp"));
+         break;
+    case EM_LandscapeDown:
+         radio = static_cast<CEGUI::RadioButton*> (winmgr.getWindow("Editor/LandscapeFrame/TerraDown"));
+         break;
+    default: //EM_LandscapeColour
+         radio = static_cast<CEGUI::RadioButton*> (winmgr.getWindow("Editor/LandscapeFrame/Colour"));
+         break;
+  }//switch
+  radio->setSelected(true);
+  //-- colour
+  spin = static_cast<CEGUI::Spinner*> (winmgr.getWindow("Editor/LandscapeFrame/RedSpin"));
+  spin->setCurrentValue(LandscapeColour.red);
+  spin = static_cast<CEGUI::Spinner*> (winmgr.getWindow("Editor/LandscapeFrame/GreenSpin"));
+  spin->setCurrentValue(LandscapeColour.green);
+  spin = static_cast<CEGUI::Spinner*> (winmgr.getWindow("Editor/LandscapeFrame/BlueSpin"));
+  spin->setCurrentValue(LandscapeColour.blue);
+  //positioning
   frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.2, 0)));
   frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.6, 0)));
   frame->moveToFront();
@@ -4022,9 +4154,42 @@ bool EditorApplication::LandscapeFrameFinishClicked(const CEGUI::EventArgs &e)
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
   if (winmgr.isWindowPresent("Editor/LandscapeFrame"))
   {
+    CEGUI::Spinner* spin = static_cast<CEGUI::Spinner*> (winmgr.getWindow("Editor/LandscapeFrame/RedSpin"));
+    LandscapeColour.red = spin->getCurrentValue();
+    spin = static_cast<CEGUI::Spinner*> (winmgr.getWindow("Editor/LandscapeFrame/GreenSpin"));
+    LandscapeColour.green = spin->getCurrentValue();
+    spin = static_cast<CEGUI::Spinner*> (winmgr.getWindow("Editor/LandscapeFrame/BlueSpin"));
+    LandscapeColour.blue = spin->getCurrentValue();
+
     winmgr.destroyWindow("Editor/LandscapeFrame");
     ModeListClicked(e);
   }//if
+  return true;
+}
+
+bool EditorApplication::LandscapeFrameRadioButtonClicked(const CEGUI::EventArgs &e)
+{
+  const CEGUI::WindowEventArgs& win_event = static_cast<const CEGUI::WindowEventArgs&> (e);
+  if (win_event.window==NULL)
+  {
+    return true;
+  }
+  CEGUI::RadioButton* radio = static_cast<CEGUI::RadioButton*> (win_event.window);
+  if (radio->isSelected())
+  {
+    if (radio->getName()=="Editor/LandscapeFrame/TerraUp")
+    {
+      mFrameListener->setEditorMode(EM_LandscapeUp);
+    }
+    else if (radio->getName()=="Editor/LandscapeFrame/TerraDown")
+    {
+      mFrameListener->setEditorMode(EM_LandscapeDown);
+    }
+    else //"Editor/LandscapeFrame/Colour"
+    {
+      mFrameListener->setEditorMode(EM_LandscapeColour);
+    }//else
+  }
   return true;
 }
 

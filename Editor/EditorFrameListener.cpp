@@ -392,6 +392,30 @@ bool EditorFrameListener::frameEnded(const Ogre::FrameEvent& evt)
 void EditorFrameListener::setEditorMode(const EditorMode em)
 {
   m_Mode = em;
+  if (CEGUI::WindowManager::getSingleton().isWindowPresent("Editor/ModeIndicator"))
+  {
+    switch (m_Mode)
+    {
+        case EM_LandscapeUp:
+             CEGUI::WindowManager::getSingleton().getWindow("Editor/ModeIndicator")->setText("Mode: Landscape (Up)");
+             break;
+        case EM_LandscapeDown:
+             CEGUI::WindowManager::getSingleton().getWindow("Editor/ModeIndicator")->setText("Mode: Landscape (Down)");
+             break;
+        case EM_LandscapeColour:
+             CEGUI::WindowManager::getSingleton().getWindow("Editor/ModeIndicator")->setText("Mode: Landscape (Colour)");
+             break;
+        case EM_Movement:
+             CEGUI::WindowManager::getSingleton().getWindow("Editor/ModeIndicator")->setText("Mode: Movement");
+             break;
+        case EM_Lists:
+             CEGUI::WindowManager::getSingleton().getWindow("Editor/ModeIndicator")->setText("Mode: Catalogue");
+             break;
+        default: //should never happen
+             CEGUI::WindowManager::getSingleton().getWindow("Editor/ModeIndicator")->setText("Mode: unknown");
+             break;
+    }//switch
+  }//if
 }
 
 EditorMode EditorFrameListener::getEditorMode(void)

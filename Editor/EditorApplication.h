@@ -31,6 +31,11 @@ struct mouse_record
   mouse_button_data RightButton;
 };//struct
 
+struct ColourData
+{
+  unsigned char red, green, blue;
+};//struct
+
 //helps us to locate a item within column lists
 CEGUI::ListboxItem * getLbItemAtPoint(const CEGUI::Point& pt, CEGUI::MultiColumnList* mcl);
 
@@ -72,6 +77,9 @@ protected:
 
     DuskObject * mouse_object;
     DuskObject * edit_object;
+
+    //landscape
+    ColourData LandscapeColour;
 
     // These internal methods package up the stages in the startup process
     /** Sets up the application - returns false if the user chooses to abandon configuration. */
@@ -157,7 +165,6 @@ protected:
 	bool StatsButtonClicked(const CEGUI::EventArgs &e);
 
 	bool ModeMoveClicked(const CEGUI::EventArgs &e);
-	//bool ModeLandClicked(const CEGUI::EventArgs &e);
 	bool ModeLandUpClicked(const CEGUI::EventArgs &e);
 	bool ModeLandDownClicked(const CEGUI::EventArgs &e);
 	bool ModeLandColourClicked(const CEGUI::EventArgs &e);
@@ -241,6 +248,7 @@ protected:
 
 	//callbacks for landscape window
 	bool LandscapeFrameFinishClicked(const CEGUI::EventArgs &e);
+	bool LandscapeFrameRadioButtonClicked(const CEGUI::EventArgs &e);
 
 	//scene query wrapper
 	DuskObject* GetObjectAtMouse(const CEGUI::Point& pt);
