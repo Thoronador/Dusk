@@ -6,6 +6,7 @@
 #ifndef NO_OGRE_IN_LANDSCAPE
   #include <OgreManualObject.h>
   #include <OgreSceneManager.h>
+  #include <vector>
 #endif
 
 namespace Dusk
@@ -68,11 +69,23 @@ namespace Dusk
       bool SendDataToEngine(Ogre::SceneManager * scm);
       //remove data from scene manager
       bool RemoveDataFromEngine();
+      /*updates record, i.e. disable and re-enable it to get new data shown
+          Returns true on success, false on failure.
+          If the record is currently not enabled, it returns true and does
+          NOT enable it.
+      */
+      bool Update();
+      //determines, whether record is currently shown
+      bool IsEnabled() const;
+
+      //checks a string for a valid Landscape record name
+      static bool IsLandscapeRecordName(const std::string& val);
       #endif
       //"identifier"
       unsigned int GetID() const;
       static const float cDefaultStride;
       static const float cMinScale;
+      static const std::string cLandscapeNamePrefix;
     private:
       static unsigned int m_genID;
       //not part of actual data, but calculated during loading process
@@ -108,6 +121,13 @@ namespace Dusk
       bool SendToEngine(Ogre::SceneManager * scm);
       //remove loaded data from scene manager
       bool RemoveFromEngine(Ogre::SceneManager * scm);
+      //notify Landscape about a record that needs to be updated
+      void RequestUpdate(LandscapeRecord* who);
+      //returns true, if there are any records who need an update
+      bool NeedsUpdate() const;
+      //performs update of records who requested it since last call,
+      // and returns number of updated records
+      unsigned int UpdateRecords();
       #endif
       //for collision detection
       float GetHeightAtPosition(const float x, const float z) const;
@@ -120,6 +140,9 @@ namespace Dusk
 
       LandscapeRecord ** m_RecordList;
       unsigned int m_numRec, m_Capacity;
+      #ifndef NO_OGRE_IN_LANDSCAPE
+      std::vector<LandscapeRecord*> m_RecordsForUpdate;
+      #endif
   };
 }
 

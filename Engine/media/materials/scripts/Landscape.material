@@ -11,3 +11,30 @@ material Landscape/Green
     } 
   }
 }
+
+material Landscape/Green2
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        colour_op_ex source1 src_current src_current
+      }
+    } 
+  }
+}
+
+material Landscape/VertexColour
+{
+  technique
+  {
+    pass
+    {
+      diffuse vertexcolour
+      ambient vertexcolour
+      lighting off
+    }
+  }
+}

@@ -2751,8 +2751,8 @@ bool EditorApplication::RootMouseMove(const CEGUI::EventArgs &e)
     //we are trying to move (left mouse)/rotate (right mouse) an object here
     std::cout << "DEBUG: mouse delta: x: " << mouse_ea.moveDelta.d_x<<", y: "
               << mouse_ea.moveDelta.d_y<<"\n";
-    //Do we have an object, which we can move or rotate?
-    if (mouse_object != NULL)
+    //Do we have an object, which we can move or rotate? Are we in catalogue mode?
+    if (mouse_object != NULL and mFrameListener->getEditorMode()==EM_Lists)
     {
       if (mFrameListener->IsMouseDown(OIS::MB_Right))
       { //rotate it
@@ -2775,6 +2775,7 @@ bool EditorApplication::RootMouseMove(const CEGUI::EventArgs &e)
           temp.y = cRotationFactor * mouse_ea.moveDelta.d_x;
         }
         mouse_object->SetRotation(mouse_object->GetRotation() + temp);
+        return true;
       }//if
       else
       { //move it
@@ -2790,8 +2791,63 @@ bool EditorApplication::RootMouseMove(const CEGUI::EventArgs &e)
           }
           // not implemented yet
       }//else
-    }//if
+    }//if mouse_object present and Catalogue mode
   }//if buttons (left | right) down
+
+  //change landscape colours
+  if (mFrameListener->IsMouseDown(OIS::MB_Left) and mFrameListener->getEditorMode()==EM_LandscapeColour)
+  {
+    //perform ray scene query
+    // -- not implemented yet
+    Ogre::Ray pickRay;
+    Ogre::RaySceneQuery * rsc_query = NULL;
+    pickRay = EditorCamera::GetSingleton().getOgreCamera()->getCameraToViewportRay(
+              mouse_ea.position.d_x/mWindow->getWidth(), mouse_ea.position.d_y/mWindow->getHeight());
+    rsc_query = mSceneMgr->createRayQuery(pickRay);
+    rsc_query->setRay(pickRay);
+    rsc_query->setSortByDistance(true);
+    //perform query
+    Ogre::RaySceneQueryResult &result = rsc_query->execute();
+    Ogre::RaySceneQueryResult::iterator rsq_iter = result.begin();
+
+    if ( rsq_iter!=result.end())
+    { //found something
+      while (rsq_iter!=result.end())
+      {
+        if (rsq_iter->movable!=NULL)
+        {
+          //found movable object
+          std::cout << "DEBUG: found movable \"" <<rsq_iter->movable->getName()
+                    <<"\" in a distance of "<< rsq_iter->distance <<" units.\n";
+          if (LandscapeRecord::IsLandscapeRecordName(rsq_iter->movable->getName()))
+          {
+            //landscape record found
+            LandscapeRecord* land_rec = NULL;
+            Ogre::Vector3 vec_i = pickRay.getPoint(rsq_iter->distance);
+            land_rec = Landscape::GetSingleton().GetRecordAtXZ(vec_i.x, vec_i.z);
+            if (land_rec!= NULL)
+            {
+              land_rec->SetColour(vec_i.x, vec_i.z, LandscapeColour.red,
+                                  LandscapeColour.green, LandscapeColour.blue);
+              mSceneMgr->destroyQuery(rsc_query);
+              return true;
+              //rsq_iter = result.end();
+            }//if record returned
+          }//if object has Landscape name
+        }//if movable object
+        rsq_iter++;
+      }//while
+    }
+    else
+    {
+      //nothing found
+      std::cout << "DEBUG: Query result was empty.\n";
+    }
+    mSceneMgr->destroyQuery(rsc_query);
+    // -- not implemented yet
+
+  }//if colour
+
   //not completely implemented yet
   return true;
 }

@@ -11,6 +11,7 @@ namespace Dusk
 
   const float LandscapeRecord::cDefaultStride = 5.00;
   const float LandscapeRecord::cMinScale = 0.01;
+  const std::string LandscapeRecord::cLandscapeNamePrefix = "Landscape";
 
 unsigned int GenerateUniqueID()
 {
@@ -323,9 +324,16 @@ bool LandscapeRecord::SetColour(const float x, const float z, const unsigned cha
     unsigned int x_idx, y_idx;
     x_idx = (x-m_OffsetX)/m_Stride;
     y_idx = (z-m_OffsetY)/m_Stride;
+    std::cout << "DEBUG: LandscapeRecord::SetColour(): x_idx="<<x_idx<<", y_idx="<<y_idx<<"\n";
     Colour[x_idx][y_idx][0] = r;
     Colour[x_idx][y_idx][1] = g;
     Colour[x_idx][y_idx][2] = b;
+    #ifndef NO_OGRE_IN_LANDSCAPE
+    if (IsEnabled())
+    {
+      Landscape::GetSingleton().RequestUpdate(this);
+    }
+    #endif
     return true;
   }
   return false;
@@ -358,11 +366,12 @@ bool LandscapeRecord::SendDataToEngine(Ogre::SceneManager * scm)
   std::stringstream convert;
   convert << GetID();
 
-  m_OgreObject = scm->createManualObject("Landscape"+convert.str());
+  m_OgreObject = scm->createManualObject(cLandscapeNamePrefix+convert.str());
   m_OgreObject->estimateVertexCount(65*65);
   m_OgreObject->estimateIndexCount(64*64*6);
   m_OgreObject->setDynamic(false);
-  m_OgreObject->begin("Landscape/Green", Ogre::RenderOperation::OT_TRIANGLE_LIST);
+  //m_OgreObject->begin("Landscape/Green", Ogre::RenderOperation::OT_TRIANGLE_LIST);
+  m_OgreObject->begin("Landscape/VertexColour", Ogre::RenderOperation::OT_TRIANGLE_LIST);
   unsigned int j, k;
   //vectors
   for (j=0; j<65; j++)
@@ -428,6 +437,57 @@ bool LandscapeRecord::RemoveDataFromEngine()
   m_OgreObject = NULL;
   return true;
 }
+
+bool LandscapeRecord::Update()
+{
+  if (m_OgreObject == NULL)
+  {
+    return true;
+  }
+  Ogre::SceneManager* scm = m_OgreObject->getParentSceneNode()->getCreator();
+  if (scm==NULL)
+  {
+    std::cout << "LandscapeRecord::Update: ERROR: SceneManager is NULL.\n";
+    return false;
+  }
+  if (!RemoveDataFromEngine())
+  {
+    std::cout << "LandscapeRecord::Update: ERROR: Could not remove record.\n";
+    return false;
+  }
+  if (!SendDataToEngine(scm))
+  {
+    std::cout << "LandscapeRecord::Update: ERROR: Could not enable record.\n";
+    return false;
+  }
+  return true;
+}
+
+bool LandscapeRecord::IsEnabled() const
+{
+  return (m_OgreObject != NULL);
+}
+
+bool LandscapeRecord::IsLandscapeRecordName(const std::string& val)
+{
+  if (val.length()<=cLandscapeNamePrefix.length())
+  {
+    return false;
+  }
+  if (val.substr(0,cLandscapeNamePrefix.length())!=cLandscapeNamePrefix)
+  {
+    return false;
+  }
+  std::stringstream s_str(val.substr(cLandscapeNamePrefix.length()));
+  int value = -1;
+  if (!(s_str>>value))
+  {
+    return false;
+  }
+  return (value>=0);
+  //return (StringToInt(val.substr(cLandscapeNamePrefix.length()), -1)>=0);
+}
+
 #endif //ifndef NO_OGRE_IN_LANDSCAPE
 
 unsigned int LandscapeRecord::GetID() const
@@ -446,6 +506,7 @@ Landscape::Landscape()
   m_RecordList = NULL;
   m_numRec = 0;
   m_Capacity = 0;
+  m_RecordsForUpdate.clear();
 }
 
 Landscape::~Landscape()
@@ -773,6 +834,40 @@ bool Landscape::RemoveFromEngine(Ogre::SceneManager * scm)
     scm->getRootSceneNode()->removeChild(cLandNodeName);
   }
   return true;
+}
+
+void Landscape::RequestUpdate(LandscapeRecord* who)
+{
+  if (who!=NULL)
+  {
+    if (m_RecordsForUpdate.empty())
+    {
+      m_RecordsForUpdate.push_back(who);
+    }
+    else if (m_RecordsForUpdate.back()!=who)
+    {
+      m_RecordsForUpdate.push_back(who);
+    }
+  }
+}
+
+bool Landscape::NeedsUpdate() const
+{
+  return (!(m_RecordsForUpdate.empty()));
+}
+
+unsigned int Landscape::UpdateRecords()
+{
+  unsigned int count = 0;
+  while (!m_RecordsForUpdate.empty())
+  {
+    if (m_RecordsForUpdate.back()->Update())
+    {
+      count++;
+    }
+    m_RecordsForUpdate.pop_back();
+  }
+  return count;
 }
 
 #endif //ifndef NO_OGRE_IN_LANDSCAPE

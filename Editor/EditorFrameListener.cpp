@@ -1,5 +1,6 @@
 #include "EditorFrameListener.h"
 #include "EditorCamera.h"
+#include "../Engine/Landscape.h"
 
 namespace Dusk
 {
@@ -384,8 +385,12 @@ bool EditorFrameListener::frameEnded(const Ogre::FrameEvent& evt)
 {
   //move camera
   EditorCamera::GetSingleton().processMovement(evt);
-
-  updateStats();
+  //check for landscape updates
+  if (Landscape::GetSingleton().NeedsUpdate())
+  {
+    std::cout << "Info: "<<Landscape::GetSingleton().UpdateRecords()<< " landscape records updated.\n";
+  }
+  //updateStats();
   return true;
 }
 
