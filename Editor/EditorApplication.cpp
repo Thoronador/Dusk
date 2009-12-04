@@ -22,6 +22,7 @@ namespace Dusk
 const CEGUI::colour cSelectionColour = CEGUI::colour(65.0f/255.0f, 105.0f/255.0f, 225.0f/255.0f, 0.5f);
 const float cRotationFactor = 2.5f;
 const float cMovementFactor = 3.5f;
+const float cTerraformDelta = 1.25f;
 
 std::string OgreLightTypeToString(const Ogre::Light::LightTypes val)
 {
@@ -164,7 +165,6 @@ void EditorApplication::go(void)
     return;
 
   mRoot->startRendering();
-
   // clean up
   destroyScene();
 }
@@ -2794,11 +2794,11 @@ bool EditorApplication::RootMouseMove(const CEGUI::EventArgs &e)
     }//if mouse_object present and Catalogue mode
   }//if buttons (left | right) down
 
-  //change landscape colours
-  if (mFrameListener->IsMouseDown(OIS::MB_Left) and mFrameListener->getEditorMode()==EM_LandscapeColour)
+  //change landscape colours, or perform terraforming activities
+  if (mFrameListener->IsMouseDown(OIS::MB_Left) and (mFrameListener->getEditorMode()==EM_LandscapeColour
+      or mFrameListener->getEditorMode()==EM_LandscapeUp or mFrameListener->getEditorMode()==EM_LandscapeDown))
   {
     //perform ray scene query
-    // -- not implemented yet
     Ogre::Ray pickRay;
     Ogre::RaySceneQuery * rsc_query = NULL;
     pickRay = EditorCamera::GetSingleton().getOgreCamera()->getCameraToViewportRay(
@@ -2827,11 +2827,24 @@ bool EditorApplication::RootMouseMove(const CEGUI::EventArgs &e)
             land_rec = Landscape::GetSingleton().GetRecordAtXZ(vec_i.x, vec_i.z);
             if (land_rec!= NULL)
             {
-              land_rec->SetColour(vec_i.x, vec_i.z, LandscapeColour.red,
+              switch(mFrameListener->getEditorMode())
+              {
+                case EM_LandscapeColour:
+                     land_rec->SetColour(vec_i.x, vec_i.z, LandscapeColour.red,
                                   LandscapeColour.green, LandscapeColour.blue);
+                     break;
+                case EM_LandscapeUp:
+                     land_rec->Terraform(vec_i.x, vec_i.z, cTerraformDelta);
+                     break;
+                case EM_LandscapeDown:
+                     land_rec->Terraform(vec_i.x, vec_i.z, -cTerraformDelta);
+                     break;
+                default://should never happen, because of if-branch in line 2798
+                     std::cout<<"EditorApplication::RootMouseMove: Programming "
+                              <<"error, you should not be here.\n"; break;
+              }//swi
               mSceneMgr->destroyQuery(rsc_query);
               return true;
-              //rsq_iter = result.end();
             }//if record returned
           }//if object has Landscape name
         }//if movable object
@@ -2844,10 +2857,7 @@ bool EditorApplication::RootMouseMove(const CEGUI::EventArgs &e)
       std::cout << "DEBUG: Query result was empty.\n";
     }
     mSceneMgr->destroyQuery(rsc_query);
-    // -- not implemented yet
-
-  }//if colour
-
+  }//if colour or terraform
   //not completely implemented yet
   return true;
 }

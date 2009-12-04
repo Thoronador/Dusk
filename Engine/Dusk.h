@@ -43,9 +43,9 @@ description:
 This Header defines the Camera class
 
 description:
-    That's a free flying Camera
+    That's a free flying Camera.
 status:
-    doesn't work right now
+    works, but might be extended in future
 */
 #include "Camera.h"
 
@@ -147,6 +147,14 @@ description:
     It sets the volume values of sounds.
 */
 #include "CommandSoundVolume.h"
+
+/*
+This Header defines the CommandZoom class
+
+description:
+    Zooms the camera in and out.
+*/
+#include "CommandZoom.h"
 
 
 /*

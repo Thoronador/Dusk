@@ -69,8 +69,18 @@ InputSystemBinding& InputSystemBinding::get()
 
 bool InputSystemBinding::mouseMoved( const OIS::MouseEvent &arg )
 {
-    const std::string mouseMoveCommand = "MoveMouse ";
-    Console::getInstance()->addScript(Script());
+    //Movement of the mouse wheel is considered movement of the z-axis in OIS.
+    if (arg.state.Z.rel>0)
+    {
+      Console::getInstance()->addScript(Script("ZoomIn"));
+    }
+    else if (arg.state.Z.rel<0)
+    {
+      Console::getInstance()->addScript(Script("ZoomOut"));
+    }
+
+    /*const std::string mouseMoveCommand = "MoveMouse ";
+    Console::getInstance()->addScript(Script());*/
     return true;
 }
 

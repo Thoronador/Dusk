@@ -10,6 +10,7 @@
 #include "CommandNoiseSound.h"
 #include "CommandMediaSound.h"
 #include "CommandAssociateSound.h"
+#include "CommandZoom.h"
 #include "DuskTypes.h"
 #include <iostream>
 #include <sstream>
@@ -347,6 +348,20 @@ int Console::executeCommand(std::string p_string)
                 m_Dispatcher->executeCommand(com);
             }
         }
+        // --- Zoom commands ---
+        else if (command[0] == "ZoomIn")
+        {
+            com = new CommandZoom(true);
+            m_Dispatcher->executeCommand(com);
+            std::cout << "Zoom in" << std::endl;
+        }
+        else if (command[0] == "ZoomOut")
+        {
+            com = new CommandZoom(false);
+            m_Dispatcher->executeCommand(com);
+            std::cout << "Zoom out" << std::endl;
+        }
+        // --- no command recognised ---
         else
         {
             std::cout << "Console::executeCommand: Parser error." << std::endl;
@@ -354,7 +369,8 @@ int Console::executeCommand(std::string p_string)
     }
     if(com) delete com;
 
-    // we should still return true; or return false; here
+    // we should still return something; here
+    return 0;
 }
 
 }

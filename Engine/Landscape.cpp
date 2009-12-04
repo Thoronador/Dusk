@@ -30,7 +30,6 @@ LandscapeRecord::LandscapeRecord()
   m_Loaded = false;
   #ifndef NO_OGRE_IN_LANDSCAPE
   m_OgreObject = NULL;
-  m_scm = NULL;
   #endif
   m_RecordID = GenerateUniqueID();
   m_OffsetX = 0.0;
@@ -300,6 +299,12 @@ void LandscapeRecord::MoveTo(const float Offset_X, const float Offset_Y)
 {
   m_OffsetX = Offset_X;
   m_OffsetY = Offset_Y;
+  #ifndef NO_OGRE_IN_LANDSCAPE
+  if (IsEnabled())
+  {
+    Landscape::GetSingleton().RequestUpdate(this);
+  }
+  #endif
 }
 
 bool LandscapeRecord::Terraform(const float x, const float z, const float delta)
@@ -311,6 +316,21 @@ bool LandscapeRecord::Terraform(const float x, const float z, const float delta)
     x_idx = (x-m_OffsetX)/m_Stride;
     y_idx = (z-m_OffsetY)/m_Stride;
     Height[x_idx][y_idx] += delta;
+    //adjust highest/ lowest values, if neccessary
+    if (Height[x_idx][y_idx] > m_Highest)
+    {
+      m_Highest = Height[x_idx][y_idx];
+    }
+    else if (Height[x_idx][y_idx] < m_Lowest)
+    {
+      m_Lowest = Height[x_idx][y_idx];
+    }
+    #ifndef NO_OGRE_IN_LANDSCAPE
+    if (IsEnabled())
+    {
+      Landscape::GetSingleton().RequestUpdate(this);
+    }
+    #endif
     return true;
   }
   return false;
@@ -404,7 +424,6 @@ bool LandscapeRecord::SendDataToEngine(Ogre::SceneManager * scm)
   }//for j
   m_OgreObject->end();
   landnode->attachObject(m_OgreObject);
-  m_scm = scm;
   return true;
 }
 

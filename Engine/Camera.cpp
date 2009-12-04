@@ -7,6 +7,11 @@ namespace Dusk
 
     const float Camera::cAboveGroundLevel = 50.0;
 
+    //limits for zoom distance (values are chosen randomly)
+    const float Camera::cMinimumZoom = 0.0;
+    const float Camera::cMaximumZoom = 500.0;
+    const float Camera::cRecommendedZoomStep = 2.5;
+
     Camera::Camera(Ogre::SceneManager* scn)
     {
         //ctor
@@ -25,7 +30,20 @@ namespace Dusk
 
     Camera::~Camera()
     {
-        //dtor
+        //destructor
+        m_translationVector = Ogre::Vector3::ZERO;
+        m_RotationPerSecond = 0.0f;
+        getAPI().setDuskCamera(NULL);
+        //now detach and delete everything related to the camera
+        m_Secondary->detachObject(m_Camera);
+        m_Secondary->getCreator()->destroyCamera(m_Camera);
+        m_Camera = NULL;
+        m_Primary->removeChild(m_Secondary);
+        m_Secondary->getCreator()->destroySceneNode(m_Secondary->getName());
+        m_Secondary = NULL;
+        m_Primary->getParentSceneNode()->removeChild(m_Primary);
+        m_Primary->getCreator()->destroySceneNode(m_Primary->getName());
+        m_Primary = NULL;
     }
 
     Ogre::Camera* Camera::getOgreCamera()
@@ -68,6 +86,30 @@ namespace Dusk
     void Camera::rotate(const float rotation)
     {
         m_RotationPerSecond += rotation;
+    }
+
+    void Camera::setZoom(const float distance)
+    {
+      if (distance >= cMinimumZoom)
+      {
+        if (distance <= cMaximumZoom)
+        {
+          m_Secondary->setPosition(0.0f, 0.0f, distance);
+        }
+        else
+        {
+          m_Secondary->setPosition(0.0f, 0.0f, cMaximumZoom);
+        }
+      }
+      else
+      {
+        m_Secondary->setPosition(0.0f, 0.0f, cMinimumZoom);
+      }
+    }
+
+    float Camera::getZoom() const
+    {
+      return m_Secondary->getPosition().z;
     }
 }
 

@@ -96,7 +96,6 @@ namespace Dusk
       unsigned int m_RecordID;
       #ifndef NO_OGRE_IN_LANDSCAPE
       Ogre::ManualObject * m_OgreObject;
-      Ogre::SceneManager * m_scm;
       #endif
   };
 
