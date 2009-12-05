@@ -1,5 +1,6 @@
 #include "AnimatedObject.h"
 #include "ObjectBase.h" //should replace this one later
+#include <OgreMath.h>
 
 namespace Dusk
 {
@@ -7,16 +8,23 @@ namespace Dusk
 AnimatedObject::AnimatedObject()
 {
   //ctor
+  ID = "";
   position = Ogre::Vector3::ZERO;
   rotation = Ogre::Vector3::ZERO;
+  m_Scale = 1.0f;
+  entity = NULL;
   m_Direction = Ogre::Vector3::ZERO;
-  objectType = otAnimated;
+  m_Destination = Ogre::Vector3::ZERO;
   m_Speed = 0.0f;
   m_Travel = false;
 
   m_Anim = "";
   m_DoPlayAnim = false;
   m_LoopAnim = false;
+
+  m_WaypointTravel = false;
+  m_Waypoints.clear();
+  m_currentWaypoint = 0;
 }
 
 AnimatedObject::AnimatedObject(const std::string _ID, const Ogre::Vector3 pos, const Ogre::Vector3 rot, const float Scale)
@@ -30,13 +38,25 @@ AnimatedObject::AnimatedObject(const std::string _ID, const Ogre::Vector3 pos, c
   } else {
     m_Scale = 1.0f;
   }
-  objectType = otAnimated;
   entity = NULL;
+  m_Direction = Ogre::Vector3::ZERO;
+  m_Destination = Ogre::Vector3::ZERO;
+  m_Speed = 0.0f;
+  m_Travel = false;
+
+  m_Anim = "";
+  m_DoPlayAnim = false;
+  m_LoopAnim = false;
+
+  m_WaypointTravel = false;
+  m_Waypoints.clear();
+  m_currentWaypoint = 0;
 }
 
 AnimatedObject::~AnimatedObject()
 {
   //dtor
+  Disable();
 }
 
 Ogre::Vector3 AnimatedObject::GetDirection() const
@@ -48,7 +68,6 @@ void AnimatedObject::SetDirection(const Ogre::Vector3& direc)
 {
   m_Direction = direc;
   m_Direction.normalise();
-  std::cout << "Länge des Vektors: "<<m_Direction.length()<<"\n";
 }
 
 float AnimatedObject::GetSpeed() const
@@ -118,6 +137,11 @@ bool AnimatedObject::Enable(Ogre::SceneManager* scm)
   return (entity!=NULL);
 }
 
+ObjectTypes AnimatedObject::GetType() const
+{
+  return otAnimated;
+}
+
 void AnimatedObject::PlayAnimation(const std::string& AnimName, const bool DoLoop)
 {
   if (AnimName == m_Anim and DoLoop==m_LoopAnim)
@@ -181,12 +205,30 @@ void AnimatedObject::Move(const float SecondsPassed)
   {
     float Distance = Ogre::Vector3(m_Destination-GetPosition()).squaredLength();
     //are we moving to fast?
-    if (m_Speed*SecondsPassed>Distance)
+    if (Ogre::Math::Sqr(m_Speed*SecondsPassed)>Distance)
     { //finished travelling
       SetPosition(m_Destination);
-      m_Travel = false;
-      m_Direction = Ogre::Vector3::ZERO;
-      m_Speed = 0.0f;
+      if (!m_WaypointTravel)
+      {
+        m_Travel = false;
+        m_Direction = Ogre::Vector3::ZERO;
+        m_Speed = 0.0f;
+      }
+      else
+      { //we have waypoints, select the next one
+        if (m_currentWaypoint+1>=m_Waypoints.size())
+        { //we have run out of waypoints, so let's stop
+          m_Travel = false;
+          m_WaypointTravel = false;
+          m_Direction = Ogre::Vector3::ZERO;
+          m_Speed = 0.0f;
+        }
+        else
+        { //there are more waypoints, so select next
+          m_currentWaypoint++;
+          TravelToDestination(m_Waypoints.at(m_currentWaypoint));
+        }
+      }
     }
     else
     {
@@ -206,6 +248,38 @@ void AnimatedObject::Move(const float SecondsPassed)
       entity->getAnimationState(m_Anim)->addTime(SecondsPassed);
     }
   }
+}
+
+unsigned int AnimatedObject::AddWaypoint(const Ogre::Vector3& waypoint)
+{
+  if (m_Waypoints.empty())
+  {
+    m_Waypoints.push_back(waypoint);
+    return 1;
+  }
+  //avoid having the same waypoint twice in a row
+  if (m_Waypoints.back()!=waypoint)
+  {
+    m_Waypoints.push_back(waypoint);
+  }
+  return m_Waypoints.size();
+}
+
+/* tells the object whether to use waypoints or not */
+void AnimatedObject::setUseWaypoints(const bool doUse)
+{
+  m_WaypointTravel = doUse;
+  if (doUse && m_currentWaypoint<m_Waypoints.size())
+  { //we have points and want movement, so start it
+    TravelToDestination(m_Waypoints.at(m_currentWaypoint));
+  }
+}
+
+void AnimatedObject::clearWaypoints()
+{
+  m_Waypoints.clear();
+  m_WaypointTravel = false;
+  m_currentWaypoint = 0;
 }
 
 }

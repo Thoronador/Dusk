@@ -102,8 +102,20 @@ void Scene::createGrassMesh()
                                     Ogre::Vector3(0.0f, 0.0f, 0.0f), 0.55f);
         aniObj->Enable(m_SceneManager);
         aniObj->SetSpeed(12.5f);
-        aniObj->TravelToDestination(Ogre::Vector3(200.0f, 30.0f, 0.0f));
+        //aniObj->TravelToDestination(Ogre::Vector3(200.0f, 30.0f, 0.0f));
         aniObj->PlayAnimation("Walk", true);
+        aniObj->AddWaypoint(Ogre::Vector3(200.0f, 30.0f, 0.0f));
+        aniObj->AddWaypoint(Ogre::Vector3(200.0f, 50.0f, -200.0f));
+        aniObj->AddWaypoint(Ogre::Vector3(0.0f, 0.0f, 30.0f));
+        aniObj->AddWaypoint(Ogre::Vector3(200.0f, 30.0f, 0.0f));
+        aniObj->setUseWaypoints(true);
+        //just out of curiosity
+        std::cout << "Animated robot type enum (int): "<<(int)(aniObj->GetType())<<"\n"
+                  << "  sizeof(DuskObject): "<<sizeof(DuskObject)<<" bytes\n"
+                  << "  sizeof(Light): "<<sizeof(Light)<<" bytes\n"
+                  << "  sizeof(Container): "<<sizeof(Container)<<" bytes\n"
+                  << "  sizeof(AnimatedObject): "<<sizeof(AnimatedObject)<<" bytes\n"
+                  << "  sizeof(ObjectTypes): "<<sizeof(ObjectTypes)<<" bytes\n";
         //end of animated object
 
         Ogre::Plane plane;

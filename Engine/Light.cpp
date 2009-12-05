@@ -10,7 +10,6 @@ Light::Light()
   : DuskObject()
 {
   //constructor
-  objectType = otLight;
   m_Direction = Ogre::Vector3::ZERO;
 }
 
@@ -18,7 +17,6 @@ Light::Light(const std::string& ID, const Ogre::Vector3& pos, const Ogre::Vector
   : DuskObject(ID, pos, Ogre::Vector3::ZERO, 1.0f)
 {
   //constructor
-  objectType = otLight;
   m_Direction = dir;
 }
 
@@ -79,6 +77,11 @@ bool Light::Disable()
   scm->destroyLight(entity);
   entity = NULL;
   return true;
+}
+
+ObjectTypes Light::GetType() const
+{
+  return otLight;
 }
 
 void Light::SetDirection(const Ogre::Vector3& dir)

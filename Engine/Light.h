@@ -16,12 +16,13 @@ namespace Dusk
       Light();
       Light(const std::string& ID, const Ogre::Vector3& pos = Ogre::Vector3::ZERO,
             const Ogre::Vector3& dir = Ogre::Vector3::ZERO);
-      bool Enable(Ogre::SceneManager* scm);
-      bool Disable();
+      virtual bool Enable(Ogre::SceneManager* scm);
+      virtual bool Disable();
+      virtual ObjectTypes GetType() const;
       void SetDirection(const Ogre::Vector3& dir);
       Ogre::Vector3 GetDirection() const;
-      bool SaveToStream(std::ofstream& OutStream) const;
-      bool LoadFromStream(std::ifstream& InStream);
+      virtual bool SaveToStream(std::ofstream& OutStream) const;
+      virtual bool LoadFromStream(std::ifstream& InStream);
     protected:
       Ogre::Light* entity;
       Ogre::Vector3 m_Direction;

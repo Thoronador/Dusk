@@ -8,7 +8,6 @@ namespace Dusk
 Container::Container()
     : DuskObject()
 {
-  objectType = otContainer;
   m_Changed = false;
   m_Contents.MakeEmpty();
 }
@@ -16,7 +15,6 @@ Container::Container()
 Container::Container(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale)
     : DuskObject(_ID, pos, rot, Scale)
 {
-  objectType = otContainer;
   m_Changed = false;
   m_Contents.MakeEmpty();
   ContainerBase::GetSingleton().GetContainerInventory(_ID).AddAllTo(m_Contents);
@@ -91,6 +89,11 @@ bool Container::Enable(Ogre::SceneManager* scm)
   //set user defined object to this object as reverse link
   entity->setUserObject(this);
   return (entity!=NULL);
+}
+
+ObjectTypes Container::GetType() const
+{
+  return otContainer;
 }
 
 bool Container::SaveToStream(std::ofstream& OutStream) const

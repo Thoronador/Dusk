@@ -23,7 +23,11 @@ description:
 This Header defines the AnimatedObject class
 
 description:
-    provided for future use
+    The class represents an animated and possibly moving object in
+    the game. This could be something like a flag waving in the wind
+    or a rolling barrel.
+status:
+    testing, but seems to work
 */
 #include "AnimatedObject.h"
 

@@ -48,9 +48,8 @@ DuskObject::DuskObject()
   ID = "";
   position = Ogre::Vector3::ZERO;
   rotation = Ogre::Vector3::ZERO;
-  entity = NULL;
-  objectType = otStatic;
   m_Scale = 1.0f;
+  entity = NULL;
 }
 
 DuskObject::DuskObject(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale)
@@ -64,7 +63,6 @@ DuskObject::DuskObject(const std::string& _ID, const Ogre::Vector3& pos, const O
   } else {
     m_Scale = 1.0f;
   }
-  objectType = otStatic;
   entity = NULL;
 }
 
@@ -204,7 +202,7 @@ bool DuskObject::IsEnabled() const
 
 ObjectTypes DuskObject::GetType() const
 {
-  return objectType;
+  return otStatic;
 }
 
 bool DuskObject::SaveToStream(std::ofstream& OutStream) const
