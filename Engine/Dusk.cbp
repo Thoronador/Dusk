@@ -158,6 +158,8 @@
 		<Unit filename="Light.h" />
 		<Unit filename="LightBase.cpp" />
 		<Unit filename="LightBase.h" />
+		<Unit filename="NPC.cpp" />
+		<Unit filename="NPC.h" />
 		<Unit filename="ObjectBase.cpp" />
 		<Unit filename="ObjectBase.h" />
 		<Unit filename="ObjectData.cpp" />
@@ -169,6 +171,8 @@
 		<Unit filename="Settings.h" />
 		<Unit filename="Sound.cpp" />
 		<Unit filename="Sound.h" />
+		<Unit filename="Weather.cpp" />
+		<Unit filename="Weather.h" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />

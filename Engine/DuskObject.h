@@ -10,7 +10,7 @@
 
 namespace Dusk{
 
-enum ObjectTypes {otUndefined, otStatic, otItem, otAnimated, otLight, otContainer};
+enum ObjectTypes {otUndefined, otStatic, otItem, otAnimated, otLight, otContainer, otNPC};
 
 unsigned int GenerateUniqueObjectID();
 

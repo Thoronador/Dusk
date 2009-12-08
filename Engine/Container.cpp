@@ -31,7 +31,7 @@ bool Container::IsEmpty() const
   return m_Contents.IsEmpty();
 }
 
-void Container::TransferAllContentTo(Inventory& target)
+void Container::TransferAllItemsTo(Inventory& target)
 {
   m_Contents.AddAllTo(target);
   m_Contents.MakeEmpty();

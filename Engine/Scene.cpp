@@ -7,6 +7,7 @@
 #include "ObjectData.h"
 #include "AnimatedObject.h"
 #include "AnimationData.h"
+#include "Weather.h"
 
 namespace Dusk
 {
@@ -151,7 +152,13 @@ void Scene::createGrassMesh()
             }
 
         sg->build();
+
+        //fog effect
+        Weather& w_singleton = Weather::getSingelton();
+        w_singleton.setFogColour(0.9, 0.9, 0.9);
+        w_singleton.startLinearFog(50.0, 500.0);
     }
+
     void Scene::destroyScene()
     {
       Landscape::GetSingleton().RemoveFromEngine(getAPI().getOgreSceneManager());

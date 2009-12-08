@@ -309,6 +309,17 @@ status:
 
 
 /*
+This Header defines the NPC class.
+
+description:
+    Represents a NPC in the game
+status:
+    not working, under development
+*/
+#include "NPC.h"
+
+
+/*
 This Header defines the Scene singelton class.
 
 description:
@@ -350,6 +361,18 @@ status:
     Seems to work fine (until proven otherwise)
 */
 #include "Sound.h"
+
+
+/*
+This Header defines the Weather singleton class.
+
+description:
+    This class implements all weather-related stuff like rain, fog,
+    sunshine, change between day and night, and so on.
+status:
+    fog works, other things still need to be done
+*/
+#include "Weather.h"
 
 
 #endif

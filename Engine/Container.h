@@ -14,7 +14,7 @@ namespace Dusk
       Container(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale);
       virtual ~Container();
       bool IsEmpty() const;
-      void TransferAllContentTo(Inventory& target);
+      void TransferAllItemsTo(Inventory& target);
       void AddItem(const std::string& ItemID, const unsigned int count);
       unsigned int RemoveItem(const std::string& ItemID, const unsigned int count);
       unsigned int GetItemCount(const std::string& ItemID) const;
