@@ -98,7 +98,7 @@ void Inventory::MakeEmpty()
   m_TotalWeight = 0.0f;
 }
 
-void Inventory::AddAllTo(Inventory& target) const
+void Inventory::AddAllItemsTo(Inventory& target) const
 {
   std::map<std::string, unsigned int>::const_iterator iter = m_Items.begin();
   while (iter!=m_Items.end())

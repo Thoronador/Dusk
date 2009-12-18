@@ -3,8 +3,8 @@
 
 #include <string>
 #include <map>
-#include "Inventory.h"
 #include <fstream>
+#include "Inventory.h"
 
 namespace Dusk
 {

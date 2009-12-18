@@ -17,7 +17,7 @@ Container::Container(const std::string& _ID, const Ogre::Vector3& pos, const Ogr
 {
   m_Changed = false;
   m_Contents.MakeEmpty();
-  ContainerBase::GetSingleton().GetContainerInventory(_ID).AddAllTo(m_Contents);
+  ContainerBase::GetSingleton().GetContainerInventory(_ID).AddAllItemsTo(m_Contents);
 }
 
 Container::~Container()
@@ -33,7 +33,7 @@ bool Container::IsEmpty() const
 
 void Container::TransferAllItemsTo(Inventory& target)
 {
-  m_Contents.AddAllTo(target);
+  m_Contents.AddAllItemsTo(target);
   m_Contents.MakeEmpty();
   m_Changed = true;
 }
@@ -221,7 +221,7 @@ bool Container::LoadFromStream(std::ifstream& InStream)
   else
   { //inventory was not changed, so get it from ContainerBase
     m_Contents.MakeEmpty();
-    ContainerBase::GetSingleton().GetContainerInventory(ID).AddAllTo(m_Contents);
+    ContainerBase::GetSingleton().GetContainerInventory(ID).AddAllItemsTo(m_Contents);
   }
   return (InStream.good());
 }

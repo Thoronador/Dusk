@@ -39,7 +39,7 @@ class Inventory
     void MakeEmpty();
 
     /* Adds all items from this Inventory to the target Inventory. */
-    void AddAllTo(Inventory& target) const;
+    void AddAllItemsTo(Inventory& target) const;
 
     /* GetTotalWeight: returns the sum of the weights of all items currently in
        the inventory. */
@@ -54,12 +54,12 @@ class Inventory
 
     /* saves contents of inventory to given stream and returns true on success,
        false otherwise */
-    bool SaveToStream(std::ofstream& OutStream) const;
+    virtual bool SaveToStream(std::ofstream& OutStream) const;
 
     /* Loads contents of inventory from stream and returns true on success,
        false otherwise. The Inventory content is probably inconsistent after
        that function failed, so don't rely on its contents in that case. */
-    bool LoadFromStream(std::ifstream& InStream);
+    virtual bool LoadFromStream(std::ifstream& InStream);
 
     std::map<std::string, unsigned int>::const_iterator GetFirst() const;
     std::map<std::string, unsigned int>::const_iterator GetEnd() const;

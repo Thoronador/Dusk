@@ -35,12 +35,12 @@ void ContainerBase::AddContainer(const std::string& ID, const std::string& _mesh
     //not present, so create it
     m_ContainerList[ID].Mesh = _mesh;
     m_ContainerList[ID].ContainerInventory = Inventory();
-    contents.AddAllTo(m_ContainerList[ID].ContainerInventory);
+    contents.AddAllItemsTo(m_ContainerList[ID].ContainerInventory);
     return;
   }//if
   iter->second.Mesh = _mesh;
   iter->second.ContainerInventory.MakeEmpty();
-  contents.AddAllTo(iter->second.ContainerInventory);
+  contents.AddAllItemsTo(iter->second.ContainerInventory);
   return;
 }
 
