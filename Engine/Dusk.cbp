@@ -160,6 +160,8 @@
 		<Unit filename="LightBase.h" />
 		<Unit filename="NPC.cpp" />
 		<Unit filename="NPC.h" />
+		<Unit filename="NPCBase.cpp" />
+		<Unit filename="NPCBase.h" />
 		<Unit filename="ObjectBase.cpp" />
 		<Unit filename="ObjectBase.h" />
 		<Unit filename="ObjectData.cpp" />

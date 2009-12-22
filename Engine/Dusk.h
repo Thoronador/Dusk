@@ -10,7 +10,7 @@
 
 
 /*
-This Header defines the API Singelton class
+This Header defines the API Singelton class.
 
 description:
     API holds pointers to some important Ogre and Dusk Objects
@@ -320,12 +320,23 @@ status:
 
 
 /*
+This Header defines the NPCBase Singelton class.
+
+description:
+    NPCBase holds information about the state of NPCs at the point of their
+    creation.
+status:
+    untested, but I don't expect to many problems in its current state
+*/
+#include "NPCBase.h"
+
+/*
 This Header defines the Scene singelton class.
 
 description:
     It manages all Objects.
 status:
-    Right now it only creates a small Scene.
+    Right now it only creates a small Scene with a few objects.
 */
 #include "Scene.h"
 
