@@ -197,6 +197,18 @@ status:
 
 
 /*
+This Header defines the DiceBox Singelton class.
+
+description:
+    DiceBox provides functions to generate random numbers, or in game
+    terms "throws a die" (or more).
+status:
+    works
+*/
+#include "DiceBox.h"
+
+
+/*
 This Header defines the Dispatcher singelton class
 
 description:
