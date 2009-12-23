@@ -137,6 +137,8 @@
 		<Unit filename="Dispatcher.h" />
 		<Unit filename="Dusk.h" />
 		<Unit filename="DuskConstants.h" />
+		<Unit filename="DuskFunctions.cpp" />
+		<Unit filename="DuskFunctions.h" />
 		<Unit filename="DuskObject.cpp" />
 		<Unit filename="DuskObject.h" />
 		<Unit filename="DuskTypes.h" />
@@ -172,6 +174,7 @@
 		<Unit filename="Scene.h" />
 		<Unit filename="Script.cpp" />
 		<Unit filename="Script.h" />
+		<Unit filename="Settings.cpp" />
 		<Unit filename="Settings.h" />
 		<Unit filename="Sound.cpp" />
 		<Unit filename="Sound.h" />

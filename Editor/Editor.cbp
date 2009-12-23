@@ -65,6 +65,7 @@
 		<Unit filename="../Engine/DataLoader.cpp" />
 		<Unit filename="../Engine/DataLoader.h" />
 		<Unit filename="../Engine/DuskConstants.h" />
+		<Unit filename="../Engine/DuskFunctions.cpp" />
 		<Unit filename="../Engine/DuskFunctions.h" />
 		<Unit filename="../Engine/DuskObject.cpp" />
 		<Unit filename="../Engine/DuskObject.h" />

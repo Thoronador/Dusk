@@ -7,6 +7,7 @@
 #include "../Engine/ItemBase.h"
 #include "../Engine/LightBase.h"
 #include "../Engine/DuskObject.h"
+#include "../Engine/DuskFunctions.h"
 #include <OgreCEGUIRenderer.h>
 #include <CEGUI/CEGUI.h>
 #include <string>
@@ -14,11 +15,6 @@
 
 namespace Dusk
 {
-
-struct FileEntry {
-           std::string FileName;
-           bool IsDirectory;
-};//struct
 
 struct mouse_button_data
 {

@@ -228,6 +228,17 @@ status:
 */
 #include "DuskConstants.h"
 
+
+/*
+This Header defines some functions, which are used among various
+headers and source files.
+
+status:
+    working
+*/
+#include "DuskFunctions.h"
+
+
 /*
 This Header defines the DuskObject class.
 

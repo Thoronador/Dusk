@@ -10,6 +10,7 @@
                     and IsEnabled()
                   - maximum health calculation added
                   - constructor tries to get initial attributes from NPCBase
+     - 23.12.2009 - use of Settings class to get the balancing settings
 
  ToDo list:
      - implement LoadFromStream and SaveFromStream methods to load/ save NPCs

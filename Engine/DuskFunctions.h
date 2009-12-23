@@ -1,113 +1,63 @@
+/*---------------------------------------------------------------------------
+ Author:  thoronador
+ Date:    23.12.2009
+ Purpose: provides some (more or less) useful functions which are used in
+          several headers and/or source files
+ History:
+     - 23.07.2009 - initial version; contains getDirectoryFileList() only
+     - 24.07.2009 - IntToString() and FloatToString() added,
+                    getDirectoryFileList() removed
+     - 11.08.2009 - StringToInt(), StringToFloat() added
+     - 24.08.2009 - IntToString() for unsigned integers added
+     - 23.12.2009 - getDirectoryFileList() added (again),
+                    split into .h and .cpp
+
+ ToDo list:
+     - ???
+ Bugs:
+     - No known bugs. If you find one (or more), then tell me please.
+ --------------------------------------------------------------------------*/
+
 #ifndef DUSKFUNCTIONS_H
 #define DUSKFUNCTIONS_H
 
 #include <string>
 #include <vector>
-#include <iostream>
-#include <sstream>
 
 namespace Dusk
 {
 
-std::string IntToString(int value)
-{
-  std::stringstream s_str;
-  s_str << value;
-  return s_str.str();
-}
+/* Returns string representation of integer 'value' */
+std::string IntToString(int value);
 
-std::string IntToString(unsigned int value)
-{
-  std::stringstream s_str;
-  s_str << value;
-  return s_str.str();
-}
+/* Returns string representation of unsigned integer 'value' */
+std::string IntToString(unsigned int value);
 
-int StringToInt(const std::string& str_input, const int default_value)
-{
-  std::stringstream s_str(str_input);
-  int value = default_value;
-  if (!(s_str>>value))
-  { //error during conversion -> return given default value
-    return default_value;
-  }
-  return value;
-}
+/* Tries to convert the provided string into an integer. If the string contains
+   invalid characters (e.g. letters) and cannot be converted to an integer, the
+   function will return the specified default value. */
+int StringToInt(const std::string& str_input, const int default_value);
 
-std::string FloatToString(float value)
-{
-  std::stringstream s_str;
-  s_str << value;
-  return s_str.str();
-}
+/* Returns string representation of float 'value' */
+std::string FloatToString(float value);
 
-float StringToFloat(const std::string& str_input, const float default_value)
-{
-  std::stringstream s_str(str_input);
-  float value = default_value;
-  if (!(s_str>>value))
-  { //error during conversion -> return given default value
-    return default_value;
-  }
-  return value;
-}
+/* Tries to convert the provided string into a floating point number. If the
+   string contains invalid characters (e.g. letters) and cannot be converted to
+   a floating point value, the function will return the specified default value.
+*/
+float StringToFloat(const std::string& str_input, const float default_value);
 
-/*typedef struct FileEntry {
-                 std::string FileName;
-                 bool IsDirectory;
+/* structure for file list entries */
+struct FileEntry {
+         std::string FileName;
+         bool IsDirectory;
 };//struct
 
-std::vector<FileEntry> get_DirectoryFileList(const std::string Directory)
-{
-  std::vector<FileEntry> result;
-  FileEntry one;
-  #if defined(_WIN32)
-  //Windows part
-  intptr_t handle;
-  struct _finddata_t sr;
-  sr.attrib = _A_NORMAL | _A_RDONLY | _A_HIDDEN | _A_SYSTEM | _A_VOLID |
-              _A_SUBDIR | _A_ARCH;
-  handle = _findfirst(std::string(Directory+"*").c_str(),&sr);
-  if (handle == -1)
-  {
-    std::cout << "Dusk::getDirectoryFileList: ERROR: unable to open directory "
-              <<"\""<<Directory<<"\". Returning empty list.\n";
-    return result;
-  }
-  //search it
-  while( _findnext(handle, &sr)==0)
-  {
-    one.FileName = std::string(sr.name);
-    one.IsDirectory = ((sr.attrib & _A_SUBDIR)==_A_SUBDIR);
-    result.push_back(one);
-  }//while
-  _findclose(handle);
-  #else
-  //Linux part
-  DIR * direc = opendir(Directory.c_str());
-  if (direc == NULL)
-  {
-    std::cout << "Dusk::getDirectoryFileList: ERROR: unable to open directory "
-              <<"\""<<Directory<<"\". Returning empty list.\n";
-    return result;
-  }//if
+/* returns a list of all files in the given directory as a vector */
+std::vector<FileEntry> get_DirectoryFileList(const std::string& Directory);
 
-  struct dirent* entry = readdir(direc);
-  while (entry != NULL)
-  {
-    one.FileName = std::string(entry->d_name);
-    one.IsDirectory = entry->d_type==DT_DIR;
-    //check for socket and pipes, which we don't want
-    if (entry->d_type != DT_SOCK && entry->d_type != DT_FIFO)
-    {
-      result.push_back(one);
-      entry = readdir(direc);
-    }
-  }//while
-  closedir(direc);
-  #endif
-  return result;
-}//function*/
+/* Checks for existence of file FileName and returns true, if it exists. */
+bool FileExists(const std::string& FileName);
 
 }//namespace
 

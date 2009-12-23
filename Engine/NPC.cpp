@@ -148,12 +148,19 @@ Inventory& NPC::getInventory()
 
 unsigned int NPC::getMaxEncumbrance() const
 {
-  return cBaseEncumbrance + cEncumbranceStrengthCoefficient*m_Strength;
+  const Settings& set = Settings::GetSingleton();
+  return set.getSetting_uint("BaseEncumbrance") +
+         set.getSetting_uint("EncumbranceStrengthCoefficient")*m_Strength;
+  //cBaseEncumbrance + cEncumbranceStrengthCoefficient*m_Strength
 }
 
 unsigned int NPC::getMaxHealth() const
 {
-  return cHealthBase + cHealthVitalityFactor*m_Vitality + cHealthLevelFactor*m_Level;
+  const Settings& set = Settings::GetSingleton();
+  return set.getSetting_uint("HealthBase")
+         + set.getSetting_uint("HealthVitalityFactor")*m_Strength
+         + set.getSetting_uint("HealthLevelFactor")*m_Level;
+  //return cHealthBase + cHealthVitalityFactor*m_Vitality + cHealthLevelFactor*m_Level;
 }
 
 bool NPC::Enable(Ogre::SceneManager* scm)
