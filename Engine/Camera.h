@@ -1,3 +1,27 @@
+/*---------------------------------------------------------------------------
+ Authors: walljumper, thoronador
+ Date:    2009-12-04
+ Purpose: Camera class
+          Manages the game's camera.
+
+ History:
+     - 2008-02-08 (rev 34)  - initial version (by walljumper)
+     - 2008-03-22 (rev 51)  - movement/ translation functions added,
+                            - frame listener calls move()
+     - 2008-03-25 (rev 55)  - move() and translate() actually implemented
+     - 2009-06-21 (rev 98)  - rotate() added, camera rotation implemented
+                              (by thoronador)
+     - 2009-06-30 (rev 100) - camera adjusts its position to move along
+                              landscape, if landscape data is present
+     - 2009-12-04 (rev 138) - zoom functionality added
+     - 2009-12-31 (rev 147) - documentation update
+
+ ToDo list:
+     - ???
+ Bugs:
+     - No known bugs. If you find one (or more), then tell us please.
+ --------------------------------------------------------------------------*/
+
 #ifndef CAMERA_H
 #define CAMERA_H
 
@@ -71,6 +95,8 @@ namespace Dusk
             Ogre::SceneNode* m_Secondary;
             Ogre::Vector3 m_translationVector;
             float m_RotationPerSecond;
+
+            /* default distance between camera and ground/ landscape */
             static const float cAboveGroundLevel;
     };
 }

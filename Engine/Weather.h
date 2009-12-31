@@ -1,3 +1,21 @@
+/*---------------------------------------------------------------------------
+ Author:  thoronador
+ Date:    2009-12-08
+ Purpose: Weather Singleton class
+          responsible for managing all weather effects in the game, e.g. fog,
+          rain, snow
+
+ History:
+     - 2009-12-08 (rev 140) - initial version (by thoronador); fog handling
+     - 2009-12-31 (rev 147) - documentation update
+
+ ToDo list:
+     - other effects, such as rain and snow, maybe even wind
+     - ???
+ Bugs:
+     - No known bugs. If you find one (or more), then tell me please.
+ --------------------------------------------------------------------------*/
+
 #ifndef WEATHER_H
 #define WEATHER_H
 
@@ -11,6 +29,8 @@ namespace Dusk
   {
     public:
       ~Weather();
+
+      /* Singleton access method */
       static Weather& getSingelton();
 
       /* sets the fog colour
@@ -49,6 +69,7 @@ namespace Dusk
       Weather(Weather& op) {}
       //fog-related
       float m_Fog_r, m_Fog_g, m_Fog_b;
+      //render window's background colour before fog was applied
       Ogre::ColourValue m_orig_bgcolour;
   };//class
 

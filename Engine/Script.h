@@ -1,3 +1,24 @@
+/*---------------------------------------------------------------------------
+ Author:  DaSteph, thoronador
+ Date:    2009-06-16
+ Purpose: Script class
+          represents a single script which can be processed by the Console
+
+ History:
+     - 2007-11-26 (rev 7)   - initial version (by DaSteph)
+     - 2007-12-29 (rev 16)  - explodeCommands(), getStartScript(),
+                               getStopScript(), trim() added
+     - 2009-06-16 (rev 97)  - improved checks in trim() to avoid exceptions
+                              caused by empty string argument (by thoronador)
+     - 2009-12-31 (rev 147) - documentation update
+
+ ToDo list:
+     - ???
+
+ Bugs:
+     - No known bugs. If you find one (or more), then tell me please.
+ --------------------------------------------------------------------------*/
+
 #ifndef SCRIPT_H_INCLUDED
 #define SCRIPT_H_INCLUDED
 
@@ -13,14 +34,14 @@ namespace Dusk
     class Script {
     public:
         /**
-         * Standard konstructor.
+         * Standard constructor.
          *
          * @param p_string  The string representing the script.
          */
         Script(std::string p_string = "");
 
         /**
-         * Destructer. Declared virtual so that extending classes destructors
+         * Destructor. Declared virtual so that extending classes destructors
          * will also be called.
          */
         virtual ~Script();
@@ -51,7 +72,7 @@ namespace Dusk
         /**
          * Trims the given string from leading and trailing spaces.
          *
-         * @param p_string      The string to split.
+         * @param p_string      The string to trim.
          * @return the trimmed string.
          */
         std::string trim(std::string p_string);

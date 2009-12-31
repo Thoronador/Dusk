@@ -1,5 +1,6 @@
 #include "AnimatedObject.h"
 #include "ObjectBase.h" //should replace this one later
+#include <OgreAnimationState.h>
 #include <OgreMath.h>
 
 namespace Dusk
@@ -203,7 +204,7 @@ void AnimatedObject::Move(const float SecondsPassed)
   }
   if (m_Travel)
   {
-    float Distance = Ogre::Vector3(m_Destination-GetPosition()).squaredLength();
+    const float Distance = Ogre::Vector3(m_Destination-GetPosition()).squaredLength();
     //are we moving to fast?
     if (Ogre::Math::Sqr(m_Speed*SecondsPassed)>Distance)
     { //finished travelling

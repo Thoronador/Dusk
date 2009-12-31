@@ -1,6 +1,46 @@
+/*---------------------------------------------------------------------------
+ Author:  ssj5000, thoronador
+ Date:    2009-12-31
+ Purpose: AnimatedObject class
+          Represents an animated, movable object within the game
+
+ History:
+     - 2007-11-19 (rev 3)   - initial version (by ssj5000)
+     - 2009-01-23 (rev 73)  - Object class removed and replaced by DuskObject,
+                              position, rotation, velocity and acceleration
+                              added, gravitational constant (by thoronador)
+                            - set-/get-functions for velocity and acceleration
+                            - move() function
+     - 2009-01-23 (rev 74)  - getAccelleration() and getVelocity() made const
+                              member functions
+     - 2009-07-16 (rev 107) - position of object's entity is now adjusted to
+                              match set position
+     - 2009-09-10 (rev 127) - velocity, acceleration, gravitation and related
+                              get-/set-functions removed
+                            - animation, direction, destination, travel, speed
+                              added; functions PlayAnimation(), GetAnimation(),
+                              Enable(), GetDirection(), SetDirection(),
+                              GetSpeed(), SetSpeed(), TravelToDestionation(),
+                              IsOnTravel(), GetDestionation() functions added
+                            - new constructor version with parameters
+     - 2009-12-05 (rev 139) - ability to travel to waypoints added, functions
+                              AddWaypoint(), setUseWaypoints(), clearWaypoints()
+                            - function descriptions added
+                            - GetType() changed (as in all classes which are
+                              derived from DuskObject)
+     - 2009-12-31 (rev 147) - documentation update
+
+ ToDo list:
+     - implement possibility to make object "look" into the direction it is
+       moving when traveling
+     - ???
+ Bugs:
+     - No known bugs. If you find one (or more), then tell me please.
+ --------------------------------------------------------------------------*/
+
 #ifndef ANIMATEDOBJECT_H
 #define ANIMATEDOBJECT_H
-#include <Ogre.h>
+#include <OgreSceneManager.h>
 #include <OgreVector3.h>
 #include <vector>
 #include "DuskObject.h"
