@@ -15,14 +15,17 @@ Dispatcher::~Dispatcher()
 {
     //dtor
 }
+
 bool Dispatcher::executeCommand(Dusk::Command* command)
 {
     bool ret = command->execute(m_Scene,0);
     return ret;
 }
+
 Dispatcher& Dispatcher::get()
 {
     static Dispatcher Instance;
     return Instance;
 }
-}
+
+} // namespace

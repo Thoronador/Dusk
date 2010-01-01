@@ -1,3 +1,24 @@
+/*---------------------------------------------------------------------------
+ Author:  thoronador
+ Date:    2009-09-27
+ Purpose: ContainerBase Singleton class
+          Represents a look-up table for all distinct container objects
+          within the game.
+
+ History:
+     - 2009-09-24 (rev 131) - initial version (by thoronador)
+     - 2009-09-27 (rev 132) - NumberOfCointainers() added
+                            - methods to load and save containers added
+                              (LoadNextContainerFromStream(), SaveAllToStream())
+     - 2010-01-01 (rev 148) - documentation update
+
+ ToDo list:
+     - ???
+
+ Bugs:
+     - No known bugs. If you find one (or more), then tell me please.
+ --------------------------------------------------------------------------*/
+
 #ifndef CONTAINERBASE_H
 #define CONTAINERBASE_H
 

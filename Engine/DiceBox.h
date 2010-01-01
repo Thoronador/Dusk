@@ -1,14 +1,15 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    23.12.2009
+ Date:    2009-12-23
  Purpose: DiceBox singleton class
           Provides a central point for all random numbers in the game
  History:
-     - 23.12.2009 - initial version; contains d4, d6, d10 and d20
+     - 2009-12-23 (rev 144) - initial version; contains d4, d6, d10 and d20
 
  ToDo list:
      - add more functions/ dice, if needed
      - remove unneccessary functions/ dice, if they are not needed
+
  Bugs:
      - None. If you find one (or more), then tell me please.
  --------------------------------------------------------------------------*/

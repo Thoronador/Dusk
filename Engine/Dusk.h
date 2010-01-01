@@ -183,6 +183,17 @@ status:
 */
 #include "Container.h"
 
+/*
+This header defines the ContainerBase Singleton class.
+
+description:
+    Represents the look-up table for properties of all
+    distinct containers in-game.
+status:
+    working (I guess so)
+*/
+#include "ContainerBase.h"
+
 
 /*
 This header defines the DataLoader singelton class.
