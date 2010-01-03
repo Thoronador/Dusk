@@ -45,6 +45,18 @@ bool InputSystemBinding::keyPressed (const OIS::KeyEvent &arg)
             Console::getInstance()->addScript(it->second.getStartScript());
     }
 
+    //temporary bindings to toggle fog and snow
+    switch (arg.key)
+    {
+      case OIS::KC_F:
+           Console::getInstance()->addScript(Script("toggle_fog"));
+           break;
+      case OIS::KC_V: // S like snow is already occupied for movement
+           Console::getInstance()->addScript(Script("toggle_snow"));
+           break;
+      default: break;
+    }//swi
+
     return true;
 }
 
@@ -78,9 +90,6 @@ bool InputSystemBinding::mouseMoved( const OIS::MouseEvent &arg )
     {
       Console::getInstance()->addScript(Script("ZoomOut"));
     }
-
-    /*const std::string mouseMoveCommand = "MoveMouse ";
-    Console::getInstance()->addScript(Script());*/
     return true;
 }
 

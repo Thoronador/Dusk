@@ -121,6 +121,8 @@
 		<Unit filename="CommandQuit.h" />
 		<Unit filename="CommandSoundVolume.cpp" />
 		<Unit filename="CommandSoundVolume.h" />
+		<Unit filename="CommandWeather.cpp" />
+		<Unit filename="CommandWeather.h" />
 		<Unit filename="CommandZoom.cpp" />
 		<Unit filename="CommandZoom.h" />
 		<Unit filename="Console.cpp" />

@@ -10,6 +10,7 @@
 #include "CommandNoiseSound.h"
 #include "CommandMediaSound.h"
 #include "CommandAssociateSound.h"
+#include "CommandWeather.h"
 #include "CommandZoom.h"
 #include "DuskTypes.h"
 #include <iostream>
@@ -360,6 +361,20 @@ int Console::executeCommand(std::string p_string)
             com = new CommandZoom(false);
             m_Dispatcher->executeCommand(com);
             std::cout << "Zoom out" << std::endl;
+        }
+        //fog command
+        else if (command[0] == "toggle_fog")
+        {
+            com = new CommandFog(true);
+            m_Dispatcher->executeCommand(com);
+            std::cout << "Fog toggled." << std::endl;
+        }
+        //snow command
+        else if (command[0] == "toggle_snow")
+        {
+            com = new CommandSnow(true);
+            m_Dispatcher->executeCommand(com);
+            std::cout << "Snow toggled." << std::endl;
         }
         // --- no command recognised ---
         else

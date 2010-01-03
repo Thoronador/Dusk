@@ -157,6 +157,7 @@ void Scene::createGrassMesh()
         Weather& w_singleton = Weather::getSingelton();
         w_singleton.setFogColour(0.9, 0.9, 0.9);
         w_singleton.startLinearFog(50.0, 500.0);
+        w_singleton.startSnow();
     }
 
     void Scene::destroyScene()

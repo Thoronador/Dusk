@@ -1,0 +1,42 @@
+Dusk/Snow
+{
+	quota	4000
+	material	Dusk/flare
+	particle_width	1
+	particle_height	1
+	cull_each	false
+	renderer	billboard
+	billboard_type	point
+
+	emitter Cylinder
+	{
+		angle	0
+		colour	1 1 1 1
+		colour_range_start	1 1 1 1
+		colour_range_end	1 1 1 1
+		direction	0 -1 0
+		emission_rate	250
+		position	0 0 0
+		velocity	0
+		velocity_min	0
+		velocity_max	0
+		time_to_live	8
+		time_to_live_min	8
+		time_to_live_max	8
+		duration	0
+		duration_min	0
+		duration_max	0
+		repeat_delay	0
+		repeat_delay_min	0
+		repeat_delay_max	0
+		width	150
+		height	150
+		depth	60
+	}
+
+	affector LinearForce
+	{
+		force_vector	0 -25 0
+		force_application	add
+	}
+}

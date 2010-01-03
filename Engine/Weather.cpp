@@ -1,9 +1,12 @@
 #include "Weather.h"
 #include <OgreSceneManager.h>
 #include "API.h"
+#include "Camera.h"
 
 namespace Dusk
 {
+
+const std::string Weather::cSnowParticleSystem = "Dusk/SnowPS";
 
 Weather::Weather()
 {
@@ -17,6 +20,7 @@ Weather::~Weather()
   {
     stopFog();
   }
+  stopSnow();
 }
 
 Weather& Weather::getSingelton()
@@ -71,6 +75,36 @@ bool Weather::isLinearFog() const
 {
   Ogre::SceneManager* scm = getAPI().getOgreSceneManager();
   return (scm->getFogMode() == Ogre::FOG_LINEAR);
+}
+
+void Weather::startSnow()
+{
+  if (isSnowing()) return;
+  Ogre::SceneManager* scm = getAPI().getOgreSceneManager();
+  //create new particle system for snow
+  Ogre::ParticleSystem* SnowSys = scm->createParticleSystem(cSnowParticleSystem, "Dusk/Snow");
+  /* The general idea is to attach the particle system to the same SceneNode as
+     the camera, so the particle systems moves around with the player/ camera. */
+  Ogre::SceneNode* SnowNode = getAPI().getDuskCamera()->getOgreCamera()->getParentSceneNode();
+  SnowNode = SnowNode->createChildSceneNode(cSnowParticleSystem+"_Node");
+  SnowNode->attachObject(SnowSys);
+}
+
+void Weather::stopSnow()
+{
+  if (!isSnowing()) return;
+  Ogre::SceneManager* scm = getAPI().getOgreSceneManager();
+  Ogre::SceneNode* SnowNode = scm->getSceneNode(cSnowParticleSystem+"_Node");
+  SnowNode->detachObject(cSnowParticleSystem);
+  scm->destroyParticleSystem(cSnowParticleSystem);
+  SnowNode->getParentSceneNode()->removeChild(SnowNode);
+  scm->destroySceneNode(SnowNode->getName());
+}
+
+bool Weather::isSnowing() const
+{
+  const Ogre::SceneManager* scm = getAPI().getOgreSceneManager();
+  return (scm->hasParticleSystem(cSnowParticleSystem));
 }
 
 } //namespace
