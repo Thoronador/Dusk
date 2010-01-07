@@ -5,7 +5,8 @@
 
 namespace Dusk
 {
-  const std::string Settings::CharacterConfigurationFile = "character_rules.conf";
+  const std::string Settings::CharacterConfigurationFile = "settings.conf";
+  const char Settings::cCommentCharacter = '#';
 
 Settings::Settings()
 {
@@ -13,9 +14,21 @@ Settings::Settings()
   m_FloatSettings.clear();
   m_uintSettings.clear();
   InitialSettings();
+  std::cout << "Dusk::Settings: Loading configuration file... ";
   if (FileExists(CharacterConfigurationFile))
   {
-    LoadFromFile(CharacterConfigurationFile);
+    if (LoadFromFile(CharacterConfigurationFile))
+    {
+      std::cout << "done.\n";
+    }
+    else
+    {
+      std::cout << "failed.\n";
+    }
+  }
+  else
+  {
+    std::cout << "skipping (file not found).\n";
   }
 }
 
@@ -136,34 +149,39 @@ bool Settings::LoadFromFile(const std::string& FileName)
     {
       input_type = stString;
     }
-    else
+    else if (line.length()>0) //skip empty lines
     {
-      //got data for new setting
-      sep_pos = line.find('=');
-      if (sep_pos == std::string::npos || sep_pos == 0)
+      //skip comments
+      if (line.at(0)!=cCommentCharacter)
       {
-        std::cout << "Settings::LoadFromFile: ERROR: Invalid line found: \""
-                  << line <<"\".\nGeneral format: \"Name of Setting=value\"\n";
-        input.close();
-        return false;
+        //got data for new setting
+        sep_pos = line.find('=');
+        if (sep_pos == std::string::npos || sep_pos == 0)
+        {
+          std::cout << "Settings::LoadFromFile: ERROR: Invalid line found: \""
+                    << line <<"\".\nGeneral format: \"Name of Setting=value\"\n"
+                    <<"Loading from file cancelled.\n";
+          input.close();
+          return false;
+        }
+        switch (input_type)
+        {
+          case stInt:
+               addSetting_uint(line.substr(0, sep_pos), StringToInt(line.substr(sep_pos+1), 0));
+               break;
+          case stFloat:
+               addSetting_float(line.substr(0, sep_pos), StringToFloat(line.substr(sep_pos+1), 0.0f));
+               break;
+          case stString:
+               addSetting_string(line.substr(0, sep_pos), line.substr(sep_pos+1));
+               break;
+          default:
+               std::cout << "Settings::LoadFromFile: ERROR: No input type given.\n";
+               input.close();
+               return false;
+               break;
+        } //swi
       }
-      switch (input_type)
-      {
-        case stInt:
-             addSetting_uint(line.substr(0, sep_pos), StringToInt(line.substr(sep_pos+1), 0));
-             break;
-        case stFloat:
-             addSetting_float(line.substr(0, sep_pos), StringToFloat(line.substr(sep_pos+1), 0.0f));
-             break;
-        case stString:
-             addSetting_string(line.substr(0, sep_pos), line.substr(sep_pos+1));
-             break;
-        default:
-             std::cout << "Settings::LoadFromFile: ERROR: No input type given.\n";
-             input.close();
-             return false;
-             break;
-      } //swi
     } //else
   }//while
   input.close();
@@ -178,6 +196,21 @@ bool Settings::SaveToFile(const std::string& FileName) const
   {
     return false;
   }
+  const char cc = cCommentCharacter;
+  output << cc <<" Dusk configuration file\n"
+         << cc <<"\n"
+         << cc <<" This file holds some game settings which are read at the\n"
+         << cc <<" start of the game. If you don't know what a setting means,\n"
+         << cc <<" then leave it as it is, because changing these values can\n"
+         << cc <<" have severe impact in-game.\n"
+         << cc <<" The format for settings is \"NameOfSetting=value\".\n"
+         << cc <<" Settings following [uint] have to be positive integers,\n"
+         << cc <<" settings after [float] have to be floating point values,\n"
+         << cc <<" and settings following [string] can have any value.\n"
+         << cc <<" However, a new-line character starts a new setting and the\n"
+         << cc <<" maximum length of a line is limited to 255 characters.\n"
+         << cc <<" Lines starting with "<<cc<<" are comments.\n\n";
+
   output << "[uint]\n";
   std::map<std::string, unsigned int>::const_iterator iter_i;
   iter_i = m_uintSettings.begin();

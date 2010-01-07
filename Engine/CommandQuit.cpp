@@ -17,7 +17,7 @@ namespace Dusk
 
     bool CommandQuit::execute(Dusk::Scene* scene, int count)
     {
-        std::cout<<"exit";
+        std::cout<<"Dusk: exit\n";
         InputSystemEditor::get().exit();
         return true;
     }

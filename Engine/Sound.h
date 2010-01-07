@@ -1,3 +1,56 @@
+/*---------------------------------------------------------------------------
+ Author:  thoronador, walljumper, ssj5000
+ Date:    2010-01-07
+ Purpose: Sound Singleton class
+          provides the entire sound subsystem for the game
+
+ History:
+     - 2008-01-06 (rev 19)  - initial version (by thoronador)
+     - 2008-01-15 (rev 21)  - Init() and Exit() added (not working at those days)
+     - 2008-02-10 (rev 35)  - basic functionality of Init() and Exit() implemented
+     - 2008-02-16 (rev 36)  - Init() and Exit() extended; AllFuncPointersToNULL()
+     - 2008-02-21 (rev 37)  - PlayWAV() implemented; IsPlaying() added
+     - 2008-02-22 (rev 38)  - Sound is now singleton (by walljumper)
+     - 2008-02-23 (rev 40)  - getInstance() renamed to get(), bug fixed
+     - 2008-02-24 (rev 43)  - Pause(), UnPause(), Stop() added (by thoronador)
+                            - freeing buffers (incompletely?) at exit
+     - 2008-02-25 (rev 44)  - Replay() added; smaller fixes
+     - 2008-02-26 (rev 46)  - GetBufferedFiles() added
+     - 2008-02-27 (rev 47)  - new (second) parameter for Init(); Play() improved
+     - 2008-02-28 (rev 48)  - fixed wrong function name in Init(), occured under
+                              Linux only (by ssj5000)
+     - 2008-02-29 (rev 49)  - OggVorbis function pointers added; PlayWAV() now
+                              checks for unsupported formats (by thoronador)
+     - 2008-03-03 (rev 50)  - first try to play OggVorbis files
+     - 2008-03-25 (rev 54)  - error checks in FreeFileResources()
+     - 2008-03-26 (rev 56)  - PlayOgg() extended; memory leak in PlayWAV() fixed
+     - 2008-03-28 (rev 59)  - functions for sound volume (Get-/SetVolume()) and
+                              loop playback (LoopSound(), IsLooping()) added
+     - 2008-03-28 (rev 60)  - return value of SetVolume() fixed
+     - 2008-04-18 (rev 62)  - functions for positions of listener and sources
+     - 2008-05-19 (rev 63)  - functions to get and set speed of sound added;
+                              functions to get and set speed of sound sources
+     - 2009-01-02 (rev 64)  - } steps to make Sound class more flexible,
+     - 2009-01-02 (rev 65)  - } transition from file-based model to noise- and
+     - 2009-01-02 (rev 66)  - } media-based model of Sound class
+     - 2009-01-20 (rev 72)  - support for OggVorbis file implemented, it's
+                              finally working
+     - 2009-01-23 (rev 74)  - limit for media size introduced
+     - 2009-01-30 (rev 78)  - methods to set and get noise offset
+     - 2009-03-13 (rev 90)  - return value of Detach() fixed
+     - 2009-03-14 (rev 91)  - format for OggVorbis files with one channel fixed
+     - 2009-05-27 (rev 96)  - misspelled function name fixed
+     - 2009-09-24 (rev 131) - function declarations improved
+     - 2010-01-07 (rev 150) - documentation update
+                            - IsInitialized() and HasVorbis() added
+
+ ToDo list:
+     - ???
+
+ Bugs:
+     - No known bugs. If you find one (or more), then tell me please.
+ --------------------------------------------------------------------------*/
+
 #ifndef SOUND_H
 #define SOUND_H
 
@@ -75,32 +128,126 @@ class Sound
   public:
     virtual ~Sound();
     //(de-)initialization routines
-    bool Init(std::string PathToLib_AL = "NULL", std::string PathToLib_Vorbisfile = "NULL", bool needVorbis = false);//initializes OpenAL
+    /* Initialises OpenAL, device and context for our application, and tries to
+       initialise OggVorbis as well. Returns true on success, false otherwise.
+
+      parameters:
+          PathToLib_AL - path to libopenal.so/OpenAL32.dll
+                         if empty string or string literal "NULL" is given, a
+                         predefined, platform-dependent value will be used.
+          PathToLib_Vorbisfile - path to libvorbisfile.so/vorbisfile.dll
+                         if empty string or string literal "NULL" is given, a
+                         predefined, platform-dependent value will be used.
+      remarks:
+          You need to call this function once before you can use any other
+          functionality of this class.
+    */
+    bool Init(std::string PathToLib_AL="NULL", std::string PathToLib_Vorbisfile="NULL", const bool needVorbis=false);//initializes OpenAL
+
+    /* De-initialises the Sund class and returns true on success. */
     bool Exit();//deinitializes OpenAL
 
+    /* Returns true, if Sound is initialised. */
+    bool IsInitialized() const;
+
+    /* Returns true, if the OggVorbis functions are loaded
+
+       remarks:
+           If this function returns false, you will not be able to load any
+           OggVorbis files- However, you still might be able to load Wave files,
+           depending on the return value of IsInitialised().
+    */
+    bool HasVorbis() const;
+
     // **presence checks**
+    /* Returns true, if a Media named MediaIdentifier is present */
     bool IsMediaPresent(const std::string& MediaIdentifier) const;
+
+    /* Returns true, if a Noise named NoiseIdentifier is present */
     bool IsNoisePresent(const std::string& NoiseIdentifier) const;
+
+    /* Returns the list of all currently present noises.
+
+       parameters:
+           with_attached_media - if set to true, the list also contains the
+                                 names of the media attached to each noise. (If
+                                 no media is attached, this is an empty string.)
+    */
     std::vector<std::string> GetNoiseList(const bool with_attached_media = false) const;
+
+    /* Returns the list of all currently loaded media.
+
+      parameters:
+          with_file_names - if set to true, the list also contains the names of
+                            the files the media were loaded from.
+    */
     std::vector<std::string> GetMediaList(const bool with_file_names = false) const;
 
     // **noise management routines**
+    /* Created a new Noise named NoiseIdentifier and returns true on success */
     bool CreateNoise(const std::string& NoiseIdentifier);
+
+    /* Destroys the Noise named NoiseIdentifier and returns true on success */
     bool DestroyNoise(const std::string& NoiseIdentifier);
     //   Attach: associates existing Noise with a Media
     bool Attach(const std::string& NoiseIdentifier, const std::string& MediaIdentifier);
     //   Detach: revokes association between Noise and its attached Media
     bool Detach(const std::string& NoiseIdentifier);
     //   noise playback management
+    /* Starts playback of media attached to the Noise named NoiseIdentifier, and
+       returns true on success.
+
+      remarks:
+          Before you can call this function, you have to load a audio file to
+          a media and attach that media to the noise. Assuming that all function
+          calls return true, the following lines are needed to play a file named
+          "loud.ogg":
+
+          Sound::get().Init(); // <-- only once at the very beginning
+          Sound::get().CreateNoise("This Noise");
+          Sound::get().CreateMedia("Some Media", "loud.ogg");
+          Sound::get().Attach("This Noise", "Some Media");
+          Sound::get().PlayNoise("This Noise");
+    */
     bool PlayNoise(const std::string& NoiseIdentifier);
+
+    /* Pauses a playing noise and returns true on success.
+       Pausing a noise that is either paused or stopped is a legal no-op,
+       trying to pause a non-existing noise is an no-op and will return false
+       and print a warning/hint.
+    */
     bool PauseNoise(const std::string& NoiseIdentifier);
+
+    /* Resumes a previously paused noise and returns true on success..
+       Unpausing a playing or stopped noise is legal no-op, which will return
+       true.
+    */
     bool UnPauseNoise(const std::string& NoiseIdentifier);
+
+    /* Stops a playing noise and returns true on success, false on failure/error.
+       Stopping an already stopped noise is legal no-op and will return true.
+    */
     bool StopNoise(const std::string& NoiseIdentifier);
+
+    /* Sets a noise into looping mode if DoLoop==true, otherwise it gets the
+       noise out of looping mode. Returns true on success, false otherwise.
+    */
     bool LoopNoise(const std::string& NoiseIdentifier, const bool DoLoop = true);
+
+    /* Sets the offset of noise NoiseIdentifier to the given amount of seconds
+       and returns true on success. Trying to set an offset beyond the length of
+       the attached media will result in failure.
+    */
     bool SetNoiseOffset(const std::string& NoiseIdentifier, const float seconds);
+
+    /* Retrieves noise offset in seconds. On error, -1.0 is returned. */
     float GetNoiseOffset(const std::string& NoiseIdentifier) const;
+
     //   state retrieval functions
+    /* Returns true if the noise NoiseIdentifier is currently playing. */
     bool IsPlayingNoise(const std::string& NoiseIdentifier) const;
+
+    /* Returns true if the noise NoiseIdentifier is in looping mode. */
     bool IsLoopingNoise(const std::string& FileName) const;
     //   noise volume functions
     bool SetNoiseVolume(const std::string& NoiseIdentifier, const float volume = 1.0f);
@@ -114,11 +261,31 @@ class Sound
 
 
     // **media management routines**
+    /* Tries to create a media named MediaIdentifier from the file at
+       PathToMedia and returns true on success.
+
+      remarks:
+          Only Wave and OggVorbis files are currently accepted as media files.
+    */
     bool CreateMedia(const std::string& MediaIdentifier, const std::string& PathToMedia);
+
+    /* Tries to destroy the media named MediaIdentifier and returns true on
+       success, false on failure.
+    */
     bool DestroyMedia(const std::string& MediaIdentifier);
 
     // **general state query/set functions**
+    /* Returns the speed of sound in world units per second, or zero if there
+       was an error.
+    */
     float GetSpeedOfSound() const;
+
+    /* Sets the speed of sound to new_value world units per second and returns
+       true on success.
+
+      remarks:
+          Only positive values (i.e. greater than zero) are allowed.
+    */
     bool SetSpeedOfSound(const float new_value);
 
     // **listener management functions**
@@ -140,12 +307,16 @@ class Sound
   private:
     Sound();
     Sound(const Sound& op){}
-    //bool PlayWAV(std::string WAV_FileName);
-    //bool PlayOgg(std::string Ogg_FileName);
-    bool CreateWAVMedia(const std::string MediaIdentifier, const std::string PathToMedia);
-    bool CreateOggMedia(const std::string MediaIdentifier, const std::string PathToMedia);
-    void AllFuncPointersToNULL(void); //never ever call this one manually,
-    // or you might render the whole class inoperative!
+    bool CreateWAVMedia(const std::string& MediaIdentifier, const std::string& PathToMedia);
+    bool CreateOggMedia(const std::string& MediaIdentifier, const std::string& PathToMedia);
+
+    /* Initialises all internal function pointers with NULL.
+
+      remarks:
+         Never ever call this one manually, or you might render the whole
+         class inoperative!
+    */
+    void AllFuncPointersToNULL(void);
 
     TMediaRec * pMediaList;
     TNoiseRec * pNoiseList;

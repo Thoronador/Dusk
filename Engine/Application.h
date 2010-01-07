@@ -32,7 +32,6 @@ namespace Dusk
         virtual void destroyScene();
         // FrameListener overrides
 
-
         Ogre::Root* m_Root;
         Ogre::Camera* m_Camera;
         Ogre::SceneManager* m_SceneManager;

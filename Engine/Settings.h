@@ -1,22 +1,25 @@
 /*---------------------------------------------------------------------------
  Author:  ssj5000, thoronador
- Date:    23.12.2009
+ Date:    2010-01-07
  Purpose: Settings Singleton class
           provides an interface to add/change and query game-wide settings.
+
  History:
-     - 19.11.2007 - initial version (by ssj5000)
-     - 24.09.2009 - added to Dusk namespace (by thoronador)
-     - 18.12.2009 - two constant values (cBaseEncumbrance and
-                    cEncumbranceStrengthCoefficient) added
-     - 22.12.2009 - three more constants (cHealthBase, cHealthVitalityFactor,
-                    cHealthLevelFactor) added
-     - 23.12.2009 - split into .h and .cpp
-                  - introduction of Settings Singleton class, which manages
-                    all settings and allows to change them or read them from
-                    a file
+     - 2007-11-19 (rev 3)   - initial version (by ssj5000)
+     - 2009-09-24 (rev 131) - added to Dusk namespace (by thoronador)
+     - 2009-12-18 (rev 142) - two constant values (cBaseEncumbrance and
+                              cEncumbranceStrengthCoefficient) added
+     - 2009-12-22 (rev 143) - three more constants (cHealthBase, cHealthVitalityFactor,
+                              cHealthLevelFactor) added
+     - 2009-12-23 (rev 145) - split into .h and .cpp
+                            - introduction of Settings Singleton class, which
+                              manages all settings and allows to change them or
+                              read them from a file
+     - 2010-01-07 (rev 150) - settings file can now have line comments
 
  ToDo list:
      - ???
+
  Bugs:
      - No known bugs. If you find one (or more), then tell me please.
  --------------------------------------------------------------------------*/
@@ -29,12 +32,6 @@
 
 namespace Dusk
 {
-  //add global settings here
-  /*const unsigned int cBaseEncumbrance = 40;
-  const unsigned int cEncumbranceStrengthCoefficient = 8;
-  const unsigned int cHealthBase = 10;
-  const unsigned int cHealthVitalityFactor = 3;
-  const unsigned int cHealthLevelFactor = 2;*/
 
   class Settings
   {
@@ -92,6 +89,7 @@ namespace Dusk
 
       /* name of the file where Settings looks for predefined settings */
       static const std::string CharacterConfigurationFile;
+      static const char cCommentCharacter;
     private:
       Settings();
       Settings(const Settings& op) {}

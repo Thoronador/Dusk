@@ -22,6 +22,7 @@ namespace Dusk
     {
         if(m_Root) delete m_Root;
     }
+
     /**
     *@return if initialisation of the ogre core <br> - true initialisation successfull  <br> - false init failed
     */
@@ -60,10 +61,18 @@ namespace Dusk
         InputSystem::initializeInput(m_Window, m_Root);
 
         //Initialize Soundsystem
-        Sound::get().Init();
+        if (Sound::get().Init())
+        {
+          std::cout << "Soundsystem successfully initialised.\n";
+        }
+        else
+        {
+          std::cout << "ERROR: Soundsystem could not be initialised properly.\n";
+        }
 
         return true;
     }
+
     void Application::go(std::string pluginFileName)
     {
         if (!initialise(pluginFileName))

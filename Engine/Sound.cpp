@@ -38,7 +38,7 @@ Sound& Sound::get()
 
 //Initializes OpenAL, device and context for our application;
 //returns: true, if initialization of OpenAL was successful; false otherwise
-bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, bool needVorbis)
+bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, const bool needVorbis)
 {
   if (AL_Ready || InitInProgress)
   {
@@ -882,6 +882,9 @@ bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, boo
   //the AL part is done here, so we can already set AL_Ready to true
   AL_Ready = true;
 
+  std::cout << "Sound::Init: Info: OpenAL functions loaded, device opened, "
+            << "and context created successfully.\n";
+
   //however, the OggVorbis part still needs to be done
   //now load the OggVorbis lib
   if ((PathToLib_Vorbisfile== "") || (PathToLib_Vorbisfile == "NULL"))
@@ -985,12 +988,11 @@ bool Sound::Init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, boo
     return (!needVorbis);
   }
   //just for curiosity/ debug reasons: get extension string
-  std::cout << "Debug:\n  Available AL extensions are:\n"
+  std::cout << "Debug: Available AL extensions are:\n"
             << alGetString(AL_EXTENSIONS) << "\nEnd of extension list.\n"
-            << "Enum of AL_FORMAT_VORBIS_EXT: "<<alGetEnumValue("AL_FORMAT_VORBIS_EXT")
-            <<"\nIsExtPresent(AL_EXT_vorbis): "<<(int)alIsExtensionPresent("AL_EXT_vorbis")
-            <<"\nIsExtPresent(AL_EXT_VORBIS): "<<(int)alIsExtensionPresent("AL_EXT_VORBIS")
-            << "\nend.\n";
+            <<"IsExtPresent(AL_EXT_VORBIS): "<<(int)alIsExtensionPresent("AL_EXT_VORBIS")
+            << "\nEnum of AL_FORMAT_VORBIS_EXT: "<<alGetEnumValue("AL_FORMAT_VORBIS_EXT")
+            << "\n";
   //all (up to this point) neccessary Vorbis functions are initialized
   Vorbis_Ready = true;
   //the basic initialization is done here, we can return true (for now,
@@ -1101,6 +1103,16 @@ bool Sound::Exit()
   Vorbis_Ready = false;
   InitInProgress = false;
   return true;
+}
+
+bool Sound::IsInitialized() const
+{
+  return AL_Ready;
+}
+
+bool Sound::HasVorbis() const
+{
+  return Vorbis_Ready;
 }
 
 bool Sound::IsMediaPresent(const std::string& MediaIdentifier) const
@@ -1396,7 +1408,7 @@ bool Sound::CreateMedia(const std::string& MediaIdentifier, const std::string& P
 
 //function which actually loads the WAVE files into buffers to make the available
 // to OpenAL
-bool Sound::CreateWAVMedia(const std::string MediaIdentifier, const std::string PathToMedia)
+bool Sound::CreateWAVMedia(const std::string& MediaIdentifier, const std::string& PathToMedia)
 {
   TRiffChunk riff_c;
   TFmtChunk fmt_c;
@@ -1735,7 +1747,7 @@ bool Sound::CreateWAVMedia(const std::string MediaIdentifier, const std::string 
   return true;
 }
 
-bool Sound::CreateOggMedia(const std::string MediaIdentifier, const std::string PathToMedia)
+bool Sound::CreateOggMedia(const std::string& MediaIdentifier, const std::string& PathToMedia)
 {
   if (!Vorbis_Ready)
   {
@@ -2647,7 +2659,7 @@ bool Sound::SetNoiseOffset(const std::string& NoiseIdentifier, const float secon
            std::cout << "    There is no current context.\n"; break;
       case AL_INVALID_ENUM: //shouldn't happen, at least not with OpenAL 1.1
            std::cout << "    Invalid enumeration parameter. Make sure you have"
-                     << " OpenAL 1.1 or higher.\n"; break;
+                     << " OpenAL 1.1 or higher installed.\n"; break;
       case AL_INVALID_VALUE:
            std::cout << "    The given offset value is out of range.\n"; break;
       case AL_INVALID_NAME:
