@@ -23,6 +23,7 @@ namespace Dusk
   */
 
   const unsigned int cHeaderCont = 1953394499; //"Cont" (for containers (base))
+  const unsigned int cHeaderDial = 1818323268; //"Dial" (for dialogue entries)
   const unsigned int cHeaderDusk = 1802728772; //"Dusk" (general file header)
   const unsigned int cHeaderInve = 1702260297; //"Inve" (for Inventory data)
   const unsigned int cHeaderItem = 1835365449; //"Item" (for item records)

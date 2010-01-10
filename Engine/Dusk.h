@@ -152,6 +152,18 @@ description:
 */
 #include "CommandSoundVolume.h"
 
+
+/*
+This Header defines the CommandFog and CommandSnow classes
+
+description:
+    Allows to toggle fog/snow or turn these effects on and off
+status:
+    works
+*/
+#include "CommandWeather.h"
+
+
 /*
 This Header defines the CommandZoom class
 
@@ -183,6 +195,7 @@ status:
 */
 #include "Container.h"
 
+
 /*
 This header defines the ContainerBase Singleton class.
 
@@ -205,6 +218,17 @@ status:
     Works
 */
 #include "DataLoader.h"
+
+
+/*
+This Header defines the Dialogue Singleton class.
+
+description:
+    This class manages the data of all dialogue lines in game.
+status:
+    untested
+*/
+#include "Dialogue.h"
 
 
 /*

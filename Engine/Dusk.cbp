@@ -133,6 +133,8 @@
 		<Unit filename="ContainerBase.h" />
 		<Unit filename="DataLoader.cpp" />
 		<Unit filename="DataLoader.h" />
+		<Unit filename="Dialogue.cpp" />
+		<Unit filename="Dialogue.h" />
 		<Unit filename="DiceBox.cpp" />
 		<Unit filename="DiceBox.h" />
 		<Unit filename="Dispatcher.cpp" />

@@ -1,6 +1,7 @@
 #include "DataLoader.h"
 #include <fstream>
 #include "ContainerBase.h"
+#include "Dialogue.h"
 #include "Landscape.h"
 #include "LightBase.h"
 #include "ItemBase.h"
@@ -49,6 +50,10 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   {
     data_records += ContainerBase::GetSingleton().NumberOfContainers();
   }
+  if ((bits & DIALOGUE_BIT) !=0)
+  {
+    data_records += Dialogue::GetSingleton().NumberOfLines();
+  }
   if ((bits & LANDSCAPE_BIT) !=0)
   {
     data_records += Landscape::GetSingleton().RecordsAvailable();
@@ -83,6 +88,18 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
       return false;
     }
   }//containers
+
+  //save dialogues
+  if ((bits & DIALOGUE_BIT)!=0)
+  {
+    if (!Dialogue::GetSingleton().SaveToStream(output))
+    {
+      std::cout << "DataLoader::SaveToFile: ERROR: could not write Dialogue "
+                << "data to file \""<<FileName<<"\".\n";
+      output.close();
+      return false;
+    }
+  }//dialogue
 
   //save landscape
   if ((bits & LANDSCAPE_BIT) !=0)
@@ -202,6 +219,9 @@ bool DataLoader::LoadFromFile(const std::string& FileName)
       case cHeaderCont:
            success = ContainerBase::GetSingleton().LoadNextContainerFromStream(input);
            break;
+      case cHeaderDial:
+           success = Dialogue::GetSingleton().LoadNextRecordFromStream(input);
+           break;
       case cHeaderItem:
            success = ItemBase::GetSingleton().LoadFromStream(input);
            break;
@@ -240,7 +260,7 @@ bool DataLoader::LoadFromFile(const std::string& FileName)
       input.close();
       return false;
     }
-    records_done++;
+    records_done = records_done+1;
   }//while
   input.close();
   std::cout << "DataLoader::LoadFromFile: Info: "<<records_done<<" records loaded.\n";
@@ -267,6 +287,11 @@ void DataLoader::ClearData(const unsigned int bits)
   {
     ContainerBase::GetSingleton().DeleteAllContainers();
   }//container data
+
+  if ((bits & DIALOGUE_BIT)!=0)
+  {
+    Dialogue::GetSingleton().ClearData();
+  }//dialogue data
 
   if ((bits & ITEM_BIT)!=0)
   {

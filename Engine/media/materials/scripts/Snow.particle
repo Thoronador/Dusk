@@ -1,6 +1,6 @@
 Dusk/Snow
 {
-	quota	4000
+	quota	75000
 	material	Dusk/flare
 	particle_width	1
 	particle_height	1
@@ -15,8 +15,8 @@ Dusk/Snow
 		colour_range_start	1 1 1 1
 		colour_range_end	1 1 1 1
 		direction	0 -1 0
-		emission_rate	250
-		position	0 0 0
+		emission_rate	2500
+		position	0 40 0
 		velocity	0
 		velocity_min	0
 		velocity_max	0
