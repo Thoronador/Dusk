@@ -139,7 +139,7 @@ This Header defines the CommandQuit class
 description:
     It is used to exit the engine
 status:
-    Doesn't work well, Programm crashes when CommandQuit is executed instead of shuting down regularly
+    Seems to work.
 */
 #include "CommandQuit.h"
 

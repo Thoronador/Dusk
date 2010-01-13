@@ -64,6 +64,8 @@
 		<Unit filename="../Engine/ContainerBase.h" />
 		<Unit filename="../Engine/DataLoader.cpp" />
 		<Unit filename="../Engine/DataLoader.h" />
+		<Unit filename="../Engine/Dialogue.cpp" />
+		<Unit filename="../Engine/Dialogue.h" />
 		<Unit filename="../Engine/DuskConstants.h" />
 		<Unit filename="../Engine/DuskFunctions.cpp" />
 		<Unit filename="../Engine/DuskFunctions.h" />

@@ -1,6 +1,4 @@
 #include "CommandQuit.h"
-#include "API.h"
-#include "FrameListener.h"
 #include "InputSystemEditor.h"
 #include <iostream>
 namespace Dusk
