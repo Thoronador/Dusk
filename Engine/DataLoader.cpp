@@ -2,9 +2,10 @@
 #include <fstream>
 #include "ContainerBase.h"
 #include "Dialogue.h"
+#include "ItemBase.h"
 #include "Landscape.h"
 #include "LightBase.h"
-#include "ItemBase.h"
+#include "NPCBase.h"
 #include "ObjectBase.h"
 #include "ObjectData.h"
 #include "DuskConstants.h"
@@ -54,6 +55,10 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   {
     data_records += Dialogue::GetSingleton().NumberOfLines();
   }
+  if ((bits & ITEM_BIT) !=0)
+  {
+    data_records += ItemBase::GetSingleton().NumberOfItems();
+  }
   if ((bits & LANDSCAPE_BIT) !=0)
   {
     data_records += Landscape::GetSingleton().RecordsAvailable();
@@ -62,9 +67,9 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   {
     data_records += LightBase::GetSingleton().NumberOfLights();
   }
-  if ((bits & ITEM_BIT) !=0)
+  if ((bits & NPC_BIT) !=0)
   {
-    data_records += ItemBase::GetSingleton().NumberOfItems();
+    data_records += NPCBase::GetSingleton().NumberOfNPCs();
   }
   if ((bits & OBJECT_BIT) !=0)
   {
@@ -101,6 +106,18 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
     }
   }//dialogue
 
+  //save items
+  if ((bits & ITEM_BIT) !=0)
+  {
+    if (!ItemBase::GetSingleton().SaveToStream(output))
+    {
+      std::cout << "DataLoader::SaveToFile: ERROR: could not write item data to"
+                << " file \""<<FileName<<"\".\n";
+      output.close();
+      return false;
+    }//if
+  }//if items
+
   //save landscape
   if ((bits & LANDSCAPE_BIT) !=0)
   {
@@ -132,17 +149,17 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
     }
   }
 
-  //save items
-  if ((bits & ITEM_BIT) !=0)
+  //save NPCs
+  if ((bits & NPC_BIT) !=0)
   {
-    if (!ItemBase::GetSingleton().SaveToStream(output))
+    if (!NPCBase::GetSingleton().SaveToStream(output))
     {
-      std::cout << "DataLoader::SaveToFile: ERROR: could not write item data to"
+      std::cout << "DataLoader::SaveToFile: ERROR: could not write NPC data to"
                 << " file \""<<FileName<<"\".\n";
       output.close();
       return false;
     }//if
-  }//if items
+  }//if NPCs
 
   //save objects
   if ((bits & OBJECT_BIT) !=0)
@@ -236,6 +253,9 @@ bool DataLoader::LoadFromFile(const std::string& FileName)
       case cHeaderLight:
            success = LightBase::GetSingleton().LoadRecordFromStream(input);
            break;
+      case cHeaderNPC_:
+           success = NPCBase::GetSingleton().LoadNextRecordFromStream(input);
+           break;
       case cHeaderObjS:
            success = ObjectBase::GetSingleton().LoadFromStream(input);
            break;
@@ -307,6 +327,11 @@ void DataLoader::ClearData(const unsigned int bits)
   {
     LightBase::GetSingleton().ClearAllData();
   }//lights
+
+  if ((bits & NPC_BIT)!=0)
+  {
+    NPCBase::GetSingleton().ClearAllNPCs();
+  }//NPC data
 
 }//clear data function
 

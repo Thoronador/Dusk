@@ -1,13 +1,16 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    22.12.2009
+ Date:    2010-01-14
  Purpose: NPCBase singleton class
+          holds information about all distinct NPCs in the game
 
  History:
-     - 22.12.2009 - initial version
+     - 2009-12-22 (rev 143) - initial version (by thoronador)
+     - 2010-01-14 (rev 153) - load/ save functions
 
  ToDo list:
-     - Load/Save functions
+     - ???
+
  Bugs:
      - If you find one (or more), then tell me please.
  --------------------------------------------------------------------------*/
@@ -15,6 +18,7 @@
 #ifndef NPCBASE_H
 #define NPCBASE_H
 
+#include <fstream>
 #include <map>
 #include <string>
 #include "DuskTypes.h"
@@ -74,7 +78,8 @@ namespace Dusk
            case nothing will be added to NPCBase.
       */
       void addNPC(const std::string& ID, const std::string& Name,
-                  const std::string& Mesh, const uint8 Level, const NPCAttributes& Attr);
+                  const std::string& Mesh, const uint8 Level, const NPCAttributes& Attr,
+                  const Inventory& StartingInventory);
 
       /* Tries to delete the NPC record with the given ID. Returns true, if such
          a record was present, or false otherwise. */
@@ -120,6 +125,16 @@ namespace Dusk
 
       /* Returns the inventory of the NPC, if present. */
       const Inventory& getNPCInventory(const std::string& NPC_ID) const;
+
+      /* Tries to save all data to the given stream and returns true on success,
+         or false if an error occured.
+      */
+      bool SaveToStream(std::ofstream& output) const;
+
+      /* Tries to load next NPCRecord from stream and returns true on success,
+         or false on failure.
+      */
+      bool LoadNextRecordFromStream(std::ifstream& input);
     private:
       NPCBase();
       NPCBase(const NPCBase& op){}

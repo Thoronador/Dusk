@@ -5,6 +5,7 @@
 #include "../Engine/DuskFunctions.h"
 #include "../Engine/Landscape.h"
 #include "../Engine/ObjectData.h"
+#include "../Engine/ObjectBase.h"
 #include <OgreVector3.h>
 #include <OgreLight.h>
 

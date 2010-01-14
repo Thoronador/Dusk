@@ -1,5 +1,8 @@
 #include "ObjectData.h"
 #include "DuskConstants.h"
+#include "ObjectBase.h"
+#include "LightBase.h"
+#include "ContainerBase.h"
 
 namespace Dusk
 {
@@ -60,15 +63,12 @@ bool ObjectData::SaveToFile(const std::string& FileName) const
     return false;
   }//if
 
-  unsigned int len;
-  bool success = false;
-
-  len = m_ReferenceList.size();
   //write header "Dusk"
   output.write((char*) &cHeaderDusk, sizeof(unsigned int));
   //number of elements to write (and later to read, on loading)
+  unsigned int len = m_ReferenceList.size();
   output.write((char*) &len, sizeof(unsigned int));
-  success = SaveAllToStream(output);
+  bool success = SaveAllToStream(output);
   output.close();
   return success;
 }
@@ -207,7 +207,7 @@ unsigned int ObjectData::deleteReferencesOfObject(const std::string& ID)
 {
   unsigned int deletedReferences = 0;
   long int i;
-  for (i=m_ReferenceList.size()-1; i>=0; i--)
+  for (i=m_ReferenceList.size()-1; i>=0; i=i-1)
   {
     if (m_ReferenceList.at(i)!=NULL)
     {
@@ -241,6 +241,15 @@ unsigned int ObjectData::reenableReferencesOfObject(const std::string& ID, Ogre:
     std::cout << "ObjectData::reenableReferencesOfObject: ERROR: Scene Manager is NULL pointer!";
     return 0;
   }
+  if (!ObjectBase::GetSingleton().hasObject(ID) and
+      !LightBase::GetSingleton().hasLight(ID) and
+      !ContainerBase::GetSingleton().HasContainer(ID))
+  {
+    std::cout << "ObjectData::reenableReferencesOfObject: ERROR: there is no "
+              << "record about object with the new ID \""+ID+"\" within the"
+              << "ObjectBase, LightBase or ContainerBase classes. Aborting.\n";
+    return 0;
+  }
   for (position = 0; position<m_ReferenceList.size(); position++)
   {
     if (m_ReferenceList.at(position)!=NULL)
@@ -268,17 +277,20 @@ unsigned int ObjectData::updateReferencesAfterIDChange(const std::string& oldID,
               << "new ID is empty string. We don't want empty ID strings!\n";
     return 0;
   }
-  if (!ObjectBase::GetSingleton().hasObject(newID))
-  {
-    std::cout << "ObjectData::updateReferencesAfterIDChange: ERROR: there is "
-              << "no record about object with the new ID \""+newID+"\" within "
-              << "the ObjectBase class. Aborting.\n";
-    return 0;
-  }
   if (oldID==newID)
   {
     std::cout << "ObjectData::updateReferencesAfterIDChange: Hint: old ID is "
               << " the same as new ID. No need to change anything here.\n";
+    return 0;
+  }
+  if (!ObjectBase::GetSingleton().hasObject(newID) and
+      !LightBase::GetSingleton().hasLight(newID) and
+      !ContainerBase::GetSingleton().HasContainer(newID))
+  {
+    std::cout << "ObjectData::updateReferencesAfterIDChange: ERROR: there is "
+              << "no record about object with the new ID \""+newID+"\" within "
+              << "the ObjectBase, LightBase or ContainerBase classes. "
+              << "Aborting.\n";
     return 0;
   }
   if (scm==NULL)
