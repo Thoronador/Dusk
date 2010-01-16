@@ -93,8 +93,8 @@
 		<Unit filename="../Engine/ObjectBase.h" />
 		<Unit filename="../Engine/ObjectData.cpp" />
 		<Unit filename="../Engine/ObjectData.h" />
-		<Unit filename="../Engine/Script.h" />
 		<Unit filename="../Engine/Settings.cpp" />
+		<Unit filename="../Engine/Settings.h" />
 		<Extensions>
 			<code_completion />
 			<debugger />

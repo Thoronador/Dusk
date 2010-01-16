@@ -16,6 +16,7 @@
      - 2010-01-10 (rev 151) - update for Dialogue
      - 2010-01-14 (rev 153) - update for NPCBase
      - 2010-01-16 (rev 154) - update for AnimationData
+     - 2010-01-16 (rev 155) - bug fixed
 
  ToDo list:
      - extend class when further classes for data management are added

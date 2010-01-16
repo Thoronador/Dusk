@@ -286,6 +286,7 @@ bool DataLoader::LoadFromFile(const std::string& FileName)
       case cHeaderRefA:  //AnimatedObject
       case cHeaderRefN:  //NPC
            success = AnimationData::GetSingleton().LoadNextFromStream(input, Header);
+           break;
       default:
           std::cout << "DataLoader::LoadFromFile: ERROR: Got unexpected header "
                     <<Header << " in file \""<<FileName<<"\" at position "
@@ -319,10 +320,6 @@ void DataLoader::ClearData(const unsigned int bits)
   if ((bits & OBJECT_BIT) != 0)
   {
     ObjectBase::GetSingleton().ClearAllObjects();
-    /*if (ObjectData::GetSingleton().NumberOfReferences()>0)
-    { //kill object data, it's useless with an empty object base
-      ObjectData::GetSingleton().ClearData();
-    }*/
   }//Object information
 
   if ((bits & ANIMATED_BIT) != 0)
