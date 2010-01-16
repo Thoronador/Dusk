@@ -29,11 +29,13 @@
                             - GetType() changed (as in all classes which are
                               derived from DuskObject)
      - 2009-12-31 (rev 147) - documentation update
+     - 2010-01-16 (rev 154) - LoadFromStream() and SaveToStream() added
 
  ToDo list:
      - implement possibility to make object "look" into the direction it is
        moving when traveling
      - ???
+
  Bugs:
      - No known bugs. If you find one (or more), then tell me please.
  --------------------------------------------------------------------------*/
@@ -43,6 +45,7 @@
 #include <OgreSceneManager.h>
 #include <OgreVector3.h>
 #include <vector>
+#include <fstream>
 #include "DuskObject.h"
 
 namespace Dusk
@@ -141,11 +144,32 @@ namespace Dusk
                movement nor animation will be processed.
         */
         void Move(const float SecondsPassed);
+
+        /* Saves the object to the given stream. Returns true on success, false
+           otherwise.
+
+           remark:
+               Every derived class has to have its own implementation of this
+               function to ensure the object is saved properly.
+        */
+        virtual bool SaveToStream(std::ofstream& OutStream) const;
+
+        /* Tries to load an object from the given stream. Returns true on
+           success, false otherwise.
+
+           remarks:
+               Every derived class has to have its own implementation of this
+               function to ensure the object is saved properly.
+               If the function returns false, the data within the object may be
+               corrupted. It's advised not to use the object in this case.
+        */
+        virtual bool LoadFromStream(std::ifstream& InStream);
     protected:
         Ogre::Vector3 m_Direction, m_Destination;
         float m_Speed;
 
         std::string m_Anim;
+
         bool m_DoPlayAnim;
         bool m_LoopAnim;
         bool m_Travel;

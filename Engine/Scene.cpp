@@ -98,7 +98,7 @@ void Scene::createGrassMesh()
 
         //create animated object (for test purposes)
         AnimatedObject* aniObj = NULL;
-        aniObj = AnimationData::GetSingleton().addReference("robot",
+        aniObj = AnimationData::GetSingleton().addAnimatedReference("robot",
                                     Ogre::Vector3(0.0f, 0.0f, 30.0f),
                                     Ogre::Vector3(0.0f, 0.0f, 0.0f), 0.55f);
         aniObj->Enable(m_SceneManager);
@@ -116,7 +116,7 @@ void Scene::createGrassMesh()
                   << "  sizeof(Light): "<<sizeof(Light)<<" bytes\n"
                   << "  sizeof(Container): "<<sizeof(Container)<<" bytes\n"
                   << "  sizeof(AnimatedObject): "<<sizeof(AnimatedObject)<<" bytes\n"
-                  << "  sizeof(ObjectTypes): "<<sizeof(ObjectTypes)<<" bytes\n";
+                  << "  sizeof(NPC): "<<sizeof(NPC)<<" bytes\n";
         //end of animated object
 
         Ogre::Plane plane;

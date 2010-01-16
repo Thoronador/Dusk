@@ -15,6 +15,7 @@
      - 2010-01-01 (rev 148) - documentation update
      - 2010-01-10 (rev 151) - update for Dialogue
      - 2010-01-14 (rev 153) - update for NPCBase
+     - 2010-01-16 (rev 154) - update for AnimationData
 
  ToDo list:
      - extend class when further classes for data management are added
@@ -32,17 +33,18 @@
 namespace Dusk
 {
   //Flags to indicate which portions to load/ save
-  const unsigned int CONTAINER_BIT = 1;
-  const unsigned int DIALOGUE_BIT = 2;
-  const unsigned int ITEM_BIT = 4;
-  const unsigned int LANDSCAPE_BIT = 8;
-  const unsigned int LIGHT_BIT = 16;
-  const unsigned int NPC_BIT = 32;
-  const unsigned int OBJECT_BIT = 64;
-  const unsigned int REFERENCE_BIT = 128;
+  const unsigned int ANIMATED_BIT = 1;
+  const unsigned int CONTAINER_BIT = 2;
+  const unsigned int DIALOGUE_BIT = 4;
+  const unsigned int ITEM_BIT = 8;
+  const unsigned int LANDSCAPE_BIT = 16;
+  const unsigned int LIGHT_BIT = 32;
+  const unsigned int NPC_BIT = 64;
+  const unsigned int OBJECT_BIT = 128;
+  const unsigned int REFERENCE_BIT = 256;
 
-  const unsigned int ALL_BITS = CONTAINER_BIT | DIALOGUE_BIT | ITEM_BIT |
-                                LANDSCAPE_BIT | LIGHT_BIT | NPC_BIT |
+  const unsigned int ALL_BITS = ANIMATED_BIT | CONTAINER_BIT | DIALOGUE_BIT |
+                                ITEM_BIT | LANDSCAPE_BIT | LIGHT_BIT | NPC_BIT |
                                 OBJECT_BIT | REFERENCE_BIT;
 
 

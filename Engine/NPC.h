@@ -1,20 +1,23 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    22.12.2009
+ Date:    2010-01-16
  Purpose: NPC class
+          represents a single NPC within the game
 
  History:
-     - 09.12.2009 - initial version
-     - 18.12.2009 - attributes added
-     - 22.12.2009 - Enable() implemented, ancestor class will handle Disable()
-                    and IsEnabled()
-                  - maximum health calculation added
-                  - constructor tries to get initial attributes from NPCBase
-     - 23.12.2009 - use of Settings class to get the balancing settings
+     - 2009-12-09 (rev 141) - initial version
+     - 2009-12-18 (rev 142) - attributes and inventory added
+     - 2009-12-22 (rev 143) - Enable() implemented, ancestor class will handle
+                              Disable() and IsEnabled()
+                            - maximum health calculation added
+                            - constructor tries to get initial attributes
+                              from NPCBase
+     - 2009-12-23 (rev 145) - use of Settings class to get the balancing settings
+     - 2010-01-16 (rev 154) - LoadFromStream() and SaveToStream() implemented
 
  ToDo list:
-     - implement LoadFromStream and SaveFromStream methods to load/ save NPCs
-       to a stream
+     - ???
+
  Bugs:
      - If you find one (or more), then tell me please. I'll try to fix it as
        soon as possible.
@@ -35,13 +38,22 @@ namespace Dusk
   class NPC: public AnimatedObject
   {
     public:
+      NPC();
       NPC(const std::string _ID, const Ogre::Vector3 pos, const Ogre::Vector3 rot, const float Scale);
       virtual ~NPC();
+
+      /* returns the enumeration type indicating that this is an NPC */
       virtual ObjectTypes GetType() const;
 
+      /* returns the current amount of health/ hitpoints of that NPC */
       float getHealth() const;
+
+      /* sets the current health of the NPC */
       void setHealth(const float new_health);
+
+      /* returns true, if the NPC is considered to be alive */
       bool isAlive() const;
+
       /*attribute set/get methods */
       uint8 getLevel() const;
       uint8 getStrength() const;
@@ -74,8 +86,8 @@ namespace Dusk
       */
       virtual bool Enable(Ogre::SceneManager* scm);
 
-      /* saves NPC to given stream and returns true on success,
-         false otherwise */
+      /* saves NPC to given stream and returns true on success, false otherwise
+      */
       virtual bool SaveToStream(std::ofstream& OutStream) const;
 
       /* Loads contents of inventory from stream and returns true on success,

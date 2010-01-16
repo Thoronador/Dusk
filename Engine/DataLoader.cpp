@@ -1,5 +1,6 @@
 #include "DataLoader.h"
 #include <fstream>
+#include "AnimationData.h"
 #include "ContainerBase.h"
 #include "Dialogue.h"
 #include "ItemBase.h"
@@ -47,6 +48,11 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   //determine number of records
   data_records = 0;
 
+
+  if ((bits & ANIMATED_BIT) !=0)
+  {
+    data_records += AnimationData::GetSingleton().NumberOfReferences();
+  }
   if ((bits & CONTAINER_BIT) !=0)
   {
     data_records += ContainerBase::GetSingleton().NumberOfContainers();
@@ -81,6 +87,7 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   }
   //write number of records
   output.write((char*) &data_records, sizeof(unsigned int));
+
 
   //save containers
   if ((bits & CONTAINER_BIT)!=0)
@@ -160,6 +167,18 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
       return false;
     }//if
   }//if NPCs
+
+  //save animated objects
+  if ((bits & ANIMATED_BIT)!=0)
+  {
+    if (!AnimationData::GetSingleton().SaveAllToStream(output))
+    {
+      std::cout << "DataLoader::SaveToFile: ERROR: could not write Animation "
+                << "reference data to file \""<<FileName<<"\".\n";
+      output.close();
+      return false;
+    }
+  }//AnimatedObjects
 
   //save objects
   if ((bits & OBJECT_BIT) !=0)
@@ -259,11 +278,14 @@ bool DataLoader::LoadFromFile(const std::string& FileName)
       case cHeaderObjS:
            success = ObjectBase::GetSingleton().LoadFromStream(input);
            break;
-      case cHeaderRefC:
-      case cHeaderRefL:
-      case cHeaderRefO:
+      case cHeaderRefC: //Container
+      case cHeaderRefL: //Light
+      case cHeaderRefO: //DuskObject
            success = ObjectData::GetSingleton().LoadNextFromStream(input, Header);
            break;
+      case cHeaderRefA:  //AnimatedObject
+      case cHeaderRefN:  //NPC
+           success = AnimationData::GetSingleton().LoadNextFromStream(input, Header);
       default:
           std::cout << "DataLoader::LoadFromFile: ERROR: Got unexpected header "
                     <<Header << " in file \""<<FileName<<"\" at position "
@@ -302,6 +324,11 @@ void DataLoader::ClearData(const unsigned int bits)
       ObjectData::GetSingleton().ClearData();
     }*/
   }//Object information
+
+  if ((bits & ANIMATED_BIT) != 0)
+  {
+    AnimationData::GetSingleton().ClearData();
+  }//animated object and NPC references
 
   if ((bits & CONTAINER_BIT)!=0)
   {

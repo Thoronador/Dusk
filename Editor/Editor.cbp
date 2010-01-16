@@ -58,6 +58,10 @@
 		<Unit filename="EditorFrameListener.cpp" />
 		<Unit filename="EditorFrameListener.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="../Engine/AnimatedObject.cpp" />
+		<Unit filename="../Engine/AnimatedObject.h" />
+		<Unit filename="../Engine/AnimationData.cpp" />
+		<Unit filename="../Engine/AnimationData.h" />
 		<Unit filename="../Engine/Container.cpp" />
 		<Unit filename="../Engine/Container.h" />
 		<Unit filename="../Engine/ContainerBase.cpp" />
@@ -81,12 +85,16 @@
 		<Unit filename="../Engine/Light.h" />
 		<Unit filename="../Engine/LightBase.cpp" />
 		<Unit filename="../Engine/LightBase.h" />
+		<Unit filename="../Engine/NPC.cpp" />
+		<Unit filename="../Engine/NPC.h" />
 		<Unit filename="../Engine/NPCBase.cpp" />
 		<Unit filename="../Engine/NPCBase.h" />
 		<Unit filename="../Engine/ObjectBase.cpp" />
 		<Unit filename="../Engine/ObjectBase.h" />
 		<Unit filename="../Engine/ObjectData.cpp" />
 		<Unit filename="../Engine/ObjectData.h" />
+		<Unit filename="../Engine/Script.h" />
+		<Unit filename="../Engine/Settings.cpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />

@@ -188,7 +188,6 @@ bool NPCBase::SaveToStream(std::ofstream& output) const
 
 bool NPCBase::LoadNextRecordFromStream(std::ifstream& input)
 {
-  //not completely implemented yet
   if (!(input.good()))
   {
     std::cout << "NPCBase::LoadNextRecordFromStream: ERROR: Bad stream.\n";
