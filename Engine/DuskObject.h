@@ -95,8 +95,9 @@ class DuskObject: public Ogre::UserDefinedObject
         */
         virtual bool LoadFromStream(std::ifstream& InStream);
     protected:
+        bool SaveDuskObjectPart(std::ofstream& output) const;
+        bool LoadDuskObjectPart(std::ifstream& InStream);
         std::string ID;
-        //ObjectTypes objectType;
         Ogre::Entity *entity;
         Ogre::Vector3 position, rotation;
         float m_Scale;

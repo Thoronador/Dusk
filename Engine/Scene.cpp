@@ -108,8 +108,8 @@ void Scene::createGrassMesh()
         aniObj->AddWaypoint(Ogre::Vector3(200.0f, 30.0f, 0.0f));
         aniObj->AddWaypoint(Ogre::Vector3(200.0f, 50.0f, -200.0f));
         aniObj->AddWaypoint(Ogre::Vector3(0.0f, 0.0f, 30.0f));
-        aniObj->AddWaypoint(Ogre::Vector3(200.0f, 30.0f, 0.0f));
         aniObj->setUseWaypoints(true);
+        aniObj->setPatrolMode(true);
         //just out of curiosity
         std::cout << "Animated robot type enum (int): "<<(int)(aniObj->GetType())<<"\n"
                   << "  sizeof(DuskObject): "<<sizeof(DuskObject)<<" bytes\n"

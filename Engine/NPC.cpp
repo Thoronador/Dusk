@@ -221,95 +221,21 @@ bool NPC::SaveToStream(std::ofstream& OutStream) const
     std::cout << "NPC::SaveToStream: ERROR: Stream contains errors!\n";
     return false;
   }
-  unsigned int len;
-
   //write header "RefN" (reference of NPC)
   OutStream.write((char*) &cHeaderRefN, sizeof(unsigned int));
-  //write ID
-  len = ID.length();
-  OutStream.write((char*) &len, sizeof(unsigned int));
-  OutStream.write(ID.c_str(), len);
-
-  //write position and rotation, and scale
-  // -- position
-  float xyz;
-  xyz = position.x;
-  OutStream.write((char*) &xyz, sizeof(float));
-  xyz = position.y;
-  OutStream.write((char*) &xyz, sizeof(float));
-  xyz = position.z;
-  OutStream.write((char*) &xyz, sizeof(float));
-  // -- rotation
-  xyz = rotation.x;
-  OutStream.write((char*) &xyz, sizeof(float));
-  xyz = rotation.y;
-  OutStream.write((char*) &xyz, sizeof(float));
-  xyz = rotation.z;
-  OutStream.write((char*) &xyz, sizeof(float));
-  // -- scale
-  OutStream.write((char*) &m_Scale, sizeof(float));
-  if (!OutStream.good())
+  //save stuff inherited from DuskObject
+  if (!SaveDuskObjectPart(OutStream))
   {
-    std::cout << "NPC::SaveToStream: ERROR while writing basic data.\n";
+    std::cout << "NPC::SaveToStream: ERROR while saving basic data!\n";
     return false;
   }
-  //now all data inherited from DuskObject is written
   // go on with new data members from AnimatedObject
-
-  //direction
-  xyz = m_Direction.x;
-  OutStream.write((char*) &xyz, sizeof(float));
-  xyz = m_Direction.y;
-  OutStream.write((char*) &xyz, sizeof(float));
-  xyz = m_Direction.z;
-  OutStream.write((char*) &xyz, sizeof(float));
-  //destination
-  xyz = m_Destination.x;
-  OutStream.write((char*) &xyz, sizeof(float));
-  xyz = m_Destination.y;
-  OutStream.write((char*) &xyz, sizeof(float));
-  xyz = m_Destination.z;
-  OutStream.write((char*) &xyz, sizeof(float));
-  //speed
-  OutStream.write((char*) &m_Speed, sizeof(float));
-  //travel?
-  OutStream.write((char*) &m_Travel, sizeof(bool));
-  //animation data
-  // -- anim name
-  len = m_Anim.length();
-  OutStream.write((char*) &len, sizeof(len));
-  // -- loop mode?
-  OutStream.write((char*) &m_LoopAnim, sizeof(bool));
-  // -- playing?
-  OutStream.write((char*) &m_DoPlayAnim, sizeof(bool));
-  //waypoint data
-  // -- waypoint travel enabled?
-  OutStream.write((char*) &m_WaypointTravel, sizeof(bool));
-  // -- current waypoint
-  OutStream.write((char*) &m_currentWaypoint, sizeof(m_currentWaypoint));
-  // -- waypoints themselves
-  // ---- number of WPs
-  len = m_Waypoints.size();
-  OutStream.write((char*) &len, sizeof(unsigned int));
-  // ---- waypoint data
-  unsigned int i;
-  for (i=0; i<len; i=i+1)
+  if (!SaveAnimatedObjectPart(OutStream))
   {
-    xyz = m_Waypoints.at(i).x;
-    OutStream.write((char*) &xyz, sizeof(float));
-    xyz = m_Waypoints.at(i).y;
-    OutStream.write((char*) &xyz, sizeof(float));
-    xyz = m_Waypoints.at(i).z;
-    OutStream.write((char*) &xyz, sizeof(float));
-  } //for
-  if (!OutStream.good())
-  {
-    std::cout << "NPC::SaveToStream: ERROR while writing animation data.\n";
+    std::cout << "NPC::SaveToStream: ERROR while saving animation data!\n";
     return false;
   }
-
-  //done with AnimatedObject members; go on with NPC stuff
-
+  //done with inherited data members; go on with NPC stuff
   //health
   OutStream.write((char*) &m_Health, sizeof(float));
   //level
@@ -349,13 +275,8 @@ bool NPC::LoadFromStream(std::ifstream& InStream)
     std::cout << "NPC::LoadFromStream: ERROR: Stream contains errors!\n";
     return false;
   }
-
-  char ID_Buffer[256];
-  float f_temp;
-  unsigned int Header, len;
-
   //read header "RefN"
-  Header = 0;
+  unsigned int Header = 0;
   InStream.read((char*) &Header, sizeof(unsigned int));
   if (Header!=cHeaderRefN)
   {
@@ -363,136 +284,19 @@ bool NPC::LoadFromStream(std::ifstream& InStream)
               << "header.\n";
     return false;
   }
-  //read ID
-  InStream.read((char*) &len, sizeof(unsigned int));
-  if (len>255)
+  //read DuskObject stuff
+  if (!LoadDuskObjectPart(InStream))
   {
-    std::cout << "NPC::LoadFromStream: ERROR: ID cannot be longer than 255 "
-              << "characters.\n";
+    std::cout << "NPC::LoadFromStream: ERROR while reading basic data.\n";
     return false;
   }
-  InStream.read(ID_Buffer, len);
-  ID_Buffer[len] = '\0';
-  if (!InStream.good())
-  {
-    std::cout << "NPC::LoadFromStream: ERROR while reading data (ID).\n";
-    return false;
-  }
-  ID = std::string(ID_Buffer);
-
-  //position
-  InStream.read((char*) &f_temp, sizeof(float));
-  position.x = f_temp;
-  InStream.read((char*) &f_temp, sizeof(float));
-  position.y = f_temp;
-  InStream.read((char*) &f_temp, sizeof(float));
-  position.z = f_temp;
-  //rotation
-  InStream.read((char*) &f_temp, sizeof(float));
-  rotation.x = f_temp;
-  InStream.read((char*) &f_temp, sizeof(float));
-  rotation.y = f_temp;
-  InStream.read((char*) &f_temp, sizeof(float));
-  rotation.z = f_temp;
-  //scale
-  InStream.read((char*) &f_temp, sizeof(float));
-  m_Scale = f_temp;
-
-  //done with basic DuskObject stuff
   // go on with data members from AnimatedObject
-
-  //direction
-  InStream.read((char*) &f_temp, sizeof(float));
-  m_Direction.x = f_temp;
-  InStream.read((char*) &f_temp, sizeof(float));
-  m_Direction.y = f_temp;
-  InStream.read((char*) &f_temp, sizeof(float));
-  m_Direction.z = f_temp;
-  //destination
-  InStream.read((char*) &f_temp, sizeof(float));
-  m_Destination.x = f_temp;
-  InStream.read((char*) &f_temp, sizeof(float));
-  m_Destination.y = f_temp;
-  InStream.read((char*) &f_temp, sizeof(float));
-  m_Destination.z = f_temp;
-  //speed
-  InStream.read((char*) &m_Speed, sizeof(float));
-  //travel
-  InStream.read((char*) &m_Travel, sizeof(bool));
-  if (!InStream.good())
+  if (!LoadAnimatedObjectPart(InStream))
   {
-    std::cout << "NPC::LoadFromStream: ERROR while reading direction, "
-              << "destination and speed.\n";
+    std::cout << "NPC::LoadFromStream: ERROR while loading animation data.\n";
     return false;
   }
-  //animation data
-  // -- anim name
-  len = 0;
-  InStream.read((char*) &len, sizeof(unsigned int));
-  if (len>255)
-  {
-    std::cout << "NPC::LoadFromStream: ERROR: animation name cannot be longer "
-              << "than 255 characters.\n";
-    return false;
-  }
-  InStream.read(ID_Buffer, len);
-  ID_Buffer[len] = '\0';
-  if (!InStream.good())
-  {
-    std::cout << "NPC::LoadFromStream: ERROR while reading animation name.\n";
-    return false;
-  }
-  m_Anim = std::string(ID_Buffer);
-  // -- loop mode?
-  InStream.read((char*) &m_LoopAnim, sizeof(bool));
-  // -- playing?
-  InStream.read((char*) &m_DoPlayAnim, sizeof(bool));
-  //waypoint data
-  // -- waypoint travel enabled?
-  InStream.read((char*) &m_WaypointTravel, sizeof(bool));
-  if (!InStream.good())
-  {
-    std::cout << "NPC::LoadFromStream: ERROR while reading animation flags.\n";
-    return false;
-  }
-  // -- current waypoint
-  InStream.read((char*) &m_currentWaypoint, sizeof(m_currentWaypoint));
-  // -- waypoints themselves
-  // ---- number of WPs
-  Header = 0;
-  InStream.read((char*) &Header, sizeof(unsigned int));
-  if (Header>100)
-  {
-    std::cout << "NPC::LoadFromStream: ERROR: There are more than 100 waypoints"
-              << " for one object. Aborting to avoid to much data in"
-              << "vector.\n";
-    return false;
-  }
-  m_Waypoints.clear();
-  Ogre::Vector3 temp_vec;
-  for (len=0; len<Header; len=len+1)
-  {
-    InStream.read((char*) &f_temp, sizeof(float));
-    temp_vec.x = f_temp;
-    InStream.read((char*) &f_temp, sizeof(float));
-    temp_vec.y = f_temp;
-    InStream.read((char*) &f_temp, sizeof(float));
-    temp_vec.z = f_temp;
-    if (!(InStream.good()))
-    {
-      std::cout << "NPC::LoadFromStream: ERROR while reading waypoint data.\n";
-      return false;
-    }
-    m_Waypoints.push_back(temp_vec);
-  } //for
-
-  if (!(InStream.good()))
-  {
-    std::cout << "NPC::LoadFromStream: ERROR while reading animation data.\n";
-    return false;
-  }
-
-  //done with data from animated object, go on with NPC data
+  //done with inherited data, go on with NPC data
 
   //health
   InStream.read((char*) &m_Health, sizeof(float));

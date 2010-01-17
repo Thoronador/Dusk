@@ -27,6 +27,7 @@ AnimatedObject::AnimatedObject()
   m_WaypointTravel = false;
   m_Waypoints.clear();
   m_currentWaypoint = 0;
+  m_Patrol = false;
 }
 
 AnimatedObject::AnimatedObject(const std::string _ID, const Ogre::Vector3 pos, const Ogre::Vector3 rot, const float Scale)
@@ -53,6 +54,7 @@ AnimatedObject::AnimatedObject(const std::string _ID, const Ogre::Vector3 pos, c
   m_WaypointTravel = false;
   m_Waypoints.clear();
   m_currentWaypoint = 0;
+  m_Patrol = false;
 }
 
 AnimatedObject::~AnimatedObject()
@@ -219,11 +221,19 @@ void AnimatedObject::Move(const float SecondsPassed)
       else
       { //we have waypoints, select the next one
         if (m_currentWaypoint+1>=m_Waypoints.size())
-        { //we have run out of waypoints, so let's stop
-          m_Travel = false;
-          m_WaypointTravel = false;
-          m_Direction = Ogre::Vector3::ZERO;
-          m_Speed = 0.0f;
+        { //we have run out of waypoints,...
+          if (m_Patrol)
+          { //...but we are in patrol mode, so start again
+            m_currentWaypoint = 0;
+            TravelToDestination(m_Waypoints.at(0));
+          }
+          else
+          { //...so let's stop, since we do not patrol
+            m_Travel = false;
+            m_WaypointTravel = false;
+            m_Direction = Ogre::Vector3::ZERO;
+            m_Speed = 0.0f;
+          }
         }
         else
         { //there are more waypoints, so select next
@@ -281,6 +291,7 @@ void AnimatedObject::clearWaypoints()
 {
   m_Waypoints.clear();
   m_WaypointTravel = false;
+  m_Patrol = false;
   m_currentWaypoint = 0;
 }
 
@@ -291,44 +302,24 @@ bool AnimatedObject::SaveToStream(std::ofstream& OutStream) const
     std::cout << "AnimatedObject::SaveToStream: ERROR: Stream contains errors!\n";
     return false;
   }
-  unsigned int len;
-
   //write header "RefA" (reference of AnimatedObject)
   OutStream.write((char*) &cHeaderRefA, sizeof(unsigned int));
-  //write ID
-  len = ID.length();
-  OutStream.write((char*) &len, sizeof(unsigned int));
-  OutStream.write(ID.c_str(), len);
-
-  //write position and rotation, and scale
-  // -- position
-  float xyz;
-  xyz = position.x;
-  OutStream.write((char*) &xyz, sizeof(float));
-  xyz = position.y;
-  OutStream.write((char*) &xyz, sizeof(float));
-  xyz = position.z;
-  OutStream.write((char*) &xyz, sizeof(float));
-  // -- rotation
-  xyz = rotation.x;
-  OutStream.write((char*) &xyz, sizeof(float));
-  xyz = rotation.y;
-  OutStream.write((char*) &xyz, sizeof(float));
-  xyz = rotation.z;
-  OutStream.write((char*) &xyz, sizeof(float));
-  // -- scale
-  OutStream.write((char*) &m_Scale, sizeof(float));
-  if (!OutStream.good())
+  //write all data inherited from DuskObject
+  if (!SaveDuskObjectPart(OutStream))
   {
     std::cout << "AnimatedObject::SaveToStream: ERROR while writing basic "
-              << "data.\n";
+              << "data!\n";
     return false;
   }
-  //now all data inherited from DuskObject is written
   // go on with new data members from AnimatedObject
+  return SaveAnimatedObjectPart(OutStream);
+}
 
+bool AnimatedObject::SaveAnimatedObjectPart(std::ofstream& OutStream) const
+{
+  // go on with new data members from AnimatedObject
   //direction
-  xyz = m_Direction.x;
+  float xyz = m_Direction.x;
   OutStream.write((char*) &xyz, sizeof(float));
   xyz = m_Direction.y;
   OutStream.write((char*) &xyz, sizeof(float));
@@ -347,7 +338,7 @@ bool AnimatedObject::SaveToStream(std::ofstream& OutStream) const
   OutStream.write((char*) &m_Travel, sizeof(bool));
   //animation data
   // -- anim name
-  len = m_Anim.length();
+  unsigned int len = m_Anim.length();
   OutStream.write((char*) &len, sizeof(len));
   // -- loop mode?
   OutStream.write((char*) &m_LoopAnim, sizeof(bool));
@@ -356,6 +347,8 @@ bool AnimatedObject::SaveToStream(std::ofstream& OutStream) const
   //waypoint data
   // -- waypoint travel enabled?
   OutStream.write((char*) &m_WaypointTravel, sizeof(bool));
+  // -- patrol mode?
+  OutStream.write((char*) &m_Patrol, sizeof(bool));
   // -- current waypoint
   OutStream.write((char*) &m_currentWaypoint, sizeof(m_currentWaypoint));
   // -- waypoints themselves
@@ -373,7 +366,7 @@ bool AnimatedObject::SaveToStream(std::ofstream& OutStream) const
     xyz = m_Waypoints.at(i).z;
     OutStream.write((char*) &xyz, sizeof(float));
   } //for
-  return (OutStream.good());
+  return OutStream.good();
 }
 
 bool AnimatedObject::LoadFromStream(std::ifstream& InStream)
@@ -389,13 +382,8 @@ bool AnimatedObject::LoadFromStream(std::ifstream& InStream)
     std::cout << "AnimatedObject::LoadFromStream: ERROR: Stream contains errors!\n";
     return false;
   }
-
-  char ID_Buffer[256];
-  float f_temp;
-  unsigned int Header, len;
-
   //read header "RefA"
-  Header = 0;
+  unsigned int Header = 0;
   InStream.read((char*) &Header, sizeof(unsigned int));
   if (Header!=cHeaderRefA)
   {
@@ -403,45 +391,21 @@ bool AnimatedObject::LoadFromStream(std::ifstream& InStream)
               << "invalid reference header.\n";
     return false;
   }
-  //read ID
-  InStream.read((char*) &len, sizeof(unsigned int));
-  if (len>255)
+  //read all stuff inherited from DuskObject
+  if (!LoadDuskObjectPart(InStream))
   {
-    std::cout << "AnimatedObject::LoadFromStream: ERROR: ID cannot be longer "
-              << "than 255 characters.\n";
+    std::cout << "AnimatedObject::LoadFromStream: ERROR while reading basic "
+              << "object data.\n";
     return false;
-  }
-  InStream.read(ID_Buffer, len);
-  ID_Buffer[len] = '\0';
-  if (!InStream.good())
-  {
-    std::cout << "AnimatedObject::LoadFromStream: ERROR while reading data "
-              << "(ID).\n";
-    return false;
-  }
-  ID = std::string(ID_Buffer);
-
-  //position
-  InStream.read((char*) &f_temp, sizeof(float));
-  position.x = f_temp;
-  InStream.read((char*) &f_temp, sizeof(float));
-  position.y = f_temp;
-  InStream.read((char*) &f_temp, sizeof(float));
-  position.z = f_temp;
-  //rotation
-  InStream.read((char*) &f_temp, sizeof(float));
-  rotation.x = f_temp;
-  InStream.read((char*) &f_temp, sizeof(float));
-  rotation.y = f_temp;
-  InStream.read((char*) &f_temp, sizeof(float));
-  rotation.z = f_temp;
-  //scale
-  InStream.read((char*) &f_temp, sizeof(float));
-  m_Scale = f_temp;
-
-  //done with basic DuskObject stuff
+  }//if
   // go on with new data members from AnimatedObject
+  return LoadAnimatedObjectPart(InStream);
+}
 
+bool AnimatedObject::LoadAnimatedObjectPart(std::ifstream& InStream)
+{
+  //load data members from AnimatedObject
+  float f_temp;
   //direction
   InStream.read((char*) &f_temp, sizeof(float));
   m_Direction.x = f_temp;
@@ -468,7 +432,7 @@ bool AnimatedObject::LoadFromStream(std::ifstream& InStream)
   }
   //animation data
   // -- anim name
-  len = 0;
+  unsigned int len = 0;
   InStream.read((char*) &len, sizeof(unsigned int));
   if (len>255)
   {
@@ -476,6 +440,7 @@ bool AnimatedObject::LoadFromStream(std::ifstream& InStream)
               << " be longer than 255 characters.\n";
     return false;
   }
+  char ID_Buffer[256];
   InStream.read(ID_Buffer, len);
   ID_Buffer[len] = '\0';
   if (!InStream.good())
@@ -492,6 +457,8 @@ bool AnimatedObject::LoadFromStream(std::ifstream& InStream)
   //waypoint data
   // -- waypoint travel enabled?
   InStream.read((char*) &m_WaypointTravel, sizeof(bool));
+  // -- patrol mode?
+  InStream.read((char*) &m_Patrol, sizeof(bool));
   if (!InStream.good())
   {
     std::cout << "AnimatedObject::LoadFromStream: ERROR while reading flags.\n";
@@ -501,9 +468,9 @@ bool AnimatedObject::LoadFromStream(std::ifstream& InStream)
   InStream.read((char*) &m_currentWaypoint, sizeof(m_currentWaypoint));
   // -- waypoints themselves
   // ---- number of WPs
-  Header = 0;
-  InStream.read((char*) &Header, sizeof(unsigned int));
-  if (Header>100)
+  unsigned int wp_count = 0;
+  InStream.read((char*) &wp_count, sizeof(unsigned int));
+  if (wp_count>100)
   {
     std::cout << "AnimatedObject::LoadFromStream: ERROR: There are more than "
               << "100 waypoints for one object. Aborting to avoid to much "
@@ -512,7 +479,7 @@ bool AnimatedObject::LoadFromStream(std::ifstream& InStream)
   }
   m_Waypoints.clear();
   Ogre::Vector3 temp_vec;
-  for (len=0; len<Header; len=len+1)
+  for (len=0; len<wp_count; len=len+1)
   {
     InStream.read((char*) &f_temp, sizeof(float));
     temp_vec.x = f_temp;
@@ -529,6 +496,21 @@ bool AnimatedObject::LoadFromStream(std::ifstream& InStream)
     m_Waypoints.push_back(temp_vec);
   } //for
   return (InStream.good());
+}
+
+
+void AnimatedObject::setPatrolMode(const bool doPatrol)
+{
+  m_Patrol = doPatrol;
+  if (doPatrol and m_Waypoints.size()<2)
+  { //patrol mode not useful, if there is only one waypoint or none at all
+    m_Patrol = false;
+  }
+}
+
+bool AnimatedObject::getPatrolMode() const
+{
+  return m_Patrol;
 }
 
 }

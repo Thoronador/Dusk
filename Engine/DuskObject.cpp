@@ -212,34 +212,37 @@ bool DuskObject::SaveToStream(std::ofstream& OutStream) const
     std::cout << "DuskObject::SaveToStream: ERROR: Stream contains errors!\n";
     return false;
   }
-  unsigned int len;
-  float xyz;
-
   //write header "RefO" (reference of Object)
   OutStream.write((char*) &cHeaderRefO, sizeof(unsigned int)); //header
+  //write all data members, i.e. ID, position and rotation, and scale
+  return SaveDuskObjectPart(OutStream);
+}
+
+bool DuskObject::SaveDuskObjectPart(std::ofstream& output) const
+{
   //write ID
-  len = ID.length();
-  OutStream.write((char*) &len, sizeof(unsigned int));
-  OutStream.write(ID.c_str(), len);
+  const unsigned int len = ID.length();
+  output.write((char*) &len, sizeof(unsigned int));
+  output.write(ID.c_str(), len);
 
   //write position and rotation, and scale
   // -- position
-  xyz = position.x;
-  OutStream.write((char*) &xyz, sizeof(float));
+  float xyz = position.x;
+  output.write((char*) &xyz, sizeof(float));
   xyz = position.y;
-  OutStream.write((char*) &xyz, sizeof(float));
+  output.write((char*) &xyz, sizeof(float));
   xyz = position.z;
-  OutStream.write((char*) &xyz, sizeof(float));
+  output.write((char*) &xyz, sizeof(float));
   // -- rotation
   xyz = rotation.x;
-  OutStream.write((char*) &xyz, sizeof(float));
+  output.write((char*) &xyz, sizeof(float));
   xyz = rotation.y;
-  OutStream.write((char*) &xyz, sizeof(float));
+  output.write((char*) &xyz, sizeof(float));
   xyz = rotation.z;
-  OutStream.write((char*) &xyz, sizeof(float));
+  output.write((char*) &xyz, sizeof(float));
   // -- scale
-  OutStream.write((char*) &m_Scale, sizeof(float));
-  return (OutStream.good());
+  output.write((char*) &m_Scale, sizeof(float));
+  return output.good();
 }
 
 bool DuskObject::LoadFromStream(std::ifstream& InStream)
@@ -256,9 +259,7 @@ bool DuskObject::LoadFromStream(std::ifstream& InStream)
     return false;
   }
 
-  char ID_Buffer[256];
-  float f_temp;
-  unsigned int Header, len;
+  unsigned int Header;
 
   //read header "RefO"
   Header = 0;
@@ -269,7 +270,14 @@ bool DuskObject::LoadFromStream(std::ifstream& InStream)
               << "reference header.\n";
     return false;
   }
+  //load all data members of DuskObject, i.e. ID, position, rotation, scale
+  return LoadDuskObjectPart(InStream);
+}
+
+bool DuskObject::LoadDuskObjectPart(std::ifstream& InStream)
+{
   //read ID
+  unsigned int len;
   InStream.read((char*) &len, sizeof(unsigned int));
   if (len>255)
   {
@@ -277,6 +285,7 @@ bool DuskObject::LoadFromStream(std::ifstream& InStream)
               << "255 characters.\n";
     return false;
   }
+  char ID_Buffer[256];
   InStream.read(ID_Buffer, len);
   ID_Buffer[len] = '\0';
   if (!InStream.good())
@@ -286,6 +295,7 @@ bool DuskObject::LoadFromStream(std::ifstream& InStream)
   }
   ID = std::string(ID_Buffer);
 
+  float f_temp;
   //position
   InStream.read((char*) &f_temp, sizeof(float));
   position.x = f_temp;
@@ -303,7 +313,7 @@ bool DuskObject::LoadFromStream(std::ifstream& InStream)
   //scale
   InStream.read((char*) &f_temp, sizeof(float));
   m_Scale = f_temp;
-  return (InStream.good());
+  return InStream.good();
 }
 
 }

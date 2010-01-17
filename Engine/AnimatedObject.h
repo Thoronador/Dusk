@@ -30,6 +30,8 @@
                               derived from DuskObject)
      - 2009-12-31 (rev 147) - documentation update
      - 2010-01-16 (rev 154) - LoadFromStream() and SaveToStream() added
+     - 2010-01-17 (rev 156) - LoadFromStream() and SaveToStream() updated
+                            - patrol mode introduced
 
  ToDo list:
      - implement possibility to make object "look" into the direction it is
@@ -117,6 +119,21 @@ namespace Dusk
            there. */
         void clearWaypoints();
 
+        /* Tells the object whether to re-use waypoints or not when the last
+           waypoint in the list is reached. If set to true, the AnimatedObject
+           will return to the first waypoint and start to travel through all
+           waypoints from there again.
+
+           remarks:
+               Passing true as argument if there are less than two waypoints
+               will actually set patrol mode to false to prevent strange or
+               unwanted behaviour.
+        */
+        void setPatrolMode(const bool doPatrol);
+
+        /* returns whether the patrol mode is set or not*/
+        bool getPatrolMode() const;
+
         /* displays the object */
         virtual bool Enable(Ogre::SceneManager* scm);
         virtual ObjectTypes GetType() const;
@@ -165,6 +182,8 @@ namespace Dusk
         */
         virtual bool LoadFromStream(std::ifstream& InStream);
     protected:
+        bool SaveAnimatedObjectPart(std::ofstream& OutStream) const;
+        bool LoadAnimatedObjectPart(std::ifstream& InStream);
         Ogre::Vector3 m_Direction, m_Destination;
         float m_Speed;
 
@@ -177,6 +196,7 @@ namespace Dusk
         bool m_WaypointTravel;
         std::vector<Ogre::Vector3> m_Waypoints;
         unsigned int m_currentWaypoint;
+        bool m_Patrol;
     };
 
     static const Ogre::Vector3 Gravitation(0.0, -9.81, 0.0);

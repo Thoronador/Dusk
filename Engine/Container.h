@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2009-12-05
+ Date:    2010-01-17
  Purpose: Container class
           represents a single container object within the game
 
@@ -10,6 +10,7 @@
      - 2009-12-05 (rev 139) - update of GetType()
      - 2009-12-08 (rev 140) - TransferAllContentTo() renamed
      - 2010-01-01 (rev 148) - documentation update
+     - 2010-01-17 (rev 156) - update of SaveToStream() and LoadFromStream()
 
  ToDo list:
      - ???
