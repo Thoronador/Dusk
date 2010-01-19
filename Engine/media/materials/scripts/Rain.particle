@@ -1,0 +1,31 @@
+Dusk/Rain
+{
+    material        Dusk/Droplet
+    particle_width  2
+    particle_height 7
+    cull_each       true
+    quota           10000
+    billboard_type  oriented_common
+    common_direction 0 -1 0
+
+    emitter Box
+    {
+        angle           0
+        emission_rate   1000
+        time_to_live    5
+        direction       0 -1 0
+        position	0 40 0
+        velocity    	50
+        colour_range_start  0.3 1 0.3
+        colour_range_end    0.7 1 0.7
+        width           500
+        height          500
+        depth           0
+    }
+
+    affector LinearForce
+    {
+        force_vector      0 -25 0
+        force_application add
+    }
+}

@@ -45,9 +45,12 @@ bool InputSystemBinding::keyPressed (const OIS::KeyEvent &arg)
             Console::getInstance()->addScript(it->second.getStartScript());
     }
 
-    //temporary bindings to toggle fog and snow
+    //temporary bindings to toggle rain, fog and snow
     switch (arg.key)
     {
+      case OIS::KC_R: // R like rain
+           Console::getInstance()->addScript(Script("toggle_rain"));
+           break;
       case OIS::KC_F:
            Console::getInstance()->addScript(Script("toggle_fog"));
            break;

@@ -1,15 +1,19 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2009-01-03
- Purpose: CommandFog and CommandSnow classes
-          Commands for toggling, enabling and disabling fog and snow
+ Date:    2009-01-19
+ Purpose: CommandWeather class
+          Commands for toggling, enabling and disabling fog, rain and snow
           via Console
 
  History:
      - 2010-01-03 (rev 149) - initial version; Fog and Snow
+     - 2010-01-19 (rev 157) - CommandSnow and CommandFog merged to
+                              CommandWeather (should have been that way from
+                              the start)
+                            - Rain added
 
  ToDo list:
-     - commands for other effects, such as rain
+     - commands for other effects, such as wind(?)
      - ???
 
  Bugs:
@@ -23,34 +27,24 @@
 
 namespace Dusk
 {
-  class CommandFog : public Command
+  class CommandWeather : public Command
   {
     public:
+      enum WeatherType {wtFog, wtRain, wtSnow};
       /* Constructor.
-         If parameter toggle is true, then the fog will be toggled and the
+         Parameter wt indicates the weather feature (fog, rain or snow) that
+         will be changed.
+         If parameter toggle is true, then the feature will be toggled and the
          second parameter will be ignored. If toggle is false, the second
-         parameter indicates, whether fog will be turned on (true) or off.
+         parameter indicates, whether this feature will be turned on (true) or
+         off.
       */
-      CommandFog(const bool toggle, const bool turn_it_on=true);
-      virtual ~CommandFog();
+      CommandWeather(const WeatherType wt, const bool toggle, const bool turn_it_on=true);
+      virtual ~CommandWeather();
       virtual bool execute(Dusk::Scene* scene, int count = 1);
     private:
       bool m_Toggle, m_TurnOn;
-  };
-
-  class CommandSnow : public Command
-  {
-    public:
-      /* Constructor.
-         If parameter toggle is true, then the snow will be toggled and the
-         second parameter will be ignored. If toggle is false, the second
-         parameter indicates, whether snow will be turned on (true) or off.
-      */
-      CommandSnow(const bool toggle, const bool turn_it_on=true);
-      virtual ~CommandSnow();
-      virtual bool execute(Dusk::Scene* scene, int count = 1);
-    private:
-      bool m_Toggle, m_TurnOn;
+      WeatherType m_Type;
   };
 
 } //namespace

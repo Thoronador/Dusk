@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2009-01-03
+ Date:    2010-01-19
  Purpose: Weather Singleton class
           responsible for managing all weather effects in the game, e.g. fog,
           rain, snow
@@ -9,6 +9,7 @@
      - 2009-12-08 (rev 140) - initial version (by thoronador); fog handling
      - 2009-12-31 (rev 147) - documentation update
      - 2010-01-03 (rev 149) - snow implemented as particle system
+     - 2010-01-19 (rev 157) - rain implemented as particle system
 
  ToDo list:
      - other effects, such as rain, maybe even wind
@@ -17,13 +18,15 @@
 
  Bugs:
      - No known bugs. If you find one (or more), then tell me please.
+
+ Issues:
+     - Snow and rain will go through any solid objects, such as houses.
  --------------------------------------------------------------------------*/
 
 #ifndef WEATHER_H
 #define WEATHER_H
 
 #include <OgreColourValue.h>
-#include <OgreLight.h>
 
 namespace Dusk
 {
@@ -77,6 +80,15 @@ namespace Dusk
       /* returns true, if it currently snows */
       bool isSnowing() const;
 
+      /* let it rain down */
+      void startRain();
+
+      /* removes any rain, if present */
+      void stopRain();
+
+      /* returns true, if it's currently raining */
+      bool isRaining() const;
+
     private:
       Weather();
       Weather(Weather& op) {}
@@ -87,6 +99,7 @@ namespace Dusk
 
       //name of the particle system for snow
       static const std::string cSnowParticleSystem;
+      static const std::string cRainParticleSystem;
   };//class
 
 } //namespace

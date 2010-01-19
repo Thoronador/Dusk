@@ -154,10 +154,10 @@ description:
 
 
 /*
-This Header defines the CommandFog and CommandSnow classes
+This Header defines the CommandWeather class.
 
 description:
-    Allows to toggle fog/snow or turn these effects on and off
+    Allows to toggle fog/rain/snow or turn these effects on and off.
 status:
     works
 */

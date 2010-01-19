@@ -1,3 +1,42 @@
+/*---------------------------------------------------------------------------
+ Authors: ssj5000, DaSteph, walljumper, thoronador
+ Date:    2010-01-19
+ Purpose: Console Singleton class
+          translates scripts into commands
+
+ History:
+     - 2007-11-19 (rev 3)   - initial version (by ssj5000)
+     - 2007-12-29 (rev 16)  - Console accepts input (by DaSteph)
+     - 2008-01-17 (rev 23)  - Console registers itself at API (by walljumper)
+     - 2008-01-17 (rev 24)  - Console sends QuitCommand
+     - 2008-02-22 (rev 39)  - parsing of commands improved
+     - 2008-02-23 (rev 40)  - CommandPlaySound works
+     - 2008-02-25 (rev 45)  - } more sound commands (by thoronador)
+     - 2008-02-26 (rev 46)  - }   "    "      "
+     - 2008-03-22 (rev 51)  - CommandMove added (by walljumper)
+     - 2008-03-24 (rev 52)  - bug fix for CommandMove
+     - 2008-03-25 (rev 54)  - another fix in CommandMove (by thoronador)
+     - 2008-03-25 (rev 55)  - Camera can now be moved (by walljumper)
+     - 2008-03-28 (rev 58)  - commands for sound volume and loop playback (by
+                                thoronador)
+     - 2008-03-28 (rev 60)  - better handling of volume parameter
+     - 2008-04-07 (rev 61)  - mouse handling (by walljumper)
+     - 2009-01-03 (rev 67)  - adjustments to work with new version of Sound class
+                              (by thoronador)
+     - 2009-01-03 (rev 68)  - adjustments to work with merged sound command class
+     - 2009-06-21 (rev 98)  - CommandMove: rotation/ turning laft and right
+     - 2009-12-04 (rev 138) - CommandZoom to zoom camera added
+     - 2010-01-03 (rev 149) - CommandWeather added, handles snow and fog
+     - 2010-01-19 (rev 157) - CommandWeather updated for rain (by thoronador)
+
+ ToDo list:
+     - update Console as soon as new commands are available
+     - ???
+
+ Bugs:
+     - No known bugs. If you find one (or more), then tell me please.
+ --------------------------------------------------------------------------*/
+
 #ifndef CONSOLE_H
 #define CONSOLE_H
 
@@ -75,6 +114,6 @@ namespace Dusk
 
     };
 
-}
+} //namespace
 
 #endif // CONSOLE_H

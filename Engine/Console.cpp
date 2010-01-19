@@ -12,6 +12,7 @@
 #include "CommandAssociateSound.h"
 #include "CommandWeather.h"
 #include "CommandZoom.h"
+#include "DuskFunctions.h"
 #include "DuskTypes.h"
 #include <iostream>
 #include <sstream>
@@ -29,6 +30,7 @@ Console::Console()
 
 Console::~Console()
 {
+  //empty destructor
 }
 
 Console* Console::getInstance()
@@ -338,14 +340,8 @@ int Console::executeCommand(std::string p_string)
             }
             else
             {
-                //predefined volume value
-                float vol = 1.0f;
-                //convert string into float via string stream
-                std::istringstream str_stream;
-                str_stream.str(command[2]);
-                str_stream >> vol;
-
-                com  = new CommandSoundVolume(command[1], vol);
+                //predefined volume value is 1.0, if second param is not a float
+                com  = new CommandSoundVolume(command[1], StringToFloat(command[2], 1.0f));
                 m_Dispatcher->executeCommand(com);
             }
         }
@@ -365,14 +361,21 @@ int Console::executeCommand(std::string p_string)
         //fog command
         else if (command[0] == "toggle_fog")
         {
-            com = new CommandFog(true);
+            com = new CommandWeather(CommandWeather::wtFog, true);
             m_Dispatcher->executeCommand(com);
             std::cout << "Fog toggled." << std::endl;
+        }
+        //rain command
+        else if (command[0] == "toggle_rain")
+        {
+            com = new CommandWeather(CommandWeather::wtRain, true);
+            m_Dispatcher->executeCommand(com);
+            std::cout << "Rain toggled." << std::endl;
         }
         //snow command
         else if (command[0] == "toggle_snow")
         {
-            com = new CommandSnow(true);
+            com = new CommandWeather(CommandWeather::wtSnow, true);
             m_Dispatcher->executeCommand(com);
             std::cout << "Snow toggled." << std::endl;
         }

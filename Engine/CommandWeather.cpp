@@ -4,82 +4,98 @@
 namespace Dusk
 {
 
-CommandFog::CommandFog(const bool toggle, const bool turn_it_on)
+CommandWeather::CommandWeather(const WeatherType wt, const bool toggle, const bool turn_it_on)
 {
   m_Toggle = toggle;
   m_TurnOn = turn_it_on;
+  m_Type = wt;
 }
 
-CommandFog::~CommandFog()
+CommandWeather::~CommandWeather()
 {
   //empty
 }
 
-bool CommandFog::execute(Dusk::Scene* scene, int count)
+bool CommandWeather::execute(Dusk::Scene* scene, int count)
 {
-  if (m_Toggle)
+  switch(m_Type)
   {
-    //switch from fog to no fog or vice versa
-    if (Weather::getSingelton().isFoggy())
-    {
-      Weather::getSingelton().stopFog();
-    }
-    else
-    {
-      Weather::getSingelton().startLinearFog(50.0, 500.0);
-    }
-  }
-  else
-  {
-    if (m_TurnOn)
-    { //make it foggy
-      Weather::getSingelton().startLinearFog(50.0, 500.0);
-    }
-    else
-    { //no fog
-      Weather::getSingelton().stopFog();
-    }
-  }
-  return true;
-}
-
-//snow
-CommandSnow::CommandSnow(const bool toggle, const bool turn_it_on)
-{
-  m_Toggle = toggle;
-  m_TurnOn = turn_it_on;
-}
-
-CommandSnow::~CommandSnow()
-{
-  //empty
-}
-
-bool CommandSnow::execute(Dusk::Scene* scene, int count)
-{
-  if (m_Toggle)
-  {
-    //switch from snow to no snow or vice versa
-    if (Weather::getSingelton().isSnowing())
-    {
-      Weather::getSingelton().stopSnow();
-    }
-    else
-    {
-      Weather::getSingelton().startSnow();
-    }
-  }
-  else
-  {
-    if (m_TurnOn)
-    { //more snow
-      Weather::getSingelton().startSnow();
-    }
-    else
-    { //no more snow
-      Weather::getSingelton().stopSnow();
-    }
-  }
+    case wtFog:
+         if (m_Toggle)
+         {
+           //switch from fog to no fog or vice versa
+           if (Weather::getSingelton().isFoggy())
+           {
+             Weather::getSingelton().stopFog();
+           }
+           else
+           {
+             Weather::getSingelton().startLinearFog(50.0, 500.0);
+           }
+         }
+         else
+         {
+           if (m_TurnOn)
+           { //make it foggy
+             Weather::getSingelton().startLinearFog(50.0, 500.0);
+           }
+           else
+           { //no fog
+             Weather::getSingelton().stopFog();
+           }
+         }
+         break;
+    case wtRain:
+         if (m_Toggle)
+         {
+           //switch from rain to no rain or vice versa
+           if (Weather::getSingelton().isRaining())
+           {
+             Weather::getSingelton().stopRain();
+           }
+           else
+           {
+             Weather::getSingelton().startRain();
+           }
+         }
+         else
+         {
+           if (m_TurnOn)
+           { //let it rain down
+             Weather::getSingelton().startRain();
+           }
+           else
+           { //no rain any more
+             Weather::getSingelton().stopRain();
+           }
+         }
+         break;
+    case wtSnow:
+         if (m_Toggle)
+         {
+           //switch from snow to no snow or vice versa
+           if (Weather::getSingelton().isSnowing())
+           {
+             Weather::getSingelton().stopSnow();
+           }
+           else
+           {
+             Weather::getSingelton().startSnow();
+           }
+         }
+         else
+         {
+           if (m_TurnOn)
+           { //more snow
+             Weather::getSingelton().startSnow();
+           }
+           else
+           { //no more snow
+             Weather::getSingelton().stopSnow();
+           }
+         }
+         break;
+  }//swi
   return true;
 }
 

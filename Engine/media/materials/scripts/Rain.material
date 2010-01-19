@@ -1,0 +1,16 @@
+material Dusk/Droplet
+{
+    technique
+    {
+        pass
+	{
+	    scene_blend colour_blend
+	    depth_write off
+
+	    texture_unit
+	    {
+		texture droplet.png
+	    }
+	}
+    }
+}
