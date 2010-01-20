@@ -166,6 +166,8 @@
 		<Unit filename="Light.h" />
 		<Unit filename="LightBase.cpp" />
 		<Unit filename="LightBase.h" />
+		<Unit filename="Menu.cpp" />
+		<Unit filename="Menu.h" />
 		<Unit filename="NPC.cpp" />
 		<Unit filename="NPC.h" />
 		<Unit filename="NPCBase.cpp" />

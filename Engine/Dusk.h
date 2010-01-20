@@ -367,6 +367,17 @@ status:
 
 
 /*
+This Header defines the Menu Singleton class.
+
+description:
+    Manages display of dialogue menues.
+status:
+    untested
+*/
+#include "Menu.h"
+
+
+/*
 This Header defines the NPC class.
 
 description:

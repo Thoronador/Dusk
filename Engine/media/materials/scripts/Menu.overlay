@@ -1,0 +1,33 @@
+Dusk/DialogueOverlay
+{
+  zorder 200
+
+  container Panel(Dusk/DialogueOverlay/Box)
+  {
+    left 0.0
+    top 0.75
+    width 1.0
+    height 0.25
+    material Dusk/Dialogue/Black
+
+    element TextArea(Dusk/DialogueOverlay/Box/First)
+    {
+      left 0.0
+      top 0.0
+      width 1.0
+      height 0.0625
+      material Dusk/Dialogue/Element
+      colour 1 1 1
+      font_name Console
+      char_height 0.04
+    }
+  }
+}
+
+template element TextArea(Dusk/DialogueOverlay/LineTemplate)
+{
+    font_name Console
+    char_height 0.04
+    colour 1 1 1
+}
+

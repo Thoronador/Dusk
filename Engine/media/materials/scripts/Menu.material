@@ -1,0 +1,41 @@
+material Dusk/Dialogue/Black
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        colour_op_ex source1 src_manual src_current 0 0 0
+      }
+    } 
+  }
+}
+
+material Dusk/Dialogue/Element
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        colour_op_ex source1 src_manual src_current 0.2 0.2 0.2
+      }
+    } 
+  }
+}
+
+material Dusk/Dialogue/ChosenElement
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        colour_op_ex source1 src_manual src_current 0.4 0.2 0.2
+      }
+    } 
+  }
+}
