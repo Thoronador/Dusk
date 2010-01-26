@@ -158,6 +158,11 @@ Inventory& NPC::getInventory()
   return m_Inventory;
 }
 
+const Inventory& NPC::getConstInventory() const
+{
+  return m_Inventory;
+}
+
 unsigned int NPC::getMaxEncumbrance() const
 {
   const Settings& set = Settings::GetSingleton();

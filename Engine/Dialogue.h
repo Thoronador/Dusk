@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-01-10
+ Date:    2010-01-26
  Purpose: Dialogue Singleton class
           holds all information about dialogues with NPCs
 
@@ -8,6 +8,7 @@
      - 2010-01-10 (rev 151) - initial version (by thoronador)
      - 2010-01-13 (rev 152) - greetings improved/ changed to be dependent on
                               the NPC's ID; documentation updated
+     - 2010-01-26 (rev 159) - condition for items added
 
  ToDo list:
      - extend class for more conditions
@@ -38,15 +39,28 @@ namespace Dusk
 class Dialogue
 {
   public:
+    enum CompareOperation {copLess, copLessEqual, copEqual, copGreaterEqual, copGreater};
     /*record for holding dialogue conditions
 
         Conditions:
             NPC_ID - has to match the ID of the speaking NPC, if not empty
                      string (""). Empty string matches every NPC.
+            ItemID - if not empty, it identifies an item the NPC has to carry
+                     in his/her inventory. ItemAmount is the corresponding
+                     quantity, and ItemOp defines the operation which is used
+                     to compare the number of items of the NPC with the given
+                     amount.
+                     Example:
+                       ItemID == "apple", ItemOP==copGreater, ItemAmount=5
+                       This means, that the NPC must have more than 5 items of
+                       the ID aplle to fulfill the condition.
     */
     struct ConditionRecord
     {
        std::string NPC_ID;
+       std::string ItemID;
+       CompareOperation ItemOp;
+       unsigned int ItemAmount;
        //more to come
     };
 
@@ -132,7 +146,7 @@ class Dialogue
            should be called every time, when you want to get (more) dialogue
            data. The only exception is the start of a dialogue - in this case
            call GetGreetingLine(), because greetings are handled a bit different
-           other dialogue lines.
+           from other dialogue lines.
     */
     Handle GetDialogueLine(const std::string& LineID, const NPC* who) const;
 

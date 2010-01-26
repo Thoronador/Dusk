@@ -2,6 +2,7 @@
 
 #include "Console.h"
 #include "API.h"
+#include "Menu.h"
 
 namespace Dusk{
 
@@ -35,6 +36,36 @@ bool InputSystemBinding::keyPressed (const OIS::KeyEvent &arg)
         InputSystem::toggleInput();
     else
     {
+        //are we in dialogue menu?
+        if (Menu::GetSingleton().isDialogueActive())
+        {
+          switch (arg.key)
+          {
+            case OIS::KC_ESCAPE:
+                 Menu::GetSingleton().nextDialogueChoice(0);
+                 return true; break;
+            case OIS::KC_1:  //We can handle all numeric keys from 1 to 9 this
+            case OIS::KC_2:  // way, because OIS::KC_1 +1 == OIS::KC_2 (and so
+            case OIS::KC_3:  // on) allows us to get the number by simple.
+            case OIS::KC_4:  // substraction.
+            case OIS::KC_5:  // OIS::KC_1 will be translated to 1,
+            case OIS::KC_6:  // OIS::KC_2 will be translated to 2, and so on.
+            case OIS::KC_7:
+            case OIS::KC_8:
+            case OIS::KC_9:
+                 Menu::GetSingleton().nextDialogueChoice(arg.key+1-OIS::KC_1);
+                 return true; break;
+            case OIS::KC_0:
+                 Menu::GetSingleton().nextDialogueChoice(10);
+                 return true; break;
+            default: //We have no work here, but include default to avoid the
+                     // compiler warning about not handling all enumeration
+                     // values in this switch statement.
+                 break;
+          }//swi
+        }//if
+
+
         //is it a PressBinding?
         std::map<OIS::KeyCode, Script>::iterator it = myBindListPress.find(arg.key);
         if (it != myBindListPress.end())
@@ -46,6 +77,7 @@ bool InputSystemBinding::keyPressed (const OIS::KeyEvent &arg)
     }
 
     //temporary bindings to toggle rain, fog and snow
+    // for quick enabling/ disabling weather effects; should be removed later!
     switch (arg.key)
     {
       case OIS::KC_R: // R like rain

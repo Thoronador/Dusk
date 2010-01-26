@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-01-17
+ Date:    2010-01-26
  Purpose: NPC class
           represents a single NPC within the game
 
@@ -15,6 +15,8 @@
      - 2009-12-23 (rev 145) - use of Settings class to get the balancing settings
      - 2010-01-16 (rev 154) - LoadFromStream() and SaveToStream() implemented
      - 2010-01-17 (rev 156) - LoadFromStream() and SaveToStream() updated
+     - 2010-01-26 (rev 159) - getConstInventory() added for getting a constant
+                              Inventory reference
 
  ToDo list:
      - ???
@@ -75,6 +77,8 @@ namespace Dusk
 
       /* inventory access method */
       Inventory& getInventory();
+
+      const Inventory& getConstInventory() const;
 
       /* maximum encumbrance */
       unsigned int getMaxEncumbrance() const;

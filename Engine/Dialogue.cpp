@@ -19,6 +19,15 @@ bool Dialogue::LineRecord::SaveToStream(std::ofstream& out) const
   len = Conditions.NPC_ID.length();
   out.write((char*) &len, sizeof(unsigned int));
   out.write(Conditions.NPC_ID.c_str(), len);
+  // -- ItemID
+  len = Conditions.ItemID.length();
+  out.write((char*) &len, sizeof(unsigned int));
+  out.write(Conditions.ItemID.c_str(), len);
+  if (len>0)
+  {
+    out.write((char*) &(Conditions.ItemOp), sizeof(CompareOperation));
+    out.write((char*) &(Conditions.ItemAmount), sizeof(unsigned int));
+  }
   //choices
   len = Choices.size();
   out.write((char*) &len, sizeof(unsigned int));
@@ -74,6 +83,39 @@ bool Dialogue::LineRecord::LoadFromStream(std::ifstream& inp)
     return false;
   }
   Conditions.NPC_ID = std::string(buffer);
+  // -- ItemID
+  inp.read((char*) &len, sizeof(unsigned int));
+  if (len>511)
+  {
+    std::cout << "LineRecord::LoadFromStream: ERROR: ItemID seems to be longer "
+              << "than 511 characters.\n";
+    return false;
+  }
+  inp.read(buffer, len);
+  buffer[len] = '\0'; //ensure NUL-termination
+  if (!(inp.good()))
+  {
+    std::cout << "LineRecord::LoadFromStream: ERROR: Error while reading ItemID"
+              << "from stream.\n";
+    return false;
+  }
+  Conditions.ItemID = std::string(buffer);
+  if (len>0)
+  {
+    inp.read((char*) &(Conditions.ItemOp), sizeof(CompareOperation));
+    inp.read((char*) &(Conditions.ItemAmount), sizeof(unsigned int));
+    if (!(inp.good()))
+    {
+      std::cout << "LineRecord::LoadFromStream: ERROR: Error while reading "
+                << "ItemOp and ItemAmount from stream.\n";
+      return false;
+    }//if
+  }
+  else
+  {
+    Conditions.ItemOp = copGreaterEqual;
+    Conditions.ItemAmount = 0;
+  }
   //choices
   unsigned int choices_size = 0, i;
   inp.read((char*) choices_size, sizeof(unsigned int));
@@ -282,6 +324,55 @@ bool Dialogue::ConditionFulfilled(const ConditionRecord& cond, const NPC* who) c
       return false;
     }
   }//NPC_ID
+
+  //ItemID
+  if (cond.ItemID!="")
+  {
+    if (who==NULL)
+    {
+      return false;
+    }
+    switch (cond.ItemOp)
+    {
+      case copLess: //inventory count has to be less, so check for greater/equal
+                    // to return false;
+           if (who->getConstInventory().GetItemCount(cond.ItemID)>=cond.ItemAmount)
+           {
+             return false;
+           }
+           break;
+      case copLessEqual:
+           if (who->getConstInventory().GetItemCount(cond.ItemID)>cond.ItemAmount)
+           {
+             return false;
+           }
+           break;
+      case copEqual:
+           if (who->getConstInventory().GetItemCount(cond.ItemID)!=cond.ItemAmount)
+           {
+             return false;
+           }
+           break;
+      case copGreaterEqual:
+           if (who->getConstInventory().GetItemCount(cond.ItemID)<cond.ItemAmount)
+           {
+             return false;
+           }
+           break;
+      case copGreater:
+           if (who->getConstInventory().GetItemCount(cond.ItemID)<=cond.ItemAmount)
+           {
+             return false;
+           }
+           break;
+      default:
+           std::cout << "Dialogue::ConditionFulfilled: ERROR: invalid or "
+                     << "unknown enumeration value ("<<(unsigned int)(cond.ItemOp)
+                     << "encountered. Will return false.\n";
+           return false;
+    }//swi
+  }//ItemID
+
   return true;
 }
 
