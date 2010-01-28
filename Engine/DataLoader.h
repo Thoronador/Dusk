@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-01-14
+ Date:    2010-01-28
  Purpose: DataLoader Singleton class
           central class which wraps all load/save processes for the game
 
@@ -17,6 +17,7 @@
      - 2010-01-14 (rev 153) - update for NPCBase
      - 2010-01-16 (rev 154) - update for AnimationData
      - 2010-01-16 (rev 155) - bug fixed
+     - 2010-01-28 (rev 160) - update for Journal
 
  ToDo list:
      - extend class when further classes for data management are added
@@ -38,15 +39,16 @@ namespace Dusk
   const unsigned int CONTAINER_BIT = 2;
   const unsigned int DIALOGUE_BIT = 4;
   const unsigned int ITEM_BIT = 8;
-  const unsigned int LANDSCAPE_BIT = 16;
-  const unsigned int LIGHT_BIT = 32;
-  const unsigned int NPC_BIT = 64;
-  const unsigned int OBJECT_BIT = 128;
-  const unsigned int REFERENCE_BIT = 256;
+  const unsigned int JOURNAL_BIT = 16;
+  const unsigned int LANDSCAPE_BIT = 32;
+  const unsigned int LIGHT_BIT = 64;
+  const unsigned int NPC_BIT = 128;
+  const unsigned int OBJECT_BIT = 256;
+  const unsigned int REFERENCE_BIT = 512;
 
   const unsigned int ALL_BITS = ANIMATED_BIT | CONTAINER_BIT | DIALOGUE_BIT |
-                                ITEM_BIT | LANDSCAPE_BIT | LIGHT_BIT | NPC_BIT |
-                                OBJECT_BIT | REFERENCE_BIT;
+                                ITEM_BIT | JOURNAL_BIT | LANDSCAPE_BIT |
+                                LIGHT_BIT | NPC_BIT | OBJECT_BIT | REFERENCE_BIT;
 
 
 /*class DataLoader:

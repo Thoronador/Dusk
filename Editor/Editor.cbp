@@ -79,6 +79,8 @@
 		<Unit filename="../Engine/Inventory.h" />
 		<Unit filename="../Engine/ItemBase.cpp" />
 		<Unit filename="../Engine/ItemBase.h" />
+		<Unit filename="../Engine/Journal.cpp" />
+		<Unit filename="../Engine/Journal.h" />
 		<Unit filename="../Engine/Landscape.cpp" />
 		<Unit filename="../Engine/Landscape.h" />
 		<Unit filename="../Engine/Light.cpp" />

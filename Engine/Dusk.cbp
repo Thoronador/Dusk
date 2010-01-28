@@ -160,6 +160,8 @@
 		<Unit filename="Inventory.h" />
 		<Unit filename="ItemBase.cpp" />
 		<Unit filename="ItemBase.h" />
+		<Unit filename="Journal.cpp" />
+		<Unit filename="Journal.h" />
 		<Unit filename="Landscape.cpp" />
 		<Unit filename="Landscape.h" />
 		<Unit filename="Light.cpp" />

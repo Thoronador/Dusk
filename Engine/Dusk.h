@@ -345,6 +345,17 @@ status:
 
 
 /*
+This Header defines the Journal Singleton class.
+
+description:
+    Holds the data of all journal entries that can possibly occur in-game.
+status:
+    untested
+*/
+#include "Journal.h"
+
+
+/*
 This header defines the Landscape singleton class and the LandscapeRecord class.
 
 description:

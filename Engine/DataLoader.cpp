@@ -4,6 +4,7 @@
 #include "ContainerBase.h"
 #include "Dialogue.h"
 #include "ItemBase.h"
+#include "Journal.h"
 #include "Landscape.h"
 #include "LightBase.h"
 #include "NPCBase.h"
@@ -65,6 +66,10 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   {
     data_records += ItemBase::GetSingleton().NumberOfItems();
   }
+  if ((bits & JOURNAL_BIT) !=0)
+  {
+    data_records += Journal::GetSingleton().NumberOfDistinctQuests();
+  }
   if ((bits & LANDSCAPE_BIT) !=0)
   {
     data_records += Landscape::GetSingleton().RecordsAvailable();
@@ -124,6 +129,18 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
       return false;
     }//if
   }//if items
+
+  //save journal entries
+  if ((bits & JOURNAL_BIT)!=0)
+  {
+    if (!Journal::GetSingleton().SaveAllToStream(output))
+    {
+      std::cout << "DataLoader::SaveToFile: ERROR: could not write basic "
+                << "Journal data to file \""<<FileName<<"\".\n";
+      output.close();
+      return false;
+    }
+  }//journal entries
 
   //save landscape
   if ((bits & LANDSCAPE_BIT) !=0)
@@ -261,6 +278,9 @@ bool DataLoader::LoadFromFile(const std::string& FileName)
       case cHeaderItem:
            success = ItemBase::GetSingleton().LoadFromStream(input);
            break;
+      case cHeaderJour:
+           success = Journal::GetSingleton().LoadNextFromStream(input);
+           break;
       case cHeaderLand:
            land_rec = Landscape::GetSingleton().CreateRecord();
            success = land_rec->LoadFromStream(input);
@@ -341,6 +361,11 @@ void DataLoader::ClearData(const unsigned int bits)
   {
     ItemBase::GetSingleton().ClearAllItems();
   }//item data
+
+  if ((bits & JOURNAL_BIT) !=0)
+  {
+    Journal::GetSingleton().ClearAllEntries();
+  }//journal
 
   if ((bits & LANDSCAPE_BIT) !=0)
   {

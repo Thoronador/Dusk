@@ -28,6 +28,7 @@ namespace Dusk
   const unsigned int cHeaderDusk = 1802728772; //"Dusk" (general file header)
   const unsigned int cHeaderInve = 1702260297; //"Inve" (for Inventory data)
   const unsigned int cHeaderItem = 1835365449; //"Item" (for item records)
+  const unsigned int cHeaderJour = 1920298826; //"Jour" (for Journal records)
   const unsigned int cHeaderLand = 1684955468; //"Land" (for landscape records)
   const unsigned int cHeaderLight = 1751607628; //"Ligh" (for Light records)
   const unsigned int cHeaderNPC_ = 1598246990; //"NPC_" (for NPC(Base) records)
