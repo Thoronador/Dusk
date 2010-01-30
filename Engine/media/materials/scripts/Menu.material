@@ -4,9 +4,12 @@ material Dusk/Dialogue/Black
   {
     pass
     {
+      scene_blend alpha_blend
+
       texture_unit
       {
         colour_op_ex source1 src_manual src_current 0 0 0
+        alpha_op_ex source1 src_manual src_current 0.75
       }
     } 
   }

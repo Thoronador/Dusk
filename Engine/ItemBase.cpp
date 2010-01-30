@@ -121,29 +121,6 @@ std::string ItemBase::GetMeshName(const std::string& itemID, const bool UseMarke
   }
 }
 
-bool ItemBase::SaveToFile(const std::string& FileName) const
-{
-  std::ofstream output;
-  output.open(FileName.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
-  if(!output)
-  {
-    std::cout << "ItemData::SaveToFile: Could not open file \""<<FileName
-              << "\" for writing in binary mode.\n";
-    return false;
-  }//if
-
-  unsigned int len;
-  bool success = false;
-  len = m_ItemList.size();
-  //write header "Dusk"
-  output.write((char*) &cHeaderDusk, sizeof(unsigned int));
-  //number of elements to write (and later to read, on loading)
-  output.write((char*) &len, sizeof(unsigned int));
-  success = SaveToStream(output);
-  output.close();
-  return success;
-}
-
 bool ItemBase::SaveToStream(std::ofstream& Stream) const
 {
   std::map<std::string, ItemRecord>::const_iterator iter;
@@ -177,47 +154,6 @@ bool ItemBase::SaveToStream(std::ofstream& Stream) const
     }//if
   }//for
   return true;
-}
-
-bool ItemBase::LoadFromFile(const std::string& FileName)
-{
-  std::ifstream input;
-  unsigned int count, i;
-  input.open(FileName.c_str(), std::ios::in | std::ios::binary);
-  if(!input)
-  {
-    std::cout << "ItemBase::LoadFromFile: Could not open file \""<<FileName
-              << "\" for reading in binary mode.\n";
-    return false;
-  }//if
-
-  unsigned int Header;
-  Header = 0;
-
-  //read header "Dusk"
-  input.read((char*) &Header, sizeof(unsigned int));
-  if (Header!=cHeaderDusk)
-  {
-    std::cout << "ItemBase::LoadFromFile: ERROR: File contains invalid "
-              << "file header.\n";
-    input.close();
-    return false;
-  }
-  count = 0;
-  //How many items do we have in file?
-  input.read((char*) &count, sizeof(unsigned int));
-
-  bool success = true;
-  for (i=0; i<count; i++)
-  {
-    success = LoadFromStream(input);
-    if (!success)
-    {
-      break;
-    }
-  }//for
-  input.close();
-  return success;
 }
 
 bool ItemBase::LoadFromStream(std::ifstream& Stream)

@@ -71,21 +71,6 @@ void Scene::createGrassMesh()
         cam->setPosition(Ogre::Vector3(150, 50, 150));
         cam->lookAt(Ogre::Vector3(0, 0, 0));
 
-        /* robot and landscape are now part of DataLoader, or new file
-           DuskData.dusk respectively, so we don't need this here.
-
-        Ogre::Entity *robot = m_SceneManager->createEntity("robot", "robot.mesh");
-        m_SceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(robot);
-
-        //Landscape: load
-        if (Landscape::GetSingleton().LoadFromFile("data"+path_sep+"Landscape.dusk"))
-        {
-          if (Landscape::GetSingleton().SendToEngine(getAPI().getOgreSceneManager()))
-          {
-            std::cout << "Landscape loaded successfully.\n";
-          }
-        }*/
-
         if (DataLoader::GetSingleton().LoadFromFile("data"+path_sep+"DuskData.dusk"))
         {
           std::cout << "Data loaded successfully.\n";

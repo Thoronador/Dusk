@@ -51,28 +51,6 @@ Container* ObjectData::addContainerReference(const std::string& ID,
   return ContainerPointer;
 }
 
-
-bool ObjectData::SaveToFile(const std::string& FileName) const
-{
-  std::ofstream output;
-  output.open(FileName.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
-  if(!output)
-  {
-    std::cout << "ObjectData::SaveToFile: Could not open file \""<<FileName
-              << "\" for writing in binary mode.\n";
-    return false;
-  }//if
-
-  //write header "Dusk"
-  output.write((char*) &cHeaderDusk, sizeof(unsigned int));
-  //number of elements to write (and later to read, on loading)
-  unsigned int len = m_ReferenceList.size();
-  output.write((char*) &len, sizeof(unsigned int));
-  bool success = SaveAllToStream(output);
-  output.close();
-  return success;
-}
-
 bool ObjectData::SaveAllToStream(std::ofstream& Stream) const
 {
   unsigned int i;
@@ -88,50 +66,6 @@ bool ObjectData::SaveAllToStream(std::ofstream& Stream) const
       }
     }//if
   }//for
-  return true;
-}
-
-bool ObjectData::LoadFromFile(const std::string& FileName)
-{
-  std::ifstream input;
-  unsigned int count, i;
-
-  input.open(FileName.c_str(), std::ios::in | std::ios::binary);
-  if(!input)
-  {
-    std::cout << "ObjectData::LoadFromFile: Could not open file \""<<FileName
-              << "\" for reading in binary mode.\n";
-    return false;
-  }//if
-
-  unsigned int Header;
-  Header = 0;
-
-  //read header "Dusk"
-  input.read((char*) &Header, sizeof(unsigned int));
-  if (Header!=cHeaderDusk)
-  {
-    std::cout << "ObjectData::LoadFromFile: ERROR: File contains invalid "
-              << "file header.\n";
-    input.close();
-    return false;
-  }
-  count = 0;
-  //read how many objects we have in file
-  input.read((char*) &count, sizeof(unsigned int));
-  for (i=0; i<count; i++)
-  {
-    Header = 0;
-    input.read((char*) &Header, sizeof(unsigned int));
-    input.seekg(-4, std::ios::cur);
-    if (!LoadNextFromStream(input, Header))
-    {
-      std::cout << "ObjectData::LoadFromFile: ERROR while reading record.\n";
-      input.close();
-      return false;
-    }
-  }//for
-  input.close();
   return true;
 }
 

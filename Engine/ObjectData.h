@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-01-14
+ Date:    2010-01-30
  Purpose: ObjectData Singleton class
           holds data of all static objects, containers and lights in game.
 
@@ -22,6 +22,7 @@
                               handle containers, too
      - 2010-01-14 (rev 153) - documentation update
                             - improved some ID checks
+     - 2010-01-30 (rev 161) - obsolete load/save functions removed
 
  ToDo list:
      - extend class when further classes for non-animated objects are added
@@ -71,25 +72,6 @@ namespace Dusk
       */
       Container* addContainerReference(const std::string& ID, const Ogre::Vector3& position,
                                const Ogre::Vector3& rotation, const float scale);
-
-      /* Tries to load Objects from file FileName. Returns true on success.
-
-         remarks:
-             You should not call this function any more. Use the function
-             DataLoader::LoadFromFile() instead.
-             If you decide to use that function anyway, make sure that the
-             file contains object data ONLY! Otherwise the function will fail
-             for sure.
-      */
-      bool LoadFromFile(const std::string& FileName);
-
-      /* Tries to save all objects to file FileName and returns true on success.
-
-         remarks:
-             You should not call this function any more. Use the function
-             DataLoader::SaveToFile() instead.
-      */
-      bool SaveToFile(const std::string& FileName) const;
 
       /* Tries to save all objects to the stream and returns true on success */
       bool SaveAllToStream(std::ofstream& Stream) const;

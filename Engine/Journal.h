@@ -1,11 +1,14 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-01-28
+ Date:    2010-01-30
  Purpose: Journal Singleton class
           holds all possible journal entries the player can get during the game
 
  History:
      - 2010-01-28 (rev 160) - initial version (by thoronador)
+     - 2010-01-30 (rev 161) - update to allow quest names (I guess players do
+                              prefer meaningful names over IDs. ;-) )
+                            - hasQuest(), setQuestName(), getQuestName() added
 
  ToDo list:
      - ???
@@ -37,8 +40,40 @@ namespace Dusk
 
   /* flag to indicate that this entry was deleted */
   static const uint8 DeletedFlag;
+
+  /* returns true, if DeletedFlag is set*/
   bool isDeleted() const;
+
+  /* returns true, if FinishedFlag is set*/
+  bool isFinisher() const;
 }; //struct
+
+
+/* Journal Singleton class
+
+   This class holds all data about the distinct quest entries the player can get
+   during the game. Each entry will by identified by a quest ID (string) and an
+   index (integer). Entries with the same quest ID belong to the same quest, the
+   index will indicate the progress of that quest. It is recommended that
+   entries have ascending indices, but the choice of indices is up to you, as
+   long as every entry within the same quest has a different index.
+
+   Here's an example to get a rough idea how the data could look like:
+
+   questID | index | text                                            | finished
+   --------+-------+-------------------------------------------------+---------
+   tool    |   1   | Mr. XYZ asked me to bring him a new tool kit    | false
+           |       |   which he needs to repair my skidoo.           |
+   --------+-------+-------------------------------------------------+---------
+   tool    |  20   | I've found a intact tool kit in the abandoned   | false
+           |       |   factory southeast of the town.                |
+   --------+-------+-------------------------------------------------+---------
+   tool    |  100  | I returned the tool kit to Mr. XYZ, and he was  |  true
+           |       |   able to get my skidoo working again.          |
+   --------+-------+-------------------------------------------------+---------
+     ...   |  ...  |   ...                                           | ...
+
+*/
 
 class Journal
 {
@@ -48,6 +83,18 @@ class Journal
 
     /* destructor */
     virtual ~Journal();
+
+    /* sets the name of the quest with ID JID to qName and returns true on
+       success, false otherwise
+
+      remarks:
+          Quests have the name given in cUnnnameQuest, if no name was set yet.
+          If setting a quest name for an already existing quest, that name will
+          be overwritten (of course). However, if JID or qName is an empty
+          string, the function call will return false and the name will not be
+          changed.
+    */
+    bool setQuestName(const std::string& JID, const std::string& qName);
 
     /* adds a new journal entry and returns true on success
 
@@ -81,6 +128,9 @@ class Journal
     /* returns true, if an entry with the given quest ID and index exists */
     bool hasEntry(const std::string& JID, const unsigned int jIndex) const;
 
+    /* returns true, if a quest with the given quest ID exists */
+    bool hasQuest(const std::string& questID) const;
+
     /* returns the text of the given entry, or an empty string if no such entry
        is present
     */
@@ -89,6 +139,11 @@ class Journal
     /* returns the flags of the given entry, or zero if no such entry is present
     */
     uint8 getFlags(const std::string& JID, const unsigned int jIndex) const;
+
+    /* returns the quest name of quest with ID questID, or an empty string if
+       no quest with that ID is present
+    */
+    std::string getQuestName(const std::string& questID) const;
 
     /* returns the number of present journal entries (for statistics only) */
     unsigned int NumberOfEntries() const;
@@ -127,6 +182,11 @@ class Journal
 
     /* deletes ALL entries - use with caution */
     void ClearAllEntries();
+
+    /* static member holding the predefined name every quest has as long as no
+       name has been set
+    */
+    static const std::string cUnnamedQuest;
   private:
     /* constructor - private, because we use singleton pattern */
     Journal();
@@ -134,8 +194,15 @@ class Journal
     /* empty copy constructor */
     Journal(const Journal& op) {}
 
+    //internal structure for quest data
+    struct QuestRecord
+    {
+      std::string QuestName;
+      std::map<const unsigned int, JournalRecord> Indices;
+    }; //struct
+
     /* map holding the journal entries */
-    std::map<const std::string, std::map<const unsigned int, JournalRecord> > m_Entries;
+    std::map<const std::string, QuestRecord> m_Entries;
     unsigned int m_TotalEntries;
 }; //class
 

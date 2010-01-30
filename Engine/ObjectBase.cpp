@@ -21,9 +21,9 @@ ObjectBase& ObjectBase::GetSingleton()
   return Instance;
 }
 
-bool ObjectBase::hasObject(const std::string& NameOfObject) const
+bool ObjectBase::hasObject(const std::string& IDOfObject) const
 {
-  return (m_ObjectList.find(NameOfObject) != m_ObjectList.end());
+  return (m_ObjectList.find(IDOfObject) != m_ObjectList.end());
 }
 
 void ObjectBase::addObject(const std::string& ID, const std::string& Mesh)
@@ -73,30 +73,6 @@ std::string ObjectBase::GetMeshName(const std::string& ID, const bool UseMarkerO
   return "";
 }
 
-bool ObjectBase::SaveToFile(const std::string& FileName) const
-{
-  std::ofstream output;
-  bool success = false;
-  output.open(FileName.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
-  if(!output)
-  {
-    std::cout << "ObjectBase::SaveToFile: Could not open file \""<<FileName
-              << "\" for writing in binary mode.\n";
-    return false;
-  }//if
-
-  unsigned int i;
-  i = m_ObjectList.size();
-
-  //write header "Dusk"
-  output.write((char*) &cHeaderDusk, sizeof(unsigned int));
-  //number of elements to write (and later to read, on loading)
-  output.write((char*) &i, sizeof(unsigned int));
-  success = SaveToStream(output);
-  output.close();
-  return success;
-}
-
 bool ObjectBase::SaveToStream(std::ofstream& Stream) const
 {
   std::map<std::string, std::string>::const_iterator iter;
@@ -119,47 +95,6 @@ bool ObjectBase::SaveToStream(std::ofstream& Stream) const
     }
   }//for
   return Stream.good();
-}
-
-bool ObjectBase::LoadFromFile(const std::string& FileName)
-{
-  std::ifstream input;
-  unsigned int count, i;
-
-  input.open(FileName.c_str(), std::ios::in | std::ios::binary);
-  if(!input)
-  {
-    std::cout << "ObjectBase::LoadFromFile: Could not open file \""<<FileName
-              << "\" for reading in binary mode.\n";
-    return false;
-  }//if
-
-  unsigned int Header;
-  Header = 0;
-
-  //read header "Dusk"
-  input.read((char*) &Header, sizeof(unsigned int));
-  if (Header!=cHeaderDusk)
-  {
-    std::cout << "ObjectBase::LoadFromFile: ERROR: File contains invalid "
-              << "file header.\n";
-    input.close();
-    return false;
-  }
-  count = 0;
-  //read how many objects we have in file
-  input.read((char*) &count, sizeof(unsigned int));
-  for (i=0; i<count; i++)
-  {
-    if (!LoadFromStream(input));
-    {
-      std::cout << "ObjectBase::LoadFromFile: ERROR: while reading data.\n";
-      input.close();
-      return false;
-    }//if
-  }//for
-  input.close();
-  return true;
 }
 
 bool ObjectBase::LoadFromStream(std::ifstream& Stream)
