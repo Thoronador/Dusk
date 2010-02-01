@@ -1,3 +1,25 @@
+/*---------------------------------------------------------------------------
+ Authors: DaSteph, walljumper, thoronador
+ Date:    2010-02-01
+ Purpose: InputSystem class
+          interface for different input systems
+
+ History:
+     - 2007-11-26 (rev 7)    - initial version (by DaSteph)
+     - 2007-12-29 (rev 15)   - initializeInput(), toggleInput(), captureInput()
+                               added, class is now descendant of KeyListener
+     - 2007-12-29 (rev 16)   - } smaller
+     - 2008-01-26 (rev 30)   - }  fixes
+     - 2008-03-26 (rev 57)   - mouse support added (by walljumper)
+     - 2010-02-01 (rev 162)  - two utility functions added (by thoronador)
+
+ ToDo list:
+     - ???
+
+ Bugs:
+     - No known bugs. If you find one (or more), then tell me please.
+ --------------------------------------------------------------------------*/
+
 #ifndef INPUTSYSTEM_H_INCLUDED
 #define INPUTSYSTEM_H_INCLUDED
 
@@ -72,8 +94,15 @@ namespace Dusk
 
         static OIS::Mouse* s_mouse;
 
+        /* utility functions to convert string representation into OIS key code.
+           Returns OIS::KC_UNASSIGNED, if key does not contain a valid string.
+        */
+        static OIS::KeyCode stringToKeyCode(const std::string& key);
 
-
+        /* utility functions to convert OIS key codes into string
+           representation. Returns empty string, if kc is "unknown" key code.
+        */
+        static std::string keyCodeToString(const OIS::KeyCode kc);
     private:
         /**
          * Holds the instance of the binding input class

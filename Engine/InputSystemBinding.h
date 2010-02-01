@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------
  Authors: DaSteph, walljumper, thoronador
  Date:    2010-01-26
- Purpose: InputSystem Singleton class
+ Purpose: InputSystemBinding Singleton class
           implements the Interface InputSystem (see InputSystem.h)
 
  History:
@@ -22,6 +22,9 @@
      - 2010-01-03 (rev 149) - }  temporary bindings for toggling weather effects
      - 2010-01-19 (rev 157) - }  added (will be removed later)
      - 2010-01-26 (rev 159) - key handling for dialogue menu added
+     - 2010-02-01 (rev 162) - InputSystemBinding can now load and save key bindings.
+                            - will try to load bindings from keys.conf, if that
+                              file is present. Otherwise preset bindings are used.
 
  ToDo list:
      - method to load bind list from an external resource
@@ -52,7 +55,7 @@ namespace Dusk
         static InputSystemBinding& get();
 
         /**
-         * Destructer. Declared virtual so that extending classes destructors
+         * Destructor. Declared virtual so that extending classes destructors
          * will also be called.
          */
         virtual ~InputSystemBinding();
@@ -75,6 +78,16 @@ namespace Dusk
         virtual bool mouseMoved( const OIS::MouseEvent &arg );
 		virtual bool mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
 		virtual bool mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
+
+		static const std::string cKeyConfigurationFile;
+
+    protected:
+        static std::string getKeyStringFromScript(const Script& scr);
+        static Script getPressScriptFromKeyString(const std::string& ks);
+        static Script getReleaseScriptFromKeyString(const std::string& ks);
+
+        bool LoadKeyConfiguration(const std::string& fileName);
+        bool SaveKeyConfiguration(const std::string& fileName) const;
 
     private:
         /**

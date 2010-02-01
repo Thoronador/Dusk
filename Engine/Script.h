@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Author:  DaSteph, thoronador
- Date:    2009-06-16
+ Date:    2010-02-01
  Purpose: Script class
           represents a single script which can be processed by the Console
 
@@ -11,6 +11,7 @@
      - 2009-06-16 (rev 97)  - improved checks in trim() to avoid exceptions
                               caused by empty string argument (by thoronador)
      - 2009-12-31 (rev 147) - documentation update
+     - 2010-02-01 (rev 162) - getStringRepresentation() and isEmpty() added
 
  ToDo list:
      - ???
@@ -52,21 +53,27 @@ namespace Dusk
          * @return  the script each command in an single line in a array stripped
          *          from leading and trailing spaces.
          */
-        std::vector<std::string> explodeCommands();
+        std::vector<std::string> explodeCommands() const;
 
         /**
          * Returns a copy of the Script with a start command
          *
          * @return the modified script;
          */
-        Script getStartScript();
+        Script getStartScript() const;
 
         /**
          * Returns a copy of the Script with a stop command
          *
          * @return the modified script;
          */
-        Script getStopScript();
+        Script getStopScript() const;
+
+        /* returns the internal string representation of the script */
+        std::string getStringRepresentation() const;
+
+        /* returns true, if the script  holds no data */
+        bool isEmpty() const;
 
     private:
         /**
@@ -75,7 +82,7 @@ namespace Dusk
          * @param p_string      The string to trim.
          * @return the trimmed string.
          */
-        std::string trim(std::string p_string);
+        std::string trim(std::string p_string) const;
 
         /**
          * Holds the string representation of the script.

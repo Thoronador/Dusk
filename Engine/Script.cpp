@@ -12,7 +12,7 @@ Script::~Script()
 {
 }
 
-std::vector<std::string> Script::explodeCommands()
+std::vector<std::string> Script::explodeCommands() const
 {
     std::string p_string = m_string;
     std::vector<std::string> pieces;
@@ -57,7 +57,7 @@ std::vector<std::string> Script::explodeCommands()
     return pieces;
 }
 
-std::string Script::trim(std::string p_string)
+std::string Script::trim(std::string p_string) const
 {
     int pos = -1;
     int look = 0;
@@ -97,14 +97,24 @@ std::string Script::trim(std::string p_string)
     return p_string;
 }
 
-Script Script::getStartScript()
+Script Script::getStartScript() const
 {
     return Script(std::string("start {") + m_string + std::string("}"));
 }
 
-Script Script::getStopScript()
+Script Script::getStopScript() const
 {
     return Script(std::string("stop {") + m_string + std::string("}"));
+}
+
+std::string Script::getStringRepresentation() const
+{
+  return m_string;
+}
+
+bool Script::isEmpty() const
+{
+  return (m_string=="");
 }
 
 } // namespace
