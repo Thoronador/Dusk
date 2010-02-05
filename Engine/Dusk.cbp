@@ -178,6 +178,8 @@
 		<Unit filename="ObjectBase.h" />
 		<Unit filename="ObjectData.cpp" />
 		<Unit filename="ObjectData.h" />
+		<Unit filename="QuestLog.cpp" />
+		<Unit filename="QuestLog.h" />
 		<Unit filename="Scene.cpp" />
 		<Unit filename="Scene.h" />
 		<Unit filename="Script.cpp" />

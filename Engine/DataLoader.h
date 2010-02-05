@@ -18,6 +18,7 @@
      - 2010-01-16 (rev 154) - update for AnimationData
      - 2010-01-16 (rev 155) - bug fixed
      - 2010-01-28 (rev 160) - update for Journal
+     - 2010-02-05 (rev 163) - update for QuestLog
 
  ToDo list:
      - extend class when further classes for data management are added
@@ -44,11 +45,13 @@ namespace Dusk
   const unsigned int LIGHT_BIT = 64;
   const unsigned int NPC_BIT = 128;
   const unsigned int OBJECT_BIT = 256;
-  const unsigned int REFERENCE_BIT = 512;
+  const unsigned int QUEST_LOG_BIT = 512;
+  const unsigned int REFERENCE_BIT = 1024;
 
   const unsigned int ALL_BITS = ANIMATED_BIT | CONTAINER_BIT | DIALOGUE_BIT |
                                 ITEM_BIT | JOURNAL_BIT | LANDSCAPE_BIT |
-                                LIGHT_BIT | NPC_BIT | OBJECT_BIT | REFERENCE_BIT;
+                                LIGHT_BIT | NPC_BIT | OBJECT_BIT | QUEST_LOG_BIT
+                                | REFERENCE_BIT;
 
 
 /*class DataLoader:

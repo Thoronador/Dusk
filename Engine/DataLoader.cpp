@@ -10,6 +10,7 @@
 #include "NPCBase.h"
 #include "ObjectBase.h"
 #include "ObjectData.h"
+#include "QuestLog.h"
 #include "DuskConstants.h"
 
 namespace Dusk
@@ -86,6 +87,10 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   {
     data_records += ObjectBase::GetSingleton().NumberOfObjects();
   }
+  if ((bits & QUEST_LOG_BIT) !=0)
+  {
+    data_records += 1;
+  }
   if ((bits & REFERENCE_BIT) !=0)
   {
     data_records += ObjectData::GetSingleton().NumberOfReferences();
@@ -141,6 +146,18 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
       return false;
     }
   }//journal entries
+
+  //save quest log
+  if ((bits & QUEST_LOG_BIT)!=0)
+  {
+    if (!QuestLog::GetSingleton().SaveToStream(output))
+    {
+      std::cout << "DataLoader::SaveToFile: ERROR: could not write QuestLog "
+                << "data to file \""<<FileName<<"\".\n";
+      output.close();
+      return false;
+    }
+  }//quest log entries
 
   //save landscape
   if ((bits & LANDSCAPE_BIT) !=0)
@@ -298,6 +315,9 @@ bool DataLoader::LoadFromFile(const std::string& FileName)
       case cHeaderObjS:
            success = ObjectBase::GetSingleton().LoadFromStream(input);
            break;
+      case cHeaderQLog:
+           success = QuestLog::GetSingleton().LoadFromStream(input);
+           break;
       case cHeaderRefC: //Container
       case cHeaderRefL: //Light
       case cHeaderRefO: //DuskObject
@@ -381,6 +401,11 @@ void DataLoader::ClearData(const unsigned int bits)
   {
     NPCBase::GetSingleton().ClearAllNPCs();
   }//NPC data
+
+  if ((bits & QUEST_LOG_BIT) !=0)
+  {
+    QuestLog::GetSingleton().ClearAllData();
+  }//quest log
 
 }//clear data function
 
