@@ -32,7 +32,7 @@ DataLoader& DataLoader::GetSingleton()
   return Instance;
 }
 
-bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits)
+bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits) const
 {
   std::ofstream output;
   unsigned int data_records;
@@ -202,18 +202,6 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
     }//if
   }//if NPCs
 
-  //save animated objects
-  if ((bits & ANIMATED_BIT)!=0)
-  {
-    if (!AnimationData::GetSingleton().SaveAllToStream(output))
-    {
-      std::cout << "DataLoader::SaveToFile: ERROR: could not write Animation "
-                << "reference data to file \""<<FileName<<"\".\n";
-      output.close();
-      return false;
-    }
-  }//AnimatedObjects
-
   //save objects
   if ((bits & OBJECT_BIT) !=0)
   {
@@ -225,6 +213,18 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
       return false;
     }//if
   }//if objects
+
+  //save animated objects
+  if ((bits & ANIMATED_BIT)!=0)
+  {
+    if (!AnimationData::GetSingleton().SaveAllToStream(output))
+    {
+      std::cout << "DataLoader::SaveToFile: ERROR: could not write Animation "
+                << "reference data to file \""<<FileName<<"\".\n";
+      output.close();
+      return false;
+    }
+  }//AnimatedObjects
 
   //save object references
   if ((bits & REFERENCE_BIT) !=0)
@@ -408,5 +408,247 @@ void DataLoader::ClearData(const unsigned int bits)
   }//quest log
 
 }//clear data function
+
+bool DataLoader::LoadSaveGame(const std::string& FileName)
+{
+  std::ifstream input;
+  input.open(FileName.c_str(), std::ios::in | std::ios::binary);
+  if(!input)
+  {
+    std::cout << "DataLoader::LoadSaveGame: Could not open file \""<<FileName
+              << "\" for reading in binary mode.\n";
+    return false;
+  }//if
+
+  unsigned int Header, data_records;
+
+  //determine file size
+  input.seekg(0, std::ios::end);
+  const unsigned int file_size = input.tellg();
+  input.seekg(0, std::ios::beg);
+
+  if (file_size<16)
+  {
+    std::cout << "DataLoader::LoadSaveGame: file \""<<FileName << "\" is to "
+              << "small to contain a real save game.\n";
+    return false;
+  }
+
+  //read header "Dusk"
+  Header = 0;
+  input.read((char*) &Header, sizeof(unsigned int));
+  if (Header!=cHeaderDusk)
+  {
+    std::cout << "DataLoader::LoadSaveGame: ERROR: File \""<<FileName
+              <<"\" contains invalid file header.\n";
+    input.close();
+    return false;
+  }
+  //determine number of records
+  data_records = 0;
+  input.read((char*) &data_records, sizeof(unsigned int));
+  //read header "Save"
+  Header = 0;
+  input.read((char*) &Header, sizeof(unsigned int));
+  if (Header!=cHeaderSave)
+  {
+    std::cout << "DataLoader::LoadSaveGame: ERROR: File \""<<FileName
+              <<"\" does not seem to be a valid save game.\n";
+    input.close();
+    return false;
+  }
+  /*read header "Mean" (identifies save game "version", because this should
+    be improved and get a different version later on) */
+  Header = 0;
+  input.read((char*) &Header, sizeof(unsigned int));
+  if (Header!=cHeaderMean)
+  {
+    std::cout << "DataLoader::LoadSaveGame: ERROR: File \""<<FileName
+              <<"\" does not contain a valid save game format.\n";
+    input.close();
+    return false;
+  }
+  //read dependencies
+  Header = 0;
+  input.read((char*) &Header, sizeof(unsigned int));
+  if (Header!=cHeaderDeps)
+  {
+    std::cout << "DataLoader::LoadSaveGame: ERROR: File \""<<FileName
+              <<"\" does not contain a list of required data files.\n";
+    input.close();
+    return false;
+  }
+  //read their number
+  unsigned int depCount = 0;
+  input.read((char*) &depCount, sizeof(unsigned int));
+  if (depCount == 0 or depCount>255)
+  { //no reasonable limits given
+    std::cout << "DataLoader::LoadSaveGame: ERROR: File \""<<FileName
+              << "\" has a list of required data files which is to long or to"
+              << " short (length: "<<depCount<<").\n";
+    input.close();
+    return false;
+  }
+  ClearData(ALL_BITS);
+  m_LoadedFiles.clear();
+  unsigned int len;
+  char buffer[256];
+  for (Header=0; Header<depCount; Header=Header+1)
+  {
+    len = 0;
+    input.read((char*) &len, sizeof(unsigned int));
+    if (len>255)
+    {
+      std::cout << "DataLoader::LoadSaveGame: ERROR while loading file \""
+                <<FileName<< "\": name of required data file is longer than 255"
+                <<" characters.\n";
+      input.close();
+      return false;
+    }//if
+    buffer[0]='\0';
+    input.read(buffer, len);
+    buffer[len] = '\0';
+    if (!input.good())
+    {
+      std::cout << "DataLoader::LoadSaveGame: ERROR while reading name of "
+                << "required data file.\n";
+      input.close();
+      return false;
+    }
+    //got name, so load it
+    const std::string dataFileName = std::string(buffer);
+    if (dataFileName==FileName)
+    {
+      std::cout << "DataLoader::LoadSaveGame: ERROR: SaveGame file cannot be a"
+                << "required data file of itself.\n";
+      input.close();
+      return false;
+    }
+    if (!LoadFromFile(dataFileName))
+    {
+      std::cout << "DataLoader::LoadSaveGame: ERROR while loading required "
+                << "data file \""<<dataFileName<<"\" of save \""<<FileName
+                <<"\".\n";
+      input.close();
+      return false;
+    }
+    else
+    {
+      std::cout << "DataLoader::LoadSaveGame: Info: data file \""<<dataFileName
+                <<"\" of save \""<<FileName<<"\" successfully loaded.\n";
+      m_LoadedFiles.push_back(dataFileName);
+    }
+  }//for
+
+  //dependencies are loaded, now clear unneeded data
+  ClearData(SAVE_MEAN_BITS);
+  //go on loading
+  bool success = true;
+  unsigned int records_done = 0;
+  while ((records_done<data_records) && (input.tellg()<file_size))
+  {
+    Header = 0;
+    //read next record header
+    input.read((char*) &Header, sizeof(unsigned int));
+    input.seekg(-4, std::ios::cur);
+    switch(Header)
+    {
+      case cHeaderRefA:  //AnimatedObject
+      case cHeaderRefN:  //NPC
+           success = AnimationData::GetSingleton().LoadNextFromStream(input, Header);
+           break;
+      case cHeaderRefC: //Container
+      case cHeaderRefL: //Light
+      case cHeaderRefO: //DuskObject
+           success = ObjectData::GetSingleton().LoadNextFromStream(input, Header);
+           break;
+      case cHeaderQLog: //questlog
+           success = QuestLog::GetSingleton().LoadFromStream(input);
+           break;
+      default:
+           std::cout <<"DataLoader::LoadSaveGame: ERROR: Got unexpected header "
+                     <<Header << " in file \""<<FileName<<"\" at position "
+                     <<input.tellg()<<".\n";
+           success = false;
+           break;
+    }//swi
+    if(!success or !input.good())
+    {
+      std::cout << "DataLoader::LoadSaveGame: ERROR while reading data.\n"
+                << "Position: "<<input.tellg() << " bytes.\n"
+                << "Records read: "<<records_done<<" (excluding failure)\n";
+      input.close();
+      return false;
+    }
+    records_done = records_done+1;
+  }//while
+  input.close();
+  std::cout << "DataLoader::LoadSaveGame: Info: "<<records_done<<" out of "
+            << data_records<< " expected records loaded.\n";
+  return true;
+}
+
+bool DataLoader::SaveGame(const std::string& FileName) const
+{
+  std::ofstream output;
+  output.open(FileName.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
+  if(!output)
+  {
+    std::cout << "DataLoader::SaveGame: Could not open file \""<<FileName
+              << "\" for writing in binary mode.\n";
+    return false;
+  }//if
+  //write header "Dusk"
+  output.write((char*) &cHeaderDusk, sizeof(unsigned int));
+  //determine and write number of records
+  unsigned int data_records = 1 /*QuestLog*/ + ObjectData::GetSingleton().NumberOfReferences()
+                              + AnimationData::GetSingleton().NumberOfReferences();
+  output.write((char*) &data_records, sizeof(unsigned int));
+  //write headers to identify file as save game
+  output.write((char*) &cHeaderSave, sizeof(unsigned int));
+  output.write((char*) &cHeaderMean, sizeof(unsigned int));
+  //dependencies
+  output.write((char*) &cHeaderDeps, sizeof(unsigned int));
+  data_records = m_LoadedFiles.size();
+  output.write((char*) &data_records, sizeof(unsigned int));
+  unsigned int i;
+  for (i=0; i<m_LoadedFiles.size(); i=i+1)
+  {
+    data_records = m_LoadedFiles[i].length();
+    output.write((char*) &data_records, sizeof(unsigned int));
+    output.write(m_LoadedFiles[i].c_str(), data_records);
+  }//for
+  if(!output.good())
+  {
+    std::cout << "DataLoader::SaveGame: ERROR while writing header data to "
+              << "file \""<<FileName<<"\".\n";
+    output.close();
+    return false;
+  }
+  //write the data
+  if (!ObjectData::GetSingleton().SaveAllToStream(output))
+  {
+    std::cout << "DataLoader::SaveGame: ERROR while writing object data to "
+              << "file \""<<FileName<<"\".\n";
+    output.close();
+    return false;
+  }
+  if (!AnimationData::GetSingleton().SaveAllToStream(output))
+  {
+    std::cout << "DataLoader::SaveGame: ERROR while writing animation data to "
+              << "file \""<<FileName<<"\".\n";
+    output.close();
+    return false;
+  }
+  if (!QuestLog::GetSingleton().SaveToStream(output))
+  {
+    std::cout << "DataLoader::SaveGame: ERROR while writing quest log to "
+              << "file \""<<FileName<<"\".\n";
+    output.close();
+    return false;
+  }
+  output.close();
+  return true;
+}
 
 }//namespace

@@ -19,6 +19,8 @@
      - 2010-01-16 (rev 155) - bug fixed
      - 2010-01-28 (rev 160) - update for Journal
      - 2010-02-05 (rev 163) - update for QuestLog
+     - 2010-02-05 (rev 164) - possibility to save game and load saved games
+                              and not only the whole data
 
  ToDo list:
      - extend class when further classes for data management are added
@@ -32,6 +34,7 @@
 #define DATALOADER_H
 
 #include <string>
+#include <vector>
 
 namespace Dusk
 {
@@ -53,6 +56,7 @@ namespace Dusk
                                 LIGHT_BIT | NPC_BIT | OBJECT_BIT | QUEST_LOG_BIT
                                 | REFERENCE_BIT;
 
+  const unsigned int SAVE_MEAN_BITS = ANIMATED_BIT | QUEST_LOG_BIT | REFERENCE_BIT;
 
 /*class DataLoader:
         This class is (or will be) the main entry point for loading game data
@@ -74,7 +78,7 @@ class DataLoader
        bitmask that indicates, what should be saved. Returns true on success,
        false on failure.
     */
-    bool SaveToFile(const std::string& FileName, const unsigned int bits = ALL_BITS);
+    bool SaveToFile(const std::string& FileName, const unsigned int bits = ALL_BITS) const;
 
     /* Tries to load all data from file FileName. Returns true on success, false
        on failure.
@@ -86,9 +90,17 @@ class DataLoader
        are doing.
     */
     void ClearData(const unsigned int bits = ALL_BITS);
+
+    /* tries to load a saved game from file FileName and returns true on success */
+    bool LoadSaveGame(const std::string& FileName);
+
+    /* tries to save a game to the file FileName and returns true on success */
+    bool SaveGame(const std::string& FileName) const;
   private:
     DataLoader();
     DataLoader(const DataLoader& op){}
+
+    std::vector<std::string> m_LoadedFiles;
 };//class
 
 }//namespace

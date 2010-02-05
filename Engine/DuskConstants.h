@@ -24,6 +24,7 @@ namespace Dusk
   */
 
   const unsigned int cHeaderCont = 1953394499; //"Cont" (for containers (base))
+  const unsigned int cHeaderDeps = 1936745796; //"Deps" (for dependencies of save game)
   const unsigned int cHeaderDial = 1818323268; //"Dial" (for dialogue entries)
   const unsigned int cHeaderDusk = 1802728772; //"Dusk" (general file header)
   const unsigned int cHeaderInve = 1702260297; //"Inve" (for Inventory data)
@@ -31,6 +32,7 @@ namespace Dusk
   const unsigned int cHeaderJour = 1920298826; //"Jour" (for Journal records)
   const unsigned int cHeaderLand = 1684955468; //"Land" (for landscape records)
   const unsigned int cHeaderLight = 1751607628; //"Ligh" (for Light records)
+  const unsigned int cHeaderMean = 1851876685; //"Mean" (for "mean" save game type)
   const unsigned int cHeaderNPC_ = 1598246990; //"NPC_" (for NPC(Base) records)
   const unsigned int cHeaderObjS = 1399480911; //"ObjS" (for static objects)
   const unsigned int cHeaderQLog = 1735347281; //"QLog" (for QuestLog)
@@ -39,6 +41,7 @@ namespace Dusk
   const unsigned int cHeaderRefL = 1281779026; //"RefL" (for Referenced Light)
   const unsigned int cHeaderRefN = 1315333458; //"RefN" (for Referenced NPC)
   const unsigned int cHeaderRefO = 1332110674; //"RefO" (for Referenced Object)
+  const unsigned int cHeaderSave = 1702256979; //"Save" (for SaveGame)
 }//namespace
 
 #endif //DUSKCONSTANTS_H
