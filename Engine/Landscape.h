@@ -4,6 +4,8 @@
 #include <fstream>
 #include <string>
 #ifndef NO_OGRE_IN_LANDSCAPE
+  #include <OgreRay.h>
+  #include <OgreVector3.h>
   #include <OgreManualObject.h>
   #include <OgreSceneManager.h>
   #include <vector>
@@ -80,6 +82,24 @@ namespace Dusk
 
       //checks a string for a valid Landscape record name
       static bool IsLandscapeRecordName(const std::string& val);
+
+      /* checks whether a ray hits this record or not
+
+         remarks:
+             This can be very slow, so only use it, when you know that this
+             LandscapeRecord might possibly be hit by the ray, e.g. from a
+             previous scene query.
+
+         parameters:
+             ray      - the ray to check for hit on this record
+             HitPoint - a 3D vector, where the hit location will be stored
+      */
+      bool IsHitByRay(const Ogre::Ray& ray, Ogre::Vector3& HitPoint) const;
+
+      /* returns the position of the point represented by Height[i][j] as a 3D
+         Ogre Vector (utility function)
+      */
+      const Ogre::Vector3 GetPositionOfIndex(const unsigned int i, const unsigned int j) const;
       #endif
       //"identifier"
       unsigned int GetID() const;

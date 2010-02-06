@@ -535,7 +535,7 @@ void EditorApplication::showCEGUILoadWindow(void)
     winmgr.getWindow("Editor/Root")->addChildWindow(frame);
 
     //create buttons
-    // Button "OK" - will load selected file (not implemented yet)
+    // Button "OK" - will load selected file
     CEGUI::Window *button = winmgr.createWindow("TaharezLook/Button", "Editor/LoadFrame/OKButton");
     button->setText("OK");
     button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.06667, 0)));
@@ -2801,24 +2801,27 @@ bool EditorApplication::RootMouseMove(const CEGUI::EventArgs &e)
             land_rec = Landscape::GetSingleton().GetRecordAtXZ(vec_i.x, vec_i.z);
             if (land_rec!= NULL)
             {
-              switch(mFrameListener->getEditorMode())
+              if (land_rec->IsHitByRay(pickRay, vec_i))
               {
-                case EM_LandscapeColour:
-                     land_rec->SetColour(vec_i.x, vec_i.z, LandscapeColour.red,
-                                  LandscapeColour.green, LandscapeColour.blue);
-                     break;
-                case EM_LandscapeUp:
-                     land_rec->Terraform(vec_i.x, vec_i.z, cTerraformDelta);
-                     break;
-                case EM_LandscapeDown:
-                     land_rec->Terraform(vec_i.x, vec_i.z, -cTerraformDelta);
-                     break;
-                default://should never happen, because of if-branch in line 2798
-                     std::cout<<"EditorApplication::RootMouseMove: Programming "
-                              <<"error, you should not be here.\n"; break;
-              }//swi
-              mSceneMgr->destroyQuery(rsc_query);
-              return true;
+                switch(mFrameListener->getEditorMode())
+                {
+                  case EM_LandscapeColour:
+                       land_rec->SetColour(vec_i.x, vec_i.z, LandscapeColour.red,
+                                    LandscapeColour.green, LandscapeColour.blue);
+                       break;
+                  case EM_LandscapeUp:
+                       land_rec->Terraform(vec_i.x, vec_i.z, cTerraformDelta);
+                       break;
+                  case EM_LandscapeDown:
+                       land_rec->Terraform(vec_i.x, vec_i.z, -cTerraformDelta);
+                       break;
+                  default://should never happen, because of if-branch in line 2772
+                       std::cout<<"EditorApplication::RootMouseMove: Programming "
+                                <<"error, you should not be here.\n"; break;
+                }//swi
+                mSceneMgr->destroyQuery(rsc_query);
+                return true;
+              }//if record is hit by ray
             }//if record returned
           }//if object has Landscape name
         }//if movable object
@@ -4133,6 +4136,8 @@ void EditorApplication::showLandscapeEditWindow(void)
     spin->setText("255");
     spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.08, 0)));
     spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.4, 0)));
+    spin->subscribeEvent(CEGUI::Spinner::EventValueChanged,
+            CEGUI::Event::Subscriber(&EditorApplication::LandscapeFrameColourChanged, this));
     frame->addChildWindow(spin);
     //---green spinner
     spin = static_cast<CEGUI::Spinner*> (winmgr.createWindow("TaharezLook/Spinner", "Editor/LandscapeFrame/GreenSpin"));
@@ -4142,6 +4147,8 @@ void EditorApplication::showLandscapeEditWindow(void)
     spin->setText("127");
     spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.08, 0)));
     spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.5, 0)));
+    spin->subscribeEvent(CEGUI::Spinner::EventValueChanged,
+            CEGUI::Event::Subscriber(&EditorApplication::LandscapeFrameColourChanged, this));
     frame->addChildWindow(spin);
     //---blue spinner
     spin = static_cast<CEGUI::Spinner*> (winmgr.createWindow("TaharezLook/Spinner", "Editor/LandscapeFrame/BlueSpin"));
@@ -4151,6 +4158,8 @@ void EditorApplication::showLandscapeEditWindow(void)
     spin->setText("0");
     spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.08, 0)));
     spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.6, 0)));
+    spin->subscribeEvent(CEGUI::Spinner::EventValueChanged,
+            CEGUI::Event::Subscriber(&EditorApplication::LandscapeFrameColourChanged, this));
     frame->addChildWindow(spin);
 
     //---- exit button
@@ -4233,6 +4242,30 @@ bool EditorApplication::LandscapeFrameRadioButtonClicked(const CEGUI::EventArgs 
     }//else
   }
   return true;
+}
+
+bool EditorApplication::LandscapeFrameColourChanged(const CEGUI::EventArgs &e)
+{
+  //not implemented yet
+  const CEGUI::WindowEventArgs& winevent = static_cast<const CEGUI::WindowEventArgs&> (e);
+  if (winevent.window!=NULL)
+  {
+    CEGUI::Spinner* spin = static_cast<CEGUI::Spinner*> (winevent.window);
+    if (spin->getName() == "Editor/LandscapeFrame/RedSpin")
+    {
+      LandscapeColour.red = spin->getCurrentValue();
+    }
+    else if (spin->getName() == "Editor/LandscapeFrame/GreenSpin")
+    {
+      LandscapeColour.green = spin->getCurrentValue();
+    }
+    else if (spin->getName() == "Editor/LandscapeFrame/BlueSpin")
+    {
+      LandscapeColour.blue = spin->getCurrentValue();
+    }
+  } //window
+  return true;
+  //not implemented yet
 }
 
 }//namespace

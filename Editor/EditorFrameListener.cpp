@@ -388,7 +388,7 @@ bool EditorFrameListener::frameEnded(const Ogre::FrameEvent& evt)
   //check for landscape updates
   if (Landscape::GetSingleton().NeedsUpdate())
   {
-    std::cout << "Info: "<<Landscape::GetSingleton().UpdateRecords()<< " landscape records updated.\n";
+    std::cout << "Info: "<<Landscape::GetSingleton().UpdateRecords()<< " landscape record(s) updated.\n";
   }
   //updateStats();
   return true;

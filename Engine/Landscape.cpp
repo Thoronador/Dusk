@@ -2,6 +2,9 @@
 #include "DuskConstants.h"
 #include <iostream>
 #include <sstream>
+#ifndef NO_OGRE_IN_LANDSCAPE
+  #include <OgreMath.h>
+#endif
 
 namespace Dusk
 {
@@ -356,6 +359,7 @@ bool LandscapeRecord::SetColour(const float x, const float z, const unsigned cha
     #endif
     return true;
   }
+  std::cout << "DEBUG: LandscapeRecord::SetColour(): call with x or z value out of range.\n";
   return false;
 }
 
@@ -366,6 +370,12 @@ bool LandscapeRecord::SendDataToEngine(Ogre::SceneManager * scm)
   {
     std::cout << "LandscapeRecord::SendDataToEngine: ERROR: Record has no valid data (yet).\n";
     return false;
+  }
+
+  if (m_OgreObject != NULL)
+  {
+    std::cout << "LandscapeRecord::SendDataToEngine: Hint: Record is already enabled.\n";
+    return true;
   }
 
   if (scm==NULL)
@@ -391,17 +401,17 @@ bool LandscapeRecord::SendDataToEngine(Ogre::SceneManager * scm)
   m_OgreObject->estimateIndexCount(64*64*6);
   m_OgreObject->setDynamic(false);
   //m_OgreObject->begin("Landscape/Green", Ogre::RenderOperation::OT_TRIANGLE_LIST);
-  //m_OgreObject->begin("Landscape/VertexColour", Ogre::RenderOperation::OT_TRIANGLE_LIST);
-  m_OgreObject->begin("", Ogre::RenderOperation::OT_TRIANGLE_LIST);
+  m_OgreObject->begin("Landscape/VertexColour", Ogre::RenderOperation::OT_TRIANGLE_LIST);
+  //m_OgreObject->begin("", Ogre::RenderOperation::OT_TRIANGLE_LIST);
   unsigned int j, k;
   //vectors
   for (j=0; j<65; j++)
   {
     for (k=0; k<65; k++)
     {
-      m_OgreObject->position(m_OffsetX+cDefaultStride*j,
+      m_OgreObject->position(m_OffsetX+m_Stride*j,
                              Height[j][k],
-                             m_OffsetY+cDefaultStride*k);
+                             m_OffsetY+m_Stride*k);
       m_OgreObject->colour(Colour[j][k][0]/255.0f,
                            Colour[j][k][1]/255.0f,
                            Colour[j][k][2]/255.0f);
@@ -506,6 +516,56 @@ bool LandscapeRecord::IsLandscapeRecordName(const std::string& val)
   }
   return (value>=0);
   //return (StringToInt(val.substr(cLandscapeNamePrefix.length()), -1)>=0);
+}
+
+bool LandscapeRecord::IsHitByRay(const Ogre::Ray& ray, Ogre::Vector3& HitPoint) const
+{
+  Ogre::Real minDistance = -1.0f;
+  unsigned int i, j;
+  for (i=0; i<64; i=i+1)
+  {
+    for (j=0; j<64; j=j+1)
+    {
+      //first triangle: [i][j], [i][j+1], [i+1][j]
+      std::pair<bool, Ogre::Real> hit = Ogre::Math::intersects(ray,
+                       GetPositionOfIndex(i,j), GetPositionOfIndex(i,j+1),
+                       GetPositionOfIndex(i+1,j), true, false);
+      if (hit.first)
+      {
+        if ((hit.second < minDistance) or (minDistance<0.0f))
+        { //new closest hit point
+          minDistance = hit.second;
+        }
+      }
+      //second triangle: [i+1][j], [i][j+1], [i+1][j+1]
+      hit = Ogre::Math::intersects(ray, GetPositionOfIndex(i+1,j),
+                       GetPositionOfIndex(i,j+1), GetPositionOfIndex(i+1,j+1),
+                       true, false);
+      if (hit.first)
+      {
+        if ((hit.second < minDistance) or (minDistance<0.0f))
+        { //new closest hit point
+          minDistance = hit.second;
+        }
+      }
+    }//for j
+  }//for i
+  //get return values
+  if (minDistance > -0.5f)
+  {
+    HitPoint = ray.getPoint(minDistance);
+    return true;
+  }
+  return false;
+}
+
+const Ogre::Vector3 LandscapeRecord::GetPositionOfIndex(const unsigned int i, const unsigned int j) const
+{
+  if (i<65 and j<65)
+  {
+    return Ogre::Vector3(m_OffsetX+i*m_Stride, Height[i][j], m_OffsetY+j*m_Stride);
+  }
+  return Ogre::Vector3::ZERO;
 }
 
 #endif //ifndef NO_OGRE_IN_LANDSCAPE

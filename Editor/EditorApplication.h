@@ -245,6 +245,7 @@ protected:
 	//callbacks for landscape window
 	bool LandscapeFrameFinishClicked(const CEGUI::EventArgs &e);
 	bool LandscapeFrameRadioButtonClicked(const CEGUI::EventArgs &e);
+	bool LandscapeFrameColourChanged(const CEGUI::EventArgs &e);
 
 	//scene query wrapper
 	DuskObject* GetObjectAtMouse(const CEGUI::Point& pt);
