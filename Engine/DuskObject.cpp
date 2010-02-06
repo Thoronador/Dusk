@@ -205,6 +205,11 @@ ObjectTypes DuskObject::GetType() const
   return otStatic;
 }
 
+bool DuskObject::canPickUp() const
+{
+  return false;
+}
+
 bool DuskObject::SaveToStream(std::ofstream& OutStream) const
 {
   if (!OutStream.good())

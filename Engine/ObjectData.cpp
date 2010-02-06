@@ -51,6 +51,14 @@ Container* ObjectData::addContainerReference(const std::string& ID,
   return ContainerPointer;
 }
 
+Item* ObjectData::addItemReference(const std::string& ID,
+    const Ogre::Vector3& position, const Ogre::Vector3& rotation, const float scale)
+{
+  Item* ItemPointer = new Item(ID, position, rotation, scale);
+  m_ReferenceList.push_back(ItemPointer);
+  return ItemPointer;
+}
+
 bool ObjectData::SaveAllToStream(std::ofstream& Stream) const
 {
   unsigned int i;
@@ -94,6 +102,15 @@ bool ObjectData::LoadNextFromStream(std::ifstream& Stream, const unsigned int Pr
          break;
     case cHeaderRefC:
          objPtr = new Container;
+         if (objPtr->LoadFromStream(Stream))
+         {
+           m_ReferenceList.push_back(objPtr);
+           return true;
+         }
+         delete objPtr;
+         break;
+    case cHeaderRefI:
+         objPtr = new Item;
          if (objPtr->LoadFromStream(Stream))
          {
            m_ReferenceList.push_back(objPtr);

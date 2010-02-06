@@ -1,8 +1,9 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-01-30
+ Date:    2010-02-06
  Purpose: ObjectData Singleton class
-          holds data of all static objects, containers and lights in game.
+          holds data of all static objects, containers, lights and items in
+          the game.
 
  History:
      - 2009-07-01 (rev 101) - initial version (by thoronador)
@@ -23,6 +24,7 @@
      - 2010-01-14 (rev 153) - documentation update
                             - improved some ID checks
      - 2010-01-30 (rev 161) - obsolete load/save functions removed
+     - 2010-02-06 (rev 165) - update for Item class
 
  ToDo list:
      - extend class when further classes for non-animated objects are added
@@ -37,6 +39,7 @@
 #define OBJECTDATA_H
 
 #include "DuskObject.h"
+#include "Item.h"
 #include "Light.h"
 #include "Container.h"
 #include <vector>
@@ -72,6 +75,12 @@ namespace Dusk
       */
       Container* addContainerReference(const std::string& ID, const Ogre::Vector3& position,
                                const Ogre::Vector3& rotation, const float scale);
+
+      /* adds a new item instance with given ID, position, rotation and scale
+         to the game and returns a pointer to the newly created item
+      */
+      Item* addItemReference(const std::string& ID, const Ogre::Vector3& position,
+                             const Ogre::Vector3& rotation, const float scale);
 
       /* Tries to save all objects to the stream and returns true on success */
       bool SaveAllToStream(std::ofstream& Stream) const;

@@ -38,6 +38,7 @@ namespace Dusk
   const unsigned int cHeaderQLog = 1735347281; //"QLog" (for QuestLog)
   const unsigned int cHeaderRefA = 1097229650; //"RefA" (for Referenced AnimatedObject)
   const unsigned int cHeaderRefC = 1130784082; //"RefC" (for Referenced Container)
+  const unsigned int cHeaderRefI = 1231447378; //"RefI" (for Referenced Item)
   const unsigned int cHeaderRefL = 1281779026; //"RefL" (for Referenced Light)
   const unsigned int cHeaderRefN = 1315333458; //"RefN" (for Referenced NPC)
   const unsigned int cHeaderRefO = 1332110674; //"RefO" (for Referenced Object)

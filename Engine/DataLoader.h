@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-01-28
+ Date:    2010-02-05
  Purpose: DataLoader Singleton class
           central class which wraps all load/save processes for the game
 
@@ -21,6 +21,7 @@
      - 2010-02-05 (rev 163) - update for QuestLog
      - 2010-02-05 (rev 164) - possibility to save game and load saved games
                               and not only the whole data
+     - 2010-02-06 (rev 165) - update for Item class
 
  ToDo list:
      - extend class when further classes for data management are added

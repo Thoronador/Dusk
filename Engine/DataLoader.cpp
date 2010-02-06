@@ -319,6 +319,7 @@ bool DataLoader::LoadFromFile(const std::string& FileName)
            success = QuestLog::GetSingleton().LoadFromStream(input);
            break;
       case cHeaderRefC: //Container
+      case cHeaderRefI: //Item
       case cHeaderRefL: //Light
       case cHeaderRefO: //DuskObject
            success = ObjectData::GetSingleton().LoadNextFromStream(input, Header);
@@ -558,6 +559,7 @@ bool DataLoader::LoadSaveGame(const std::string& FileName)
            success = AnimationData::GetSingleton().LoadNextFromStream(input, Header);
            break;
       case cHeaderRefC: //Container
+      case cHeaderRefI: //Item
       case cHeaderRefL: //Light
       case cHeaderRefO: //DuskObject
            success = ObjectData::GetSingleton().LoadNextFromStream(input, Header);

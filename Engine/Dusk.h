@@ -345,6 +345,19 @@ status:
 
 
 /*
+This Header defines the Item class.
+
+description:
+    This class represents an item in the game. Items can be picked up by
+    the player character.
+
+status:
+    not tested
+*/
+#include "Item.h"
+
+
+/*
 This Header defines the Journal Singleton class.
 
 description:

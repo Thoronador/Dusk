@@ -158,6 +158,8 @@
 		<Unit filename="InputSystemEditor.h" />
 		<Unit filename="Inventory.cpp" />
 		<Unit filename="Inventory.h" />
+		<Unit filename="Item.cpp" />
+		<Unit filename="Item.h" />
 		<Unit filename="ItemBase.cpp" />
 		<Unit filename="ItemBase.h" />
 		<Unit filename="Journal.cpp" />

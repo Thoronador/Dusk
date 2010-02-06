@@ -391,7 +391,8 @@ bool LandscapeRecord::SendDataToEngine(Ogre::SceneManager * scm)
   m_OgreObject->estimateIndexCount(64*64*6);
   m_OgreObject->setDynamic(false);
   //m_OgreObject->begin("Landscape/Green", Ogre::RenderOperation::OT_TRIANGLE_LIST);
-  m_OgreObject->begin("Landscape/VertexColour", Ogre::RenderOperation::OT_TRIANGLE_LIST);
+  //m_OgreObject->begin("Landscape/VertexColour", Ogre::RenderOperation::OT_TRIANGLE_LIST);
+  m_OgreObject->begin("", Ogre::RenderOperation::OT_TRIANGLE_LIST);
   unsigned int j, k;
   //vectors
   for (j=0; j<65; j++)

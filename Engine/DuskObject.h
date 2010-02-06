@@ -75,6 +75,17 @@ class DuskObject: public Ogre::UserDefinedObject
         /* retrieves the object type as an enumeration value, which is useful for derived classes.*/
         virtual ObjectTypes GetType() const;
 
+        /* returns true, if the player can pick up the object
+
+           remarks:
+               This function will always return false for DuskObject, because
+               these objects are NOT supposed to be picked up. Derived classes
+               have to override this function, if they want to change that.
+               This function is only present to provide an interface for all
+               classes derived from DuskObject.
+        */
+        virtual bool canPickUp() const;
+
         /* Saves the object to the given stream. Returns true on success, false
            otherwise.
 

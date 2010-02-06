@@ -4,10 +4,10 @@
 #include <Ogre.h>
 #include <OgreConfigFile.h>
 #include "EditorFrameListener.h"
-#include "../Engine/ItemBase.h"
-#include "../Engine/LightBase.h"
 #include "../Engine/DuskObject.h"
 #include "../Engine/DuskFunctions.h"
+#include "../Engine/ItemBase.h"
+#include "../Engine/LightBase.h"
 #include <OgreCEGUIRenderer.h>
 #include <CEGUI/CEGUI.h>
 #include <string>

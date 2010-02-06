@@ -3,6 +3,7 @@
 #include "../Engine/DuskConstants.h"
 #include "../Engine/DataLoader.h"
 #include "../Engine/DuskFunctions.h"
+#include "../Engine/Journal.h"
 #include "../Engine/Landscape.h"
 #include "../Engine/ObjectData.h"
 #include "../Engine/ObjectBase.h"
@@ -1241,7 +1242,10 @@ bool EditorApplication::StatsButtonClicked(const CEGUI::EventArgs &e)
            +"  Object records: "  + IntToString(ObjectBase::GetSingleton().NumberOfObjects())+"\n"
            +"  Items: " + IntToString(ItemBase::GetSingleton().NumberOfItems())+"\n"
            +"  Lights: " + IntToString(LightBase::GetSingleton().NumberOfLights())+"\n"
-           +"    Object & Light references: "+ IntToString(ObjectData::GetSingleton().NumberOfReferences()));
+           +"    Object, Light & Item references: "+ IntToString(ObjectData::GetSingleton().NumberOfReferences())
+           +"\n  Journal:\n"
+           +"    quests: "+ IntToString(Journal::GetSingleton().NumberOfDistinctQuests())
+           +"    entries: "+ IntToString(Journal::GetSingleton().NumberOfEntries()));
   return true;
 }
 
@@ -2613,10 +2617,11 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
         return true;
       }
       if (mcl->getName() != "Editor/Catalogue/Tab/Object/List" &&
-          mcl->getName() != "Editor/Catalogue/Tab/Light/List")
+          mcl->getName() != "Editor/Catalogue/Tab/Light/List" &&
+          mcl->getName() != "Editor/Catalogue/Tab/Item/List")
       {
         std::cout << "Debug: List \""<< mcl->getName()+"/List" << "\" found, "
-                  << "but that's not the Object or Light list.\n";
+                  << "but that's not the Object, Light or Item list.\n";
         return true;
       }
 
@@ -2626,11 +2631,24 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
       if (lbi != NULL)
       {
         //we got something, i.e. user wants to place an object
-        std::cout << "DEBUG: placing new referenced object/ light of ID \""
+        std::cout << "DEBUG: placing new referenced object/ light/ item of ID \""
                   <<std::string(lbi->getText().c_str())<<"\"\n";
-        bool PlaceLight = (mcl->getName() == "Editor/Catalogue/Tab/Light/List");
+        ObjectTypes PlaceType = otUndefined;
+        //bool PlaceLight = (mcl->getName() == "Editor/Catalogue/Tab/Light/List");
+        if (mcl->getName() == "Editor/Catalogue/Tab/Light/List")
+        {
+          PlaceType = otLight;
+        }
+        else if (mcl->getName() == "Editor/Catalogue/Tab/Item/List")
+        {
+           PlaceType = otItem;
+        }
+        else
+        {
+           PlaceType = otStatic;
+        }
 
-        if (PlaceLight)
+        if (PlaceType==otLight)
         { //place a light
           if (!LightBase::GetSingleton().hasLight(std::string(lbi->getText().c_str())))
           {
@@ -2640,7 +2658,7 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
             return true;
           }
         }
-        else
+        else if (PlaceType==otStatic)
         { //place an object
           if (!ObjectBase::GetSingleton().hasObject(std::string(lbi->getText().c_str())))
           {
@@ -2650,21 +2668,38 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
             return true;
           }
         }
+        else
+        { //place an item
+          if (!ItemBase::GetSingleton().hasItem(std::string(lbi->getText().c_str())))
+          {
+            showWarning("There is no Item with the ID \""
+                        +std::string(lbi->getText().c_str())+"\", thus you can't "
+                        +"place it.");
+            return true;
+          }
+        }
 
         Ogre::Quaternion quat = EditorCamera::GetSingleton().getOrientation();
         DuskObject* temp = NULL;
-        if (!PlaceLight)
+        if (PlaceType==otStatic)
         {
           temp =
           ObjectData::GetSingleton().addObjectReference( std::string(lbi->getText().c_str()),
                      EditorCamera::GetSingleton().getPosition() + quat*Ogre::Vector3(0.0f, 0.0f, -100.0f),
                      Ogre::Vector3::ZERO, 1.0f);
         }
-        else
+        else if (PlaceType==otLight)
         {
           temp =
           ObjectData::GetSingleton().addLightReference( std::string(lbi->getText().c_str()),
                      EditorCamera::GetSingleton().getPosition() + quat*Ogre::Vector3(0.0f, 0.0f, -100.0f));
+        }
+        else
+        {
+          temp =
+          ObjectData::GetSingleton().addItemReference( std::string(lbi->getText().c_str()),
+                     EditorCamera::GetSingleton().getPosition() + quat*Ogre::Vector3(0.0f, 0.0f, -100.0f),
+                     Ogre::Vector3::ZERO, 1.0f);
         }
         temp->Enable(mSceneMgr);
       }
@@ -2854,6 +2889,8 @@ void EditorApplication::showObjectReferenceEditWindow(const CEGUI::Point& pt)
            frame->setText("Light"); break;
       case otContainer:
            frame->setText("Container"); break;
+      case otItem:
+           frame->setText("Item"); break;
       default:
            frame->setText("Object (undefined type)"); break;
     }//swi
