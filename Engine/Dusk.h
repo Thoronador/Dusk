@@ -394,8 +394,7 @@ status:
 This Header defines the LuaEngine singleton class.
 
 description:
-    This class represents an item in the game. Items can be picked up by
-    the player character.
+    This class will run all Lua code/ scripts in the game.
 
 status:
     not tested

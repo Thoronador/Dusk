@@ -17,7 +17,7 @@ class Inventory
 {
   public:
     Inventory();
-    ~Inventory();
+    virtual ~Inventory();
 
     /* AddItem: adds count items of ID ItemID to inventory; always succeeds. */
     void AddItem(const std::string& ItemID, const unsigned int count);

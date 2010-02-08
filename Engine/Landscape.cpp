@@ -316,8 +316,8 @@ bool LandscapeRecord::Terraform(const float x, const float z, const float delta)
      && z>=m_OffsetY && z<=m_OffsetY+64*m_Stride)
   {
     unsigned int x_idx, y_idx;
-    x_idx = (x-m_OffsetX)/m_Stride;
-    y_idx = (z-m_OffsetY)/m_Stride;
+    x_idx = (unsigned int)((x-m_OffsetX)/m_Stride);
+    y_idx = (unsigned int)((z-m_OffsetY)/m_Stride);
     Height[x_idx][y_idx] += delta;
     //adjust highest/ lowest values, if neccessary
     if (Height[x_idx][y_idx] > m_Highest)
@@ -345,8 +345,8 @@ bool LandscapeRecord::SetColour(const float x, const float z, const unsigned cha
      && z>=m_OffsetY && z<=m_OffsetY+64*m_Stride)
   {
     unsigned int x_idx, y_idx;
-    x_idx = (x-m_OffsetX)/m_Stride;
-    y_idx = (z-m_OffsetY)/m_Stride;
+    x_idx = (unsigned int)((x-m_OffsetX)/m_Stride);
+    y_idx = (unsigned int)((z-m_OffsetY)/m_Stride);
     std::cout << "DEBUG: LandscapeRecord::SetColour(): x_idx="<<x_idx<<", y_idx="<<y_idx<<"\n";
     Colour[x_idx][y_idx][0] = r;
     Colour[x_idx][y_idx][1] = g;
@@ -961,14 +961,15 @@ float Landscape::GetHeightAtPosition(const float x, const float y) const
   unsigned int i, x_idx, y_idx;
   for(i=0; i<m_numRec; i++)
   {
-    if ((x>=m_RecordList[i]->OffsetX()) && (x<=m_RecordList[i]->OffsetX()+64*LandscapeRecord::cDefaultStride)
-       &&(y>=m_RecordList[i]->OffsetY()) && (y<=m_RecordList[i]->OffsetY()+64*LandscapeRecord::cDefaultStride))
+    const float stride = m_RecordList[i]->Stride();
+    if ((x>=m_RecordList[i]->OffsetX()) && (x<=m_RecordList[i]->OffsetX()+64*stride)
+       &&(y>=m_RecordList[i]->OffsetY()) && (y<=m_RecordList[i]->OffsetY()+64*stride))
     {
       //got it
       //not implemented exactly yet, but at least we have a return value which
       // is somewhat near the real value
-      x_idx = (x-m_RecordList[i]->OffsetX())/LandscapeRecord::cDefaultStride;
-      y_idx = (y-m_RecordList[i]->OffsetY())/LandscapeRecord::cDefaultStride;
+      x_idx = (unsigned int)((x-m_RecordList[i]->OffsetX())/stride);
+      y_idx = (unsigned int)((y-m_RecordList[i]->OffsetY())/stride);
 
       if (x_idx==64 or y_idx==64)
       {
@@ -978,8 +979,8 @@ float Landscape::GetHeightAtPosition(const float x, const float y) const
       //interpolation to get better approximation of height between points
       float x_linear, y_linear; //linear factors
       float ip1, ip2; //height at interpolatoin points 1 and 2
-      x_linear = (x-m_RecordList[i]->OffsetX()-x_idx*LandscapeRecord::cDefaultStride)/LandscapeRecord::cDefaultStride;
-      y_linear = (y-m_RecordList[i]->OffsetY()-y_idx*LandscapeRecord::cDefaultStride)/LandscapeRecord::cDefaultStride;
+      x_linear = (x-m_RecordList[i]->OffsetX()-x_idx*stride)/stride;
+      y_linear = (y-m_RecordList[i]->OffsetY()-y_idx*stride)/stride;
 
       ip1 = (1.0-x_linear)*m_RecordList[i]->Height[x_idx][y_idx]
            +      x_linear*m_RecordList[i]->Height[x_idx+1][y_idx];
