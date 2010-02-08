@@ -1,16 +1,17 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    23.12.2009
+ Date:    2009-12-23
  Purpose: provides some (more or less) useful functions which are used in
           several headers and/or source files
  History:
-     - 23.07.2009 - initial version; contains getDirectoryFileList() only
-     - 24.07.2009 - IntToString() and FloatToString() added,
-                    getDirectoryFileList() removed
-     - 11.08.2009 - StringToInt(), StringToFloat() added
-     - 24.08.2009 - IntToString() for unsigned integers added
-     - 23.12.2009 - getDirectoryFileList() added (again),
-                    split into .h and .cpp
+     - 2009-07-23 (rev 110) - initial version; contains getDirectoryFileList()
+     - 2009-07-24 (rev 111) - IntToString() and FloatToString() added,
+                              getDirectoryFileList() removed
+     - 2009-08-11 (rev 120) - StringToInt(), StringToFloat() added
+     - 2009-08-24 (rev 121) - IntToString() for unsigned integers added
+     - 2009-12-23 (rev 145) - getDirectoryFileList() added (again),
+                              split into .h and .cpp
+     - 2010-02-08 (rev 168) - trim() added /moved from Script.h
 
  ToDo list:
      - ???
@@ -46,6 +47,15 @@ std::string FloatToString(float value);
    a floating point value, the function will return the specified default value.
 */
 float StringToFloat(const std::string& str_input, const float default_value);
+
+
+/**
+ * Trims the given string from leading and trailing spaces.
+ *
+ * @param p_string      The string to trim.
+ * @return the trimmed string.
+ */
+std::string trim(std::string p_string);
 
 /* structure for file list entries */
 struct FileEntry {

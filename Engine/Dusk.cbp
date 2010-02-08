@@ -63,6 +63,8 @@
 					<Add library="OgreMain" />
 					<Add library="OIS" />
 					<Add library="GL" />
+					<Add library="lua50" />
+					<Add library="lualib50" />
 					<Add directory="/bin/Debug" />
 					<Add directory="/bin/Release" />
 				</Linker>
@@ -170,6 +172,9 @@
 		<Unit filename="Light.h" />
 		<Unit filename="LightBase.cpp" />
 		<Unit filename="LightBase.h" />
+		<Unit filename="LuaEngine.cpp" />
+		<Unit filename="LuaEngine.h" />
+		<Unit filename="LuaIncludes.h" />
 		<Unit filename="Menu.cpp" />
 		<Unit filename="Menu.h" />
 		<Unit filename="NPC.cpp" />

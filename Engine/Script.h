@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Author:  DaSteph, thoronador
- Date:    2010-02-01
+ Date:    2010-02-08
  Purpose: Script class
           represents a single script which can be processed by the Console
 
@@ -12,6 +12,8 @@
                               caused by empty string argument (by thoronador)
      - 2009-12-31 (rev 147) - documentation update
      - 2010-02-01 (rev 162) - getStringRepresentation() and isEmpty() added
+     - 2010-02-08 (rev 168) - trim() moved to DuskFunctions.h, because this is
+                              not dependant on Script class
 
  ToDo list:
      - ???
@@ -72,18 +74,10 @@ namespace Dusk
         /* returns the internal string representation of the script */
         std::string getStringRepresentation() const;
 
-        /* returns true, if the script  holds no data */
+        /* returns true, if the script holds no data */
         bool isEmpty() const;
 
     private:
-        /**
-         * Trims the given string from leading and trailing spaces.
-         *
-         * @param p_string      The string to trim.
-         * @return the trimmed string.
-         */
-        std::string trim(std::string p_string) const;
-
         /**
          * Holds the string representation of the script.
          */

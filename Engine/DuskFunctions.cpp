@@ -57,6 +57,46 @@ float StringToFloat(const std::string& str_input, const float default_value)
   return value;
 }
 
+std::string trim(std::string p_string)
+{
+  int pos = -1;
+  int look = 0;
+  int size = p_string.size();
+  while (look<size)
+  {
+    if (p_string.at(look) == ' ')
+    {
+      pos = look;
+    }
+    else
+    {
+      break;
+    }
+    look++;
+  }//while
+  if (pos > -1)
+      p_string.erase(0, pos + 1);
+
+  pos = - 1;
+  look = p_string.size() - 1;
+  while (look>=0)
+  {
+    if (p_string.at(look) == ' ')
+    {
+      pos = look;
+    }
+    else
+    {
+      break;
+    }
+    look--;
+  }//while
+  if (pos > -1)
+      p_string.erase(pos, p_string.size() - pos);
+
+  return p_string;
+}
+
 std::vector<FileEntry> get_DirectoryFileList(const std::string& Directory)
 {
   std::vector<FileEntry> result;
