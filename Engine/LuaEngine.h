@@ -1,18 +1,18 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-02-08
+ Date:    2010-02-09
  Purpose: LuaEngine Singleton class
           This class will handle (i.e. run) all Lua code from scripts.
 
  History:
      - 2010-02-08 (rev 168) - initial version (by thoronador)
+     - 2010-02-09 (rev 170) - bindings for Weather and Sound classes added
 
  ToDo list:
      - ???
 
  Bugs:
-     - Will most likely not compile /work with other Lua versions than 5.0.
-     - might not work on Windows (yet)
+     - Will most likely not compile /work with older Lua versions than 5.0.
      - Untested. If you find more bugs, then tell me please.
  --------------------------------------------------------------------------*/
 
@@ -77,7 +77,7 @@ class LuaEngine
     std::deque<Script> m_ScriptQueue;
 
   public:
-    // implicitly act as a lua_State pointer
+    // implicitly act as a lua_State pointer - not sure, if we will ever need this
     inline operator lua_State*()
     {
       return m_Lua;

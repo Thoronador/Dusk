@@ -1,6 +1,9 @@
 #include "LuaEngine.h"
 #include <iostream>
 
+#include "LuaBindingsSound.h"
+#include "LuaBindingsWeather.h"
+
 namespace Dusk
 {
 
@@ -105,14 +108,14 @@ unsigned int LuaEngine::processScripts(unsigned int maxEntries)
   maxEntries = toDo;
   while (maxEntries>0)
   {
-    const Script nextScript = m_ScriptQueue.front();
-    m_ScriptQueue.pop_front();
-    if (!runString(nextScript.getStringRepresentation()))
+    if (!runString(m_ScriptQueue.front().getStringRepresentation()))
     {
+      m_ScriptQueue.pop_front();
       std::cout << "LuaEngine::processScripts: ERROR while processing script "
                 << toDo-maxEntries << " of " << toDo << ". Aborting.\n";
       return toDo-maxEntries;
     }
+    m_ScriptQueue.pop_front();
     --maxEntries;
   } //while
   return toDo;
@@ -121,6 +124,8 @@ unsigned int LuaEngine::processScripts(unsigned int maxEntries)
 void LuaEngine::registerDusk()
 {
   //empty, not implemented yet
+  registerSound(m_Lua);
+  registerWeather(m_Lua);
 }
 
 } //namespace

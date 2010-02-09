@@ -33,16 +33,34 @@ Weather& Weather::getSingelton()
 
 void Weather::setFogColour(const float r, const float g, const float b)
 {
+  Ogre::ColourValue colVal(r,g,b);
+  colVal.saturate();  //clamps values to [0;1]
   if (isFoggy())
   {
     Ogre::SceneManager* scm = getAPI().getOgreSceneManager();
-    scm->setFog(scm->getFogMode(), Ogre::ColourValue(r,g,b), scm->getFogDensity(),
+    scm->setFog(scm->getFogMode(), colVal, scm->getFogDensity(),
                 scm->getFogStart(), scm->getFogEnd());
-    getAPI().getOgreRenderWindow()->getViewport(0)->setBackgroundColour(Ogre::ColourValue(r,g,b));
+    getAPI().getOgreRenderWindow()->getViewport(0)->setBackgroundColour(colVal);
   }
-  m_Fog_r = r;
-  m_Fog_g = g;
-  m_Fog_b = b;
+  m_Fog_r = colVal.r;
+  m_Fog_g = colVal.g;
+  m_Fog_b = colVal.b;
+}
+
+void Weather::getFogColour(float* r, float* g, float* b) const
+{
+  if (r!=NULL)
+  {
+    *r = m_Fog_r;
+  }
+  if (g!=NULL)
+  {
+    *g = m_Fog_g;
+  }
+  if (b!=NULL)
+  {
+    *b = m_Fog_b;
+  }
 }
 
 void Weather::startLinearFog(const float start_distance, const float max_distance)

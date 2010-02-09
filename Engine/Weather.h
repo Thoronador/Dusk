@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-01-19
+ Date:    2010-02-09
  Purpose: Weather Singleton class
           responsible for managing all weather effects in the game, e.g. fog,
           rain, snow
@@ -10,6 +10,7 @@
      - 2009-12-31 (rev 147) - documentation update
      - 2010-01-03 (rev 149) - snow implemented as particle system
      - 2010-01-19 (rev 157) - rain implemented as particle system
+     - 2010-02-09 (rev 170) - getFogColour() added
 
  ToDo list:
      - other effects, such as rain, maybe even wind
@@ -46,6 +47,17 @@ namespace Dusk
                        Each of these values has to be in [0;1].
       */
       void setFogColour(const float r, const float g, const float b);
+
+      /* retrieves the fog colour
+
+         parameters:
+             r, g, b - pointers to variables for red, green and blue values of
+                       the fog colour.
+                       If they are not NULL, the values will be stored in the
+                       floating point variables they are pointing at.
+                       Each of these values will be in [0;1].
+      */
+      void getFogColour(float* r, float* g, float* b) const;
 
       /* creates linear fog
 
