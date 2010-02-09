@@ -13,6 +13,10 @@
      - 2009-12-31 (rev 147) - documentation update
      - 2010-01-16 (rev 154) - update for NPC (descendant of AnimatedObject)
                             - SaveAllToStream(), LoadNextFromStream() added
+     - 2010-02-10 (rev 171) - moved from vector of references to map of vectors
+                              of references to allow faster search for a certain
+                              reference
+                            - GetAnimatedObjectReference() added
 
  ToDo list:
      - ???
@@ -28,6 +32,7 @@
 #include "NPC.h"
 #include <fstream>
 #include <vector>
+#include <map>
 
 namespace Dusk
 {
@@ -52,6 +57,16 @@ namespace Dusk
       NPC* addNPCReference(const std::string ID, const Ogre::Vector3 position,
                            const Ogre::Vector3 rot, const float Scale);
 
+      /* returns a pointer to the first object reference with the given ID, or
+         NULL of no such object is present
+      */
+      AnimatedObject* GetAnimatedObjectReference(const std::string& ID) const;
+
+      /* same as GetAnimatedObjectReference, but with check for NPC -> if the
+         referenced object is not a NPC, it returns NULL
+      */
+      NPC* GetNPCReference(const std::string& ID) const;
+
       /* makes all objects move according to the amount of time passed
 
          parameters:
@@ -75,7 +90,10 @@ namespace Dusk
     private:
       AnimationData();
       AnimationData(const AnimationData& op) {}
-      std::vector<AnimatedObject*> m_ReferenceList;
+      //std::vector<AnimatedObject*> m_ReferenceList;
+
+      std::map<std::string, std::vector<AnimatedObject*> > m_ReferenceMap;
+      unsigned int m_RefCount;
   };//class
 }//namespace
 

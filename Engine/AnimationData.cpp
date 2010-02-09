@@ -6,12 +6,14 @@ namespace Dusk
 
 AnimationData::AnimationData()
 {
-  m_ReferenceList.clear();
+  m_ReferenceMap.clear();
+  m_RefCount = 0;
 }
 
 AnimationData::~AnimationData()
 {
   ClearData();
+  m_RefCount = 0;
 }
 
 AnimationData& AnimationData::GetSingleton()
@@ -22,14 +24,15 @@ AnimationData& AnimationData::GetSingleton()
 
 unsigned int AnimationData::NumberOfReferences() const
 {
-  return m_ReferenceList.size();
+  return m_RefCount;
 }
 
 AnimatedObject* AnimationData::addAnimatedReference(const std::string ID,
     const Ogre::Vector3 position, const Ogre::Vector3 rotation, const float scale)
 {
   AnimatedObject * ObjectPointer = new AnimatedObject(ID, position, rotation, scale);
-  m_ReferenceList.push_back(ObjectPointer);
+  m_ReferenceMap[ID].push_back(ObjectPointer);
+  ++m_RefCount;
   return ObjectPointer;
 }
 
@@ -37,33 +40,75 @@ NPC* AnimationData::addNPCReference(const std::string ID,
      const Ogre::Vector3 position, const Ogre::Vector3 rot, const float Scale)
 {
   NPC* NPCPointer = new NPC(ID, position, rot, Scale);
-  m_ReferenceList.push_back(NPCPointer);
+  m_ReferenceMap[ID].push_back(NPCPointer);
+  ++m_RefCount;
   return NPCPointer;
+}
+
+AnimatedObject* AnimationData::GetAnimatedObjectReference(const std::string& ID) const
+{
+  std::map<std::string, std::vector<AnimatedObject*> >::const_iterator iter;
+  iter = m_ReferenceMap.find(ID);
+  if (iter!=m_ReferenceMap.end())
+  {
+    if (!(iter->second.empty()))
+    {
+      return iter->second.at(0);
+    }
+  }
+  return NULL;
+}
+
+NPC* AnimationData::GetNPCReference(const std::string& ID) const
+{
+  AnimatedObject* ap = GetAnimatedObjectReference(ID);
+  if (ap!=NULL)
+  {
+    if (ap->GetType() != otNPC)
+    {
+      ap = NULL;
+    }
+  }
+  return (NPC*)ap;
 }
 
 void AnimationData::InjectAnimationTime(const float TimePassed)
 {
   unsigned int i;
-  for (i=0; i<m_ReferenceList.size(); i++)
+  std::map<std::string, std::vector<AnimatedObject*> >::const_iterator iter;
+  iter = m_ReferenceMap.begin();
+  while (iter!=m_ReferenceMap.end())
   {
-    if (m_ReferenceList.at(i)!=NULL)
+    for (i=0; i<iter->second.size(); i++)
     {
-      m_ReferenceList.at(i)->Move(TimePassed);
-    }
-  }//for
+      if (iter->second.at(i)!=NULL)
+      {
+        iter->second.at(i)->Move(TimePassed);
+      }
+    }//for
+    ++iter;
+  }//while
 }
 
 void AnimationData::ClearData()
 {
   AnimatedObject * ObjPtr;
-  while(!m_ReferenceList.empty())
+  std::map<std::string, std::vector<AnimatedObject*> >::iterator iter;
+  iter = m_ReferenceMap.begin();
+  while (iter!=m_ReferenceMap.end())
   {
-    ObjPtr = m_ReferenceList.back();
-    ObjPtr->Disable();
-    delete ObjPtr;
-    m_ReferenceList.pop_back();
+    while(!(iter->second.empty()))
+    {
+      ObjPtr = iter->second.back();
+      ObjPtr->Disable();
+      delete ObjPtr;
+      iter->second.pop_back();
+    }//while
+    iter->second.clear();
+    m_ReferenceMap.erase(iter);
+    iter = m_ReferenceMap.begin();
   }//while
-  m_ReferenceList.clear();
+  m_RefCount = 0;
 }//clear data
 
 bool AnimationData::SaveAllToStream(std::ofstream& output) const
@@ -74,18 +119,24 @@ bool AnimationData::SaveAllToStream(std::ofstream& output) const
     return false;
   }
   unsigned int i;
-  const unsigned int len = m_ReferenceList.size();
-  for (i=0; i<len; i=i+1)
+  std::map<std::string, std::vector<AnimatedObject*> >::const_iterator iter;
+  iter = m_ReferenceMap.begin();
+  while (iter!=m_ReferenceMap.end())
   {
-    if (m_ReferenceList.at(i)!=NULL)
+    const unsigned int len = iter->second.size();
+    for (i=0; i<len; i=i+1)
     {
-      if (!( m_ReferenceList.at(i)->SaveToStream(output)))
+      if (iter->second.at(i)!=NULL)
       {
-        std::cout << "AnimationData::SaveToStream: ERROR while saving reference.\n";
-        return false;
-      } //if
-    }//if
-  }//for
+        if (!(iter->second.at(i)->SaveToStream(output)))
+        {
+          std::cout << "AnimationData::SaveToStream: ERROR while saving reference.\n";
+          return false;
+        } //if
+      }//if
+    }//for
+    ++iter;
+  }//while
   return output.good();
 }
 
@@ -98,7 +149,8 @@ bool AnimationData::LoadNextFromStream(std::ifstream& Stream, const unsigned int
          animPtr = new AnimatedObject;
          if (animPtr->LoadFromStream(Stream))
          {
-           m_ReferenceList.push_back(animPtr);
+           m_ReferenceMap[animPtr->GetID()].push_back(animPtr);
+           ++m_RefCount;
            return true;
          }
          delete animPtr;
@@ -107,7 +159,8 @@ bool AnimationData::LoadNextFromStream(std::ifstream& Stream, const unsigned int
          animPtr = new NPC;
          if (animPtr->LoadFromStream(Stream))
          {
-           m_ReferenceList.push_back(animPtr);
+           m_ReferenceMap[animPtr->GetID()].push_back(animPtr);
+           ++m_RefCount;
            return true;
          }
          delete animPtr;

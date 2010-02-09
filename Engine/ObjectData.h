@@ -25,6 +25,10 @@
                             - improved some ID checks
      - 2010-01-30 (rev 161) - obsolete load/save functions removed
      - 2010-02-06 (rev 165) - update for Item class
+     - 2010-02-10 (rev 171) - moved from vector of references to map of vectors
+                              of references to allow faster search for a certain
+                              reference
+                            - GetObjectByID() added
 
  ToDo list:
      - extend class when further classes for non-animated objects are added
@@ -43,6 +47,7 @@
 #include "Light.h"
 #include "Container.h"
 #include <vector>
+#include <map>
 #include <fstream>
 
 namespace Dusk
@@ -81,6 +86,11 @@ namespace Dusk
       */
       Item* addItemReference(const std::string& ID, const Ogre::Vector3& position,
                              const Ogre::Vector3& rotation, const float scale);
+
+      /* returns the first object of given ID, or NULL if no such object is
+         present
+      */
+      DuskObject* GetObjectByID(const std::string& ID) const;
 
       /* Tries to save all objects to the stream and returns true on success */
       bool SaveAllToStream(std::ofstream& Stream) const;
@@ -136,7 +146,9 @@ namespace Dusk
     private:
       ObjectData();
       ObjectData(const ObjectData& op){}
-      std::vector<DuskObject*> m_ReferenceList;
+      //std::vector<DuskObject*> m_ReferenceList;
+      std::map<std::string, std::vector<DuskObject*> > m_ReferenceMap;
+      unsigned int m_RefCount;
   };//class
 
 }//namespace

@@ -3,6 +3,7 @@
 
 #include "LuaBindingsSound.h"
 #include "LuaBindingsWeather.h"
+#include "LuaBindingsObject.h"
 
 namespace Dusk
 {
@@ -123,9 +124,9 @@ unsigned int LuaEngine::processScripts(unsigned int maxEntries)
 
 void LuaEngine::registerDusk()
 {
-  //empty, not implemented yet
   registerSound(m_Lua);
   registerWeather(m_Lua);
+  registerObject(m_Lua);
 }
 
 } //namespace

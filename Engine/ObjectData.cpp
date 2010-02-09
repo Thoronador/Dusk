@@ -3,18 +3,21 @@
 #include "ObjectBase.h"
 #include "LightBase.h"
 #include "ContainerBase.h"
+#include "ItemBase.h"
 
 namespace Dusk
 {
 
 ObjectData::ObjectData()
 {
-  m_ReferenceList.clear();
+  m_ReferenceMap.clear();
+  m_RefCount = 0;
 }
 
 ObjectData::~ObjectData()
 {
   ClearData();
+  m_RefCount = 0;
 }
 
 ObjectData& ObjectData::GetSingleton()
@@ -25,21 +28,23 @@ ObjectData& ObjectData::GetSingleton()
 
 unsigned int ObjectData::NumberOfReferences() const
 {
-  return m_ReferenceList.size();
+  return m_RefCount;
 }
 
 DuskObject* ObjectData::addObjectReference(const std::string& ID,
     const Ogre::Vector3& position, const Ogre::Vector3& rotation, const float scale)
 {
   DuskObject * ObjectPointer = new DuskObject(ID, position, rotation, scale);
-  m_ReferenceList.push_back(ObjectPointer);
+  m_ReferenceMap[ID].push_back(ObjectPointer);
+  ++m_RefCount;
   return ObjectPointer;
 }
 
 Light* ObjectData::addLightReference(const std::string& ID, const Ogre::Vector3& position)
 {
   Light * LightPointer = new Light(ID, position);
-  m_ReferenceList.push_back(LightPointer);
+  m_ReferenceMap[ID].push_back(LightPointer);
+  ++m_RefCount;
   return LightPointer;
 }
 
@@ -47,7 +52,8 @@ Container* ObjectData::addContainerReference(const std::string& ID,
     const Ogre::Vector3& position, const Ogre::Vector3& rotation, const float scale)
 {
   Container* ContainerPointer = new Container(ID, position, rotation, scale);
-  m_ReferenceList.push_back(ContainerPointer);
+  m_ReferenceMap[ID].push_back(ContainerPointer);
+  ++m_RefCount;
   return ContainerPointer;
 }
 
@@ -55,25 +61,45 @@ Item* ObjectData::addItemReference(const std::string& ID,
     const Ogre::Vector3& position, const Ogre::Vector3& rotation, const float scale)
 {
   Item* ItemPointer = new Item(ID, position, rotation, scale);
-  m_ReferenceList.push_back(ItemPointer);
+  m_ReferenceMap[ID].push_back(ItemPointer);
+  ++m_RefCount;
   return ItemPointer;
+}
+
+DuskObject* ObjectData::GetObjectByID(const std::string& ID) const
+{
+  std::map<std::string, std::vector<DuskObject*> >::const_iterator iter;
+  iter = m_ReferenceMap.find(ID);
+  if (iter!=m_ReferenceMap.end())
+  {
+    if (!(iter->second.empty()))
+    {
+      return iter->second.at(0);
+    }
+  }
+  return NULL;
 }
 
 bool ObjectData::SaveAllToStream(std::ofstream& Stream) const
 {
   unsigned int i;
-
-  for (i=0; i<m_ReferenceList.size(); i++)
+  std::map<std::string, std::vector<DuskObject*> >::const_iterator iter;
+  iter = m_ReferenceMap.begin();
+  while (iter!=m_ReferenceMap.end())
   {
-    if (m_ReferenceList.at(i)!=NULL)
+    for (i=0; i<iter->second.size(); i++)
     {
-      if (!(m_ReferenceList.at(i)->SaveToStream(Stream)) or (!Stream.good()))
+      if (iter->second.at(i)!=NULL)
       {
-        std::cout << "ObjectData::SaveAllToStream: ERROR while writing reference data.\n";
-        return false;
-      }
-    }//if
-  }//for
+        if (!(iter->second.at(i)->SaveToStream(Stream)) or (!Stream.good()))
+        {
+          std::cout << "ObjectData::SaveAllToStream: ERROR while writing reference data.\n";
+          return false;
+        }
+      }//if
+    }//for
+    ++iter;
+  }//while
   return true;
 }
 
@@ -86,7 +112,8 @@ bool ObjectData::LoadNextFromStream(std::ifstream& Stream, const unsigned int Pr
          objPtr = new DuskObject;
          if (objPtr->LoadFromStream(Stream))
          {
-           m_ReferenceList.push_back(objPtr);
+           m_ReferenceMap[objPtr->GetID()].push_back(objPtr);
+           ++m_RefCount;
            return true;
          }
          delete objPtr;
@@ -95,7 +122,8 @@ bool ObjectData::LoadNextFromStream(std::ifstream& Stream, const unsigned int Pr
          objPtr = new Light;
          if (objPtr->LoadFromStream(Stream))
          {
-           m_ReferenceList.push_back(objPtr);
+           m_ReferenceMap[objPtr->GetID()].push_back(objPtr);
+           ++m_RefCount;
            return true;
          }
          delete objPtr;
@@ -104,7 +132,8 @@ bool ObjectData::LoadNextFromStream(std::ifstream& Stream, const unsigned int Pr
          objPtr = new Container;
          if (objPtr->LoadFromStream(Stream))
          {
-           m_ReferenceList.push_back(objPtr);
+           m_ReferenceMap[objPtr->GetID()].push_back(objPtr);
+           ++m_RefCount;
            return true;
          }
          delete objPtr;
@@ -113,7 +142,8 @@ bool ObjectData::LoadNextFromStream(std::ifstream& Stream, const unsigned int Pr
          objPtr = new Item;
          if (objPtr->LoadFromStream(Stream))
          {
-           m_ReferenceList.push_back(objPtr);
+           m_ReferenceMap[objPtr->GetID()].push_back(objPtr);
+           ++m_RefCount;
            return true;
          }
          delete objPtr;
@@ -133,50 +163,61 @@ void ObjectData::EnableAllObjects(Ogre::SceneManager * scm)
     std::cout << "ObjectData::EnableAllObjects: ERROR: Scene Manager is NULL!\n";
     return;
   }
-  for(i=0; i<m_ReferenceList.size(); i++)
+
+  std::map<std::string, std::vector<DuskObject*> >::const_iterator iter;
+  iter = m_ReferenceMap.begin();
+  while (iter!=m_ReferenceMap.end())
   {
-    if (m_ReferenceList.at(i)!=NULL)
+    for(i=0; i<iter->second.size(); i++)
     {
-      m_ReferenceList.at(i)->Enable(scm);
-    }
-  }//for
+      if (iter->second.at(i)!=NULL)
+      {
+        iter->second.at(i)->Enable(scm);
+      }
+    }//for
+    ++iter;
+  }//while
 }
 
 void ObjectData::DisableAllObjects()
 {
   unsigned int i;
-  for(i=0; i<m_ReferenceList.size(); i++)
+  std::map<std::string, std::vector<DuskObject*> >::const_iterator iter;
+  iter = m_ReferenceMap.begin();
+  while (iter!=m_ReferenceMap.end())
   {
-    if (m_ReferenceList.at(i)!=NULL)
+    for(i=0; i<iter->second.size(); i++)
     {
-      m_ReferenceList.at(i)->Disable();
-    }
-  }//for
+      if (iter->second.at(i)!=NULL)
+      {
+        iter->second.at(i)->Disable();
+      }
+    }//for
+    ++iter;
+  }//while
 }
 
 unsigned int ObjectData::deleteReferencesOfObject(const std::string& ID)
 {
+  std::map<std::string, std::vector<DuskObject*> >::iterator iter;
+  iter = m_ReferenceMap.find(ID);
+  if (iter==m_ReferenceMap.end())
+  {
+    return 0;
+  }//if
   unsigned int deletedReferences = 0;
   long int i;
-  for (i=m_ReferenceList.size()-1; i>=0; i=i-1)
+  for (i=iter->second.size()-1; i>=0; i=i-1)
   {
-    if (m_ReferenceList.at(i)!=NULL)
+    if (iter->second.at(i)!=NULL)
     {
-      if (m_ReferenceList.at(i)->GetID()==ID)
-      {
-        delete m_ReferenceList.at(i);
-        deletedReferences++;
-        //swap position of deleted element mith one at the end
-        // (needed later do do only one call to erase)
-        m_ReferenceList.at(i) = m_ReferenceList.at(m_ReferenceList.size()-deletedReferences);
-        m_ReferenceList.at(m_ReferenceList.size()-deletedReferences) = NULL;
-      }//if
+      delete (iter->second.at(i));
+      iter->second.at(i) = NULL;
+      ++deletedReferences;
     }//if
   }//for
-  if (deletedReferences >0)
-  {
-    m_ReferenceList.erase(m_ReferenceList.begin()+m_ReferenceList.size()-deletedReferences, m_ReferenceList.end());
-  }//if
+  iter->second.clear();
+  m_ReferenceMap.erase(iter);
   return deletedReferences;
 }
 
@@ -194,21 +235,29 @@ unsigned int ObjectData::reenableReferencesOfObject(const std::string& ID, Ogre:
   }
   if (!ObjectBase::GetSingleton().hasObject(ID) and
       !LightBase::GetSingleton().hasLight(ID) and
-      !ContainerBase::GetSingleton().HasContainer(ID))
+      !ContainerBase::GetSingleton().HasContainer(ID) and
+      !ItemBase::GetSingleton().hasItem(ID))
   {
     std::cout << "ObjectData::reenableReferencesOfObject: ERROR: there is no "
               << "record about object with the new ID \""+ID+"\" within the"
-              << "ObjectBase, LightBase or ContainerBase classes. Aborting.\n";
+              << "ObjectBase, LightBase, ContainerBase or ItemBase classes. "
+              << "Aborting.\n";
     return 0;
   }
-  for (position = 0; position<m_ReferenceList.size(); position++)
+  std::map<std::string, std::vector<DuskObject*> >::iterator iter;
+  iter = m_ReferenceMap.find(ID);
+  if (iter==m_ReferenceMap.end())
   {
-    if (m_ReferenceList.at(position)!=NULL)
+    return 0;
+  }//if
+  for (position = 0; position<iter->second.size(); position++)
+  {
+    if (iter->second.at(position)!=NULL)
     {
-      if (m_ReferenceList.at(position)->GetID()==ID && m_ReferenceList.at(position)->IsEnabled())
+      if (iter->second.at(position)->IsEnabled())
       {
-        m_ReferenceList.at(position)->Disable();
-        m_ReferenceList.at(position)->Enable(scm);
+        iter->second.at(position)->Disable();
+        iter->second.at(position)->Enable(scm);
         re_enabled++;
       }//if
     }//if
@@ -220,7 +269,6 @@ unsigned int ObjectData::reenableReferencesOfObject(const std::string& ID, Ogre:
 unsigned int ObjectData::updateReferencesAfterIDChange(const std::string& oldID, const std::string& newID, Ogre::SceneManager* scm)
 {
   unsigned int updated_references = 0;
-  unsigned int position;
 
   if (oldID=="" or newID=="")
   {
@@ -236,12 +284,13 @@ unsigned int ObjectData::updateReferencesAfterIDChange(const std::string& oldID,
   }
   if (!ObjectBase::GetSingleton().hasObject(newID) and
       !LightBase::GetSingleton().hasLight(newID) and
-      !ContainerBase::GetSingleton().HasContainer(newID))
+      !ContainerBase::GetSingleton().HasContainer(newID) and
+      !ItemBase::GetSingleton().hasItem(newID))
   {
     std::cout << "ObjectData::updateReferencesAfterIDChange: ERROR: there is "
               << "no record about object with the new ID \""+newID+"\" within "
-              << "the ObjectBase, LightBase or ContainerBase classes. "
-              << "Aborting.\n";
+              << "the ObjectBase, LightBase, ContainerBase or ItemBase classes."
+              << " Aborting.\n";
     return 0;
   }
   if (scm==NULL)
@@ -250,42 +299,57 @@ unsigned int ObjectData::updateReferencesAfterIDChange(const std::string& oldID,
               << "pointer for scene manager. Unable to update enabled objects.\n";
     return 0;
   }
-
-  //now search and update
-  for (position = 0; position<m_ReferenceList.size(); position++)
+  std::map<std::string, std::vector<DuskObject*> >::iterator iter;
+  iter = m_ReferenceMap.find(oldID);
+  if (iter==m_ReferenceMap.end())
   {
-    if (m_ReferenceList.at(position)!=NULL)
+    return 0;
+  }//if
+  //now update
+  while (!(iter->second.empty()))
+  {
+    DuskObject* objPtr = iter->second.back();
+    if (objPtr!=NULL)
     {
-      if (m_ReferenceList.at(position)->GetID()==oldID)
-      { //got reference of object
-        if (m_ReferenceList.at(position)->IsEnabled())
-        { //we cannot change ID of enabled objects, so disable them first
-          m_ReferenceList.at(position)->Disable();
-          m_ReferenceList.at(position)->ChangeID(newID);
-          m_ReferenceList.at(position)->Enable(scm);
-        }
-        else
-        { //not enabled, so simply change ID
-          m_ReferenceList.at(position)->ChangeID(newID);
-        }
-        updated_references++;
-      }//if
+      if (objPtr->IsEnabled())
+      { //we cannot change ID of enabled objects, so disable them first
+        objPtr->Disable();
+        objPtr->ChangeID(newID);
+        objPtr->Enable(scm);
+      }
+      else
+      { //not enabled, so simply change ID
+        objPtr->ChangeID(newID);
+      }
+      m_ReferenceMap[newID].push_back(objPtr);
+      ++m_RefCount;
     }//if
-  }//for
+    iter->second.pop_back();
+    --m_RefCount;
+    ++updated_references;
+  }//while
   return updated_references;
 }
 
 void ObjectData::ClearData()
 {
   DuskObject * ObjPtr;
-  while(!m_ReferenceList.empty())
+  std::map<std::string, std::vector<DuskObject*> >::iterator iter;
+  iter = m_ReferenceMap.begin();
+  while(iter!=m_ReferenceMap.end())
   {
-    ObjPtr = m_ReferenceList.back();
-    ObjPtr->Disable();
-    delete ObjPtr;
-    m_ReferenceList.pop_back();
+     while (!(iter->second.empty()))
+     {
+      ObjPtr = iter->second.back();
+      ObjPtr->Disable();
+      delete ObjPtr;
+      iter->second.pop_back();
+     }//while
+     m_ReferenceMap.erase(iter);
+     iter = m_ReferenceMap.begin();
   }//while
-  m_ReferenceList.clear();
+  m_ReferenceMap.clear();
+  m_RefCount = 0;
 }//clear data
 
 }//namespace
