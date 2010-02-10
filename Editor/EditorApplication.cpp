@@ -276,7 +276,7 @@ void EditorApplication::CreateCEGUIMenuBar(void)
   CEGUI::Window* sheet = CEGUI::WindowManager::getSingleton().getWindow("Editor/Root");
   sheet->addChildWindow(menu);
 
-
+  //"file" menu
   CEGUI::MenuItem* menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/File"));
   menu_item->setText("File");
   menu_item->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.8, 0)));
@@ -342,6 +342,24 @@ void EditorApplication::CreateCEGUIMenuBar(void)
   menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/Mode/PopUp/Land/PopUp2/Down"));
   menu_item->setText("Terraform: Down");
   menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::ModeLandDownClicked, this));
+  popup->addItem(menu_item);
+
+  //"quests" menu
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/Quests"));
+  menu_item->setText("Quests");
+  menu_item->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.8, 0)));
+  menu_item->setPosition(CEGUI::UVector2(CEGUI::UDim(0.55, 0), CEGUI::UDim(0.10, 0)));
+  menu->addChildWindow(menu_item);
+
+  popup = static_cast<CEGUI::PopupMenu*> (wmgr.createWindow("TaharezLook/PopupMenu", "Editor/MenuBar/Quests/PopUp"));
+  menu_item->setPopupMenu(popup);
+
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/Quests/PopUp/Journal"));
+  menu_item->setText("Journal");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::JournalClicked, this));
+  popup->addItem(menu_item);
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/Quests/PopUp/Dialogue"));
+  menu_item->setText("Dialogue (not implemented yet)");
   popup->addItem(menu_item);
 
   //static text to show mode
@@ -1245,7 +1263,7 @@ bool EditorApplication::StatsButtonClicked(const CEGUI::EventArgs &e)
            +"    Object, Light & Item references: "+ IntToString(ObjectData::GetSingleton().NumberOfReferences())
            +"\n  Journal:\n"
            +"    quests: "+ IntToString(Journal::GetSingleton().NumberOfDistinctQuests())
-           +"    entries: "+ IntToString(Journal::GetSingleton().NumberOfEntries()));
+           +"\n    entries: "+ IntToString(Journal::GetSingleton().NumberOfEntries()));
   return true;
 }
 
@@ -4246,7 +4264,6 @@ bool EditorApplication::LandscapeFrameRadioButtonClicked(const CEGUI::EventArgs 
 
 bool EditorApplication::LandscapeFrameColourChanged(const CEGUI::EventArgs &e)
 {
-  //not implemented yet
   const CEGUI::WindowEventArgs& winevent = static_cast<const CEGUI::WindowEventArgs&> (e);
   if (winevent.window!=NULL)
   {
@@ -4265,7 +4282,134 @@ bool EditorApplication::LandscapeFrameColourChanged(const CEGUI::EventArgs &e)
     }
   } //window
   return true;
-  //not implemented yet
+}
+
+bool EditorApplication::JournalClicked(const CEGUI::EventArgs &e)
+{
+  showJournalWindow();
+  return true;
+}
+
+void EditorApplication::showJournalWindow(void)
+{
+  //not completely implemented yet
+  CEGUI::FrameWindow* frame = NULL;
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+
+  if (winmgr.isWindowPresent("Editor/JournalFrame"))
+  {
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.getWindow("Editor/JournalFrame"));
+  }
+  else
+  {
+    //create it (frame first)
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.createWindow("TaharezLook/FrameWindow", "Editor/JournalFrame"));
+    frame->setInheritsAlpha(false);
+    frame->setTitleBarEnabled(true);
+    frame->setText("Journal Editor");
+    frame->setCloseButtonEnabled(false);
+    frame->setFrameEnabled(true);
+    frame->setSizingEnabled(true);
+    winmgr.getWindow("Editor/Root")->addChildWindow(frame);
+
+    CEGUI::MultiColumnList* mcl;
+    mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.createWindow("TaharezLook/MultiColumnList", "Editor/JournalFrame/EntryList"));
+
+    mcl->setSize(CEGUI::UVector2(CEGUI::UDim(0.7, 0), CEGUI::UDim(0.9, 0)));
+    mcl->setPosition(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.05, 0)));
+    mcl->addColumn("Index", 0, CEGUI::UDim(0.2, 0));
+    mcl->addColumn("Text", 1, CEGUI::UDim(0.75, 0));
+    mcl->setUserColumnDraggingEnabled(false);
+    frame->addChildWindow(mcl);
+
+    CEGUI::Combobox* CBox = static_cast<CEGUI::Combobox*> (winmgr.createWindow("TaharezLook/Combobox", "Editor/JournalFrame/QuestCombobox"));
+    CBox->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.5, 0)));
+    CBox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.025, 0), CEGUI::UDim(0.07, 0)));
+    CBox->setReadOnly(true);
+    frame->addChildWindow(CBox);
+    CEGUI::ListboxTextItem* lbi;
+    lbi = new CEGUI::ListboxTextItem("(none)");
+    CBox->addItem(lbi);
+    std::vector<std::string> qVec = Journal::GetSingleton().listAllQuestIDs();
+    unsigned int i;
+    for (i=0; i<qVec.size(); ++i)
+    {
+      lbi = new CEGUI::ListboxTextItem(qVec[i]);
+      CBox->addItem(lbi);
+    }//for
+
+    CEGUI::Window* button = winmgr.createWindow("TaharezLook/Button", "Editor/JournalFrame/NewQuestButton");
+    button->setText("New Quest");
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.1, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.025, 0), CEGUI::UDim(0.2, 0)));
+    frame->addChildWindow(button);
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplication::JournalFrameNewQuestClicked, this));
+    button = winmgr.createWindow("TaharezLook/Button", "Editor/JournalFrame/DeleteQuestButton");
+    button->setText("Delete Quest");
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.1, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.025, 0), CEGUI::UDim(0.35, 0)));
+    frame->addChildWindow(button);
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplication::JournalFrameDeleteQuestClicked, this));
+    button = winmgr.createWindow("TaharezLook/Button", "Editor/JournalFrame/RenameQuestButton");
+    button->setText("Rename Quest");
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.1, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.025, 0), CEGUI::UDim(0.50, 0)));
+    frame->addChildWindow(button);
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplication::JournalFrameRenameQuestClicked, this));
+    button = winmgr.createWindow("TaharezLook/Button", "Editor/JournalFrame/CloseButton");
+    button->setText("Close");
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.1, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.025, 0), CEGUI::UDim(0.85, 0)));
+    frame->addChildWindow(button);
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplication::JournalFrameCloseClicked, this));
+  }
+  frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.15, 0)));
+  frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.7, 0), CEGUI::UDim(0.7, 0)));
+  frame->moveToFront();
+  //not completely implemented yet
+}
+
+bool EditorApplication::JournalFrameNewQuestClicked(const CEGUI::EventArgs &e)
+{
+  //we just a quest with generic ID and name to the list
+  unsigned int i = 0;
+  while (Journal::GetSingleton().hasQuest("new_quest"+IntToString(i)))
+  {
+    ++i;
+  }//while
+  Journal::GetSingleton().setQuestName("new_quest"+IntToString(i),
+                                       "new quest #"+IntToString(i));
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  CEGUI::Combobox* CBox = static_cast<CEGUI::Combobox*> (winmgr.getWindow("Editor/JournalFrame/QuestCombobox"));
+  CEGUI::ListboxTextItem* lbi = new CEGUI::ListboxTextItem("new_quest"+IntToString(i));
+  CBox->addItem(lbi);
+  return true;
+}
+
+bool EditorApplication::JournalFrameDeleteQuestClicked(const CEGUI::EventArgs &e)
+{
+  //not completely implemented yet
+  return true;
+}
+
+bool EditorApplication::JournalFrameRenameQuestClicked(const CEGUI::EventArgs &e)
+{
+  //not completely implemented yet
+  return true;
+}
+
+bool EditorApplication::JournalFrameCloseClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/JournalFrame"))
+  {
+    winmgr.destroyWindow("Editor/JournalFrame");
+  }
+  return true;
 }
 
 }//namespace

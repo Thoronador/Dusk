@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-01-30
+ Date:    2010-02-10
  Purpose: Journal Singleton class
           holds all possible journal entries the player can get during the game
 
@@ -9,6 +9,7 @@
      - 2010-01-30 (rev 161) - update to allow quest names (I guess players do
                               prefer meaningful names over IDs. ;-) )
                             - hasQuest(), setQuestName(), getQuestName() added
+     - 2010-02-10 (rev 172) - fixed a bug in hasQuest()
 
  ToDo list:
      - ???

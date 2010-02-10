@@ -140,6 +140,9 @@ protected:
 	//window for landscape editing
 	void showLandscapeEditWindow(void);
 
+	//window for journal entries
+	void showJournalWindow(void);
+
 	//closing all windows for editing and creation of objects
 	void closeAllEditWindows(void);
 
@@ -165,6 +168,8 @@ protected:
 	bool ModeLandDownClicked(const CEGUI::EventArgs &e);
 	bool ModeLandColourClicked(const CEGUI::EventArgs &e);
 	bool ModeListClicked(const CEGUI::EventArgs &e);
+
+	bool JournalClicked(const CEGUI::EventArgs &e);
 
 	//callbacks for buttons
 	bool LoadFrameCancelClicked(const CEGUI::EventArgs &e);
@@ -246,6 +251,12 @@ protected:
 	bool LandscapeFrameFinishClicked(const CEGUI::EventArgs &e);
 	bool LandscapeFrameRadioButtonClicked(const CEGUI::EventArgs &e);
 	bool LandscapeFrameColourChanged(const CEGUI::EventArgs &e);
+
+	//callbacks for Journal window
+	bool JournalFrameNewQuestClicked(const CEGUI::EventArgs &e);
+	bool JournalFrameDeleteQuestClicked(const CEGUI::EventArgs &e);
+	bool JournalFrameRenameQuestClicked(const CEGUI::EventArgs &e);
+	bool JournalFrameCloseClicked(const CEGUI::EventArgs &e);
 
 	//scene query wrapper
 	DuskObject* GetObjectAtMouse(const CEGUI::Point& pt);

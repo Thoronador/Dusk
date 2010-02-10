@@ -117,7 +117,7 @@ bool Journal::hasQuest(const std::string& questID) const
   { //we don't allow empty IDs, that's why we don't have them
     return false;
   }
-  return (m_Entries.find(questID)==m_Entries.end());
+  return (m_Entries.find(questID)!=m_Entries.end());
 }
 
 std::string Journal::getText(const std::string& JID, const unsigned int jIndex) const
