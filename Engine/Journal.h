@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-02-10
+ Date:    2010-02-18
  Purpose: Journal Singleton class
           holds all possible journal entries the player can get during the game
 
@@ -10,6 +10,7 @@
                               prefer meaningful names over IDs. ;-) )
                             - hasQuest(), setQuestName(), getQuestName() added
      - 2010-02-10 (rev 172) - fixed a bug in hasQuest()
+     - 2010-02-18 (rev 173) - deleteQuest() and deleteEntry() added
 
  ToDo list:
      - ???
@@ -145,6 +146,16 @@ class Journal
        no quest with that ID is present
     */
     std::string getQuestName(const std::string& questID) const;
+
+    /* tries to delete the quest with the given quest ID and returns true, if
+       such a quest was deleted. Otherwise, false is returned.
+    */
+    bool deleteQuest(const std::string& questID);
+
+    /* tries to delete the entry with the given quest ID and index. Returns true, if
+       such an entry was deleted. Otherwise, false is returned.
+    */
+    bool deleteEntry(const std::string& questID, const unsigned int jIndex);
 
     /* returns the number of present journal entries (for statistics only) */
     unsigned int NumberOfEntries() const;

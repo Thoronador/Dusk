@@ -68,6 +68,9 @@ protected:
     std::string ID_of_item_to_edit;
     std::string ID_of_light_to_edit;
 
+    //journal
+    std::string ID_of_quest_to_delete;
+
     //mouse handling data
     mouse_record mouse;
 
@@ -142,6 +145,7 @@ protected:
 
 	//window for journal entries
 	void showJournalWindow(void);
+	void showJournalConfirmDeleteQuestWindow(void);
 
 	//closing all windows for editing and creation of objects
 	void closeAllEditWindows(void);
@@ -157,6 +161,9 @@ protected:
 	//clear items/ lights/ objects in catalogue
 	//  (real data is not affected, methods only delete all shown new rows catalogue)
 	void ClearCatalogue(void);
+
+	//loads all quest IDs into list/ combobox in JournalFrame
+	void UpdateQuestList(void);
 
 	//callbacks for menu items
 	bool LoadButtonClicked(const CEGUI::EventArgs &e);
@@ -257,6 +264,10 @@ protected:
 	bool JournalFrameDeleteQuestClicked(const CEGUI::EventArgs &e);
 	bool JournalFrameRenameQuestClicked(const CEGUI::EventArgs &e);
 	bool JournalFrameCloseClicked(const CEGUI::EventArgs &e);
+
+	//callbacks for quest deletion window
+	bool JournalDeleteQuestFrameYesClicked(const CEGUI::EventArgs &e);
+	bool JournalDeleteQuestFrameNoClicked(const CEGUI::EventArgs &e);
 
 	//scene query wrapper
 	DuskObject* GetObjectAtMouse(const CEGUI::Point& pt);

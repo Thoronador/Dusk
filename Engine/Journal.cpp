@@ -177,6 +177,36 @@ std::string Journal::getQuestName(const std::string& questID) const
   return iter->second.QuestName;
 }
 
+bool Journal::deleteQuest(const std::string& questID)
+{
+  std::map<const std::string, QuestRecord>::iterator iter;
+  iter = m_Entries.find(questID);
+  if (iter==m_Entries.end())
+  {
+    return false; //nothing to delete found
+  }
+  m_Entries.erase(iter);
+  return true;
+}
+
+bool Journal::deleteEntry(const std::string& questID, const unsigned int jIndex)
+{
+  std::map<const std::string, QuestRecord>::iterator iter;
+  iter = m_Entries.find(questID);
+  if (iter==m_Entries.end())
+  {
+    return false; //nothing to delete found
+  }
+  std::map<const unsigned int, JournalRecord>::iterator indexIter;
+  indexIter = iter->second.Indices.find(jIndex);
+  if (indexIter==iter->second.Indices.end())
+  {
+    return false;
+  }
+  iter->second.Indices.erase(indexIter);
+  return true;
+}
+
 unsigned int Journal::NumberOfEntries() const
 {
   return m_TotalEntries;
