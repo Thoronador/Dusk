@@ -164,6 +164,7 @@ protected:
 
 	//loads all quest IDs into list/ combobox in JournalFrame
 	void UpdateQuestList(void);
+	void UpdateQuestEntryList(const std::string& questID);
 
 	//callbacks for menu items
 	bool LoadButtonClicked(const CEGUI::EventArgs &e);
@@ -186,6 +187,7 @@ protected:
 	bool ObjectTabClicked(const CEGUI::EventArgs &e);
 	bool ItemTabClicked(const CEGUI::EventArgs &e);
 	bool LightTabClicked(const CEGUI::EventArgs &e);
+	bool JournalEntryListClicked(const CEGUI::EventArgs &e);
 
 	//callbacks for popup menus
 	bool ObjectNewClicked(const CEGUI::EventArgs &e);
@@ -199,6 +201,10 @@ protected:
 	bool LightNewClicked(const CEGUI::EventArgs &e);
 	bool LightEditClicked(const CEGUI::EventArgs &e);
 	bool LightDeleteClicked(const CEGUI::EventArgs &e);
+
+	bool JournalEntryNewClicked(const CEGUI::EventArgs &e);
+	bool JournalEntryEditClicked(const CEGUI::EventArgs &e);
+	bool JournalEntryDeleteClicked(const CEGUI::EventArgs &e);
 
 	//callbacks of window for creating new objects
 	bool ObjectNewFrameCancelClicked(const CEGUI::EventArgs &e);
@@ -264,6 +270,7 @@ protected:
 	bool JournalFrameDeleteQuestClicked(const CEGUI::EventArgs &e);
 	bool JournalFrameRenameQuestClicked(const CEGUI::EventArgs &e);
 	bool JournalFrameCloseClicked(const CEGUI::EventArgs &e);
+	bool JournalFrameComboboxChanged(const CEGUI::EventArgs &e);
 
 	//callbacks for quest deletion window
 	bool JournalDeleteQuestFrameYesClicked(const CEGUI::EventArgs &e);

@@ -13,7 +13,6 @@
 namespace Dusk
 {
 
-const CEGUI::colour cSelectionColour = CEGUI::colour(65.0f/255.0f, 105.0f/255.0f, 225.0f/255.0f, 0.5f);
 const float cRotationFactor = 2.5f;
 const float cMovementFactor = 3.5f;
 const float cTerraformDelta = 1.25f;
@@ -407,7 +406,6 @@ void EditorApplication::CreateCEGUICatalogue(void)
   mcl->setUserColumnDraggingEnabled(false);
   pane->addChildWindow(mcl);
   mcl->subscribeEvent(CEGUI::Window::EventMouseButtonUp, CEGUI::Event::Subscriber(&EditorApplication::ObjectTabClicked, this));
-  //mcl->subscribeEvent(CEGUI::Window::EventMouseButtonDown, CEGUI::Event::Subscriber(&EditorApplication::ObjectListMouseDown, this));
 
   //add some random data
   addObjectRecordToCatalogue("The_ID", "flora/Oak.mesh");
@@ -601,7 +599,7 @@ void EditorApplication::UpdateLoadWindowFiles(const std::string Directory)
     LoadFrameFiles = get_DirectoryFileList(Directory);
     unsigned int i;
     std::cout << "Files in directory \""<<Directory<<"\":\n";
-    for (i=0; i<LoadFrameFiles.size(); i++)
+    for (i=0; i<LoadFrameFiles.size(); ++i)
     {
       std::cout << "  "<<LoadFrameFiles.at(i).FileName<<"; directory: ";
       if (LoadFrameFiles.at(i).IsDirectory)
@@ -626,6 +624,7 @@ void EditorApplication::UpdateLoadWindowFiles(const std::string Directory)
     for (i=0; i<LoadFrameFiles.size(); i++)
     {
       lbi = new CEGUI::ListboxTextItem(LoadFrameFiles.at(i).FileName);
+      lbi->setSelectionBrushImage("TaharezLook", "ListboxSelectionBrush");
       FileBox->addItem(lbi);
     }//for
     FileBox->requestRedraw();
@@ -650,7 +649,7 @@ void EditorApplication::RefreshObjectList(void)
   while (first != end)
   {
     addObjectRecordToCatalogue(first->first, first->second);
-    first++;
+    ++first;
   }//while
   return;
 }
@@ -674,7 +673,7 @@ void EditorApplication::RefreshItemList(void)
   while (first != end)
   {
     addItemRecordToCatalogue(first->first, first->second);
-    first++;
+    ++first;
   }//while
   return;
 }
@@ -1151,19 +1150,19 @@ void EditorApplication::addItemRecordToCatalogue(const std::string& ID, const It
   CEGUI::ListboxItem *lbi;
   unsigned int row;
   lbi = new CEGUI::ListboxTextItem(ID);
-  lbi->setSelectionColours(cSelectionColour);
+  lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
   row = mcl->addRow(lbi, 0);
   lbi = new CEGUI::ListboxTextItem(ItemData.Name);
-  lbi->setSelectionColours(cSelectionColour);
+  lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
   mcl->setItem(lbi, 1, row);
   lbi = new CEGUI::ListboxTextItem(FloatToString(ItemData.weight));
-  lbi->setSelectionColours(cSelectionColour);
+  lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
   mcl->setItem(lbi, 2, row);
   lbi = new CEGUI::ListboxTextItem(IntToString(ItemData.value));
-  lbi->setSelectionColours(cSelectionColour);
+  lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
   mcl->setItem(lbi, 3, row);
   lbi = new CEGUI::ListboxTextItem(ItemData.Mesh);
-  lbi->setSelectionColours(cSelectionColour);
+  lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
   mcl->setItem(lbi, 4, row);
 }
 
@@ -1178,22 +1177,22 @@ void EditorApplication::addLightRecordToCatalogue(const std::string& ID, const L
   CEGUI::ListboxItem *lbi;
   unsigned int row;
   lbi = new CEGUI::ListboxTextItem(ID);
-  lbi->setSelectionColours(cSelectionColour);
+  lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
   row = mcl->addRow(lbi, 0);
   lbi = new CEGUI::ListboxTextItem(FloatToString(Record.red));
-  lbi->setSelectionColours(cSelectionColour);
+  lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
   mcl->setItem(lbi, 1, row);
   lbi = new CEGUI::ListboxTextItem(FloatToString(Record.green));
-  lbi->setSelectionColours(cSelectionColour);
+  lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
   mcl->setItem(lbi, 2, row);
   lbi = new CEGUI::ListboxTextItem(FloatToString(Record.blue));
-  lbi->setSelectionColours(cSelectionColour);
+  lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
   mcl->setItem(lbi, 3, row);
   lbi = new CEGUI::ListboxTextItem(FloatToString(Record.radius));
-  lbi->setSelectionColours(cSelectionColour);
+  lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
   mcl->setItem(lbi, 4, row);
   lbi = new CEGUI::ListboxTextItem(OgreLightTypeToString(Record.type));
-  lbi->setSelectionColours(cSelectionColour);
+  lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
   mcl->setItem(lbi, 5, row);
 }
 
@@ -1208,10 +1207,10 @@ void EditorApplication::addObjectRecordToCatalogue(const std::string& ID, const 
   CEGUI::ListboxItem *lbi;
   unsigned int row;
   lbi = new CEGUI::ListboxTextItem(ID);
-  lbi->setSelectionColours(cSelectionColour);
+  lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
   row = mcl->addRow(lbi, 0);
   lbi = new CEGUI::ListboxTextItem(Mesh);
-  lbi->setSelectionColours(cSelectionColour);
+  lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
   mcl->setItem(lbi, 1, row);
 }
 
@@ -1389,11 +1388,9 @@ bool EditorApplication::ObjectTabClicked(const CEGUI::EventArgs &e)
     }//swi
     if (mea.button == CEGUI::RightButton)
     {
-      float pu_x, pu_y;
-      CEGUI::Rect mcl_rect = winmgr.getWindow("Editor/Catalogue/Tab/Object/List")->getPixelRect();
-      pu_x = (mea.position.d_x-mcl_rect.d_left)/mcl_rect.getWidth();
-      pu_y = (mea.position.d_y-mcl_rect.d_top)/mcl_rect.getHeight();
-      //std::cout << "Debug: pu position: x: "<<pu_x<<"; y: "<<pu_y<<"\n";
+      const CEGUI::Rect mcl_rect = winmgr.getWindow("Editor/Catalogue/Tab/Object/List")->getPixelRect();
+      const float pu_x = (mea.position.d_x-mcl_rect.d_left)/mcl_rect.getWidth();
+      const float pu_y = (mea.position.d_y-mcl_rect.d_top)/mcl_rect.getHeight();
       popup->setPosition(CEGUI::UVector2(CEGUI::UDim(pu_x, 0), CEGUI::UDim(pu_y, 0)));
       popup->openPopupMenu();
     }
@@ -1414,10 +1411,9 @@ bool EditorApplication::ItemTabClicked(const CEGUI::EventArgs &e)
     const CEGUI::MouseEventArgs& mea = static_cast<const CEGUI::MouseEventArgs&> (e);
     if (mea.button == CEGUI::RightButton)
     {
-      float pu_x, pu_y;
-      CEGUI::Rect mcl_rect = winmgr.getWindow("Editor/Catalogue/Tab/Item/List")->getPixelRect();
-      pu_x = (mea.position.d_x-mcl_rect.d_left)/mcl_rect.getWidth();
-      pu_y = (mea.position.d_y-mcl_rect.d_top)/mcl_rect.getHeight();
+      const CEGUI::Rect mcl_rect = winmgr.getWindow("Editor/Catalogue/Tab/Item/List")->getPixelRect();
+      const float pu_x = (mea.position.d_x-mcl_rect.d_left)/mcl_rect.getWidth();
+      const float pu_y = (mea.position.d_y-mcl_rect.d_top)/mcl_rect.getHeight();
       popup->setPosition(CEGUI::UVector2(CEGUI::UDim(pu_x, 0), CEGUI::UDim(pu_y, 0)));
       popup->openPopupMenu();
     }
@@ -1438,10 +1434,9 @@ bool EditorApplication::LightTabClicked(const CEGUI::EventArgs &e)
     const CEGUI::MouseEventArgs& mea = static_cast<const CEGUI::MouseEventArgs&> (e);
     if (mea.button == CEGUI::RightButton)
     {
-      float pu_x, pu_y;
-      CEGUI::Rect mcl_rect = winmgr.getWindow("Editor/Catalogue/Tab/Light/List")->getPixelRect();
-      pu_x = (mea.position.d_x-mcl_rect.d_left)/mcl_rect.getWidth();
-      pu_y = (mea.position.d_y-mcl_rect.d_top)/mcl_rect.getHeight();
+      const CEGUI::Rect mcl_rect = winmgr.getWindow("Editor/Catalogue/Tab/Light/List")->getPixelRect();
+      const float pu_x = (mea.position.d_x-mcl_rect.d_left)/mcl_rect.getWidth();
+      const float pu_y = (mea.position.d_y-mcl_rect.d_top)/mcl_rect.getHeight();
       popup->setPosition(CEGUI::UVector2(CEGUI::UDim(pu_x, 0), CEGUI::UDim(pu_y, 0)));
       popup->openPopupMenu();
     }
@@ -4331,12 +4326,37 @@ void EditorApplication::showJournalWindow(void)
     mcl->addColumn("Index", 0, CEGUI::UDim(0.2, 0));
     mcl->addColumn("Text", 1, CEGUI::UDim(0.75, 0));
     mcl->setUserColumnDraggingEnabled(false);
+    mcl->subscribeEvent(CEGUI::Window::EventMouseButtonUp, CEGUI::Event::Subscriber(&EditorApplication::JournalEntryListClicked, this));
     frame->addChildWindow(mcl);
 
+    //popup for quest entries
+    CEGUI::PopupMenu* popup;
+    popup = static_cast<CEGUI::PopupMenu*> (winmgr.createWindow("TaharezLook/PopupMenu", "Editor/JournalFrame/EntryPopUp"));
+    popup->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.3, 0)));
+    popup->setPosition(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.3, 0)));
+    CEGUI::MenuItem* menu_item;
+    menu_item = static_cast<CEGUI::MenuItem*> (winmgr.createWindow("TaharezLook/MenuItem", "Editor/JournalFrame/EntryPopUp/New"));
+    menu_item->setText("New entry...");
+    menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::JournalEntryNewClicked, this));
+    popup->addItem(menu_item);
+    menu_item = static_cast<CEGUI::MenuItem*> (winmgr.createWindow("TaharezLook/MenuItem", "Editor/JournalFrame/EntryPopUp/Edit"));
+    menu_item->setText("Edit selected entry...");
+    menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::JournalEntryEditClicked, this));
+    popup->addItem(menu_item);
+    menu_item = static_cast<CEGUI::MenuItem*> (winmgr.createWindow("TaharezLook/MenuItem", "Editor/JournalFrame/EntryPopUp/Delete"));
+    menu_item->setText("Delete selected entry");
+    menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::JournalEntryDeleteClicked, this));
+    popup->addItem(menu_item);
+    mcl->addChildWindow(popup);
+    popup->closePopupMenu();
+
+    //combobox/ dropdown for quest IDs
     CEGUI::Combobox* CBox = static_cast<CEGUI::Combobox*> (winmgr.createWindow("TaharezLook/Combobox", "Editor/JournalFrame/QuestCombobox"));
     CBox->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.5, 0)));
     CBox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.025, 0), CEGUI::UDim(0.07, 0)));
     CBox->setReadOnly(true);
+    CBox->subscribeEvent(CEGUI::Combobox::EventListSelectionChanged,
+            CEGUI::Event::Subscriber(&EditorApplication::JournalFrameComboboxChanged, this));
     frame->addChildWindow(CBox);
 
     UpdateQuestList();
@@ -4542,6 +4562,86 @@ void EditorApplication::UpdateQuestList(void)
     }//for
     CBox->setText("");
   }
+}
+
+void EditorApplication::UpdateQuestEntryList(const std::string& questID)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/JournalFrame/EntryList"))
+  {
+    CEGUI::MultiColumnList* mcl;
+    mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/JournalFrame/EntryList"));
+    mcl->resetList();
+    std::vector<unsigned int> indexVec;
+    indexVec.clear();
+    indexVec = Journal::GetSingleton().listAllIndicesOfQuest(questID);
+    CEGUI::ListboxItem *lbi;
+    unsigned int i, row;
+    for (i=0; i<indexVec.size(); ++i)
+    {
+      lbi = new CEGUI::ListboxTextItem(IntToString(indexVec[i]));
+      lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
+      row = mcl->addRow(lbi, 0);
+      lbi = new CEGUI::ListboxTextItem(Journal::GetSingleton().getText(questID, indexVec[i]));
+      lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
+      mcl->setItem(lbi, 1, row);
+    }//for
+  }
+}
+
+bool EditorApplication::JournalFrameComboboxChanged(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/JournalFrame/QuestCombobox"))
+  {
+    UpdateQuestEntryList(winmgr.getWindow("Editor/JournalFrame/QuestCombobox")->getText().c_str());
+  }
+  return true;
+}
+
+bool EditorApplication::JournalEntryListClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (!winmgr.isWindowPresent("Editor/JournalFrame/EntryPopUp"))
+  {
+    return true;
+  }
+  CEGUI::PopupMenu * popup = static_cast<CEGUI::PopupMenu*> (winmgr.getWindow("Editor/JournalFrame/EntryPopUp"));
+  if (!popup->isPopupMenuOpen())
+  {
+    const CEGUI::MouseEventArgs& mea = static_cast<const CEGUI::MouseEventArgs&> (e);
+    if (mea.button == CEGUI::RightButton)
+    {
+      const CEGUI::Rect mcl_rect = winmgr.getWindow("Editor/JournalFrame/EntryList")->getPixelRect();
+      const float pu_x = (mea.position.d_x-mcl_rect.d_left)/mcl_rect.getWidth();
+      const float pu_y = (mea.position.d_y-mcl_rect.d_top)/mcl_rect.getHeight();
+      popup->setPosition(CEGUI::UVector2(CEGUI::UDim(pu_x, 0), CEGUI::UDim(pu_y, 0)));
+      popup->openPopupMenu();
+    }
+  }
+  else
+  {
+    popup->closePopupMenu();
+  }
+  return true;
+}
+
+bool EditorApplication::JournalEntryNewClicked(const CEGUI::EventArgs &e)
+{
+  //not implemented yet
+  return true;
+}
+
+bool EditorApplication::JournalEntryEditClicked(const CEGUI::EventArgs &e)
+{
+  //not implemented yet
+  return true;
+}
+
+bool EditorApplication::JournalEntryDeleteClicked(const CEGUI::EventArgs &e)
+{
+  //not implemented yet
+  return true;
 }
 
 }//namespace
