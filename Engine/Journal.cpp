@@ -204,6 +204,7 @@ bool Journal::deleteEntry(const std::string& questID, const unsigned int jIndex)
     return false;
   }
   iter->second.Indices.erase(indexIter);
+  --m_TotalEntries;
   return true;
 }
 
@@ -252,6 +253,23 @@ std::vector<unsigned int> Journal::listAllIndicesOfQuest(const std::string& jID,
     ++index_iter;
   }//while
   return uintVec;
+}
+
+unsigned int Journal::getMaximumAvailabeIndex(const std::string& jID) const
+{
+  std::map<const std::string, QuestRecord>::const_iterator iter;
+  iter = m_Entries.find(jID);
+  if (iter==m_Entries.end())
+  {
+    return 0;
+  }
+  if (iter->second.Indices.empty())
+  {
+    return 0;
+  }
+  std::map<const unsigned int, JournalRecord>::const_reverse_iterator index_iter;
+  index_iter = iter->second.Indices.rbegin();
+  return index_iter->first;
 }
 
 bool Journal::SaveAllToStream(std::ofstream& output) const

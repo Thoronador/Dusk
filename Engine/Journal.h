@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-02-18
+ Date:    2010-02-25
  Purpose: Journal Singleton class
           holds all possible journal entries the player can get during the game
 
@@ -11,6 +11,7 @@
                             - hasQuest(), setQuestName(), getQuestName() added
      - 2010-02-10 (rev 172) - fixed a bug in hasQuest()
      - 2010-02-18 (rev 173) - deleteQuest() and deleteEntry() added
+     - 2010-02-25 (rev 175) - getMaximumAvailabeIndex() added
 
  ToDo list:
      - ???
@@ -183,6 +184,11 @@ class Journal
                         should be included in the list (true) or not (false)
     */
     std::vector<unsigned int> listAllIndicesOfQuest(const std::string& jID, const bool listDeleted=false) const;
+
+    /* returns the highest index among the entries for quest jID, or zero if no
+       quest with that ID is present
+    */
+    unsigned int getMaximumAvailabeIndex(const std::string& jID) const;
 
     /* tries to save all data to the stream and returns true on success */
     bool SaveAllToStream(std::ofstream& output) const;
