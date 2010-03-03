@@ -1,11 +1,13 @@
 #include "Dialogue.h"
 #include "DuskConstants.h"
+#include "LuaEngine.h"
 
 namespace Dusk
 {
 
 const uint8 Dialogue::cGreetingFlag = 1;
 const uint8 Dialogue::cDialogueFlag = 2;
+const std::string Dialogue::LuaDialogueConditionFunction = "DialogueConditional";
 
 bool Dialogue::LineRecord::SaveToStream(std::ofstream& out) const
 {
@@ -28,6 +30,18 @@ bool Dialogue::LineRecord::SaveToStream(std::ofstream& out) const
     out.write((char*) &(Conditions.ItemOp), sizeof(CompareOperation));
     out.write((char*) &(Conditions.ItemAmount), sizeof(unsigned int));
   }
+  // -- ScriptedCondition
+  if (Conditions.ScriptedCondition==NULL)
+  {
+    len = 0;
+    out.write((char*) &len, sizeof(unsigned int));
+  }
+  else
+  { //there is a script, write it out
+    len = Conditions.ScriptedCondition->getStringRepresentation().length();
+    out.write(Conditions.ScriptedCondition->getStringRepresentation().c_str(),
+              len);
+  }
   //choices
   len = Choices.size();
   out.write((char*) &len, sizeof(unsigned int));
@@ -36,6 +50,17 @@ bool Dialogue::LineRecord::SaveToStream(std::ofstream& out) const
     len = Choices[i].length();
     out.write((char*) &len, sizeof(unsigned int));
     out.write(Choices[i].c_str(), len);
+  }
+  //result script
+  if (ResultScript==NULL)
+  {
+    len = 0;
+    out.write((char*) &len, sizeof(unsigned int));
+  }
+  else
+  {
+    len = ResultScript->getStringRepresentation().length();
+    out.write(ResultScript->getStringRepresentation().c_str(), len);
   }
   return out.good();
 }
@@ -116,6 +141,35 @@ bool Dialogue::LineRecord::LoadFromStream(std::ifstream& inp)
     Conditions.ItemOp = copGreaterEqual;
     Conditions.ItemAmount = 0;
   }
+  // -- ScriptedCondition
+  inp.read((char*) &len, sizeof(unsigned int));
+  if (len==0)
+  {
+    Conditions.ScriptedCondition = NULL;
+  }
+  else
+  {
+    //length check to avoid allocation of to much memory and running out of memory
+    if (len>100 /*maximum lines*/ * 80 /*characters per line*/)
+    {
+      std::cout << "LineRecord::LoadFromStream: ERROR: Condition Script is to "
+                << "long ("<<len<<" characters). Maximum is 8000 characters.\n";
+      return false;
+    }
+    char* scriptData = new char[len+1];
+    inp.read(scriptData, len);
+    scriptData[len] = '\0';
+    if (!(inp.good()))
+    {
+      std::cout << "LineRecord::LoadFromStream: ERROR: Error while reading "
+                << "Script text from stream.\n";
+      delete[] scriptData;
+      return false;
+    }//if
+    Conditions.ScriptedCondition = new Script(scriptData);
+    delete[] scriptData;
+  }
+
   //choices
   unsigned int choices_size = 0, i;
   inp.read((char*) choices_size, sizeof(unsigned int));
@@ -140,6 +194,36 @@ bool Dialogue::LineRecord::LoadFromStream(std::ifstream& inp)
     }
     Choices.push_back(std::string(buffer));
   }//for
+
+  //result script
+  inp.read((char*) &len, sizeof(unsigned int));
+  if (len==0)
+  {
+    ResultScript = NULL;
+  }
+  else
+  {
+    //length check to avoid allocation of to much memory + running out of memory
+    if (len>100 /*maximum lines*/ * 80 /*characters per line*/)
+    {
+      std::cout << "LineRecord::LoadFromStream: ERROR: Result Script is to "
+                << "long ("<<len<<" characters). Maximum is 8000 characters.\n";
+      return false;
+    }
+    char* scriptData = new char[len+1];
+    inp.read(scriptData, len);
+    scriptData[len] = '\0';
+    if (!(inp.good()))
+    {
+      std::cout << "LineRecord::LoadFromStream: ERROR: Error while reading "
+                << "Result Script text from stream.\n";
+      delete[] scriptData;
+      return false;
+    }//if
+    ResultScript = new Script(scriptData);
+    delete[] scriptData;
+  }
+
   return inp.good();
 }
 
@@ -307,6 +391,22 @@ void Dialogue::AddLine(const std::string& LineID, const LineRecord& lr)
   }
 }
 
+bool Dialogue::ProcessResultScript(const std::string& LineID)
+{
+  std::map<std::string, LineRecord>::const_iterator iter;
+  iter = m_DialogueLines.find(LineID);
+  if (iter==m_DialogueLines.end())
+  {
+    return false;
+  }
+  if (iter->second.ResultScript==NULL)
+  {
+    //no script present, done :)
+    return true;
+  }
+  return LuaEngine::GetSingleton().runString( iter->second.ResultScript->getStringRepresentation());
+}
+
 bool Dialogue::ConditionFulfilled(const ConditionRecord& cond, const NPC* who) const
 {
   //only check if ID is set. Unset ID matches every NPC.
@@ -372,6 +472,77 @@ bool Dialogue::ConditionFulfilled(const ConditionRecord& cond, const NPC* who) c
            return false;
     }//swi
   }//ItemID
+
+  //Script
+  if (cond.ScriptedCondition!=NULL)
+  {
+    if (!cond.ScriptedCondition->isEmpty())
+    {
+      std::string errorString = "";
+      LuaEngine& Lua = LuaEngine::GetSingleton();
+      if (Lua.runString(cond.ScriptedCondition->getStringRepresentation(), &errorString))
+      {
+        //now get the function
+        lua_getglobal(Lua, LuaDialogueConditionFunction.c_str());
+        if(lua_type(Lua,-1) != LUA_TFUNCTION)
+        {
+          lua_pop(Lua,1);
+          std::cout << "Dialogue::ConditionFulfilled: ERROR: Lua does not have"
+                    << " a function named \""<<LuaDialogueConditionFunction
+                    << "\"! Condition cannot be checked, assuming failure.\n";
+          return false;
+        }
+        //run the function - zero arguments, one result, no specific errorfunc
+        const int errorCode = lua_pcall(Lua, 0, 1, 0);
+        if (errorCode!=0)
+        {
+          switch (errorCode)
+          {
+            case LUA_ERRERR:
+                 std::cout << "Dialogue::ConditionFulfilled: ERROR while "
+                           << "calling the Lua error handler function.\n";
+                 break;
+            case LUA_ERRMEM:
+                 std::cout << "Dialogue::ConditionFulfilled: ERROR: memory "
+                           << "allocation failed while trying to run the Lua "
+                           << "function.\n";
+                 break;
+            case LUA_ERRRUN:
+                 std::cout << "Dialogue::ConditionFulfilled: ERROR: Lua runtime"
+                           << " error during lua_pcall()!\n";
+                 break;
+            default: //should never happen
+                 std::cout << "Dialogue::ConditionFulfilled: unknown ERROR "
+                           << "occured during lua_pcall().\n"; break;
+          }//swi
+          std::cout << "Lua error message: " << lua_tostring(Lua, -1) << "\n";
+          return false;
+        }//if error occured
+        //now get the result
+        if (lua_type(Lua, -1) != LUA_TBOOLEAN)
+        {
+          //function did not return a boolean
+          std::cout << "Dialogue::ConditionFulfilled: script function did not "
+                    << "return a boolean value.\n";
+          lua_pop(Lua, 1);
+          return false;
+        }
+        const bool scriptResult = lua_toboolean(Lua, -1);
+        lua_pop(Lua, 1);
+        if (!scriptResult)
+        {
+          return false;
+        }
+      }
+      else
+      {
+        std::cout << "Dialogue::ConditionFulfilled: ERROR while executing "
+                  << "script!\nLua's error message is: "<< errorString <<"\n";
+        return false;
+      }
+    } //if
+  } //if
+  //Script
 
   return true;
 }

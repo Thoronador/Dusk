@@ -41,7 +41,7 @@ namespace Dusk
          *
          * @param p_string  The string representing the script.
          */
-        Script(std::string p_string = "");
+        Script(const std::string& p_string = "");
 
         /**
          * Destructor. Declared virtual so that extending classes destructors

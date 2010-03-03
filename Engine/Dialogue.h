@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-01-26
+ Date:    2010-03-03
  Purpose: Dialogue Singleton class
           holds all information about dialogues with NPCs
 
@@ -9,6 +9,8 @@
      - 2010-01-13 (rev 152) - greetings improved/ changed to be dependent on
                               the NPC's ID; documentation updated
      - 2010-01-26 (rev 159) - condition for items added
+     - 2010-03-03 (rev 176) - script condition and result scripts added
+                            - ProcessResultScript() added
 
  ToDo list:
      - extend class for more conditions
@@ -32,6 +34,7 @@
 
 #include "NPC.h"
 #include "DuskTypes.h"
+#include "Script.h"
 
 namespace Dusk
 {
@@ -61,6 +64,7 @@ class Dialogue
        std::string ItemID;
        CompareOperation ItemOp;
        unsigned int ItemAmount;
+       Script* ScriptedCondition;
        //more to come
     };
 
@@ -71,8 +75,8 @@ class Dialogue
        //std::string SpeechFile; //maybe used later for audio
        ConditionRecord Conditions; //conditions for showing that line
        std::vector<std::string> Choices; //IDs of options the player can choose
-       //Script ResultScript; //maybe used later for the script which is
-                              // executed when option was chosen/ displayed
+       Script* ResultScript; //maybe used later for the script which is
+                             // executed when option was chosen/ displayed
 
       /* Tries to save the LineRecord to the given stream and returns true on
          success, false on failure.
@@ -180,6 +184,11 @@ class Dialogue
     */
     void AddLine(const std::string& LineID, const LineRecord& lr);
 
+    /* tries to run the result script of the line with ID LineID and returns
+       true on success, false on failure
+    */
+    bool ProcessResultScript(const std::string& LineID);
+
     /* Tries to save ALL dialogue data to the given stream. Returns true on
        success, or false if an error occured.
     */
@@ -194,6 +203,9 @@ class Dialogue
        be a bit misleading at some point)
     */
     unsigned int NumberOfLines() const;
+
+    /* name of the Lua function a script has to use for dialogue conditions */
+    static const std::string LuaDialogueConditionFunction;
   private:
     /* constructor */
     Dialogue();

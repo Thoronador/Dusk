@@ -45,7 +45,7 @@ LuaEngine& LuaEngine::GetSingleton()
   return Instance;
 }
 
-bool LuaEngine::runString(const std::string& line)
+bool LuaEngine::runString(const std::string& line, std::string* err_msg)
 {
   const int errCode = lua_dostring(m_Lua, line.c_str());
   switch (errCode)
@@ -65,10 +65,18 @@ bool LuaEngine::runString(const std::string& line)
     default:
          std::cout << "LuaEngine::runString: an ERROR occured.\n"; break;
   } //swi
+  /*get lua error message, which was pushed onto stack by lua_load() or
+    lua_pcall() (they are called by macro lua_dofile)
+  */
+  std::cout << "Lua's error message: " << lua_tostring(m_Lua, -1) <<"\n";
+  if (err_msg!=NULL)
+  {
+    *err_msg = std::string(lua_tostring(m_Lua, -1));
+  }
   return false;
 }
 
-bool LuaEngine::runFile(const std::string& FileName)
+bool LuaEngine::runFile(const std::string& FileName, std::string* err_msg)
 {
   const int errCode = lua_dofile(m_Lua, FileName.c_str());
   switch (errCode)
@@ -91,6 +99,14 @@ bool LuaEngine::runFile(const std::string& FileName)
     default:
          std::cout << "LuaEngine::runFile: an ERROR occured.\n"; break;
   } //swi
+  /*get lua error message, which was pushed onto stack by lua_load() or
+    lua_pcall() (they are called by macro lua_dofile)
+  */
+  std::cout << "Lua's error message: " << lua_tostring(m_Lua, -1) <<"\n";
+  if (err_msg!=NULL)
+  {
+    *err_msg = std::string(lua_tostring(m_Lua, -1));
+  }
   return false;
 }
 

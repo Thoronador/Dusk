@@ -146,6 +146,7 @@ bool Menu::startDialogueWithNPC(NPC* who)
     m_OptionIDs.push_back("");
   }
   showDialogue(temp.Text, sv);
+  Dialogue::GetSingleton().ProcessResultScript(temp.LineID);
   m_DialoguePartner = who;
   return true;
 }
@@ -170,7 +171,7 @@ bool Menu::nextDialogueChoice(const unsigned int chosenOption)
   //end of dialogue met?
   if (chosenOption == 1 and m_OptionIDs.size()>0)
   {
-    if ( m_OptionIDs[0]=="")
+    if (m_OptionIDs[0]=="")
     {
       hideDialogue();
       m_OptionIDs.clear();
@@ -187,7 +188,8 @@ bool Menu::nextDialogueChoice(const unsigned int chosenOption)
   }
 
   Dialogue::Handle tempHandle = Dialogue::GetSingleton().GetDialogueLine(
-                                  m_OptionIDs[chosenOption], m_DialoguePartner);
+                                  m_OptionIDs[chosenOption-1], m_DialoguePartner);
+  Dialogue::GetSingleton().ProcessResultScript(m_OptionIDs[chosenOption-1]);
   if (tempHandle.Choices.size()==0)
   {
     //no more lines here... quit dialogue
@@ -215,6 +217,7 @@ bool Menu::nextDialogueChoice(const unsigned int chosenOption)
     m_OptionIDs.push_back("");
   }
   showDialogue(tempHandle.Text, sv);
+  Dialogue::GetSingleton().ProcessResultScript(tempHandle.LineID);
   return true;
 }
 

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Authors: thoronador
- Date:    2010-01-20
+ Date:    2010-03-03
  Purpose: Menu Singleton class
           Manages display of in game menues.
 
@@ -8,6 +8,7 @@
      - 2010-01-20 (rev 158) - initial version (by thoronador)
      - 2010-01-26 (rev 159) - startDialogueWithNPC() and nextDialogueChoice()
                               added to handle display of dialogue lines
+     - 2010-03-03 (rev 176) - processing of result scripts added
 
  ToDo list:
      - get a better material or texture for dialogue menu background

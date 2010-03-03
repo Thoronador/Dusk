@@ -4,7 +4,7 @@
 namespace Dusk
 {
 
-Script::Script(std::string p_string)
+Script::Script(const std::string& p_string)
 {
     m_string = p_string;
 }
