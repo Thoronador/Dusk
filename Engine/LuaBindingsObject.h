@@ -1,10 +1,11 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-02-10
+ Date:    2010-03-04
  Purpose: Lua functions/bindings for use of DuskObject class in Lua Scripts
 
  History:
      - 2010-02-10 (rev 171) - initial version (by thoronador)
+     - 2010-03-04 (rev 177) - GetNPC() moved to LuaBindingsNPC.h
 
  ToDo list:
      - ???
@@ -21,7 +22,6 @@
 namespace Dusk
 {
   int GetObject(lua_State *L);
-  int GetNPC(lua_State *L);
 
   int Enable(lua_State *L);
   int Disable(lua_State *L);

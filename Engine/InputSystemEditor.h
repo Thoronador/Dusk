@@ -87,27 +87,36 @@ namespace Dusk
         /**
          * Holds the script history.
          */
-        std::deque<Dusk::Script> myScriptHistory;
+        //std::deque<Dusk::Script> myScriptHistory;
 
         /**
          * Holds the pointer to the currently selected script history item.
          */
-        std::deque<Dusk::Script>::iterator myScriptHistoryIterator;
+        //std::deque<Dusk::Script>::iterator myScriptHistoryIterator;
 
         /**
          * Holds the output lines.
          */
         std::deque<std::string> myOutput;
 
+        /* adds a new line to the output list and removes an old one */
+        void addToOutput(const std::string& nl);
+
+        /* holds the index of the line in myOutput which is currently shown */
+        unsigned int mInputHistoryIndex;
+
         /**
          * Holds the page offset vor viewing.
          */
-        int myOutputPageOffset;
+        //int myOutputPageOffset;
 
         /**
          * Holds the lines per page.
          */
-        static const int myLinesPerPage = 16;
+        static const unsigned int myLinesPerPage = 16;
+
+        /* True, if input shall be processed by LuaEngine and not by Console */
+        bool mUseLua;
 
         /**
          * Holds the visbility state.

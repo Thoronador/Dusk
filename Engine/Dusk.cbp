@@ -176,6 +176,8 @@
 		<Unit filename="Light.h" />
 		<Unit filename="LightBase.cpp" />
 		<Unit filename="LightBase.h" />
+		<Unit filename="LuaBindingsNPC.cpp" />
+		<Unit filename="LuaBindingsNPC.h" />
 		<Unit filename="LuaBindingsObject.cpp" />
 		<Unit filename="LuaBindingsObject.h" />
 		<Unit filename="LuaBindingsSound.cpp" />

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-03-03
+ Date:    2010-03-04
  Purpose: LuaEngine Singleton class
           This class will handle (i.e. run) all Lua code from scripts.
 
@@ -10,6 +10,8 @@
      - 2010-02-09 (rev 171) - bindings for DuskObject added
      - 2010-03-03 (rev 176) - extension of runString() and runFile() for error
                               messages
+     - 2010-03-04 (rev 177) - small fix
+                            - bindings for NPC added
 
  ToDo list:
      - ???
@@ -69,7 +71,7 @@ class LuaEngine
     bool runFile(const std::string& FileName, std::string* err_msg=NULL);
 
     /* adds a script to the script queue */
-    void addScript(Dusk::Script theScript);
+    void addScript(const Dusk::Script& theScript);
 
    /* Processes the scripts on the internal queue
 

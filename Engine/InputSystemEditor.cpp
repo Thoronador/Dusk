@@ -1,6 +1,7 @@
 #include "InputSystemEditor.h"
 
 #include "Console.h"
+#include "LuaEngine.h"
 #include "API.h"
 
 namespace Dusk
@@ -37,7 +38,16 @@ InputSystemEditor::InputSystemEditor()
    myOverlay->show();
 
    visible = false;
-    m_continue = true;
+   myTextbox->hide();
+   m_continue = true;
+   mUseLua = false;
+   myOutput.clear();
+   unsigned int i;
+   for (i=0; i<myLinesPerPage; ++i)
+   {
+     myOutput.push_back("");
+   }
+   mInputHistoryIndex = myLinesPerPage;
 }
 
 InputSystemEditor::~InputSystemEditor()
@@ -68,7 +78,15 @@ bool InputSystemEditor::frameStarted(const Ogre::FrameEvent &evt)
     myBackgroundRect->setCorners(-1, 1 + height, 1 , 1 - height);
 
     // now, put all contents on the textbox
-    myTextbox->setCaption("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n> " + myInputLine);
+    //myTextbox->setCaption("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n> " + myInputLine);
+    std::string contents = "";
+    unsigned int i;
+    for (i=0; i<myOutput.size(); ++i)
+    {
+      contents += myOutput.at(i)+"\n";
+    } //for
+    contents += "> " + myInputLine;
+    myTextbox->setCaption(contents);
     return m_continue;
 }
 
@@ -81,20 +99,55 @@ bool InputSystemEditor::keyPressed (const OIS::KeyEvent &arg)
 {
     switch (arg.key)
     {
-        case OIS::KC_GRAVE:
+        case OIS::KC_F12:
             InputSystem::toggleInput();
             break;
         case OIS::KC_RETURN:
             if (myInputLine.size() > 0)
             {
-                Console::getInstance()->addScript(Script(myInputLine));
-                myInputLine.clear();
+              //check for built-in commands
+              if (myInputLine=="noconsole" or myInputLine=="lua")
+              {
+                mUseLua = true;
+              }
+              else if (myInputLine=="console" or myInputLine=="nolua")
+              {
+                mUseLua = false;
+              }
+              //dispatch input to Console or LuaEngine
+              else
+              {
+                if (mUseLua)
+                  LuaEngine::GetSingleton().addScript(Script(myInputLine));
+                else
+                  Console::getInstance()->addScript(Script(myInputLine));
+              }
+              addToOutput(myInputLine);
+              myInputLine.clear();
+              mInputHistoryIndex = myLinesPerPage;
             }
             break;
         case OIS::KC_BACK:
             if (myInputLine.size() > 0)
                 myInputLine.erase(myInputLine.size() - 1);
             break;
+        case OIS::KC_UP:
+             if (mInputHistoryIndex>0)
+               --mInputHistoryIndex;
+             myInputLine = myOutput.at(mInputHistoryIndex);
+             break;
+        case OIS::KC_DOWN:
+             if (mInputHistoryIndex<myLinesPerPage)
+               ++mInputHistoryIndex;
+             if (mInputHistoryIndex<myOutput.size())
+             {
+               myInputLine = myOutput.at(mInputHistoryIndex);
+             }
+             else
+             {
+               myInputLine = "";
+             }
+             break;
         default:
             const std::string legalchars ="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890+!\"#%&/()=?[]\\*-_.:,; ";
             if (legalchars.find((char)arg.text) != std::string::npos)
@@ -133,6 +186,13 @@ bool InputSystemEditor::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseBut
 {
 
     return true;
+}
+
+void InputSystemEditor::addToOutput(const std::string& nl)
+{
+  if (!myOutput.empty())
+    myOutput.pop_front();
+  myOutput.push_back(nl);
 }
 
 } // namespace

@@ -68,7 +68,7 @@ namespace Dusk
          * @param p_script      The script to add.
          * @return true for success;
          */
-        bool addScript (Dusk::Script p_script);
+        bool addScript(const Dusk::Script& p_script);
 
         /**
          * Processes the scripts on the internal queue
@@ -90,7 +90,7 @@ namespace Dusk
          */
         virtual ~Console();
 
-        int executeCommand (std::string);
+        int executeCommand(const std::string&);
 
         /**
          * Holds the instance of the dispatcher.

@@ -4,6 +4,7 @@
 #include "LuaBindingsSound.h"
 #include "LuaBindingsWeather.h"
 #include "LuaBindingsObject.h"
+#include "LuaBindingsNPC.h"
 
 namespace Dusk
 {
@@ -21,7 +22,7 @@ LuaEngine::LuaEngine()
     luaopen_math(m_Lua);
     luaopen_loadlib(m_Lua);
     std::cout << "LuaEngine started, running " << LUA_VERSION << ".\n";
-    lua_dostring(m_Lua, "io.write('Lua says: this is ',_VERSION,'!\n')");
+    lua_dostring(m_Lua, "io.write('Lua says: this is ',_VERSION,'!\\n')");
     registerDusk();
   }
   else
@@ -48,6 +49,7 @@ LuaEngine& LuaEngine::GetSingleton()
 bool LuaEngine::runString(const std::string& line, std::string* err_msg)
 {
   const int errCode = lua_dostring(m_Lua, line.c_str());
+  std::cout.flush();
   switch (errCode)
   {
     case 0: //all went fine here
@@ -69,6 +71,7 @@ bool LuaEngine::runString(const std::string& line, std::string* err_msg)
     lua_pcall() (they are called by macro lua_dofile)
   */
   std::cout << "Lua's error message: " << lua_tostring(m_Lua, -1) <<"\n";
+  std::cout.flush();
   if (err_msg!=NULL)
   {
     *err_msg = std::string(lua_tostring(m_Lua, -1));
@@ -110,7 +113,7 @@ bool LuaEngine::runFile(const std::string& FileName, std::string* err_msg)
   return false;
 }
 
-void LuaEngine::addScript(Dusk::Script theScript)
+void LuaEngine::addScript(const Dusk::Script& theScript)
 {
   m_ScriptQueue.push_back(theScript);
 }
@@ -143,6 +146,7 @@ void LuaEngine::registerDusk()
   registerSound(m_Lua);
   registerWeather(m_Lua);
   registerObject(m_Lua);
+  registerNPC(m_Lua);
 }
 
 } //namespace

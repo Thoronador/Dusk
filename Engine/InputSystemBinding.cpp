@@ -62,7 +62,7 @@ InputSystemBinding::~InputSystemBinding()
 
 bool InputSystemBinding::keyPressed (const OIS::KeyEvent &arg)
 {
-    if (arg.key == OIS::KC_GRAVE)
+    if (arg.key == OIS::KC_F12)
         InputSystem::toggleInput();
     else
     {

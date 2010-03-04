@@ -40,7 +40,7 @@ Console* Console::getInstance()
     return s_console;
 }
 
-bool Console::addScript (Dusk::Script p_script)
+bool Console::addScript(const Dusk::Script& p_script)
 {
     m_scriptQueue.push_back(p_script);
     return true;
@@ -70,10 +70,10 @@ int Console::processScripts (int maxEntries)
     return size;
 }
 
-int Console::executeCommand(std::string p_string)
+int Console::executeCommand(const std::string& p_string)
 {
     std::vector<std::string> command;
-    std::string::iterator iter;
+    std::string::const_iterator iter;
     std::string tmp;
     Command* com = NULL;
 

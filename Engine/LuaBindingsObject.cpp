@@ -1,7 +1,6 @@
 #include "LuaBindingsObject.h"
 #include "DuskObject.h"
 #include "ObjectData.h"
-#include "AnimationData.h"
 #include "API.h"
 
 namespace Dusk
@@ -15,18 +14,6 @@ int GetObject(lua_State *L)
     return 1;
   }
   lua_pushstring(L, "GetObject expects exactly one argument!\n");
-  lua_error(L);
-  return 0;
-}
-
-int GetNPC(lua_State *L)
-{
-  if (lua_gettop(L)==1)
-  {
-    lua_pushlightuserdata(L, AnimationData::GetSingleton().GetNPCReference(lua_tostring(L, 1)));
-    return 1;
-  }
-  lua_pushstring(L, "GetNPC expects exactly one argument!\n");
   lua_error(L);
   return 0;
 }
@@ -219,7 +206,6 @@ int SetScale(lua_State *L)
 void registerObject(lua_State *L)
 {
   lua_register(L, "GetObject", GetObject);
-  lua_register(L, "GetNPC", GetNPC);
 
   lua_register(L, "EnableObject", Enable);
   lua_register(L, "DisableObject", Disable);
