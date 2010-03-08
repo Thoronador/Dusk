@@ -1,12 +1,13 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-02-05
+ Date:    2010-03-08
  Purpose: QuestLog Singleton class
           holds all quest entries the player actually gets during the game
           (This is not to be confused with the class Journal!)
 
  History:
      - 2010-02-05 (rev 163) - initial version (by thoronador)
+     - 2010-03-08 (rev 178) - getMaximumPresentIndex() added
 
  ToDo list:
      - ???
@@ -57,6 +58,11 @@ namespace Dusk
 
       /* returns true, if the entry of quest questID and index index is present */
       bool hasQuestEntry(const std::string& questID, const unsigned int index) const;
+
+      /* returns the index of the quest entry with the highest index present in
+         the QuestLog
+      */
+      unsigned int getMaximumPresentIndex(const std::string& questID) const;
 
       /* returns the vector of all quests that have been finished yet */
       std::vector<std::string> listFinishedQuests() const;

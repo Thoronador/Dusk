@@ -80,6 +80,23 @@ bool QuestLog::hasQuestEntry(const std::string& questID, const unsigned int inde
   return (iter->second.find(index)!=iter->second.end());
 }
 
+unsigned int QuestLog::getMaximumPresentIndex(const std::string& questID) const
+{
+  std::map<std::string, std::map<unsigned int, unsigned int> >::const_iterator iter;
+  iter = m_PresentEntries.find(questID);
+  if (iter==m_PresentEntries.end())
+  {
+    return 0; //no entry found
+  }
+  std::map<unsigned int, unsigned int>::const_reverse_iterator index_iter;
+  index_iter = iter->second.rbegin();
+  if (index_iter == iter->second.rend())
+  {
+    return 0; //no entries -> should not normally happen
+  }
+  return index_iter->first;
+}
+
 std::vector<std::string> QuestLog::listFinishedQuests() const
 {
   std::vector<std::string> sv;

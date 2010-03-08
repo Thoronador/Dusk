@@ -4,7 +4,7 @@
  Purpose: Lua functions/bindings for use of NPC class in Lua Scripts
 
  History:
-     - 2010-03-04 (rev 171) - initial version (by thoronador)
+     - 2010-03-04 (rev 177) - initial version (by thoronador)
 
  ToDo list:
      - ???

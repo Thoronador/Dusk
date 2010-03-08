@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-03-04
+ Date:    2010-03-08
  Purpose: LuaEngine Singleton class
           This class will handle (i.e. run) all Lua code from scripts.
 
@@ -12,6 +12,7 @@
                               messages
      - 2010-03-04 (rev 177) - small fix
                             - bindings for NPC added
+     - 2010-03-08 (rev 178) - bindings for QuestLog added
 
  ToDo list:
      - ???

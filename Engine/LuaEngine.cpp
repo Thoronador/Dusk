@@ -5,6 +5,7 @@
 #include "LuaBindingsWeather.h"
 #include "LuaBindingsObject.h"
 #include "LuaBindingsNPC.h"
+#include "LuaBindingsQuestLog.h"
 
 namespace Dusk
 {
@@ -147,6 +148,7 @@ void LuaEngine::registerDusk()
   registerWeather(m_Lua);
   registerObject(m_Lua);
   registerNPC(m_Lua);
+  registerQuestLog(m_Lua);
 }
 
 } //namespace

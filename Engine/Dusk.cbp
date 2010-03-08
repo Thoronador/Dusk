@@ -180,6 +180,8 @@
 		<Unit filename="LuaBindingsNPC.h" />
 		<Unit filename="LuaBindingsObject.cpp" />
 		<Unit filename="LuaBindingsObject.h" />
+		<Unit filename="LuaBindingsQuestLog.cpp" />
+		<Unit filename="LuaBindingsQuestLog.h" />
 		<Unit filename="LuaBindingsSound.cpp" />
 		<Unit filename="LuaBindingsSound.h" />
 		<Unit filename="LuaBindingsWeather.cpp" />
