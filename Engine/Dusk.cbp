@@ -113,8 +113,6 @@
 		<Unit filename="Command.h" />
 		<Unit filename="CommandAssociateSound.cpp" />
 		<Unit filename="CommandAssociateSound.h" />
-		<Unit filename="CommandCreateObject.cpp" />
-		<Unit filename="CommandCreateObject.h" />
 		<Unit filename="CommandLoopSound.cpp" />
 		<Unit filename="CommandLoopSound.h" />
 		<Unit filename="CommandMediaSound.cpp" />

@@ -149,7 +149,7 @@ bool InputSystemEditor::keyPressed (const OIS::KeyEvent &arg)
              }
              break;
         default:
-            const std::string legalchars ="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890+!\"#%&/()=?[]\\*-_.:,; ";
+            const std::string legalchars ="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890+!\"#%&/()<=>?[]\\*-_.:,; ";
             if (legalchars.find((char)arg.text) != std::string::npos)
                 myInputLine += (char)arg.text;
     }

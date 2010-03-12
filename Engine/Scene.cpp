@@ -15,7 +15,7 @@ namespace Dusk
 Scene::Scene()
 {    //ctor
     m_SceneManager = getAPI().getOgreSceneManager();
-    m_Camera = getAPI().getOgreCamera();
+    m_Camera = getAPI().getDuskCamera()->getOgreCamera();
 }
 
 Scene::~Scene()

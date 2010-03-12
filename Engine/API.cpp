@@ -17,7 +17,6 @@ namespace Dusk
     {
         //ctor
         m_Root = NULL;
-        m_Camera = NULL;
         m_Window = NULL;
         m_SceneManager = NULL;
         m_Application = NULL;
@@ -27,10 +26,9 @@ namespace Dusk
         #endif
     }
 
-    void API::setOgreObjects(Ogre::Root* root,Ogre::Camera* camera,Ogre::RenderWindow* window,Ogre::SceneManager* mgr)
+    void API::setOgreObjects(Ogre::Root* root,Ogre::RenderWindow* window,Ogre::SceneManager* mgr)
     {
         m_Root = root;
-        m_Camera = camera;
         m_Window = window;
         m_SceneManager = mgr;
     }
@@ -60,22 +58,12 @@ namespace Dusk
     {
         m_FrameListener = op;
     }
-
-    /*void API::setDuskCamera(Dusk::Camera* cam)
-    {
-        m_EditorCamera = cam;
-    } */
     #endif
 
     //basic get functions
     Ogre::Root* API::getOgreRoot()
     {
         return m_Root;
-    }
-
-    Ogre::Camera* API::getOgreCamera()
-    {
-        return m_Camera;
     }
 
     Ogre::RenderWindow* API::getOgreRenderWindow()
@@ -113,11 +101,6 @@ namespace Dusk
     {
         return m_FrameListener;
     }
-
-    /*EditorCamera* API::getDuskCamera()
-    {
-        return m_EditorCamera;
-    }*/
     #endif
 
 } //namespace

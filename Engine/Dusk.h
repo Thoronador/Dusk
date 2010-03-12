@@ -72,18 +72,6 @@ description:
 */
 #include "CommandAssociateSound.h"
 
-
-/*
-This Header defines the CommandCreateObject class
-
-description:
-    Creates an Object, register it in the Scene and loads a mesh
-status:
-    Not implemented yet
-*/
-#include "CommandCreateObject.h"
-
-
 /*
 This Header defines the CommandLoopSound class.
 

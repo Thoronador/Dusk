@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "InputSystem.h"
+#include "Scene.h"
 #include "Dispatcher.h"
 #include "API.h"
 #include "Camera.h"
@@ -41,7 +42,7 @@ namespace Dusk
         createCamera();
         createViewports();
         //Register Ogre Objects in API class
-        getAPI().setOgreObjects(m_Root,m_Camera,m_Window,m_SceneManager);
+        getAPI().setOgreObjects(m_Root,/*m_Camera,*/m_Window,m_SceneManager);
         // Set default mipmap level (NB some APIs ignore this)
         Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
 

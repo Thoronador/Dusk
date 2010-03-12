@@ -140,7 +140,7 @@ bool EditorApplication::setup(void)
   createCamera();
   createViewports();
 
-  getAPI().setOgreObjects(mRoot, EditorCamera::GetSingleton().getOgreCamera(), mWindow, mSceneMgr);
+  getAPI().setOgreObjects(mRoot, mWindow, mSceneMgr);
 
   // Set default mipmap level (NB some APIs ignore this)
   Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);

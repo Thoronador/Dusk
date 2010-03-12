@@ -1,7 +1,6 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 #include <Ogre.h>
-#include "Scene.h"
 #include "FrameListener.h"
 #include <string>
 namespace Dusk
