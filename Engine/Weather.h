@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-02-09
+ Date:    2010-03-12
  Purpose: Weather Singleton class
           responsible for managing all weather effects in the game, e.g. fog,
           rain, snow
@@ -11,6 +11,7 @@
      - 2010-01-03 (rev 149) - snow implemented as particle system
      - 2010-01-19 (rev 157) - rain implemented as particle system
      - 2010-02-09 (rev 170) - getFogColour() added
+     - 2010-03-12 (rev 180) - changes for Weather to be used in Editor, too
 
  ToDo list:
      - other effects, such as rain, maybe even wind

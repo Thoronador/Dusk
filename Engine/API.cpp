@@ -1,5 +1,9 @@
 #include "API.h"
-#include "Application.h"
+#ifndef DUSK_EDITOR
+  #include "Application.h"
+#else
+  #include "../Editor/EditorApplication.h"
+#endif
 
 namespace Dusk
 {
@@ -12,14 +16,15 @@ namespace Dusk
     API::API()
     {
         //ctor
-        m_Application = NULL;
         m_Root = NULL;
         m_Camera = NULL;
         m_Window = NULL;
         m_SceneManager = NULL;
         m_Application = NULL;
         m_FrameListener = NULL;
-
+        #ifndef DUSK_EDITOR
+        m_DuskCamera = NULL;
+        #endif
     }
 
     void API::setOgreObjects(Ogre::Root* root,Ogre::Camera* camera,Ogre::RenderWindow* window,Ogre::SceneManager* mgr)
@@ -30,6 +35,7 @@ namespace Dusk
         m_SceneManager = mgr;
     }
 
+    #ifndef DUSK_EDITOR
     void API::setApplication(Dusk::Application* app)
     {
         m_Application = app;
@@ -44,6 +50,22 @@ namespace Dusk
     {
         m_DuskCamera = cam;
     }
+    #else
+    void API::setApplication(EditorApplication* app)
+    {
+        m_Application = app;
+    }
+
+    void API::setFrameListener(EditorFrameListener* op)
+    {
+        m_FrameListener = op;
+    }
+
+    /*void API::setDuskCamera(Dusk::Camera* cam)
+    {
+        m_EditorCamera = cam;
+    } */
+    #endif
 
     //basic get functions
     Ogre::Root* API::getOgreRoot()
@@ -66,6 +88,7 @@ namespace Dusk
         return m_SceneManager;
     }
 
+    #ifndef DUSK_EDITOR
     Dusk::Application* API::getApplication()
     {
         return m_Application;
@@ -80,5 +103,21 @@ namespace Dusk
     {
         return m_DuskCamera;
     }
+    #else
+    EditorApplication* API::getApplication()
+    {
+        return m_Application;
+    }
+
+    EditorFrameListener* API::getFrameListener()
+    {
+        return m_FrameListener;
+    }
+
+    /*EditorCamera* API::getDuskCamera()
+    {
+        return m_EditorCamera;
+    }*/
+    #endif
 
 } //namespace

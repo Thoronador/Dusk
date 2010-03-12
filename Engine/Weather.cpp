@@ -1,7 +1,13 @@
 #include "Weather.h"
 #include <OgreSceneManager.h>
+#include <OgreSceneNode.h>
+#include <OgreParticleSystem.h>
 #include "API.h"
-#include "Camera.h"
+#ifdef DUSK_EDITOR
+  #include "../Editor/EditorCamera.h"
+#else
+  #include "Camera.h"
+#endif
 
 namespace Dusk
 {
@@ -105,7 +111,11 @@ void Weather::startSnow()
   Ogre::ParticleSystem* SnowSys = scm->createParticleSystem(cSnowParticleSystem, "Dusk/Snow");
   /* The general idea is to attach the particle system to the same SceneNode as
      the camera, so the particle systems moves around with the player/ camera. */
+  #ifndef DUSK_EDITOR
   Ogre::SceneNode* SnowNode = getAPI().getDuskCamera()->getOgreCamera()->getParentSceneNode();
+  #else
+  Ogre::SceneNode* SnowNode = EditorCamera::GetSingleton().getOgreCamera()->getParentSceneNode();
+  #endif
   SnowNode = SnowNode->createChildSceneNode(cSnowParticleSystem+"_Node");
   SnowNode->attachObject(SnowSys);
 }
@@ -135,7 +145,11 @@ void Weather::startRain()
   Ogre::ParticleSystem* RainSys = scm->createParticleSystem(cRainParticleSystem, "Dusk/Rain");
   /* The general idea is to attach the particle system to the same SceneNode as
      the camera, so the particle systems moves around with the player/ camera. */
+  #ifndef DUSK_EDITOR
   Ogre::SceneNode* RainNode = getAPI().getDuskCamera()->getOgreCamera()->getParentSceneNode();
+  #else
+  Ogre::SceneNode* RainNode = EditorCamera::GetSingleton().getOgreCamera()->getParentSceneNode();
+  #endif
   RainNode = RainNode->createChildSceneNode(cRainParticleSystem+"_Node");
   RainNode->attachObject(RainSys);
 }

@@ -11,6 +11,8 @@
 
 #include <CEGUI/CEGUI.h>
 
+#include "../Engine/API.h"
+
 namespace Dusk
 {
 
@@ -108,6 +110,8 @@ public:
         quit->subscribeEvent(CEGUI::MenuItem::EventClicked,
             CEGUI::Event::Subscriber(&EditorFrameListener::quit, this));
         m_Mode = EM_Lists;
+
+        getAPI().setFrameListener(this);
 	}
 
 	bool frameStarted(const Ogre::FrameEvent &evt);

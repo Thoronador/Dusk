@@ -1,5 +1,6 @@
 #include "EditorApplication.h"
 #include "EditorCamera.h"
+#include "../Engine/API.h"
 #include "../Engine/DuskConstants.h"
 #include "../Engine/DataLoader.h"
 #include "../Engine/DuskFunctions.h"
@@ -86,6 +87,8 @@ EditorApplication::EditorApplication()
   mouse.LeftButton.down = mouse.LeftButton.up = CEGUI::Point(0.0f, 0.0f);
   mouse.RightButton.down = mouse.RightButton.up = CEGUI::Point(0.0f, 0.0f);
   mouse_object = edit_object = NULL;
+
+  getAPI().setApplication(this);
 }
 
 EditorApplication::~EditorApplication()
@@ -100,6 +103,8 @@ EditorApplication::~EditorApplication()
       delete mFrameListener;
   if (mRoot)
       delete mRoot;
+
+  getAPI().setApplication(NULL);
 }
 
 void EditorApplication::go(void)
@@ -134,6 +139,8 @@ bool EditorApplication::setup(void)
   createSceneManager();
   createCamera();
   createViewports();
+
+  getAPI().setOgreObjects(mRoot, EditorCamera::GetSingleton().getOgreCamera(), mWindow, mSceneMgr);
 
   // Set default mipmap level (NB some APIs ignore this)
   Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
