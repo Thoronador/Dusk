@@ -23,6 +23,8 @@
 					<Add library="OIS" />
 					<Add library="CEGUIOgreRenderer" />
 					<Add library="CEGUIBase" />
+					<Add library="lua50" />
+					<Add library="lualib50" />
 				</Linker>
 			</Target>
 			<Target title="Windows-Release">
@@ -44,6 +46,7 @@
 					<Add library="OIS" />
 					<Add library="OgreGUIRenderer" />
 					<Add library="CEGUIBase" />
+					<Add library="lua51" />
 					<Add directory="$(OGRE_HOME)/bin/release" />
 				</Linker>
 			</Target>
@@ -89,6 +92,7 @@
 		<Unit filename="../Engine/Light.h" />
 		<Unit filename="../Engine/LightBase.cpp" />
 		<Unit filename="../Engine/LightBase.h" />
+		<Unit filename="../Engine/LuaIncludes.h" />
 		<Unit filename="../Engine/NPC.cpp" />
 		<Unit filename="../Engine/NPC.h" />
 		<Unit filename="../Engine/NPCBase.cpp" />
@@ -99,6 +103,8 @@
 		<Unit filename="../Engine/ObjectData.h" />
 		<Unit filename="../Engine/QuestLog.cpp" />
 		<Unit filename="../Engine/QuestLog.h" />
+		<Unit filename="../Engine/Script.cpp" />
+		<Unit filename="../Engine/Script.h" />
 		<Unit filename="../Engine/Settings.cpp" />
 		<Unit filename="../Engine/Settings.h" />
 		<Extensions>
