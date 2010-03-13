@@ -18,6 +18,19 @@ bool JournalRecord::isFinisher() const
   return ((Flags&FinishedFlag)>0);
 }
 
+std::string JournalRecord::FlagsToString(const uint8 theFlags)
+{
+  std::string result = "";
+  if ((theFlags&DeletedFlag)>0) result = result +"D";
+  if ((theFlags&FinishedFlag)>0) result = result +"F";
+  return result;
+}
+
+std::string JournalRecord::FlagsToString() const
+{
+  return FlagsToString(Flags);
+}
+
 const std::string Journal::cUnnamedQuest = "(quest has no name)";
 
 Journal::Journal()
@@ -195,12 +208,16 @@ bool Journal::deleteEntry(const std::string& questID, const unsigned int jIndex)
   iter = m_Entries.find(questID);
   if (iter==m_Entries.end())
   {
+    std::cout << "Journal::deleteEntry: Hint: no quest named \""<<questID
+              << "\" found.\n";
     return false; //nothing to delete found
   }
   std::map<const unsigned int, JournalRecord>::iterator indexIter;
   indexIter = iter->second.Indices.find(jIndex);
   if (indexIter==iter->second.Indices.end())
   {
+    std::cout << "Journal::deleteEntry: Hint: quest \""<<questID<< "\" has no "
+              << "entry with index "<<jIndex<<".\n";
     return false;
   }
   iter->second.Indices.erase(indexIter);

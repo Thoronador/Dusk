@@ -80,6 +80,8 @@ EditorApplication::EditorApplication()
   ID_of_quest_to_add_entry = "";
   Index_of_entry_to_delete = 0;
   QuestID_of_entry_to_delete = "";
+  Index_of_entry_to_edit = 0;
+  QuestID_of_entry_to_edit = "";
   LandscapeColour.red = 254;
   LandscapeColour.green = 128;
   LandscapeColour.blue = 0;
@@ -2170,6 +2172,11 @@ void EditorApplication::closeAllEditWindows(void)
   if (winmgr.isWindowPresent("Editor/NewQuestEntryFrame"))
   {
     winmgr.destroyWindow("Editor/NewQuestEntryFrame");
+  }
+  //frame for editing quest entries
+  if (winmgr.isWindowPresent("Editor/EditQuestEntryFrame"))
+  {
+    winmgr.destroyWindow("Editor/EditQuestEntryFrame");
   }
 }
 
@@ -4338,9 +4345,11 @@ void EditorApplication::showJournalWindow(void)
 
     mcl->setSize(CEGUI::UVector2(CEGUI::UDim(0.7, 0), CEGUI::UDim(0.9, 0)));
     mcl->setPosition(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.05, 0)));
-    mcl->addColumn("Index", 0, CEGUI::UDim(0.2, 0));
-    mcl->addColumn("Text", 1, CEGUI::UDim(0.75, 0));
+    mcl->addColumn("Index", 0, CEGUI::UDim(0.15, 0));
+    mcl->addColumn("Flags", 1, CEGUI::UDim(0.15, 0));
+    mcl->addColumn("Text", 2, CEGUI::UDim(0.65, 0));
     mcl->setUserColumnDraggingEnabled(false);
+    mcl->setUserColumnSizingEnabled(true);
     mcl->subscribeEvent(CEGUI::Window::EventMouseButtonUp, CEGUI::Event::Subscriber(&EditorApplication::JournalEntryListClicked, this));
     frame->addChildWindow(mcl);
 
@@ -4370,7 +4379,7 @@ void EditorApplication::showJournalWindow(void)
     CBox->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.5, 0)));
     CBox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.025, 0), CEGUI::UDim(0.07, 0)));
     CBox->setReadOnly(true);
-    CBox->subscribeEvent(CEGUI::Combobox::EventListSelectionChanged,
+    CBox->subscribeEvent(CEGUI::Combobox::EventListSelectionAccepted,
             CEGUI::Event::Subscriber(&EditorApplication::JournalFrameComboboxChanged, this));
     frame->addChildWindow(CBox);
 
@@ -4600,9 +4609,12 @@ void EditorApplication::UpdateQuestEntryList(const std::string& questID)
       lbi = new CEGUI::ListboxTextItem(IntToString(indexVec[i]));
       lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
       row = mcl->addRow(lbi, 0);
-      lbi = new CEGUI::ListboxTextItem(Journal::GetSingleton().getText(questID, indexVec[i]));
+      lbi = new CEGUI::ListboxTextItem(JournalRecord::FlagsToString(Journal::GetSingleton().getFlags(questID, indexVec[i])));
       lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
       mcl->setItem(lbi, 1, row);
+      lbi = new CEGUI::ListboxTextItem(Journal::GetSingleton().getText(questID, indexVec[i]));
+      lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
+      mcl->setItem(lbi, 2, row);
     }//for
   }
 }
@@ -4666,7 +4678,37 @@ bool EditorApplication::JournalEntryNewClicked(const CEGUI::EventArgs &e)
 
 bool EditorApplication::JournalEntryEditClicked(const CEGUI::EventArgs &e)
 {
-  //not implemented yet
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  CEGUI::Combobox* CBox = static_cast<CEGUI::Combobox*> (winmgr.getWindow("Editor/JournalFrame/QuestCombobox"));
+  const CEGUI::ListboxItem* lbi = CBox->getSelectedItem();
+  if (lbi==NULL)
+  {
+    showHint("You have not selected a quest from the drop down list!");
+    return true;
+  }
+  if (std::string(lbi->getText().c_str())=="(none)")
+  {
+    showHint("You have not selected a valid quest from the drop down list!");
+    return true;
+  }
+  CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*>(winmgr.getWindow("Editor/JournalFrame/EntryList"));
+  CEGUI::ListboxItem* index_item = mcl->getFirstSelectedItem();
+  if (index_item==NULL)
+  {
+    showHint("You have not selected a quest from the entry list on the right side!");
+    return true;
+  }
+  const unsigned int row = mcl->getItemRowIndex(index_item);
+  index_item = mcl->getItemAtGridReference(CEGUI::MCLGridRef(row, 0));
+  const unsigned int i = StringToInt(index_item->getText().c_str(), 0);
+  if (i==0)
+  {
+    showHint("Got invalid index for the selected entry!");
+    return true;
+  }
+  QuestID_of_entry_to_edit = std::string(lbi->getText().c_str());
+  Index_of_entry_to_edit = i;
+  showQuestEntryEditWindow();
   return true;
 }
 
@@ -4704,7 +4746,6 @@ bool EditorApplication::JournalEntryDeleteClicked(const CEGUI::EventArgs &e)
 
 void EditorApplication::showQuestEntryNewWindow(void)
 {
-  //not completely implemented yet
   if (ID_of_quest_to_add_entry == "") return;
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
   CEGUI::FrameWindow* frame = NULL;
@@ -4745,6 +4786,15 @@ void EditorApplication::showQuestEntryNewWindow(void)
     button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.1, 0)));
     frame->addChildWindow(button);
 
+    //checkbox for Finished flag
+    CEGUI::Checkbox* check;
+    check = static_cast<CEGUI::Checkbox*> (winmgr.createWindow("TaharezLook/Checkbox", "Editor/NewQuestEntryFrame/Finished"));
+    check->setText("Finishes Quest");
+    check->setSelected(false);
+    check->setPosition(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.25, 0)));
+    check->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.1, 0)));
+    frame->addChildWindow(check);
+
     //static text for text
     button = winmgr.createWindow("TaharezLook/StaticText", "Editor/NewQuestEntryFrame/Text_Label");
     button->setText("Text:");
@@ -4783,7 +4833,6 @@ void EditorApplication::showQuestEntryNewWindow(void)
   frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.2, 0)));
   frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.5, 0)));
   frame->moveToFront();
-  //not implemented yet
 }
 
 bool EditorApplication::NewQuestEntryFrameOKClicked(const CEGUI::EventArgs &e)
@@ -4791,7 +4840,8 @@ bool EditorApplication::NewQuestEntryFrameOKClicked(const CEGUI::EventArgs &e)
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
   if (winmgr.isWindowPresent("Editor/NewQuestEntryFrame")
      && winmgr.isWindowPresent("Editor/NewQuestEntryFrame/Text")
-     && winmgr.isWindowPresent("Editor/NewQuestEntryFrame/Index_Edit"))
+     && winmgr.isWindowPresent("Editor/NewQuestEntryFrame/Index_Edit")
+     && winmgr.isWindowPresent("Editor/NewQuestEntryFrame/Finished"))
   {
     CEGUI::Editbox* IndexEdit = static_cast<CEGUI::Editbox*> (winmgr.getWindow("Editor/NewQuestEntryFrame/Index_Edit"));
     if (StringToInt(IndexEdit->getText().c_str(), 0)<=0)
@@ -4814,8 +4864,14 @@ bool EditorApplication::NewQuestEntryFrameOKClicked(const CEGUI::EventArgs &e)
       showHint("Please enter the text for this entry!");
       return true;
     }
+    uint8 flags = 0;
+    CEGUI::Checkbox* check = static_cast<CEGUI::Checkbox*> (winmgr.getWindow("Editor/NewQuestEntryFrame/Finished"));
+    if (check->isSelected())
+    {
+      flags = JournalRecord::FinishedFlag;
+    }
     //add it to journal
-    if (Journal::GetSingleton().addEntry(ID_of_quest_to_add_entry, newIndex, newText))
+    if (Journal::GetSingleton().addEntry(ID_of_quest_to_add_entry, newIndex, newText, flags))
     {
       showHint("New entry added successfully!");
       winmgr.destroyWindow("Editor/NewQuestEntryFrame");
@@ -4945,6 +5001,206 @@ bool EditorApplication::QuestEntryConfirmDeleteYesClicked(const CEGUI::EventArgs
     }
     QuestID_of_entry_to_delete = "";
     Index_of_entry_to_delete = 0;
+  }
+  return true;
+}
+
+void EditorApplication::showQuestEntryEditWindow(void)
+{
+  if ( QuestID_of_entry_to_edit == "" or Index_of_entry_to_edit==0) return;
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  CEGUI::FrameWindow* frame = NULL;
+  CEGUI::Checkbox* check;
+  if (winmgr.isWindowPresent("Editor/EditQuestEntryFrame"))
+  {
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.getWindow("Editor/EditQuestEntryFrame"));
+  }
+  else
+  {
+    //create stuff here
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.createWindow("TaharezLook/FrameWindow", "Editor/EditQuestEntryFrame"));
+    frame->setInheritsAlpha(false);
+    frame->setTitleBarEnabled(true);
+    frame->setText("Edit quest entry...");
+    frame->setCloseButtonEnabled(false);
+    frame->setFrameEnabled(true);
+    frame->setSizingEnabled(true);
+    winmgr.getWindow("Editor/Root")->addChildWindow(frame);
+
+    //static text for showing quest ID
+    CEGUI::Window* button = winmgr.createWindow("TaharezLook/StaticText", "Editor/EditQuestEntryFrame/QID_Label");
+    button->setText("Quest ID: \""+QuestID_of_entry_to_edit+"\"");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.1, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.8, 0), CEGUI::UDim(0.1, 0)));
+    frame->addChildWindow(button);
+
+    //static text for index
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/EditQuestEntryFrame/Index_Label");
+    button->setText("Index:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.25, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.1, 0)));
+    frame->addChildWindow(button);
+
+    //editbox for index
+    button = winmgr.createWindow("TaharezLook/Editbox", "Editor/EditQuestEntryFrame/Index_Edit");
+    button->setText(IntToString(Index_of_entry_to_edit));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.25, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.1, 0)));
+    frame->addChildWindow(button);
+
+    //checkbox for Finished flag
+    check = static_cast<CEGUI::Checkbox*> (winmgr.createWindow("TaharezLook/Checkbox", "Editor/EditQuestEntryFrame/Finished"));
+    check->setText("Finishes Quest");
+    check->setPosition(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.25, 0)));
+    check->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.1, 0)));
+    frame->addChildWindow(check);
+
+    //static text for text
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/EditQuestEntryFrame/Text_Label");
+    button->setText("Text:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.4, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.1, 0)));
+    frame->addChildWindow(button);
+
+    //editbox for quest entry text
+    CEGUI::MultiLineEditbox* textbox;
+    textbox = static_cast<CEGUI::MultiLineEditbox*> (winmgr.createWindow("TaharezLook/MultiLineEditbox", "Editor/EditQuestEntryFrame/Text"));
+    textbox->setSize(CEGUI::UVector2(CEGUI::UDim(0.8, 0), CEGUI::UDim(0.3, 0)));
+    textbox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.55, 0)));
+    textbox->setWordWrapping(true);
+    textbox->setReadOnly(false);
+    textbox->setText("(no text given)");
+    frame->addChildWindow(textbox);
+
+    //button OK
+    button = winmgr.createWindow("TaharezLook/Button", "Editor/EditQuestEntryFrame/OK");
+    button->setText("OK");
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.1, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.875, 0)));
+    frame->addChildWindow(button);
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplication::EditQuestEntryFrameOKClicked, this));
+
+    //button Cancel
+    button = winmgr.createWindow("TaharezLook/Button", "Editor/EditQuestEntryFrame/Cancel");
+    button->setText("Cancel");
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.1, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.55, 0), CEGUI::UDim(0.875, 0)));
+    frame->addChildWindow(button);
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplication::EditQuestEntryFrameCancelClicked, this));
+  }
+  frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.22, 0)));
+  frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.5, 0)));
+  frame->moveToFront();
+
+  winmgr.getWindow("Editor/EditQuestEntryFrame/QID_Label")->setText(
+                     "Quest ID: \""+QuestID_of_entry_to_edit+"\"");
+  winmgr.getWindow("Editor/EditQuestEntryFrame/Index_Edit")->setText(
+                     IntToString(Index_of_entry_to_edit));
+  check = static_cast<CEGUI::Checkbox*> (winmgr.getWindow("Editor/EditQuestEntryFrame/Finished"));
+  check->setSelected((Journal::GetSingleton().getFlags(QuestID_of_entry_to_edit,
+                     Index_of_entry_to_edit)&JournalRecord::FinishedFlag)>0);
+  winmgr.getWindow("Editor/EditQuestEntryFrame/Text")->setText(
+      Journal::GetSingleton().getText(QuestID_of_entry_to_edit,Index_of_entry_to_edit));
+}
+
+bool EditorApplication::EditQuestEntryFrameCancelClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/EditQuestEntryFrame"))
+  {
+    winmgr.destroyWindow("Editor/EditQuestEntryFrame");
+    QuestID_of_entry_to_edit = "";
+    Index_of_entry_to_edit = 0;
+  }
+  return true;
+}
+
+bool EditorApplication::EditQuestEntryFrameOKClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (!winmgr.isWindowPresent("Editor/EditQuestEntryFrame") or
+      !winmgr.isWindowPresent("Editor/EditQuestEntryFrame/Index_Edit") or
+      !winmgr.isWindowPresent("Editor/EditQuestEntryFrame/Finished") or
+      !winmgr.isWindowPresent("Editor/EditQuestEntryFrame/Text"))
+  {
+    return true;
+  }
+  JournalRecord temp;
+  temp.Text = winmgr.getWindow("Editor/EditQuestEntryFrame/Text")->getText().c_str();
+  if (temp.Text.empty())
+  {
+    showHint("You have to enter some text for this journal entry!");
+    return true;
+  }
+  CEGUI::Checkbox* check = static_cast<CEGUI::Checkbox*> (winmgr.getWindow("Editor/EditQuestEntryFrame/Finished"));
+  if (check->isSelected())
+  {
+    temp.Flags = JournalRecord::FinishedFlag;
+  }
+  else
+  {
+    temp.Flags = 0;
+  }
+  const unsigned int new_index = StringToInt(winmgr.getWindow("Editor/EditQuestEntryFrame/Index_Edit")->getText().c_str(), 0);
+  if (new_index==0)
+  {
+    showHint("Please enter a positive integer value for the index!");
+    return true;
+  }
+  //Did the user change the index?
+  if (new_index!=Index_of_entry_to_edit)
+  {
+    if (Journal::GetSingleton().hasEntry(QuestID_of_entry_to_edit, new_index))
+    {
+      showHint("You are trying to change the index of this entry, but an entry "
+               +std::string("with the same index already exists for the quest \"")
+               +QuestID_of_entry_to_edit+"\". Please choose a different index.");
+      return true;
+    }
+    //we have a valid index change here, so remove old index first...
+    if (!Journal::GetSingleton().deleteEntry(QuestID_of_entry_to_edit, Index_of_entry_to_edit))
+    {
+      showWarning("An error occured while changing the index of the entry!");
+      QuestID_of_entry_to_edit = "";
+      Index_of_entry_to_edit = 0;
+      winmgr.destroyWindow("Editor/EditQuestEntryFrame");
+      //update entry list
+      if (winmgr.isWindowPresent("Editor/JournalFrame/QuestCombobox"))
+      {
+        UpdateQuestEntryList(winmgr.getWindow("Editor/JournalFrame/QuestCombobox")->getText().c_str());
+      }
+      return true;
+    }
+    //...and add new index after that.
+    if (!Journal::GetSingleton().addEntry(QuestID_of_entry_to_edit, new_index, temp))
+    {
+      showWarning("An error occured while adding the modified entry!");
+    }
+    QuestID_of_entry_to_edit = "";
+    Index_of_entry_to_edit = 0;
+    winmgr.destroyWindow("Editor/EditQuestEntryFrame");
+    //update entry list
+    if (winmgr.isWindowPresent("Editor/JournalFrame/QuestCombobox"))
+    {
+      UpdateQuestEntryList(winmgr.getWindow("Editor/JournalFrame/QuestCombobox")->getText().c_str());
+    }
+    return true;
+  }
+  //add entry
+  if (!Journal::GetSingleton().addEntry(QuestID_of_entry_to_edit,
+        Index_of_entry_to_edit, temp))
+  {
+    showWarning("Could not change entry!");
+  }
+  QuestID_of_entry_to_edit = "";
+  Index_of_entry_to_edit = 0;
+  winmgr.destroyWindow("Editor/EditQuestEntryFrame");
+  //update entry list
+  if (winmgr.isWindowPresent("Editor/JournalFrame/QuestCombobox"))
+  {
+    UpdateQuestEntryList(winmgr.getWindow("Editor/JournalFrame/QuestCombobox")->getText().c_str());
   }
   return true;
 }

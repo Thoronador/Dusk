@@ -72,6 +72,9 @@ protected:
     std::string ID_of_quest_to_delete;
 
     std::string ID_of_quest_to_add_entry;
+    //std::string ID_of_quest_to_edit_entry;
+    unsigned int Index_of_entry_to_edit;
+    std::string QuestID_of_entry_to_edit;
 
     unsigned int Index_of_entry_to_delete;
     std::string QuestID_of_entry_to_delete;
@@ -154,6 +157,8 @@ protected:
 
 	void showQuestEntryNewWindow(void);
 	void showQuestEntryConfirmDeleteWindow(void);
+
+	void showQuestEntryEditWindow(void);
 
 	//closing all windows for editing and creation of objects
 	void closeAllEditWindows(void);
@@ -291,6 +296,10 @@ protected:
 	//callbacks of window to delete quest entries
 	bool QuestEntryConfirmDeleteNoClicked(const CEGUI::EventArgs &e);
 	bool QuestEntryConfirmDeleteYesClicked(const CEGUI::EventArgs &e);
+
+    //callbacks for edit quest entry window
+    bool EditQuestEntryFrameOKClicked(const CEGUI::EventArgs &e);
+    bool EditQuestEntryFrameCancelClicked(const CEGUI::EventArgs &e);
 
 	//scene query wrapper
 	DuskObject* GetObjectAtMouse(const CEGUI::Point& pt);

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-02-25
+ Date:    2010-03-13
  Purpose: Journal Singleton class
           holds all possible journal entries the player can get during the game
 
@@ -12,6 +12,7 @@
      - 2010-02-10 (rev 172) - fixed a bug in hasQuest()
      - 2010-02-18 (rev 173) - deleteQuest() and deleteEntry() added
      - 2010-02-25 (rev 175) - getMaximumAvailabeIndex() added
+     - 2010-03-13 (rev 183) - FlagsToString() added to JournalRecord
 
  ToDo list:
      - ???
@@ -49,6 +50,12 @@ namespace Dusk
 
   /* returns true, if FinishedFlag is set*/
   bool isFinisher() const;
+
+  /* returns a string indicating the set flags */
+  static std::string FlagsToString(const uint8 theFlags);
+
+  /* returns a string indicating the set flags */
+  std::string FlagsToString() const;
 }; //struct
 
 
