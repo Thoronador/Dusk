@@ -191,6 +191,8 @@
 		<Unit filename="LuaIncludes.h" />
 		<Unit filename="Menu.cpp" />
 		<Unit filename="Menu.h" />
+		<Unit filename="Messages.cpp" />
+		<Unit filename="Messages.h" />
 		<Unit filename="NPC.cpp" />
 		<Unit filename="NPC.h" />
 		<Unit filename="NPCBase.cpp" />

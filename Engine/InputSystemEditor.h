@@ -71,6 +71,8 @@ namespace Dusk
 		virtual bool mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
 		virtual bool mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
 
+        /* adds a message to the output history */
+        void addMessage(const std::string& txt);
     private:
         /**
          * Standard konstructor
@@ -85,35 +87,36 @@ namespace Dusk
         std::string myInputLine;
 
         /**
-         * Holds the script history.
+         * Holds the output history.
          */
-        //std::deque<Dusk::Script> myScriptHistory;
+        std::deque<std::string> mOutputHistory;
 
         /**
-         * Holds the pointer to the currently selected script history item.
+         * Holds the page offset vor viewing.
          */
-        //std::deque<Dusk::Script>::iterator myScriptHistoryIterator;
-
-        /**
-         * Holds the output lines.
-         */
-        std::deque<std::string> myOutput;
+        //unsigned int mOutputHistoryOffset;
 
         /* adds a new line to the output list and removes an old one */
         void addToOutput(const std::string& nl);
+
+        /**
+         * Holds the input lines.
+         */
+        std::deque<std::string> mInputHistory;
+
+        /* adds a new line to the input list and removes an old one */
+        void addToInput(const std::string& nl);
 
         /* holds the index of the line in myOutput which is currently shown */
         unsigned int mInputHistoryIndex;
 
         /**
-         * Holds the page offset vor viewing.
-         */
-        //int myOutputPageOffset;
-
-        /**
          * Holds the lines per page.
          */
         static const unsigned int myLinesPerPage = 16;
+
+        /* holds the character sequence indicating the console promt */
+        static const std::string cPrompt;
 
         /* True, if input shall be processed by LuaEngine and not by Console */
         bool mUseLua;

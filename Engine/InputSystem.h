@@ -113,8 +113,6 @@ namespace Dusk
          * Holds the instance of the editor input class
          */
         static InputSystemEditor* s_inputSystemEditor;
-
-    //    static OIS::Keyboard* s_keyboard;
     };
 }
 #endif // INPUTSYSTEM_H_INCLUDED
