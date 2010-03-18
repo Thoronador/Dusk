@@ -70,6 +70,7 @@ protected:
 
     //journal
     std::string ID_of_quest_to_delete;
+    std::string ID_of_quest_to_rename;
 
     std::string ID_of_quest_to_add_entry;
     //std::string ID_of_quest_to_edit_entry;
@@ -127,7 +128,7 @@ protected:
     void RefreshLightList(void);
 	//general message windows
 	void showWarning(const std::string& Text_of_warning);
-	void showHint(const std::string& hint_text);
+	void showHint(const std::string& hint_text, const bool big=false);
 
     //windows for creating/ editing objects
 	void showObjectNewWindow(void);
@@ -154,6 +155,7 @@ protected:
 	//window for journal entries
 	void showJournalWindow(void);
 	void showJournalConfirmDeleteQuestWindow(void);
+	void showJournalRenameQuestWindow(void);
 
 	void showQuestEntryNewWindow(void);
 	void showQuestEntryConfirmDeleteWindow(void);
@@ -300,6 +302,10 @@ protected:
     //callbacks for edit quest entry window
     bool EditQuestEntryFrameOKClicked(const CEGUI::EventArgs &e);
     bool EditQuestEntryFrameCancelClicked(const CEGUI::EventArgs &e);
+
+    //callbacks for rename quest window
+    bool QuestRenameFrameCancelClicked(const CEGUI::EventArgs &e);
+    bool QuestRenameFrameOKClicked(const CEGUI::EventArgs &e);
 
 	//scene query wrapper
 	DuskObject* GetObjectAtMouse(const CEGUI::Point& pt);

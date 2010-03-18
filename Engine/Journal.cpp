@@ -133,6 +133,36 @@ bool Journal::hasQuest(const std::string& questID) const
   return (m_Entries.find(questID)!=m_Entries.end());
 }
 
+bool Journal::changeQuestID(const std::string& oldID, const std::string& newID)
+{
+  if (oldID=="" or newID=="" or hasQuest(newID))
+  {
+    //we don't want empty IDs or change it to an existing quest ID
+    return false;
+  }
+  std::map<const std::string, QuestRecord>::iterator old_iter;
+  old_iter = m_Entries.find(oldID);
+  if (old_iter==m_Entries.end())
+  { //there is nothing we can change
+    return false;
+  }
+  setQuestName(newID, old_iter->second.QuestName);
+  std::map<const std::string, QuestRecord>::iterator new_iter;
+  new_iter = m_Entries.find(newID); /*new_iter will not be end(), because the
+  call to setQuestName(newID,...) above creates that entry */
+  while (!old_iter->second.Indices.empty())
+  {
+    //insert entry to new quest ID
+    new_iter->second.Indices[old_iter->second.Indices.begin()->first]
+       =  old_iter->second.Indices.begin()->second;
+    //delete it from old quest ID
+    old_iter->second.Indices.erase(old_iter->second.Indices.begin());
+  }
+  //delete the old quest entry
+  m_Entries.erase(old_iter);
+  return true;
+}
+
 std::string Journal::getText(const std::string& JID, const unsigned int jIndex) const
 {
   if (JID=="" or jIndex==0)

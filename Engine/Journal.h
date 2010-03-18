@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-03-13
+ Date:    2010-03-18
  Purpose: Journal Singleton class
           holds all possible journal entries the player can get during the game
 
@@ -13,6 +13,7 @@
      - 2010-02-18 (rev 173) - deleteQuest() and deleteEntry() added
      - 2010-02-25 (rev 175) - getMaximumAvailabeIndex() added
      - 2010-03-13 (rev 183) - FlagsToString() added to JournalRecord
+     - 2010-03-18 (rev 185) - changeQuestID() added
 
  ToDo list:
      - ???
@@ -140,6 +141,14 @@ class Journal
 
     /* returns true, if a quest with the given quest ID exists */
     bool hasQuest(const std::string& questID) const;
+
+    /* changes the quest ID of quest oldID to newID and returns true on success
+
+       Remarks:
+         Will fail/return false, if oldID or newID is an empty string, if the
+         quest oldID does not exist or if the quest newID already exists.
+    */
+    bool changeQuestID(const std::string& oldID, const std::string& newID);
 
     /* returns the text of the given entry, or an empty string if no such entry
        is present

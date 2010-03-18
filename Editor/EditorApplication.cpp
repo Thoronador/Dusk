@@ -77,6 +77,7 @@ EditorApplication::EditorApplication()
   ID_of_light_to_delete = "";
   ID_of_light_to_edit = "";
   ID_of_quest_to_delete = "";
+  ID_of_quest_to_rename = "";
   ID_of_quest_to_add_entry = "";
   Index_of_entry_to_delete = 0;
   QuestID_of_entry_to_delete = "";
@@ -761,10 +762,10 @@ void EditorApplication::showWarning(const std::string& Text_of_warning)
   winmgr.getWindow("Editor/WarningFrame/Label")->setText(Text_of_warning);
   frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.2, 0)));
   frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.5, 0), CEGUI::UDim(0.25, 0)));
-  frame->setAlwaysOnTop(true);
+  frame->moveToFront();
 }
 
-void EditorApplication::showHint(const std::string& hint_text)
+void EditorApplication::showHint(const std::string& hint_text, const bool big)
 {
   if (hint_text=="")
   {
@@ -772,11 +773,15 @@ void EditorApplication::showHint(const std::string& hint_text)
   }
 
   CEGUI::FrameWindow* frame = NULL;
+  CEGUI::MultiLineEditbox* textbox = NULL;
+  CEGUI::Window* button = NULL;
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
 
   if (winmgr.isWindowPresent("Editor/HintFrame"))
   {
     frame = static_cast<CEGUI::FrameWindow*> (winmgr.getWindow("Editor/HintFrame"));
+    textbox = static_cast<CEGUI::MultiLineEditbox*> (winmgr.getWindow("Editor/HintFrame/Label"));
+    button = winmgr.getWindow("Editor/HintFrame/OK");
   }
   else
   {
@@ -790,27 +795,36 @@ void EditorApplication::showHint(const std::string& hint_text)
     frame->setSizingEnabled(true);
     winmgr.getWindow("Editor/Root")->addChildWindow(frame);
     //add static label for message
-    CEGUI::MultiLineEditbox* textbox;
     textbox = static_cast<CEGUI::MultiLineEditbox*> (winmgr.createWindow("TaharezLook/MultiLineEditbox", "Editor/HintFrame/Label"));
-    textbox->setSize(CEGUI::UVector2(CEGUI::UDim(0.8, 0), CEGUI::UDim(0.55, 0)));
-    textbox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.15, 0)));
     textbox->setWordWrapping(true);
     textbox->setReadOnly(true);
     frame->addChildWindow(textbox);
     //create OK button
-    CEGUI::Window* button;
     button = winmgr.createWindow("TaharezLook/Button", "Editor/HintFrame/OK");
     button->setText("OK");
-    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.2, 0)));
-    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.75, 0)));
     frame->addChildWindow(button);
     button->subscribeEvent(CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&EditorApplication::HintFrameOKClicked, this));
   }
   winmgr.getWindow("Editor/HintFrame/Label")->setText(hint_text);
   frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.2, 0)));
-  frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.5, 0), CEGUI::UDim(0.25, 0)));
-  frame->setAlwaysOnTop(true);
+  if (big)
+  {
+    frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.5, 0), CEGUI::UDim(0.5, 0)));
+    textbox->setSize(CEGUI::UVector2(CEGUI::UDim(0.8, 0), CEGUI::UDim(0.7, 0)));
+    textbox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.1, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.1, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.85, 0)));
+  }
+  else
+  {
+    frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.5, 0), CEGUI::UDim(0.25, 0)));
+    textbox->setSize(CEGUI::UVector2(CEGUI::UDim(0.8, 0), CEGUI::UDim(0.55, 0)));
+    textbox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.15, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.2, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.75, 0)));
+  }
+  frame->moveToFront();
 }
 
 void EditorApplication::showObjectNewWindow(void)
@@ -1275,7 +1289,7 @@ bool EditorApplication::StatsButtonClicked(const CEGUI::EventArgs &e)
            +"    Object, Light & Item references: "+ IntToString(ObjectData::GetSingleton().NumberOfReferences())
            +"\n  Journal:\n"
            +"    quests: "+ IntToString(Journal::GetSingleton().NumberOfDistinctQuests())
-           +"\n    entries: "+ IntToString(Journal::GetSingleton().NumberOfEntries()));
+           +"\n    entries: "+ IntToString(Journal::GetSingleton().NumberOfEntries()), true);
   return true;
 }
 
@@ -2177,6 +2191,12 @@ void EditorApplication::closeAllEditWindows(void)
   if (winmgr.isWindowPresent("Editor/EditQuestEntryFrame"))
   {
     winmgr.destroyWindow("Editor/EditQuestEntryFrame");
+  }
+  //frame for renaming quests
+  if (winmgr.isWindowPresent("Editor/QuestRenameFrame"))
+  {
+    winmgr.destroyWindow("Editor/QuestRenameFrame");
+    ID_of_quest_to_rename = "";
   }
 }
 
@@ -4320,7 +4340,6 @@ bool EditorApplication::JournalClicked(const CEGUI::EventArgs &e)
 
 void EditorApplication::showJournalWindow(void)
 {
-  //not completely implemented yet
   CEGUI::FrameWindow* frame = NULL;
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
 
@@ -4417,7 +4436,6 @@ void EditorApplication::showJournalWindow(void)
   frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.15, 0)));
   frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.7, 0), CEGUI::UDim(0.7, 0)));
   frame->moveToFront();
-  //not completely implemented yet
 }
 
 bool EditorApplication::JournalFrameNewQuestClicked(const CEGUI::EventArgs &e)
@@ -4459,7 +4477,21 @@ bool EditorApplication::JournalFrameDeleteQuestClicked(const CEGUI::EventArgs &e
 
 bool EditorApplication::JournalFrameRenameQuestClicked(const CEGUI::EventArgs &e)
 {
-  //not completely implemented yet
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  CEGUI::Combobox* CBox = static_cast<CEGUI::Combobox*> (winmgr.getWindow("Editor/JournalFrame/QuestCombobox"));
+  CEGUI::ListboxItem* lbi = CBox->getSelectedItem();
+  if (lbi==NULL)
+  {
+    showHint("You have not selected a quest from the list!");
+    return true;
+  }
+  if (lbi->getText()=="(none)" or !Journal::GetSingleton().hasQuest(std::string(lbi->getText().c_str())))
+  {
+    showHint("You have not selected a valid quest from the list!");
+    return true;
+  }
+  ID_of_quest_to_rename = std::string(lbi->getText().c_str());
+  showJournalRenameQuestWindow();
   return true;
 }
 
@@ -5202,6 +5234,141 @@ bool EditorApplication::EditQuestEntryFrameOKClicked(const CEGUI::EventArgs &e)
   {
     UpdateQuestEntryList(winmgr.getWindow("Editor/JournalFrame/QuestCombobox")->getText().c_str());
   }
+  return true;
+}
+
+void EditorApplication::showJournalRenameQuestWindow(void)
+{
+  if (ID_of_quest_to_rename=="") return;
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  CEGUI::FrameWindow* frame = NULL;
+  if (winmgr.isWindowPresent("Editor/QuestRenameFrame"))
+  {
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.getWindow("Editor/QuestRenameFrame"));
+  }
+  else
+  {
+    //create new frame window
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.createWindow("TaharezLook/FrameWindow", "Editor/QuestRenameFrame"));
+    frame->setTitleBarEnabled(true);
+    frame->setText("Rename Quest \""+ID_of_quest_to_rename+"\"");
+    frame->setCloseButtonEnabled(false);
+    frame->setFrameEnabled(true);
+    frame->setSizingEnabled(true);
+    frame->setInheritsAlpha(false);
+    winmgr.getWindow("Editor/Root")->addChildWindow(frame);
+
+    CEGUI::Window* window;
+    //static text
+    window = winmgr.createWindow("TaharezLook/StaticText", "Editor/QuestRenameFrame/QID_Label");
+    window->setText("Quest ID:");
+    window->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.15, 0)));
+    window->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.2, 0)));
+    frame->addChildWindow(window);
+
+    //editbox for quest ID
+    window = winmgr.createWindow("TaharezLook/Editbox", "Editor/QuestRenameFrame/QID_Edit");
+    window->setText(ID_of_quest_to_rename);
+    window->setPosition(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.15, 0)));
+    window->setSize(CEGUI::UVector2(CEGUI::UDim(0.5, 0), CEGUI::UDim(0.2, 0)));
+    frame->addChildWindow(window);
+
+    //static text for quest name
+    window = winmgr.createWindow("TaharezLook/StaticText", "Editor/QuestRenameFrame/Name_Label");
+    window->setText("Name:");
+    window->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.45, 0)));
+    window->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.2, 0)));
+    frame->addChildWindow(window);
+
+    //editbox for quest name
+    window = winmgr.createWindow("TaharezLook/Editbox", "Editor/QuestRenameFrame/Name_Edit");
+    window->setText(Journal::GetSingleton().getQuestName(ID_of_quest_to_rename));
+    window->setPosition(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.45, 0)));
+    window->setSize(CEGUI::UVector2(CEGUI::UDim(0.5, 0), CEGUI::UDim(0.2, 0)));
+    frame->addChildWindow(window);
+
+    //OK button
+    window = winmgr.createWindow("TaharezLook/Button", "Editor/QuestRenameFrame/OK");
+    window->setText("OK");
+    window->setPosition(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.75, 0)));
+    window->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.2, 0)));
+    window->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplication::QuestRenameFrameOKClicked, this));
+    frame->addChildWindow(window);
+
+    //Cancel button
+    window = winmgr.createWindow("TaharezLook/Button", "Editor/QuestRenameFrame/Cancel");
+    window->setText("Cancel");
+    window->setPosition(CEGUI::UVector2(CEGUI::UDim(0.55, 0), CEGUI::UDim(0.75, 0)));
+    window->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.2, 0)));
+    window->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplication::QuestRenameFrameCancelClicked, this));
+    frame->addChildWindow(window);
+  }
+  frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.25, 0)));
+  frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.3, 0)));
+  frame->moveToFront();
+}
+
+bool EditorApplication::QuestRenameFrameCancelClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/QuestRenameFrame"))
+  {
+    winmgr.destroyWindow("Editor/QuestRenameFrame");
+  }
+  ID_of_quest_to_rename = "";
+  return true;
+}
+
+bool EditorApplication::QuestRenameFrameOKClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/QuestRenameFrame/Name_Edit") &&
+      winmgr.isWindowPresent("Editor/QuestRenameFrame/QID_Edit") &&
+      ID_of_quest_to_rename!="")
+  {
+    const std::string EditQID =
+        winmgr.getWindow("Editor/QuestRenameFrame/QID_Edit")->getText().c_str();
+    if (EditQID == "")
+    {
+      showHint("You have to enter a quest ID!");
+      return true;
+    }
+    const std::string EditName =
+        winmgr.getWindow("Editor/QuestRenameFrame/Name_Edit")->getText().c_str();
+    if (EditName == "")
+    {
+      showHint("You have to enter a quest name!");
+      return true;
+    }
+    if (ID_of_quest_to_rename==EditQID)
+    {
+      //just quest name changed
+      Journal::GetSingleton().setQuestName(ID_of_quest_to_rename, EditName);
+    }
+    else
+    {
+      //user tries to change quest ID
+      if (Journal::GetSingleton().hasQuest(EditQID))
+      {
+        showWarning("A quest with the given ID already exists. Please rename "
+                +std::string("the existing quest or choose another quest ID!"));
+        return true;
+      }
+      //now we change the quest ID
+      if (!Journal::GetSingleton().changeQuestID(ID_of_quest_to_rename, EditQID))
+      {
+        showWarning("Could not change quest ID!");
+        return true;
+      }
+      UpdateQuestList();
+    }
+    //finally update the quest's name
+    Journal::GetSingleton().setQuestName(EditQID, EditName);
+  }
+  winmgr.destroyWindow("Editor/QuestRenameFrame");
+  ID_of_quest_to_rename = "";
   return true;
 }
 
