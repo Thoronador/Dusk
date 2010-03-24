@@ -12,20 +12,47 @@ namespace Dusk
     const float Camera::cMaximumZoom = 500.0;
     const float Camera::cRecommendedZoomStep = 2.5;
 
+    Camera& Camera::getSingleton()
+    {
+      static Camera Instance;
+      return Instance;
+    }
+
+    void Camera::setupCamera(Ogre::SceneManager* scn)
+    {
+        if (m_Primary == NULL)
+        {
+          m_Primary = scn->getRootSceneNode()->createChildSceneNode();
+          m_Primary->setDirection(Ogre::Vector3(0,0,0));
+        }
+        if (m_Secondary == NULL)
+        {
+          m_Secondary = m_Primary->createChildSceneNode();
+          m_Secondary->setDirection(Ogre::Vector3(0,0,0));
+        }
+        if (m_Camera == NULL)
+        {
+          m_Camera = scn->createCamera("PlayerCam");
+          m_Camera->setDirection(Ogre::Vector3(0,0,0));
+          m_Secondary->attachObject(m_Camera);
+          m_Camera->setNearClipDistance(5);
+        }
+        m_translationVector = Ogre::Vector3::ZERO;
+        m_RotationPerSecond = 0.0f;
+    }
+
     Camera::Camera(Ogre::SceneManager* scn)
     {
         //ctor
-        m_Primary = scn->getRootSceneNode()->createChildSceneNode();
-        m_Primary->setDirection(Ogre::Vector3(0,0,0));
-        m_Secondary = m_Primary->createChildSceneNode();
-        m_Secondary->setDirection(Ogre::Vector3(0,0,0));
-        m_Camera = scn->createCamera("PlayerCam");
-        m_Camera->setDirection(Ogre::Vector3(0,0,0));
-        m_Secondary->attachObject(m_Camera);
-        m_Camera->setNearClipDistance(5);
-        getAPI().setDuskCamera(this);
-        m_translationVector = Ogre::Vector3::ZERO;
-        m_RotationPerSecond = 0.0f;
+        m_Primary = NULL;
+        m_Secondary = NULL;
+        m_Camera = NULL;
+        m_JumpVelocity = 0.0f;
+        m_Jump = false;
+        if (scn!=NULL)
+        {
+          setupCamera(scn);
+        }
     }
 
     Camera::~Camera()
@@ -33,7 +60,6 @@ namespace Dusk
         //destructor
         m_translationVector = Ogre::Vector3::ZERO;
         m_RotationPerSecond = 0.0f;
-        getAPI().setDuskCamera(NULL);
         //now detach and delete everything related to the camera
         m_Secondary->detachObject(m_Camera);
         m_Secondary->getCreator()->destroyCamera(m_Camera);
@@ -63,15 +89,35 @@ namespace Dusk
 
     void Camera::move(const Ogre::FrameEvent& evt)
     {
-        if (m_translationVector != Ogre::Vector3::ZERO)
+        if (m_translationVector != Ogre::Vector3::ZERO or m_Jump)
         {
           m_Primary->translate(m_translationVector * evt.timeSinceLastFrame, Ogre::Node::TS_LOCAL);
 
           //new height
           Ogre::Vector3 camPos = m_Primary->getPosition();
-          float new_height = Landscape::GetSingleton().GetHeightAtPosition(camPos.x, camPos.z);
-          m_Primary->setPosition(camPos.x, new_height+cAboveGroundLevel, camPos.z);
+          const float new_height = Landscape::GetSingleton().GetHeightAtPosition(camPos.x, camPos.z)
+                                    +cAboveGroundLevel;
+          if (m_Jump)
+          {
+            const float jump_height = camPos.y+ m_JumpVelocity*evt.timeSinceLastFrame;
+            if (jump_height>=new_height)
+            {
+              const float gravity = -9.81*2.25; //maybe we need to adjust this later
+              m_Primary->setPosition(camPos.x, jump_height, camPos.z);
+              m_JumpVelocity = m_JumpVelocity + gravity*evt.timeSinceLastFrame;
+            }
+            else
+            {
+              m_Jump = false;
+              m_Primary->setPosition(camPos.x, new_height, camPos.z);
+            }
+          }
+          else
+          {
+            m_Primary->setPosition(camPos.x, new_height, camPos.z);
+          }
         }
+        //handle rotation
         if (m_RotationPerSecond != 0.0)
         {
           m_Primary->yaw(Ogre::Degree(m_RotationPerSecond * evt.timeSinceLastFrame), Ogre::Node::TS_LOCAL);
@@ -86,6 +132,16 @@ namespace Dusk
     void Camera::rotate(const float rotation)
     {
         m_RotationPerSecond += rotation;
+    }
+
+    void Camera::jump(void)
+    {
+      if (!m_Jump)
+      {
+        m_Jump = true;
+        m_JumpVelocity = 30.0f; //only a guess; maybe we should adjust that
+                                //  value later
+      }
     }
 
     void Camera::setZoom(const float distance)
@@ -112,4 +168,3 @@ namespace Dusk
       return m_Secondary->getPosition().z;
     }
 }
-

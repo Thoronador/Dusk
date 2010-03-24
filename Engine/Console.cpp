@@ -161,9 +161,9 @@ int Console::executeCommand(const std::string& p_string)
         }
         else if (command[0] == "jump")
         {
-            com = new CommandMove(UP);
+            com = new CommandMove(JUMP_UP);
             m_Dispatcher->executeCommand(com);
-            std::cout << "up up!" << std::endl;
+            std::cout << "up, up!" << std::endl;
         }
         else if (command[0] == "MoveMouse")
         {

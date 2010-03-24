@@ -112,7 +112,7 @@ void Weather::startSnow()
   /* The general idea is to attach the particle system to the same SceneNode as
      the camera, so the particle systems moves around with the player/ camera. */
   #ifndef DUSK_EDITOR
-  Ogre::SceneNode* SnowNode = getAPI().getDuskCamera()->getOgreCamera()->getParentSceneNode();
+  Ogre::SceneNode* SnowNode = Camera::getSingleton().getOgreCamera()->getParentSceneNode();
   #else
   Ogre::SceneNode* SnowNode = EditorCamera::GetSingleton().getOgreCamera()->getParentSceneNode();
   #endif
@@ -146,7 +146,7 @@ void Weather::startRain()
   /* The general idea is to attach the particle system to the same SceneNode as
      the camera, so the particle systems moves around with the player/ camera. */
   #ifndef DUSK_EDITOR
-  Ogre::SceneNode* RainNode = getAPI().getDuskCamera()->getOgreCamera()->getParentSceneNode();
+  Ogre::SceneNode* RainNode = Camera::getSingleton().getOgreCamera()->getParentSceneNode();
   #else
   Ogre::SceneNode* RainNode = EditorCamera::GetSingleton().getOgreCamera()->getParentSceneNode();
   #endif

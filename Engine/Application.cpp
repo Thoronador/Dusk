@@ -138,8 +138,9 @@ namespace Dusk
     void Application::createCamera()
     {
         // Create the camera
-        m_DuskCamera = new Dusk::Camera(m_SceneManager);
-        m_Camera = m_DuskCamera->getOgreCamera();
+        //m_DuskCamera = new Dusk::Camera(m_SceneManager);
+        Camera::getSingleton().setupCamera(m_SceneManager);
+        m_Camera = Camera::getSingleton().getOgreCamera();
         /*
         m_Camera = m_SceneManager->createCamera("PlayerCam");
 

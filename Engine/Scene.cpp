@@ -15,7 +15,7 @@ namespace Dusk
 Scene::Scene()
 {    //ctor
     m_SceneManager = getAPI().getOgreSceneManager();
-    m_Camera = getAPI().getDuskCamera()->getOgreCamera();
+    m_Camera = Camera::getSingleton().getOgreCamera();
 }
 
 Scene::~Scene()
@@ -67,9 +67,9 @@ void Scene::createGrassMesh()
     {
         createGrassMesh();
         m_SceneManager->setAmbientLight(Ogre::ColourValue(1, 1, 1));
-        Dusk::Camera* cam = getAPI().getDuskCamera();
-        cam->setPosition(Ogre::Vector3(150, 50, 150));
-        cam->lookAt(Ogre::Vector3(0, 0, 0));
+        Dusk::Camera& cam = Camera::getSingleton();
+        cam.setPosition(Ogre::Vector3(150, 50, 150));
+        cam.lookAt(Ogre::Vector3(0, 0, 0));
 
         if (DataLoader::GetSingleton().LoadFromFile("data"+path_sep+"DuskData.dusk"))
         {

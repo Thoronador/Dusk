@@ -29,7 +29,7 @@ bool FrameListener::frameStarted(const Ogre::FrameEvent& evt)
     InputSystem::captureInput();
     Console::getInstance()->processScripts();
     LuaEngine::GetSingleton().processScripts();
-    getAPI().getDuskCamera()->move(evt);
+    Camera::getSingleton().move(evt);
     AnimationData::GetSingleton().InjectAnimationTime(evt.timeSinceLastFrame);
     return m_Continue;
 }

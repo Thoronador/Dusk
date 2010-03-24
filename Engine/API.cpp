@@ -21,9 +21,6 @@ namespace Dusk
         m_SceneManager = NULL;
         m_Application = NULL;
         m_FrameListener = NULL;
-        #ifndef DUSK_EDITOR
-        m_DuskCamera = NULL;
-        #endif
     }
 
     void API::setOgreObjects(Ogre::Root* root,Ogre::RenderWindow* window,Ogre::SceneManager* mgr)
@@ -42,11 +39,6 @@ namespace Dusk
     void API::setFrameListener(Dusk::FrameListener* op)
     {
         m_FrameListener = op;
-    }
-
-    void API::setDuskCamera(Dusk::Camera* cam)
-    {
-        m_DuskCamera = cam;
     }
     #else
     void API::setApplication(EditorApplication* app)
@@ -85,11 +77,6 @@ namespace Dusk
     Dusk::FrameListener* API::getFrameListener()
     {
         return m_FrameListener;
-    }
-
-    Dusk::Camera* API::getDuskCamera()
-    {
-        return m_DuskCamera;
     }
     #else
     EditorApplication* API::getApplication()

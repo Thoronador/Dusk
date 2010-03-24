@@ -1,13 +1,11 @@
 #ifndef COMMANDMOVE_H
 #define COMMANDMOVE_H
-#include "API.h"
 #include "Command.h"
 #include "DuskTypes.h"
-#include <Ogre.h>
+
 namespace Dusk
 {
     class Scene;
-
 
     class CommandMove : public Command
     {
@@ -23,9 +21,7 @@ namespace Dusk
             static int moveConstant;
             static const int rotateDPS;
             DIRECTION m_Direction;
-
     };
 }
-
 
 #endif // COMMANDMOVE_H

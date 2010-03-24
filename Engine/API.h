@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Author:  walljumper, thoronador
- Date:    2010-03-12
+ Date:    2010-03-24
  Purpose: API Singleton class
           API holds pointers to some important Objects of Ogre and Dusk, and
           allows to access them.
@@ -24,6 +24,8 @@
      - 2010-03-12 (rev 181) - Ogre::Camera pointer and associated functions
                               removed, because the classes Dusk::Camera and
                               Dusk::EditorCamera can be used to access Ogre::Camera
+     - 2010-03-24 (rev 186) - Pointer to Dusk::Camera removed, because it is now
+                              singleton and can be accessed via static method
 
  ToDo list:
      - We should possibly try to reduce the number of object pointers which API
@@ -44,7 +46,6 @@ namespace Dusk
   #ifndef DUSK_EDITOR
     class Application;
     class FrameListener;
-    class Camera;
   #else
     class EditorApplication;
     class EditorFrameListener;
@@ -62,7 +63,6 @@ namespace Dusk
 
       #ifndef DUSK_EDITOR
       void setApplication(Dusk::Application* app);
-      void setDuskCamera(Dusk::Camera* cam);
       void setFrameListener(Dusk::FrameListener* op);
       #else
       void setApplication(EditorApplication* app);
@@ -81,7 +81,6 @@ namespace Dusk
       #ifndef DUSK_EDITOR
       Dusk::Application* getApplication();
       Dusk::FrameListener* getFrameListener();
-      Dusk::Camera* getDuskCamera();
       #else
       EditorApplication* getApplication();
       EditorFrameListener* getFrameListener();
@@ -99,7 +98,6 @@ namespace Dusk
       //Dusk Objects
       Dusk::Application* m_Application;
       Dusk::FrameListener* m_FrameListener;
-      Dusk::Camera* m_DuskCamera;
       #else
       //Editor Objects
       EditorApplication* m_Application;

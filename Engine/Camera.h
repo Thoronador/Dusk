@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Authors: walljumper, thoronador
- Date:    2009-12-04
+ Date:    2010-03-24
  Purpose: Camera class
           Manages the game's camera.
 
@@ -15,6 +15,7 @@
                               landscape, if landscape data is present
      - 2009-12-04 (rev 138) - zoom functionality added
      - 2009-12-31 (rev 147) - documentation update
+     - 2010-03-24 (rev 186) - singleton pattern; jump() added
 
  ToDo list:
      - ???
@@ -32,8 +33,15 @@ namespace Dusk
     class Camera
     {
         public:
-            Camera(Ogre::SceneManager* scn);
+            static Camera& getSingleton();
             virtual ~Camera();
+
+            /* initializes Camera for use by application
+
+               remarks:
+                  Has to be called once before the Camera is used.
+             */
+            void setupCamera(Ogre::SceneManager* scn);
 
             /* retrieves the pointer to the Ogre::Camera object which is
                internally used*/
@@ -65,6 +73,13 @@ namespace Dusk
             */
             void rotate(const float rotation);
 
+            /* tells the Camera to "jump" upwards
+
+               remarks:
+                  Has no effect, if the camera already performs a jump.
+            */
+            void jump(void);
+
             /* Sets the zoom distance.
 
                remarks:
@@ -90,11 +105,18 @@ namespace Dusk
             static const float cRecommendedZoomStep;
         protected:
         private:
+            Camera(Ogre::SceneManager* scn=NULL);
+            Camera(const Camera& op) {}
             Ogre::Camera* m_Camera;
             Ogre::SceneNode* m_Primary;
             Ogre::SceneNode* m_Secondary;
             Ogre::Vector3 m_translationVector;
             float m_RotationPerSecond;
+
+            //data for jumping (I know, not the Camera but the player should
+            // jump, but we don't have a player object yet.)
+            float m_JumpVelocity;
+            bool m_Jump;
 
             /* default distance between camera and ground/ landscape */
             static const float cAboveGroundLevel;
