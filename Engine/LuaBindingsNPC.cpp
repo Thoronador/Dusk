@@ -214,7 +214,7 @@ int SetLevel(lua_State *L)
       }
       else
       {
-        npcPtr->setLevel(level);
+        npcPtr->setLevel(static_cast<const uint8>(level));
       }
     }
     return 0;
@@ -242,7 +242,7 @@ int SetStrength(lua_State *L)
       }
       else
       {
-        npcPtr->setStrength(str);
+        npcPtr->setStrength(static_cast<const uint8>(str));
       }
     }
     return 0;
@@ -270,7 +270,7 @@ int SetAgility(lua_State *L)
       }
       else
       {
-        npcPtr->setAgility(agi);
+        npcPtr->setAgility(static_cast<const uint8>(agi));
       }
     }
     return 0;
@@ -298,7 +298,7 @@ int SetVitality(lua_State *L)
       }
       else
       {
-        npcPtr->setVitality(vit);
+        npcPtr->setVitality(static_cast<const uint8>(vit));
       }
     }
     return 0;
@@ -326,7 +326,7 @@ int SetIntelligence(lua_State *L)
       }
       else
       {
-        npcPtr->setIntelligence(intelligence);
+        npcPtr->setIntelligence(static_cast<const uint8>(intelligence));
       }
     }
     return 0;
@@ -354,7 +354,7 @@ int SetWillpower(lua_State *L)
       }
       else
       {
-        npcPtr->setWillpower(will);
+        npcPtr->setWillpower(static_cast<const uint8>(will));
       }
     }
     return 0;
@@ -382,7 +382,7 @@ int SetCharisma(lua_State *L)
       }
       else
       {
-        npcPtr->setCharisma(cha);
+        npcPtr->setCharisma(static_cast<const uint8>(cha));
       }
     }
     return 0;
@@ -400,17 +400,17 @@ int SetLuck(lua_State *L)
     if (npcPtr!=NULL)
     {
       const float luck = lua_tonumber(L, 2);
-      if (luck<0)
+      if (luck<=0)
       {
         npcPtr->setLuck(0);
       }
-      else if (luck>255)
+      else if (luck>=255)
       {
         npcPtr->setLuck(255);
       }
       else
       {
-        npcPtr->setLuck(luck);
+        npcPtr->setLuck(static_cast<const uint8>(luck));
       }
     }
     return 0;

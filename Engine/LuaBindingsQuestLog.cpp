@@ -16,7 +16,7 @@ int AddQuestEntry(lua_State *L)
     }
     else
     {
-      int_index = index;
+      int_index = static_cast<unsigned int>(index);
     }
     if (QuestLog::GetSingleton().addQuestEntry(lua_tostring(L, 1), int_index))
     {
@@ -83,7 +83,7 @@ int HasQuestEntry(lua_State *L)
     }
     else
     {
-      int_index = index;
+      int_index = static_cast<unsigned int>(index);
     }
     if (QuestLog::GetSingleton().hasQuestEntry(lua_tostring(L, 1), int_index))
     {

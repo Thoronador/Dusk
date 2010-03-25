@@ -4272,11 +4272,11 @@ bool EditorApplication::LandscapeFrameFinishClicked(const CEGUI::EventArgs &e)
   if (winmgr.isWindowPresent("Editor/LandscapeFrame"))
   {
     CEGUI::Spinner* spin = static_cast<CEGUI::Spinner*> (winmgr.getWindow("Editor/LandscapeFrame/RedSpin"));
-    LandscapeColour.red = spin->getCurrentValue();
+    LandscapeColour.red = static_cast<unsigned char> (spin->getCurrentValue());
     spin = static_cast<CEGUI::Spinner*> (winmgr.getWindow("Editor/LandscapeFrame/GreenSpin"));
-    LandscapeColour.green = spin->getCurrentValue();
+    LandscapeColour.green = static_cast<unsigned char> (spin->getCurrentValue());
     spin = static_cast<CEGUI::Spinner*> (winmgr.getWindow("Editor/LandscapeFrame/BlueSpin"));
-    LandscapeColour.blue = spin->getCurrentValue();
+    LandscapeColour.blue = static_cast<unsigned char> (spin->getCurrentValue());
 
     winmgr.destroyWindow("Editor/LandscapeFrame");
     ModeListClicked(e);
@@ -4318,15 +4318,15 @@ bool EditorApplication::LandscapeFrameColourChanged(const CEGUI::EventArgs &e)
     CEGUI::Spinner* spin = static_cast<CEGUI::Spinner*> (winevent.window);
     if (spin->getName() == "Editor/LandscapeFrame/RedSpin")
     {
-      LandscapeColour.red = spin->getCurrentValue();
+      LandscapeColour.red = static_cast<unsigned char>(spin->getCurrentValue());
     }
     else if (spin->getName() == "Editor/LandscapeFrame/GreenSpin")
     {
-      LandscapeColour.green = spin->getCurrentValue();
+      LandscapeColour.green = static_cast<unsigned char>(spin->getCurrentValue());
     }
     else if (spin->getName() == "Editor/LandscapeFrame/BlueSpin")
     {
-      LandscapeColour.blue = spin->getCurrentValue();
+      LandscapeColour.blue = static_cast<unsigned char>(spin->getCurrentValue());
     }
   } //window
   return true;
