@@ -121,6 +121,8 @@
 		<Unit filename="CommandMove.h" />
 		<Unit filename="CommandNoiseSound.cpp" />
 		<Unit filename="CommandNoiseSound.h" />
+		<Unit filename="CommandPickUp.cpp" />
+		<Unit filename="CommandPickUp.h" />
 		<Unit filename="CommandPlaySound.cpp" />
 		<Unit filename="CommandPlaySound.h" />
 		<Unit filename="CommandQuit.cpp" />
@@ -201,6 +203,8 @@
 		<Unit filename="ObjectBase.h" />
 		<Unit filename="ObjectData.cpp" />
 		<Unit filename="ObjectData.h" />
+		<Unit filename="Player.cpp" />
+		<Unit filename="Player.h" />
 		<Unit filename="QuestLog.cpp" />
 		<Unit filename="QuestLog.h" />
 		<Unit filename="Scene.cpp" />

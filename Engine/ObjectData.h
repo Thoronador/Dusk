@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-02-06
+ Date:    2010-03-27
  Purpose: ObjectData Singleton class
           holds data of all static objects, containers, lights and items in
           the game.
@@ -29,6 +29,7 @@
                               of references to allow faster search for a certain
                               reference
                             - GetObjectByID() added
+     - 2010-03-27 (rev 188) - removeItemReference() added
 
  ToDo list:
      - extend class when further classes for non-animated objects are added
@@ -91,6 +92,19 @@ namespace Dusk
          present
       */
       DuskObject* GetObjectByID(const std::string& ID) const;
+
+      /* tries to remove the given item from the reference map and returns true
+         on success, false on failure.
+
+         parameters:
+             pItem - pointer to the item which shall be removed
+
+         remarks:
+             Passing NULL will return false, always.
+             If the function returns true, the pointer to pItem will be invalid
+             and should not be referenced any more.
+      */
+      bool removeItemReference(Item* pItem);
 
       /* Tries to save all objects to the stream and returns true on success */
       bool SaveAllToStream(std::ofstream& Stream) const;

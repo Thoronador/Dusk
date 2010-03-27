@@ -24,10 +24,12 @@
      - 2009-01-03 (rev 67)  - adjustments to work with new version of Sound class
                               (by thoronador)
      - 2009-01-03 (rev 68)  - adjustments to work with merged sound command class
-     - 2009-06-21 (rev 98)  - CommandMove: rotation/ turning laft and right
+     - 2009-06-21 (rev 98)  - CommandMove: rotation/ turning left and right
      - 2009-12-04 (rev 138) - CommandZoom to zoom camera added
      - 2010-01-03 (rev 149) - CommandWeather added, handles snow and fog
-     - 2010-01-19 (rev 157) - CommandWeather updated for rain (by thoronador)
+     - 2010-01-19 (rev 157) - CommandWeather updated for rain
+     - 2010-03-04 (rev 177) - small fix for some function parameters
+     - 2010-03-27 (rev 188) - adjustments for CommandPickUp
 
  ToDo list:
      - update Console as soon as new commands are available

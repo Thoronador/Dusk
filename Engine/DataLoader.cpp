@@ -347,12 +347,18 @@ bool DataLoader::LoadFromFile(const std::string& FileName)
     records_done = records_done+1;
   }//while
   input.close();
-  std::cout << "DataLoader::LoadFromFile: Info: "<<records_done<<" records loaded.\n";
+  std::cout << "DataLoader::LoadFromFile: Info: "<<records_done<<" records "
+            << "loaded from file \""<<FileName<<"\".\n";
+  m_LoadedFiles.push_back(FileName);
   return true;
 }
 
 void DataLoader::ClearData(const unsigned int bits)
 {
+  if (bits==ALL_BITS)
+  {
+    m_LoadedFiles.clear();
+  }
   if ((bits & REFERENCE_BIT) != 0)
   {
     ObjectData::GetSingleton().ClearData();

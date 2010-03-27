@@ -36,6 +36,7 @@ InputSystemBinding::InputSystemBinding()
   {
     std::cout << "Info: setting predefined key bindings.\n";
     //predefined bindings
+    myBindListPress.clear();
     myBindListPress[OIS::KC_ESCAPE] = Script("quit");
     myBindListPress[OIS::KC_W] = Script("move_forward");
     myBindListPress[OIS::KC_S] = Script("move_backward");
@@ -44,7 +45,9 @@ InputSystemBinding::InputSystemBinding()
     myBindListPress[OIS::KC_Q] = Script("turn_left");
     myBindListPress[OIS::KC_E] = Script("turn_right");
     myBindListPress[OIS::KC_SPACE] = Script("jump");
+    myBindListPress[OIS::KC_P] = Script("pick_up");
 
+    myBindListRelease.clear();
     myBindListRelease[OIS::KC_W] = Script("move_backward");
     myBindListRelease[OIS::KC_S] = Script("move_forward");
     myBindListRelease[OIS::KC_A] = Script("step_right");
@@ -180,6 +183,7 @@ std::string InputSystemBinding::getKeyStringFromScript(const Script& scr)
   if (str_rep=="turn_left") return "turn_left_key";
   if (str_rep=="turn_right") return "turn_right_key";
   if (str_rep=="jump") return "jump_key";
+  if (str_rep=="pick_up") return "pick_up_key";
   if (str_rep=="toggle_fog") return "debug_fog_key";
   if (str_rep=="toggle_rain") return "debug_rain_key";
   if (str_rep=="toggle_snow") return "debug_snow_key";
@@ -197,6 +201,7 @@ Script InputSystemBinding::getPressScriptFromKeyString(const std::string& ks)
   if (ks=="turn_left_key") return Script("turn_left");
   if (ks=="turn_right_key") return Script("turn_right");
   if (ks=="jump_key") return Script("jump");
+  if (ks=="pick_up_key") return Script("pick_up");
 
   if (ks=="debug_fog_key") return Script("toggle_fog");
   if (ks=="debug_rain_key") return Script("toggle_rain");
@@ -215,6 +220,7 @@ Script InputSystemBinding::getReleaseScriptFromKeyString(const std::string& ks)
   if (ks=="turn_left_key") return Script("turn_right");
   if (ks=="turn_right_key") return Script("turn_left");
   if (ks=="jump_key") return Script("");
+  if (ks=="pick_up_key") return Script("");
 
   if (ks=="debug_fog_key") return Script("");
   if (ks=="debug_rain_key") return Script("");

@@ -1,6 +1,7 @@
 #include "Camera.h"
 #include "API.h"
 #include "Landscape.h"
+#include "Player.h"
 
 namespace Dusk
 {
@@ -80,6 +81,7 @@ namespace Dusk
     void Camera::setPosition(const Ogre::Vector3& position)
     {
         m_Primary->setPosition(position);
+        Player::GetSingleton().SetPosition(position);
     }
 
     void Camera::lookAt(const Ogre::Vector3& direction)
@@ -116,6 +118,8 @@ namespace Dusk
           {
             m_Primary->setPosition(camPos.x, new_height, camPos.z);
           }
+          //adjust player's position
+          Player::GetSingleton().SetPosition(m_Primary->getPosition());
         }
         //handle rotation
         if (m_RotationPerSecond != 0.0)

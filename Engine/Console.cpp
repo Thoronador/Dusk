@@ -5,6 +5,7 @@
 #include "CommandQuit.h"
 #include "CommandPlaySound.h"
 #include "CommandMove.h"
+#include "CommandPickUp.h"
 #include "CommandLoopSound.h"
 #include "CommandSoundVolume.h"
 #include "CommandNoiseSound.h"
@@ -164,6 +165,12 @@ int Console::executeCommand(const std::string& p_string)
             com = new CommandMove(JUMP_UP);
             m_Dispatcher->executeCommand(com);
             std::cout << "up, up!" << std::endl;
+        }
+        else if (command[0] == "pick_up")
+        {
+            com = new CommandPickUp();
+            m_Dispatcher->executeCommand(com);
+            std::cout << "pick something up!" << std::endl;
         }
         else if (command[0] == "MoveMouse")
         {

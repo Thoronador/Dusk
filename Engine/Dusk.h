@@ -15,6 +15,8 @@ This Header defines the API Singelton class.
 description:
     API holds pointers to some important Ogre and Dusk Objects
     you can get these Objects by calling getAPI().getSomething()
+status:
+    works
 */
 #include "API.h"
 
@@ -94,9 +96,9 @@ description:
 This Header defines the CommandMove class
 
 description:
-    It Moves the free flying Camera
+    It moves the free flying Camera.
 status:
-    Not finished yet
+    works, but not completely finished yet
 */
 #include "CommandMove.h"
 
@@ -165,9 +167,10 @@ description:
 This Header defines the Console singelton class
 
 description:
-    This class translates the Input from the Inputsystem into Commands and send them to the Dispatcher
+    This class translates the Input from the InputSystem into Commands
+    and send them to the Dispatcher.
 status:
-    Works well but has to be extended with each new command type
+    Works well, but has to be extended with each new command type
 */
 #include "Console.h"
 
@@ -179,7 +182,7 @@ description:
     Represents a container within the game (i.e. anything static,
     which can be used to store items, like a box).
 status:
-    untested
+    untested/not used yet
 */
 #include "Container.h"
 
@@ -422,6 +425,18 @@ status:
     untested, but I don't expect to many problems in its current state
 */
 #include "NPCBase.h"
+
+/*
+This Header defines the Player singleton class.
+
+description:
+    This class represents the player character in the game.
+
+status:
+    The player isn't displayed yet, Enable() will fail by default,
+    but it moves around with the camera.
+*/
+#include "Player.h"
 
 /*
 This Header defines the Scene singelton class.

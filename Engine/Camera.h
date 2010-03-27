@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Authors: walljumper, thoronador
- Date:    2010-03-24
+ Date:    2010-03-27
  Purpose: Camera class
           Manages the game's camera.
 
@@ -16,6 +16,7 @@
      - 2009-12-04 (rev 138) - zoom functionality added
      - 2009-12-31 (rev 147) - documentation update
      - 2010-03-24 (rev 186) - singleton pattern; jump() added
+     - 2010-03-27 (rev 188) - adjustments for Player class
 
  ToDo list:
      - ???

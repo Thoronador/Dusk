@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Authors: DaSteph, walljumper, thoronador
- Date:    2010-01-26
+ Date:    2010-03-27
  Purpose: InputSystemBinding Singleton class
           implements the Interface InputSystem (see InputSystem.h)
 
@@ -25,6 +25,8 @@
      - 2010-02-01 (rev 162) - InputSystemBinding can now load and save key bindings.
                             - will try to load bindings from keys.conf, if that
                               file is present. Otherwise preset bindings are used.
+     - 2010-03-24 (rev 186) - binding for jumping
+     - 2010-03-27 (rev 188) - binding for picking up items
 
  ToDo list:
      - method to load bind list from an external resource

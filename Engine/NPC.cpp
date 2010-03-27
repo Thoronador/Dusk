@@ -1,11 +1,14 @@
 #include "NPC.h"
+#include <sstream>
 #include "NPCBase.h"
 #include "Settings.h"
 #include "DuskConstants.h"
-#include <sstream>
+#include "ObjectData.h"
 
 namespace Dusk
 {
+
+const float NPC::cMaximumPickUpDistance=100; //it's a guess; adjust it, if needed
 
 NPC::NPC()
   : AnimatedObject("", Ogre::Vector3::ZERO, Ogre::Vector3::ZERO, 1.0f)
@@ -50,6 +53,7 @@ NPC::NPC(const std::string _ID, const Ogre::Vector3 pos, const Ogre::Vector3 rot
 NPC::~NPC()
 {
   //empty
+  this->Disable();
 }
 
 ObjectTypes NPC::GetType() const
@@ -175,9 +179,32 @@ unsigned int NPC::getMaxHealth() const
 {
   const Settings& set = Settings::GetSingleton();
   return set.getSetting_uint("HealthBase")
-         + set.getSetting_uint("HealthVitalityFactor")*m_Strength
+         + set.getSetting_uint("HealthVitalityFactor")*m_Vitality
          + set.getSetting_uint("HealthLevelFactor")*m_Level;
   //return cHealthBase + cHealthVitalityFactor*m_Vitality + cHealthLevelFactor*m_Level;
+}
+
+bool NPC::pickUp(Item* target)
+{
+  if (target==NULL) return false;
+  if (!(target->canPickUp()))
+  {
+    return false;
+  }
+  if (position.squaredDistance(target->GetPosition())
+       > cMaximumPickUpDistance * cMaximumPickUpDistance)
+  {
+    return false;
+  }
+  //we have to save item's ID now, because the pointer might be invalid after
+  // the call of removeItemReference()
+  const std::string ItemID = target->GetID();
+  if (ObjectData::GetSingleton().removeItemReference(target))
+  {
+    m_Inventory.AddItem(ItemID, 1);
+    return true;
+  }
+  return false;
 }
 
 bool NPC::Enable(Ogre::SceneManager* scm)

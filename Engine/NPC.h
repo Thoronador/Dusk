@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-01-26
+ Date:    2010-03-27
  Purpose: NPC class
           represents a single NPC within the game
 
@@ -17,6 +17,7 @@
      - 2010-01-17 (rev 156) - LoadFromStream() and SaveToStream() updated
      - 2010-01-26 (rev 159) - getConstInventory() added for getting a constant
                               Inventory reference
+     - 2010-03-27 (rev 188) - pickUp() added for picking up items
 
  ToDo list:
      - ???
@@ -35,9 +36,11 @@
 #include "AnimatedObject.h"
 #include "Inventory.h"
 #include "DuskTypes.h"
+#include "Item.h"
 
 namespace Dusk
 {
+
   class NPC: public AnimatedObject
   {
     public:
@@ -86,6 +89,11 @@ namespace Dusk
       /* maximum health */
       unsigned int getMaxHealth() const;
 
+      /* tries to pick up the Item target and adds it to the NPC's inventory.
+         Returns true on success, false otherwise.
+      */
+      bool pickUp(Item* target);
+
       /* Enables the NPC, i.e. tells the SceneManager to display it.
          Returns true on success, false on error.
       */
@@ -99,6 +107,11 @@ namespace Dusk
          false otherwise. The Inventory content is probably inconsistent after
          that function failed, so don't rely on its contents in that case. */
       virtual bool LoadFromStream(std::ifstream& InStream);
+
+      /* the maximum distance an item can be away from the NPC while being
+         picked up
+      */
+      static const float cMaximumPickUpDistance;
     protected:
       Inventory m_Inventory;
       float m_Health;

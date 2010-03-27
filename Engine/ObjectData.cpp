@@ -80,6 +80,33 @@ DuskObject* ObjectData::GetObjectByID(const std::string& ID) const
   return NULL;
 }
 
+bool ObjectData::removeItemReference(Item* pItem)
+{
+  if (pItem==NULL) return false;
+  std::map<std::string, std::vector<DuskObject*> >::iterator iter;
+  iter = m_ReferenceMap.find(pItem->GetID());
+  if (iter!=m_ReferenceMap.end())
+  {
+    unsigned int i;
+    for (i=0; i<iter->second.size(); ++i)
+    {
+      if (iter->second.at(i)==pItem)
+      {
+        //found it
+        pItem->Disable();
+        delete pItem;
+        pItem = NULL; //not really needed here
+        iter->second.at(i)= iter->second.at(iter->second.size()-1);
+        iter->second.at(iter->second.size()-1) = NULL;
+        iter->second.pop_back();
+        --m_RefCount;
+        return true;
+      }
+    }//for
+  }
+  return false;
+}
+
 bool ObjectData::SaveAllToStream(std::ofstream& Stream) const
 {
   unsigned int i;
