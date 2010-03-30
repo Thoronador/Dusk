@@ -12,8 +12,11 @@ namespace Dusk
     const std::string path_sep = "/";
   #endif
 
-  //standard mesh name for non-existing objects/ items
+  /*standard mesh name for non-existing objects/ items */
   const std::string cErrorMesh = "ErrorMarker.mesh";
+
+  /* constant for positive infinity */
+  const float Infinity = 1.0f/0.0f;
 
   /*"Headers" for various data formats
     Originally, headers were written and read as arrays of four characters, but

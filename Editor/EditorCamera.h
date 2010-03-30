@@ -27,6 +27,7 @@ namespace Dusk
       void relativeRotation(const float degrees);
       void setTranslationVector(const Ogre::Vector3& velocity);
       Ogre::Vector3 getTranslationVector(void);
+      void setTurboMode(const bool value);
 
       void processMovement(const Ogre::FrameEvent& evt);
     private:
@@ -36,6 +37,7 @@ namespace Dusk
       Ogre::SceneNode* m_primaryCameraNode;
       Ogre::SceneNode* m_secondaryCameraNode;
       Ogre::Vector3 translation_per_second;
+      bool m_Turbo;
       float rotation_per_second;
   }; //class
 

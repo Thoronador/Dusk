@@ -268,8 +268,6 @@ bool LandscapeRecord::IsPlain() const
 
 bool LandscapeRecord::GenerateByFunction( float (*func) (const float x, const float z))
 {
-  unsigned int i,j;
-
   if (func==NULL)
   {
     std::cout << "LandscapeRecord::GenerateByFunction: ERROR: pointer to "
@@ -277,11 +275,13 @@ bool LandscapeRecord::GenerateByFunction( float (*func) (const float x, const fl
     return false;
   }
 
-  m_Highest = 0.0;
-  m_Lowest = 0.0;
-  for (i=0; i<65; i++)
+  unsigned int i,j;
+
+  m_Highest = -Infinity;
+  m_Lowest = Infinity;
+  for (i=0; i<65; ++i)
   {
-    for (j=0; j<65; j++)
+    for (j=0; j<65; ++j)
     {
       Height[i][j] = func((float)i/64.0f, (float)j/64.0f);
       if (Height[i][j]>m_Highest)
@@ -297,6 +297,29 @@ bool LandscapeRecord::GenerateByFunction( float (*func) (const float x, const fl
   SetLoadedState(true);
   return true;
 }//function
+
+bool LandscapeRecord::ColourByFunction(ColourData (*func) (const float x, const float z))
+{
+  if (func==NULL)
+  {
+    std::cout << "LandscapeRecord::ColourByFunction: ERROR: pointer to "
+              << "function is NULL!\n";
+    return false;
+  }
+
+  unsigned int i,j;
+  for (i=0; i<65; ++i)
+  {
+    for (j=0; j<65; ++j)
+    {
+      const ColourData cd = func((float)i/64.0f, (float)j/64.0f);
+      Colour[i][j][0] = cd.red;
+      Colour[i][j][1] = cd.green;
+      Colour[i][j][2] = cd.blue;
+    }//for (inner)
+  }//for
+  return true;
+}
 
 void LandscapeRecord::MoveTo(const float Offset_X, const float Offset_Y)
 {
@@ -402,7 +425,6 @@ bool LandscapeRecord::SendDataToEngine(Ogre::SceneManager * scm)
   m_OgreObject->setDynamic(false);
   //m_OgreObject->begin("Landscape/Green", Ogre::RenderOperation::OT_TRIANGLE_LIST);
   m_OgreObject->begin("Landscape/VertexColour", Ogre::RenderOperation::OT_TRIANGLE_LIST);
-  //m_OgreObject->begin("", Ogre::RenderOperation::OT_TRIANGLE_LIST);
   unsigned int j, k;
   //vectors
   for (j=0; j<65; j++)

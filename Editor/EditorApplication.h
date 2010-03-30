@@ -6,6 +6,7 @@
 #include "EditorFrameListener.h"
 #include "../Engine/DuskObject.h"
 #include "../Engine/DuskFunctions.h"
+#include "../Engine/DuskTypes.h"
 #include "../Engine/ItemBase.h"
 #include "../Engine/LightBase.h"
 #include <OgreCEGUIRenderer.h>
@@ -25,11 +26,6 @@ struct mouse_record
 {
   mouse_button_data LeftButton;
   mouse_button_data RightButton;
-};//struct
-
-struct ColourData
-{
-  unsigned char red, green, blue;
 };//struct
 
 //helps us to locate a item within column lists
@@ -193,6 +189,8 @@ protected:
 	bool ModeListClicked(const CEGUI::EventArgs &e);
 
 	bool JournalClicked(const CEGUI::EventArgs &e);
+
+	bool WeatherToggleClicked(const CEGUI::EventArgs &e);
 
 	//callbacks for buttons
 	bool LoadFrameCancelClicked(const CEGUI::EventArgs &e);

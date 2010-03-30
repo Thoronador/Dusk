@@ -92,6 +92,10 @@ bool EditorFrameListener::keyPressed(const OIS::KeyEvent &arg)
            EditorCamera::GetSingleton().setRotationSpeed(-60.0f);
            return true;
            break;
+      case OIS::KC_LSHIFT:
+           EditorCamera::GetSingleton().setTurboMode(true);
+           return true;
+           break;
       default: break;
     }//swi
   }//if
@@ -122,6 +126,10 @@ bool EditorFrameListener::keyReleased(const OIS::KeyEvent &arg)
       case OIS::KC_Q:
       case OIS::KC_E:
            EditorCamera::GetSingleton().setRotationSpeed(0.0f);
+           return true;
+           break;
+      case OIS::KC_LSHIFT:
+           EditorCamera::GetSingleton().setTurboMode(false);
            return true;
            break;
       default: break;
@@ -390,7 +398,6 @@ bool EditorFrameListener::frameEnded(const Ogre::FrameEvent& evt)
   {
     std::cout << "Info: "<<Landscape::GetSingleton().UpdateRecords()<< " landscape record(s) updated.\n";
   }
-  //updateStats();
   return true;
 }
 

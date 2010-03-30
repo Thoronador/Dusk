@@ -8,6 +8,7 @@
 #include "../Engine/Landscape.h"
 #include "../Engine/ObjectData.h"
 #include "../Engine/ObjectBase.h"
+#include "../Engine/Weather.h"
 #include <OgreVector3.h>
 #include <OgreLight.h>
 
@@ -332,7 +333,6 @@ void EditorApplication::CreateCEGUIMenuBar(void)
   popup->addItem(menu_item);
   menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/Mode/PopUp/Land"));
   menu_item->setText("Landscape Editing >");
-  //menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::ModeLandClicked, this));
   popup->addItem(menu_item);
   menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/Mode/PopUp/Cata"));
   menu_item->setText("Catalogue");
@@ -374,6 +374,30 @@ void EditorApplication::CreateCEGUIMenuBar(void)
   menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/Quests/PopUp/Dialogue"));
   menu_item->setText("Dialogue (not implemented yet)");
   popup->addItem(menu_item);
+
+  //"weather" menu
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/Weather"));
+  menu_item->setText("Weather");
+  menu_item->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.8, 0)));
+  menu_item->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.10, 0)));
+  menu->addChildWindow(menu_item);
+
+  popup = static_cast<CEGUI::PopupMenu*> (wmgr.createWindow("TaharezLook/PopupMenu", "Editor/MenuBar/Weather/PopUp"));
+  menu_item->setPopupMenu(popup);
+
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/Weather/PopUp/Fog"));
+  menu_item->setText("Toggle fog");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::WeatherToggleClicked, this));
+  popup->addItem(menu_item);
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/Weather/PopUp/Rain"));
+  menu_item->setText("Toggle rain");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::WeatherToggleClicked, this));
+  popup->addItem(menu_item);
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/Weather/PopUp/Snow"));
+  menu_item->setText("Toggle snow");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::WeatherToggleClicked, this));
+  popup->addItem(menu_item);
+
 
   //static text to show mode
   CEGUI::Window* mode_indicator = wmgr.createWindow("TaharezLook/StaticText", "Editor/ModeIndicator");
@@ -5369,6 +5393,49 @@ bool EditorApplication::QuestRenameFrameOKClicked(const CEGUI::EventArgs &e)
   }
   winmgr.destroyWindow("Editor/QuestRenameFrame");
   ID_of_quest_to_rename = "";
+  return true;
+}
+
+bool EditorApplication::WeatherToggleClicked(const CEGUI::EventArgs &e)
+{
+  const CEGUI::WindowEventArgs& winevent = static_cast<const CEGUI::WindowEventArgs&> (e);
+  if (winevent.window!=NULL)
+  {
+    if (winevent.window->getName() == "Editor/MenuBar/Weather/PopUp/Fog")
+    {
+      if (Weather::getSingelton().isFoggy())
+      {
+        Weather::getSingelton().stopFog();
+      }
+      else
+      {
+        Weather::getSingelton().setFogColour(0.8, 0.8, 0.8);
+        Weather::getSingelton().startLinearFog(100, 400);
+      }
+    }
+    else if (winevent.window->getName() == "Editor/MenuBar/Weather/PopUp/Rain")
+    {
+      if (Weather::getSingelton().isRaining())
+      {
+        Weather::getSingelton().stopRain();
+      }
+      else
+      {
+        Weather::getSingelton().startRain();
+      }
+    }
+    else if (winevent.window->getName() == "Editor/MenuBar/Weather/PopUp/Snow")
+    {
+      if (Weather::getSingelton().isSnowing())
+      {
+        Weather::getSingelton().stopSnow();
+      }
+      else
+      {
+        Weather::getSingelton().startSnow();
+      }
+    }
+  } //window
   return true;
 }
 

@@ -10,6 +10,7 @@
   #include <OgreSceneManager.h>
   #include <vector>
 #endif
+#include "DuskTypes.h"
 
 namespace Dusk
 {
@@ -35,12 +36,19 @@ namespace Dusk
        //shift of land via x and z axis
       float OffsetX() const;
       float OffsetY() const;
-      float Stride() const; //probably used in case the distances are not fixed
+
+      /* returns the distance between two adjacent points */
+      float Stride() const;
+
       float Height[65][65]; //height of the land
       unsigned char Colour[65][65][3]; //colour of the land in RGB-byte values
-      //Highest + lowest altitude in record (calculated during loading process)
+
+      /*returns highest altitude in record (calculated during loading process)*/
       float Highest() const;
+
+      /*returns lowest altitude in record (calculated during loading process)*/
       float Lowest() const;
+
       //load and save functions
       bool LoadFromStream(std::ifstream& AStream);
       bool SaveToStream(std::ofstream& AStream) const;
@@ -60,24 +68,35 @@ namespace Dusk
       //   create landscape data by generator function
       //   (function has to be able to produce values for x and z in [0;1])
       bool GenerateByFunction( float (*func) (const float x, const float z));
-      //move to new position
+
+      /* colour landscape by generator function; returns true on success
+
+          remarks:
+              Function func has to be able to produce values for x and z in [0;1]
+      */
+      bool ColourByFunction(ColourData (*func) (const float x, const float z));
+
+      /* move recrd to new position */
       void MoveTo(const float Offset_X, const float Offset_Y);
       //funtion to move a certain point up/ down
       bool Terraform(const float x, const float z, const float delta);
       //funtion to set colour at certain point
       bool SetColour(const float x, const float z, const unsigned char r,const unsigned char g, const unsigned char b);
+
       #ifndef NO_OGRE_IN_LANDSCAPE
       //send loaded data to scene manager
       bool SendDataToEngine(Ogre::SceneManager * scm);
       //remove data from scene manager
       bool RemoveDataFromEngine();
-      /*updates record, i.e. disable and re-enable it to get new data shown
-          Returns true on success, false on failure.
-          If the record is currently not enabled, it returns true and does
-          NOT enable it.
+
+      /* updates record, i.e. disable and re-enable it to get new data shown
+         Returns true on success, false on failure.
+         If the record is currently not enabled, it returns true and does
+         NOT enable it.
       */
       bool Update();
-      //determines, whether record is currently shown
+
+      /* determines, whether record is currently shown */
       bool IsEnabled() const;
 
       //checks a string for a valid Landscape record name

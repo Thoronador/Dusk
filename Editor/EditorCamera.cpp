@@ -9,6 +9,7 @@ EditorCamera::EditorCamera()
   m_primaryCameraNode = m_secondaryCameraNode = NULL;
   translation_per_second = Ogre::Vector3::ZERO;
   rotation_per_second = 0.0f;
+  m_Turbo = false;
 }
 
 EditorCamera& EditorCamera::GetSingleton()
@@ -121,7 +122,14 @@ void EditorCamera::processMovement(const Ogre::FrameEvent& evt)
   }
   if ( translation_per_second != Ogre::Vector3::ZERO )
   {
-    m_primaryCameraNode->translate(evt.timeSinceLastFrame*translation_per_second, Ogre::Node::TS_LOCAL);
+    if (m_Turbo)
+    {
+      m_primaryCameraNode->translate(4*evt.timeSinceLastFrame*translation_per_second, Ogre::Node::TS_LOCAL);
+    }
+    else
+    {
+      m_primaryCameraNode->translate(evt.timeSinceLastFrame*translation_per_second, Ogre::Node::TS_LOCAL);
+    }
   }
   if ( rotation_per_second != 0.0f )
   {
@@ -156,6 +164,11 @@ void EditorCamera::setTranslationVector(const Ogre::Vector3& velocity)
 Ogre::Vector3 EditorCamera::getTranslationVector(void)
 {
   return translation_per_second;
+}
+
+void EditorCamera::setTurboMode(const bool value)
+{
+  m_Turbo = value;
 }
 
 }//namespace
