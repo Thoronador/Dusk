@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-03-27
+ Date:    2010-04-21
  Purpose: NPC class
           represents a single NPC within the game
 
@@ -18,8 +18,10 @@
      - 2010-01-26 (rev 159) - getConstInventory() added for getting a constant
                               Inventory reference
      - 2010-03-27 (rev 188) - pickUp() added for picking up items
+     - 2010-04-21 (rev 190) - isFemale() added
 
  ToDo list:
+     - add possibility to equip weapons, clothes, armour, etc.
      - ???
 
  Bugs:
@@ -77,6 +79,9 @@ namespace Dusk
       void setCharisma(const uint8 cha);
       void setWillpower(const uint8 wil);
       void setLuck(const uint8 luck);
+
+      /* returns true, if the NPC is female */
+      bool isFemale() const;
 
       /* inventory access method */
       Inventory& getInventory();

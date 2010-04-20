@@ -61,7 +61,6 @@ CEGUI::ListboxItem * getLbItemAtPoint(const CEGUI::Point& pt, CEGUI::MultiColumn
 
 
 
-
 EditorApplication::EditorApplication()
 {
   mFrameListener = 0;
@@ -77,6 +76,7 @@ EditorApplication::EditorApplication()
   ID_of_item_to_edit = "";
   ID_of_light_to_delete = "";
   ID_of_light_to_edit = "";
+  ID_of_NPC_to_delete = "";
   ID_of_quest_to_delete = "";
   ID_of_quest_to_rename = "";
   ID_of_quest_to_add_entry = "";
@@ -501,6 +501,29 @@ void EditorApplication::CreateCEGUICatalogue(void)
   LightBase::GetSingleton().addLight("light_green", LightRecord::GetGreen(23.4));
   LightBase::GetSingleton().addLight("light_blue", LightRecord::GetBlue(3.4));
   RefreshLightList();
+
+  //NPC tab
+  pane = winmgr.createWindow("TaharezLook/TabContentPane", "Editor/Catalogue/Tab/NPC");
+  pane->setSize(CEGUI::UVector2(CEGUI::UDim(1.0, 0), CEGUI::UDim(1.0, 0)));
+  pane->setPosition(CEGUI::UVector2(CEGUI::UDim(0.0, 0), CEGUI::UDim(0.0, 0)));
+  pane->setText("NPCs");
+  tab->addTab(pane);
+
+  mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.createWindow("TaharezLook/MultiColumnList", "Editor/Catalogue/Tab/NPC/List"));
+  mcl->setSize(CEGUI::UVector2(CEGUI::UDim(0.9, 0), CEGUI::UDim(0.9, 0)));
+  mcl->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.05, 0)));
+  mcl->addColumn("ID", 0, CEGUI::UDim(0.19, 0));
+  mcl->addColumn("Name", 1, CEGUI::UDim(0.19, 0));
+  mcl->addColumn("Level", 2, CEGUI::UDim(0.19, 0));
+  mcl->addColumn("Female", 3, CEGUI::UDim(0.19, 0));
+  mcl->addColumn("Mesh", 4, CEGUI::UDim(0.19, 0));
+  mcl->setUserColumnDraggingEnabled(false);
+  pane->addChildWindow(mcl);
+  mcl->subscribeEvent(CEGUI::Window::EventMouseButtonUp, CEGUI::Event::Subscriber(&EditorApplication::NPCTabClicked, this));
+
+  //Sample data
+  // ---- no data yet, just refresh the list
+  RefreshNPCList();
 }
 
 void EditorApplication::CreatePopupMenus(void)
@@ -562,6 +585,25 @@ void EditorApplication::CreatePopupMenus(void)
   menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::LightDeleteClicked, this));
   popup->addItem(menu_item);
   wmgr.getWindow("Editor/Catalogue/Tab/Light/List")->addChildWindow(popup);
+  popup->closePopupMenu();
+
+  //PopUp Menu for NPCs' tab
+  popup = static_cast<CEGUI::PopupMenu*> (wmgr.createWindow("TaharezLook/PopupMenu", "Editor/Catalogue/NPCPopUp"));
+  popup->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.3, 0)));
+  popup->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.3, 0)));
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/Catalogue/NPCPopUp/New"));
+  menu_item->setText("New NPC...");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::NPCNewClicked, this));
+  popup->addItem(menu_item);
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/Catalogue/NPCPopUp/Edit"));
+  menu_item->setText("Edit selected NPC...");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::NPCEditClicked, this));
+  popup->addItem(menu_item);
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/Catalogue/NPCPopUp/Delete"));
+  menu_item->setText("Delete selected NPC");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::NPCDeleteClicked, this));
+  popup->addItem(menu_item);
+  wmgr.getWindow("Editor/Catalogue/Tab/NPC/List")->addChildWindow(popup);
   popup->closePopupMenu();
 }
 
@@ -734,7 +776,7 @@ void EditorApplication::RefreshLightList(void)
   while (first != end)
   {
     addLightRecordToCatalogue(first->first, first->second);
-    first++;
+    ++first;
   }//while
   return;
 }
@@ -1275,6 +1317,9 @@ void EditorApplication::ClearCatalogue(void)
   mcl = static_cast<CEGUI::MultiColumnList*>
            (CEGUI::WindowManager::getSingleton().getWindow("Editor/Catalogue/Tab/Light/List"));
   mcl->resetList();
+  mcl = static_cast<CEGUI::MultiColumnList*>
+           (CEGUI::WindowManager::getSingleton().getWindow("Editor/Catalogue/Tab/NPC/List"));
+  mcl->resetList();
 }
 
 //callbacks for buttons
@@ -1511,7 +1556,7 @@ bool EditorApplication::ObjectEditClicked(const CEGUI::EventArgs &e)
   CEGUI::ListboxItem* lb_item = mcl->getFirstSelectedItem();
   if (lb_item==NULL)
   {
-    std::cout << "Debug: No item selected.\n";
+    showHint("You have to select an object from the list before you can edit it.");
     return true;
   }
 
@@ -1579,7 +1624,7 @@ bool EditorApplication::ItemEditClicked(const CEGUI::EventArgs &e)
   CEGUI::ListboxItem* lb_item = mcl->getFirstSelectedItem();
   if (lb_item==NULL)
   {
-    std::cout << "Debug: No item selected.\n";
+    showHint("You have not selected an item from the list yet.");
     return true;
   }
 
@@ -3278,7 +3323,7 @@ bool EditorApplication::LightEditClicked(const CEGUI::EventArgs &e)
   CEGUI::ListboxItem* lb_item = mcl->getFirstSelectedItem();
   if (lb_item==NULL)
   {
-    std::cout << "Debug: No light selected.\n";
+    showHint("You have not selected a light from the list!");
     return true;
   }
   unsigned int row_index = mcl->getItemRowIndex(lb_item);
@@ -5437,6 +5482,116 @@ bool EditorApplication::WeatherToggleClicked(const CEGUI::EventArgs &e)
     }
   } //window
   return true;
+}
+
+void EditorApplication::RefreshNPCList(void)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  CEGUI::MultiColumnList* mcl = NULL;
+  if (!winmgr.isWindowPresent("Editor/Catalogue/Tab/NPC/List"))
+  {
+    showWarning("ERROR: Could not find NPC list window in CEGUI Window Manager!");
+    return;
+  }
+  mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/Catalogue/Tab/NPC/List"));
+  mcl->resetList();
+
+  std::map<std::string, NPCRecord>::const_iterator first;
+  first = NPCBase::GetSingleton().GetFirst();
+  const std::map<std::string, NPCRecord>::const_iterator end = NPCBase::GetSingleton().GetEnd();
+  while (first != end)
+  {
+    addNPCRecordToCatalogue(first->first, first->second);
+    ++first;
+  }//while
+  return;
+}
+
+void EditorApplication::addNPCRecordToCatalogue(const std::string& ID, const NPCRecord& Record)
+{
+  if (!CEGUI::WindowManager::getSingleton().isWindowPresent("Editor/Catalogue/Tab/NPC/List"))
+  {
+    return;
+  }
+  CEGUI::MultiColumnList* mcl = NULL;
+  mcl = static_cast<CEGUI::MultiColumnList*> (CEGUI::WindowManager::getSingleton().getWindow("Editor/Catalogue/Tab/NPC/List"));
+  CEGUI::ListboxItem *lbi;
+  unsigned int row;
+  lbi = new CEGUI::ListboxTextItem(ID);
+  lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
+  row = mcl->addRow(lbi, 0);
+  lbi = new CEGUI::ListboxTextItem(Record.Name);
+  lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
+  mcl->setItem(lbi, 1, row);
+  lbi = new CEGUI::ListboxTextItem(IntToString(Record.Level));
+  lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
+  mcl->setItem(lbi, 2, row);
+  lbi = new CEGUI::ListboxTextItem(BoolToString(Record.Female));
+  lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
+  mcl->setItem(lbi, 3, row);
+  lbi = new CEGUI::ListboxTextItem(Record.Mesh);
+  lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
+  mcl->setItem(lbi, 4, row);
+}
+
+bool EditorApplication::NPCTabClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  CEGUI::PopupMenu * popup = static_cast<CEGUI::PopupMenu*> (winmgr.getWindow("Editor/Catalogue/NPCPopUp"));
+  if (!popup->isPopupMenuOpen())
+  {
+    const CEGUI::MouseEventArgs& mea = static_cast<const CEGUI::MouseEventArgs&> (e);
+    if (mea.button == CEGUI::RightButton)
+    {
+      const CEGUI::Rect mcl_rect = winmgr.getWindow("Editor/Catalogue/Tab/NPC/List")->getPixelRect();
+      const float pu_x = (mea.position.d_x-mcl_rect.d_left)/mcl_rect.getWidth();
+      const float pu_y = (mea.position.d_y-mcl_rect.d_top)/mcl_rect.getHeight();
+      popup->setPosition(CEGUI::UVector2(CEGUI::UDim(pu_x, 0), CEGUI::UDim(pu_y, 0)));
+      popup->openPopupMenu();
+    }
+  }
+  else
+  {
+    popup->closePopupMenu();
+  }
+  return true;
+}
+
+bool EditorApplication::NPCNewClicked(const CEGUI::EventArgs &e)
+{
+  //not implemented yet
+  return true;
+}
+
+bool EditorApplication::NPCEditClicked(const CEGUI::EventArgs &e)
+{
+  //not implemented yet
+  return true;
+}
+
+bool EditorApplication::NPCDeleteClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*>
+                                (winmgr.getWindow("Editor/Catalogue/Tab/NPC/List"));
+  CEGUI::ListboxItem* lbi = mcl->getFirstSelectedItem();
+  if (lbi==NULL)
+  {
+    showHint("You have to select a NPC from the list to delete it.");
+  }
+  else
+  {
+    unsigned int row_index = mcl->getItemRowIndex(lbi);
+    lbi = mcl->getItemAtGridReference(CEGUI::MCLGridRef(row_index, 0));
+    ID_of_NPC_to_delete = std::string(lbi->getText().c_str());
+    showNPCConfirmDeleteWindow();
+  }
+  return true;
+}
+
+void EditorApplication::showNPCConfirmDeleteWindow()
+{
+  //not implemented yet
 }
 
 }//namespace

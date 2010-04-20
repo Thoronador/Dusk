@@ -9,6 +9,7 @@
 #include "../Engine/DuskTypes.h"
 #include "../Engine/ItemBase.h"
 #include "../Engine/LightBase.h"
+#include "../Engine/NPCBase.h"
 #include <OgreCEGUIRenderer.h>
 #include <CEGUI/CEGUI.h>
 #include <string>
@@ -59,6 +60,7 @@ protected:
     std::string ID_of_object_to_delete;
     std::string ID_of_item_to_delete;
     std::string ID_of_light_to_delete;
+    std::string ID_of_NPC_to_delete;
     //id for editing
     std::string ID_of_object_to_edit;
     std::string ID_of_item_to_edit;
@@ -69,7 +71,6 @@ protected:
     std::string ID_of_quest_to_rename;
 
     std::string ID_of_quest_to_add_entry;
-    //std::string ID_of_quest_to_edit_entry;
     unsigned int Index_of_entry_to_edit;
     std::string QuestID_of_entry_to_edit;
 
@@ -122,6 +123,7 @@ protected:
     void RefreshObjectList(void);
     void RefreshItemList(void);
     void RefreshLightList(void);
+    void RefreshNPCList(void);
 	//general message windows
 	void showWarning(const std::string& Text_of_warning);
 	void showHint(const std::string& hint_text, const bool big=false);
@@ -141,6 +143,8 @@ protected:
     void showLightEditWindow(void);
 	void showLightConfirmDeleteWindow(void);
 	void showLightEditConfirmIDChangeWindow(void);
+	//windows for creating/ editing NPCs
+	void showNPCConfirmDeleteWindow(void);
 
 	//for editing object references
 	void showObjectReferenceEditWindow(const CEGUI::Point& pt);
@@ -169,6 +173,7 @@ protected:
 	void addItemRecordToCatalogue(const std::string& ID, const ItemRecord& ItemData);
 	void addLightRecordToCatalogue(const std::string& ID, const LightRecord& Record);
 	void addObjectRecordToCatalogue(const std::string& ID, const std::string& Mesh);
+	void addNPCRecordToCatalogue(const std::string& ID, const NPCRecord& Record);
 	//clear items/ lights/ objects in catalogue
 	//  (real data is not affected, methods only delete all shown new rows catalogue)
 	void ClearCatalogue(void);
@@ -201,6 +206,7 @@ protected:
 	bool ItemTabClicked(const CEGUI::EventArgs &e);
 	bool LightTabClicked(const CEGUI::EventArgs &e);
 	bool JournalEntryListClicked(const CEGUI::EventArgs &e);
+	bool NPCTabClicked(const CEGUI::EventArgs &e);
 
 	//callbacks for popup menus
 	bool ObjectNewClicked(const CEGUI::EventArgs &e);
@@ -218,6 +224,10 @@ protected:
 	bool JournalEntryNewClicked(const CEGUI::EventArgs &e);
 	bool JournalEntryEditClicked(const CEGUI::EventArgs &e);
 	bool JournalEntryDeleteClicked(const CEGUI::EventArgs &e);
+
+	bool NPCNewClicked(const CEGUI::EventArgs &e);
+	bool NPCEditClicked(const CEGUI::EventArgs &e);
+	bool NPCDeleteClicked(const CEGUI::EventArgs &e);
 
 	//callbacks of window for creating new objects
 	bool ObjectNewFrameCancelClicked(const CEGUI::EventArgs &e);

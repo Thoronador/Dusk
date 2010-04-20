@@ -157,6 +157,11 @@ void NPC::setLuck(const uint8 luck)
   m_Luck = luck;
 }
 
+bool NPC::isFemale() const
+{
+  return NPCBase::GetSingleton().isNPCFemale(ID);
+}
+
 Inventory& NPC::getInventory()
 {
   return m_Inventory;

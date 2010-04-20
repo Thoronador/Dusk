@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2009-12-23
+ Date:    2010-04-21
  Purpose: provides some (more or less) useful functions which are used in
           several headers and/or source files
  History:
@@ -12,6 +12,7 @@
      - 2009-12-23 (rev 145) - getDirectoryFileList() added (again),
                               split into .h and .cpp
      - 2010-02-08 (rev 168) - trim() added /moved from Script.h
+     - 2010-04-21 (rev 190) - BoolToString() added
 
  ToDo list:
      - ???
@@ -29,10 +30,10 @@ namespace Dusk
 {
 
 /* Returns string representation of integer 'value' */
-std::string IntToString(int value);
+std::string IntToString(const int value);
 
 /* Returns string representation of unsigned integer 'value' */
-std::string IntToString(unsigned int value);
+std::string IntToString(const unsigned int value);
 
 /* Tries to convert the provided string into an integer. If the string contains
    invalid characters (e.g. letters) and cannot be converted to an integer, the
@@ -40,13 +41,16 @@ std::string IntToString(unsigned int value);
 int StringToInt(const std::string& str_input, const int default_value);
 
 /* Returns string representation of float 'value' */
-std::string FloatToString(float value);
+std::string FloatToString(const float value);
 
 /* Tries to convert the provided string into a floating point number. If the
    string contains invalid characters (e.g. letters) and cannot be converted to
    a floating point value, the function will return the specified default value.
 */
 float StringToFloat(const std::string& str_input, const float default_value);
+
+/* converts a boolean value into a string ('yes' or 'no') */
+std::string BoolToString(const bool value);
 
 
 /**

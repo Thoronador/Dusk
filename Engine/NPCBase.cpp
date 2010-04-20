@@ -30,7 +30,8 @@ NPCBase& NPCBase::GetSingleton()
 
 void NPCBase::addNPC(const std::string& ID, const std::string& Name,
                      const std::string& Mesh, const uint8 Level,
-                     const NPCAttributes& Attr, const Inventory& StartingInventory)
+                     const NPCAttributes& Attr, const bool female,
+                     const Inventory& StartingInventory)
 {
   if (ID=="" or Name=="" or Mesh=="")
   {
@@ -44,6 +45,7 @@ void NPCBase::addNPC(const std::string& ID, const std::string& Name,
     iter->second.Mesh = Mesh;
     iter->second.Level = Level;
     iter->second.Attributes = Attr;
+    iter->second.Female = female;
     iter->second.InventoryAtStart.MakeEmpty();
     StartingInventory.AddAllItemsTo(iter->second.InventoryAtStart);
     return;
@@ -53,6 +55,7 @@ void NPCBase::addNPC(const std::string& ID, const std::string& Name,
   temp.Mesh = Mesh;
   temp.Level = Level;
   temp.Attributes = Attr;
+  temp.Female = female;
   temp.InventoryAtStart = StartingInventory;
   m_NPCList[ID] = temp;
 }
@@ -128,6 +131,16 @@ NPCAttributes NPCBase::getAttributes(const std::string& NPC_ID) const
   return NPCAttributes::GetNullAttributes();
 }
 
+bool  NPCBase::isNPCFemale(const std::string& NPC_ID) const
+{
+  std::map<std::string, NPCRecord>::const_iterator iter = m_NPCList.find(NPC_ID);
+  if (iter!=m_NPCList.end())
+  {
+    return iter->second.Female;
+  }
+  return false;
+}
+
 const Inventory& NPCBase::getNPCInventory(const std::string& NPC_ID) const
 {
   std::map<std::string, NPCRecord>::const_iterator iter = m_NPCList.find(NPC_ID);
@@ -174,6 +187,8 @@ bool NPCBase::SaveToStream(std::ofstream& output) const
     output.write((char*) &(iter->second.Attributes.Will), 1);
     output.write((char*) &(iter->second.Attributes.Cha), 1);
     output.write((char*) &(iter->second.Attributes.Luck), 1);
+    // -- female flag
+    output.write((char*) &(iter->second.Female), sizeof(bool));
     //inventory
     if (!(iter->second.InventoryAtStart.SaveToStream(output)))
     {
@@ -270,6 +285,8 @@ bool NPCBase::LoadNextRecordFromStream(std::ifstream& input)
   input.read((char*) &(temp_rec.Attributes.Will), 1);
   input.read((char*) &(temp_rec.Attributes.Cha), 1);
   input.read((char*) &(temp_rec.Attributes.Luck), 1);
+  //female?
+  input.read((char*) &(temp_rec.Female), sizeof(bool));
   if (!(input.good()))
   {
     std::cout << "NPCBase::LoadNextRecordFromStream: ERROR while reading NPC "
@@ -284,8 +301,20 @@ bool NPCBase::LoadNextRecordFromStream(std::ifstream& input)
     return false;
   }
   addNPC(tempID, temp_rec.Name, temp_rec.Mesh, temp_rec.Level,
-         temp_rec.Attributes, temp_rec.InventoryAtStart);
+         temp_rec.Attributes, temp_rec.Female, temp_rec.InventoryAtStart);
   return input.good();
 }
+
+#ifdef DUSK_EDITOR
+std::map<std::string, NPCRecord>::const_iterator NPCBase::GetFirst() const
+{
+  return m_NPCList.begin();
+}
+
+std::map<std::string, NPCRecord>::const_iterator NPCBase::GetEnd() const
+{
+  return m_NPCList.end();
+}
+#endif
 
 }//namespace

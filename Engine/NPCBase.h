@@ -1,12 +1,14 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-01-14
+ Date:    2010-04-21
  Purpose: NPCBase singleton class
           holds information about all distinct NPCs in the game
 
  History:
      - 2009-12-22 (rev 143) - initial version (by thoronador)
      - 2010-01-14 (rev 153) - load/ save functions
+     - 2010-04-21 (rev 190) - female flag added
+                            - GetFirst() and GetEnd() added
 
  ToDo list:
      - ???
@@ -38,6 +40,7 @@ namespace Dusk
     std::string Name, Mesh;
     uint8 Level;
     NPCAttributes Attributes;
+    bool Female;
     Inventory InventoryAtStart;
   }; //struct
 
@@ -79,7 +82,7 @@ namespace Dusk
       */
       void addNPC(const std::string& ID, const std::string& Name,
                   const std::string& Mesh, const uint8 Level, const NPCAttributes& Attr,
-                  const Inventory& StartingInventory);
+                  const bool female, const Inventory& StartingInventory);
 
       /* Tries to delete the NPC record with the given ID. Returns true, if such
          a record was present, or false otherwise. */
@@ -123,6 +126,11 @@ namespace Dusk
          exists, a record with all attribute values set to zero is returned. */
       NPCAttributes getAttributes(const std::string& NPC_ID) const;
 
+      /* returns true, if the given NPC has is female/ has the female flag set.
+         If the NPC with the given ID is not present, false is returned.
+      */
+      bool isNPCFemale(const std::string& NPC_ID) const;
+
       /* Returns the inventory of the NPC, if present. */
       const Inventory& getNPCInventory(const std::string& NPC_ID) const;
 
@@ -135,6 +143,14 @@ namespace Dusk
          or false on failure.
       */
       bool LoadNextRecordFromStream(std::ifstream& input);
+
+      #ifdef DUSK_EDITOR
+      /* returns constant iterator to first element in NPC list*/
+      std::map<std::string, NPCRecord>::const_iterator GetFirst() const;
+
+      /* returns constant iterator to end of NPC list*/
+      std::map<std::string, NPCRecord>::const_iterator GetEnd() const;
+      #endif
     private:
       NPCBase();
       NPCBase(const NPCBase& op){}

@@ -14,14 +14,14 @@
 namespace Dusk
 {
 
-std::string IntToString(int value)
+std::string IntToString(const int value)
 {
   std::stringstream s_str;
   s_str << value;
   return s_str.str();
 }
 
-std::string IntToString(unsigned int value)
+std::string IntToString(const unsigned int value)
 {
   std::stringstream s_str;
   s_str << value;
@@ -39,7 +39,7 @@ int StringToInt(const std::string& str_input, const int default_value)
   return value;
 }
 
-std::string FloatToString(float value)
+std::string FloatToString(const float value)
 {
   std::stringstream s_str;
   s_str << value;
@@ -55,6 +55,12 @@ float StringToFloat(const std::string& str_input, const float default_value)
     return default_value;
   }
   return value;
+}
+
+std::string BoolToString(const bool value)
+{
+  if (value) return "yes";
+  return "no";
 }
 
 std::string trim(std::string p_string)
