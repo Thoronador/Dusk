@@ -58,6 +58,10 @@
 		</Compiler>
 		<Unit filename="EditorApplication.cpp" />
 		<Unit filename="EditorApplication.h" />
+		<Unit filename="EditorApplicationBase.cpp" />
+		<Unit filename="EditorApplicationBase.h" />
+		<Unit filename="EditorApplicationNPC.cpp" />
+		<Unit filename="EditorApplicationNPC.h" />
 		<Unit filename="EditorCamera.cpp" />
 		<Unit filename="EditorCamera.h" />
 		<Unit filename="EditorFrameListener.cpp" />

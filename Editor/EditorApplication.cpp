@@ -9,6 +9,7 @@
 #include "../Engine/ObjectData.h"
 #include "../Engine/ObjectBase.h"
 #include "../Engine/Weather.h"
+#include "../Engine/AnimationData.h"
 #include <OgreVector3.h>
 #include <OgreLight.h>
 
@@ -588,23 +589,7 @@ void EditorApplication::CreatePopupMenus(void)
   popup->closePopupMenu();
 
   //PopUp Menu for NPCs' tab
-  popup = static_cast<CEGUI::PopupMenu*> (wmgr.createWindow("TaharezLook/PopupMenu", "Editor/Catalogue/NPCPopUp"));
-  popup->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.3, 0)));
-  popup->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.3, 0)));
-  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/Catalogue/NPCPopUp/New"));
-  menu_item->setText("New NPC...");
-  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::NPCNewClicked, this));
-  popup->addItem(menu_item);
-  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/Catalogue/NPCPopUp/Edit"));
-  menu_item->setText("Edit selected NPC...");
-  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::NPCEditClicked, this));
-  popup->addItem(menu_item);
-  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/Catalogue/NPCPopUp/Delete"));
-  menu_item->setText("Delete selected NPC");
-  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::NPCDeleteClicked, this));
-  popup->addItem(menu_item);
-  wmgr.getWindow("Editor/Catalogue/Tab/NPC/List")->addChildWindow(popup);
-  popup->closePopupMenu();
+  CreatePopupMenuNPCTab();
 }
 
 void EditorApplication::showCEGUILoadWindow(void)
@@ -779,118 +764,6 @@ void EditorApplication::RefreshLightList(void)
     ++first;
   }//while
   return;
-}
-
-void EditorApplication::showWarning(const std::string& Text_of_warning)
-{
-  if (Text_of_warning=="")
-  {
-    return;
-  }
-
-  CEGUI::FrameWindow* frame = NULL;
-  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
-
-  if (winmgr.isWindowPresent("Editor/WarningFrame"))
-  {
-    frame = static_cast<CEGUI::FrameWindow*> (winmgr.getWindow("Editor/WarningFrame"));
-  }
-  else
-  {
-    //create it (frame first)
-    frame = static_cast<CEGUI::FrameWindow*> (winmgr.createWindow("TaharezLook/FrameWindow", "Editor/WarningFrame"));
-    frame->setInheritsAlpha(false);
-    frame->setTitleBarEnabled(true);
-    frame->setText("Warning!");
-    frame->setCloseButtonEnabled(false);
-    frame->setFrameEnabled(true);
-    frame->setSizingEnabled(true);
-    winmgr.getWindow("Editor/Root")->addChildWindow(frame);
-
-    //add static label for message
-    CEGUI::MultiLineEditbox* textbox;
-    textbox = static_cast<CEGUI::MultiLineEditbox*> (winmgr.createWindow("TaharezLook/MultiLineEditbox", "Editor/WarningFrame/Label"));
-    textbox->setSize(CEGUI::UVector2(CEGUI::UDim(0.8, 0), CEGUI::UDim(0.55, 0)));
-    textbox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.15, 0)));
-    textbox->setWordWrapping(true);
-    textbox->setReadOnly(true);
-    frame->addChildWindow(textbox);
-
-    //create OK button
-    CEGUI::Window* button = winmgr.createWindow("TaharezLook/Button", "Editor/WarningFrame/OK");
-    button->setText("OK");
-    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.2, 0)));
-    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.75, 0)));
-    frame->addChildWindow(button);
-    button->subscribeEvent(CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&EditorApplication::WarningFrameOKClicked, this));
-  }
-  winmgr.getWindow("Editor/WarningFrame/Label")->setText(Text_of_warning);
-  frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.2, 0)));
-  frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.5, 0), CEGUI::UDim(0.25, 0)));
-  frame->moveToFront();
-}
-
-void EditorApplication::showHint(const std::string& hint_text, const bool big)
-{
-  if (hint_text=="")
-  {
-    return;
-  }
-
-  CEGUI::FrameWindow* frame = NULL;
-  CEGUI::MultiLineEditbox* textbox = NULL;
-  CEGUI::Window* button = NULL;
-  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
-
-  if (winmgr.isWindowPresent("Editor/HintFrame"))
-  {
-    frame = static_cast<CEGUI::FrameWindow*> (winmgr.getWindow("Editor/HintFrame"));
-    textbox = static_cast<CEGUI::MultiLineEditbox*> (winmgr.getWindow("Editor/HintFrame/Label"));
-    button = winmgr.getWindow("Editor/HintFrame/OK");
-  }
-  else
-  {
-    //create it (frame first)
-    frame = static_cast<CEGUI::FrameWindow*> (winmgr.createWindow("TaharezLook/FrameWindow", "Editor/HintFrame"));
-    frame->setInheritsAlpha(false);
-    frame->setTitleBarEnabled(true);
-    frame->setText("Information");
-    frame->setCloseButtonEnabled(false);
-    frame->setFrameEnabled(true);
-    frame->setSizingEnabled(true);
-    winmgr.getWindow("Editor/Root")->addChildWindow(frame);
-    //add static label for message
-    textbox = static_cast<CEGUI::MultiLineEditbox*> (winmgr.createWindow("TaharezLook/MultiLineEditbox", "Editor/HintFrame/Label"));
-    textbox->setWordWrapping(true);
-    textbox->setReadOnly(true);
-    frame->addChildWindow(textbox);
-    //create OK button
-    button = winmgr.createWindow("TaharezLook/Button", "Editor/HintFrame/OK");
-    button->setText("OK");
-    frame->addChildWindow(button);
-    button->subscribeEvent(CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&EditorApplication::HintFrameOKClicked, this));
-  }
-  winmgr.getWindow("Editor/HintFrame/Label")->setText(hint_text);
-  frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.2, 0)));
-  if (big)
-  {
-    frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.5, 0), CEGUI::UDim(0.5, 0)));
-    textbox->setSize(CEGUI::UVector2(CEGUI::UDim(0.8, 0), CEGUI::UDim(0.7, 0)));
-    textbox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.1, 0)));
-    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.1, 0)));
-    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.85, 0)));
-  }
-  else
-  {
-    frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.5, 0), CEGUI::UDim(0.25, 0)));
-    textbox->setSize(CEGUI::UVector2(CEGUI::UDim(0.8, 0), CEGUI::UDim(0.55, 0)));
-    textbox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.15, 0)));
-    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.2, 0)));
-    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.75, 0)));
-  }
-  frame->moveToFront();
 }
 
 void EditorApplication::showObjectNewWindow(void)
@@ -1356,6 +1229,8 @@ bool EditorApplication::StatsButtonClicked(const CEGUI::EventArgs &e)
            +"  Items: " + IntToString(ItemBase::GetSingleton().NumberOfItems())+"\n"
            +"  Lights: " + IntToString(LightBase::GetSingleton().NumberOfLights())+"\n"
            +"    Object, Light & Item references: "+ IntToString(ObjectData::GetSingleton().NumberOfReferences())
+           +"\n  NPCs: " + IntToString(NPCBase::GetSingleton().NumberOfNPCs())
+           +"\n    Animated Object & NPC references: "+ IntToString(AnimationData::GetSingleton().NumberOfReferences())
            +"\n  Journal:\n"
            +"    quests: "+ IntToString(Journal::GetSingleton().NumberOfDistinctQuests())
            +"\n    entries: "+ IntToString(Journal::GetSingleton().NumberOfEntries()), true);
@@ -1441,26 +1316,6 @@ bool EditorApplication::LoadFrameOKClicked(const CEGUI::EventArgs &e)
     ObjectData::GetSingleton().EnableAllObjects(mSceneMgr);
     EditorCamera::GetSingleton().resetToOrigin();
   }//else branch
-  return true;
-}
-
-bool EditorApplication::WarningFrameOKClicked(const CEGUI::EventArgs &e)
-{
-  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
-  if (winmgr.isWindowPresent("Editor/WarningFrame"))
-  {
-    winmgr.destroyWindow("Editor/WarningFrame");
-  }
-  return true;
-}
-
-bool EditorApplication::HintFrameOKClicked(const CEGUI::EventArgs &e)
-{
-  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
-  if (winmgr.isWindowPresent("Editor/HintFrame"))
-  {
-    winmgr.destroyWindow("Editor/HintFrame");
-  }
   return true;
 }
 
@@ -2266,6 +2121,11 @@ void EditorApplication::closeAllEditWindows(void)
   {
     winmgr.destroyWindow("Editor/QuestRenameFrame");
     ID_of_quest_to_rename = "";
+  }
+  //frame for deleting NPCs
+  if (winmgr.isWindowPresent("Editor/NPCDeleteFrame"))
+  {
+    winmgr.destroyWindow("Editor/NPCDeleteFrame");
   }
 }
 
@@ -5484,56 +5344,6 @@ bool EditorApplication::WeatherToggleClicked(const CEGUI::EventArgs &e)
   return true;
 }
 
-void EditorApplication::RefreshNPCList(void)
-{
-  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
-  CEGUI::MultiColumnList* mcl = NULL;
-  if (!winmgr.isWindowPresent("Editor/Catalogue/Tab/NPC/List"))
-  {
-    showWarning("ERROR: Could not find NPC list window in CEGUI Window Manager!");
-    return;
-  }
-  mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/Catalogue/Tab/NPC/List"));
-  mcl->resetList();
-
-  std::map<std::string, NPCRecord>::const_iterator first;
-  first = NPCBase::GetSingleton().GetFirst();
-  const std::map<std::string, NPCRecord>::const_iterator end = NPCBase::GetSingleton().GetEnd();
-  while (first != end)
-  {
-    addNPCRecordToCatalogue(first->first, first->second);
-    ++first;
-  }//while
-  return;
-}
-
-void EditorApplication::addNPCRecordToCatalogue(const std::string& ID, const NPCRecord& Record)
-{
-  if (!CEGUI::WindowManager::getSingleton().isWindowPresent("Editor/Catalogue/Tab/NPC/List"))
-  {
-    return;
-  }
-  CEGUI::MultiColumnList* mcl = NULL;
-  mcl = static_cast<CEGUI::MultiColumnList*> (CEGUI::WindowManager::getSingleton().getWindow("Editor/Catalogue/Tab/NPC/List"));
-  CEGUI::ListboxItem *lbi;
-  unsigned int row;
-  lbi = new CEGUI::ListboxTextItem(ID);
-  lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
-  row = mcl->addRow(lbi, 0);
-  lbi = new CEGUI::ListboxTextItem(Record.Name);
-  lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
-  mcl->setItem(lbi, 1, row);
-  lbi = new CEGUI::ListboxTextItem(IntToString(Record.Level));
-  lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
-  mcl->setItem(lbi, 2, row);
-  lbi = new CEGUI::ListboxTextItem(BoolToString(Record.Female));
-  lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
-  mcl->setItem(lbi, 3, row);
-  lbi = new CEGUI::ListboxTextItem(Record.Mesh);
-  lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
-  mcl->setItem(lbi, 4, row);
-}
-
 bool EditorApplication::NPCTabClicked(const CEGUI::EventArgs &e)
 {
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
@@ -5555,43 +5365,6 @@ bool EditorApplication::NPCTabClicked(const CEGUI::EventArgs &e)
     popup->closePopupMenu();
   }
   return true;
-}
-
-bool EditorApplication::NPCNewClicked(const CEGUI::EventArgs &e)
-{
-  //not implemented yet
-  return true;
-}
-
-bool EditorApplication::NPCEditClicked(const CEGUI::EventArgs &e)
-{
-  //not implemented yet
-  return true;
-}
-
-bool EditorApplication::NPCDeleteClicked(const CEGUI::EventArgs &e)
-{
-  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
-  CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*>
-                                (winmgr.getWindow("Editor/Catalogue/Tab/NPC/List"));
-  CEGUI::ListboxItem* lbi = mcl->getFirstSelectedItem();
-  if (lbi==NULL)
-  {
-    showHint("You have to select a NPC from the list to delete it.");
-  }
-  else
-  {
-    unsigned int row_index = mcl->getItemRowIndex(lbi);
-    lbi = mcl->getItemAtGridReference(CEGUI::MCLGridRef(row_index, 0));
-    ID_of_NPC_to_delete = std::string(lbi->getText().c_str());
-    showNPCConfirmDeleteWindow();
-  }
-  return true;
-}
-
-void EditorApplication::showNPCConfirmDeleteWindow()
-{
-  //not implemented yet
 }
 
 }//namespace

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    31.12.2009
+ Date:    2010-04-28
  Purpose: AnimationData Singleton class
           Holds all animated objects within the game and makes sure they all
           get their animations played properly by injecting the frame time.
@@ -17,6 +17,7 @@
                               of references to allow faster search for a certain
                               reference
                             - GetAnimatedObjectReference() added
+     - 2010-04-28 (rev 191) - deleteReferencesOfAnimatedObject() added
 
  ToDo list:
      - ???
@@ -67,6 +68,14 @@ namespace Dusk
       */
       NPC* GetNPCReference(const std::string& ID) const;
 
+      /* Deletes all objects with the given ID and returns the number of deleted objects.
+
+         remarks:
+             This function should not be called in-game. It is only used by the Editor.
+      */
+      unsigned int deleteReferencesOfAnimatedObject(const std::string& del_ID);
+
+
       /* makes all objects move according to the amount of time passed
 
          parameters:
@@ -90,7 +99,6 @@ namespace Dusk
     private:
       AnimationData();
       AnimationData(const AnimationData& op) {}
-      //std::vector<AnimatedObject*> m_ReferenceList;
 
       std::map<std::string, std::vector<AnimatedObject*> > m_ReferenceMap;
       unsigned int m_RefCount;

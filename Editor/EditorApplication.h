@@ -3,13 +3,13 @@
 
 #include <Ogre.h>
 #include <OgreConfigFile.h>
+#include "EditorApplicationNPC.h"
 #include "EditorFrameListener.h"
 #include "../Engine/DuskObject.h"
 #include "../Engine/DuskFunctions.h"
 #include "../Engine/DuskTypes.h"
 #include "../Engine/ItemBase.h"
 #include "../Engine/LightBase.h"
-#include "../Engine/NPCBase.h"
 #include <OgreCEGUIRenderer.h>
 #include <CEGUI/CEGUI.h>
 #include <string>
@@ -32,7 +32,7 @@ struct mouse_record
 //helps us to locate a item within column lists
 CEGUI::ListboxItem * getLbItemAtPoint(const CEGUI::Point& pt, CEGUI::MultiColumnList* mcl);
 
-class EditorApplication
+class EditorApplication: public EditorApplicationNPC
 {
 public:
     /// Standard constructor
@@ -60,7 +60,7 @@ protected:
     std::string ID_of_object_to_delete;
     std::string ID_of_item_to_delete;
     std::string ID_of_light_to_delete;
-    std::string ID_of_NPC_to_delete;
+
     //id for editing
     std::string ID_of_object_to_edit;
     std::string ID_of_item_to_edit;
@@ -123,10 +123,6 @@ protected:
     void RefreshObjectList(void);
     void RefreshItemList(void);
     void RefreshLightList(void);
-    void RefreshNPCList(void);
-	//general message windows
-	void showWarning(const std::string& Text_of_warning);
-	void showHint(const std::string& hint_text, const bool big=false);
 
     //windows for creating/ editing objects
 	void showObjectNewWindow(void);
@@ -143,8 +139,6 @@ protected:
     void showLightEditWindow(void);
 	void showLightConfirmDeleteWindow(void);
 	void showLightEditConfirmIDChangeWindow(void);
-	//windows for creating/ editing NPCs
-	void showNPCConfirmDeleteWindow(void);
 
 	//for editing object references
 	void showObjectReferenceEditWindow(const CEGUI::Point& pt);
@@ -173,7 +167,7 @@ protected:
 	void addItemRecordToCatalogue(const std::string& ID, const ItemRecord& ItemData);
 	void addLightRecordToCatalogue(const std::string& ID, const LightRecord& Record);
 	void addObjectRecordToCatalogue(const std::string& ID, const std::string& Mesh);
-	void addNPCRecordToCatalogue(const std::string& ID, const NPCRecord& Record);
+
 	//clear items/ lights/ objects in catalogue
 	//  (real data is not affected, methods only delete all shown new rows catalogue)
 	void ClearCatalogue(void);
@@ -200,8 +194,6 @@ protected:
 	//callbacks for buttons
 	bool LoadFrameCancelClicked(const CEGUI::EventArgs &e);
 	bool LoadFrameOKClicked(const CEGUI::EventArgs &e);
-	bool WarningFrameOKClicked(const CEGUI::EventArgs &e);
-	bool HintFrameOKClicked(const CEGUI::EventArgs &e);
 	bool ObjectTabClicked(const CEGUI::EventArgs &e);
 	bool ItemTabClicked(const CEGUI::EventArgs &e);
 	bool LightTabClicked(const CEGUI::EventArgs &e);
@@ -224,10 +216,6 @@ protected:
 	bool JournalEntryNewClicked(const CEGUI::EventArgs &e);
 	bool JournalEntryEditClicked(const CEGUI::EventArgs &e);
 	bool JournalEntryDeleteClicked(const CEGUI::EventArgs &e);
-
-	bool NPCNewClicked(const CEGUI::EventArgs &e);
-	bool NPCEditClicked(const CEGUI::EventArgs &e);
-	bool NPCDeleteClicked(const CEGUI::EventArgs &e);
 
 	//callbacks of window for creating new objects
 	bool ObjectNewFrameCancelClicked(const CEGUI::EventArgs &e);

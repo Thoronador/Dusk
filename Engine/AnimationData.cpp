@@ -72,6 +72,30 @@ NPC* AnimationData::GetNPCReference(const std::string& ID) const
   return (NPC*)ap;
 }
 
+unsigned int AnimationData::deleteReferencesOfAnimatedObject(const std::string& del_ID)
+{
+  std::map<std::string, std::vector<AnimatedObject*> >::iterator iter;
+  iter = m_ReferenceMap.find(del_ID);
+  if (iter==m_ReferenceMap.end())
+  { //nothing found
+    return 0;
+  }//if
+  unsigned int deletedReferences = 0;
+  long int i;
+  for (i=iter->second.size()-1; i>=0; --i)
+  {
+    if (iter->second.at(i)!=NULL)
+    {
+      delete (iter->second.at(i));
+      iter->second.at(i) = NULL;
+      ++deletedReferences;
+    }//if
+  }//for
+  iter->second.clear();
+  m_ReferenceMap.erase(iter);
+  return deletedReferences;
+}
+
 void AnimationData::InjectAnimationTime(const float TimePassed)
 {
   unsigned int i;
