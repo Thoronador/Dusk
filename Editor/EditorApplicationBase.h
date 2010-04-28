@@ -1,12 +1,13 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
  Date:    2010-04-28
- Purpose: EditorApplicationBase class
-          EditorApplicationNase is an ancestor of EditorApplicationNPC and holds
-          the methods for displaying the warning/ hint window.
+ Purpose: (former) EditorApplicationBase class
+          methods for displaying the warning/ hint window
 
  History:
-     - 2010-04-28 (rev 191)  - initial version (by thoronador)
+     - 2010-04-28 (rev 191) - initial version (by thoronador)
+     - 2010-04-28 (rev 192) - class discarded; former member functions are
+                              transformed into free functions
 
  ToDo list:
      - ???
@@ -24,16 +25,12 @@
 namespace Dusk
 {
 
-class EditorApplicationBase
-{
-  protected:
     //general message windows
     void showWarning(const std::string& Text_of_warning);
     void showHint(const std::string& hint_text, const bool big=false);
     //callbacks for OK buttons
     bool WarningFrameOKClicked(const CEGUI::EventArgs &e);
 	bool HintFrameOKClicked(const CEGUI::EventArgs &e);
-}; //class
 
 } //namespace
 

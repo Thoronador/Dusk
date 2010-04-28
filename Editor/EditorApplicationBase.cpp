@@ -4,7 +4,7 @@
 namespace Dusk
 {
 
-void EditorApplicationBase::showWarning(const std::string& Text_of_warning)
+void showWarning(const std::string& Text_of_warning)
 {
   if (Text_of_warning=="")
   {
@@ -46,7 +46,7 @@ void EditorApplicationBase::showWarning(const std::string& Text_of_warning)
     button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.75, 0)));
     frame->addChildWindow(button);
     button->subscribeEvent(CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&EditorApplicationBase::WarningFrameOKClicked, this));
+            CEGUI::Event::Subscriber(&WarningFrameOKClicked));
   }
   winmgr.getWindow("Editor/WarningFrame/Label")->setText(Text_of_warning);
   frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.2, 0)));
@@ -54,7 +54,7 @@ void EditorApplicationBase::showWarning(const std::string& Text_of_warning)
   frame->moveToFront();
 }
 
-void EditorApplicationBase::showHint(const std::string& hint_text, const bool big)
+void showHint(const std::string& hint_text, const bool big)
 {
   if (hint_text=="")
   {
@@ -93,7 +93,7 @@ void EditorApplicationBase::showHint(const std::string& hint_text, const bool bi
     button->setText("OK");
     frame->addChildWindow(button);
     button->subscribeEvent(CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&EditorApplicationBase::HintFrameOKClicked, this));
+            CEGUI::Event::Subscriber(&HintFrameOKClicked));
   }
   winmgr.getWindow("Editor/HintFrame/Label")->setText(hint_text);
   frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.2, 0)));
@@ -116,7 +116,7 @@ void EditorApplicationBase::showHint(const std::string& hint_text, const bool bi
   frame->moveToFront();
 }
 
-bool EditorApplicationBase::WarningFrameOKClicked(const CEGUI::EventArgs &e)
+bool WarningFrameOKClicked(const CEGUI::EventArgs &e)
 {
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
   if (winmgr.isWindowPresent("Editor/WarningFrame"))
@@ -126,7 +126,7 @@ bool EditorApplicationBase::WarningFrameOKClicked(const CEGUI::EventArgs &e)
   return true;
 }
 
-bool EditorApplicationBase::HintFrameOKClicked(const CEGUI::EventArgs &e)
+bool HintFrameOKClicked(const CEGUI::EventArgs &e)
 {
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
   if (winmgr.isWindowPresent("Editor/HintFrame"))

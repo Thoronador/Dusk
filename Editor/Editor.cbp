@@ -60,6 +60,8 @@
 		<Unit filename="EditorApplication.h" />
 		<Unit filename="EditorApplicationBase.cpp" />
 		<Unit filename="EditorApplicationBase.h" />
+		<Unit filename="EditorApplicationLight.cpp" />
+		<Unit filename="EditorApplicationLight.h" />
 		<Unit filename="EditorApplicationNPC.cpp" />
 		<Unit filename="EditorApplicationNPC.h" />
 		<Unit filename="EditorCamera.cpp" />

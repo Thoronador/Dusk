@@ -8,6 +8,7 @@
 
  History:
      - 2010-04-28 (rev 191)  - initial version (by thoronador)
+     - 2010-04-28 (rev 192)  - dependency to EditorApplicationBase removed
 
  ToDo list:
      - implement possibility to create/ edit NPCs
@@ -22,13 +23,12 @@
 
 #include <string>
 #include <CEGUI/CEGUIEventArgs.h>
-#include "EditorApplicationBase.h"
 #include "../Engine/NPCBase.h"
 
 namespace Dusk
 {
 
-class EditorApplicationNPC: public EditorApplicationBase
+class EditorApplicationNPC
 {
   public:
     // constructor
@@ -36,11 +36,11 @@ class EditorApplicationNPC: public EditorApplicationBase
 
     //destructor
     virtual ~EditorApplicationNPC();
-
   protected:
     //ID for NPC deletion
     std::string ID_of_NPC_to_delete;
 
+    /* clears NPCs in catalogue and re-lists every present NPC */
     void RefreshNPCList(void);
     //windows for creating/ editing NPCs
     void showNPCNewWindow(void);
@@ -51,7 +51,6 @@ class EditorApplicationNPC: public EditorApplicationBase
 
     //create the popup menu for the NPC tab
     void CreatePopupMenuNPCTab(void);
-
 	//callbacks for popup menu
 	bool NPCNewClicked(const CEGUI::EventArgs &e);
 	bool NPCEditClicked(const CEGUI::EventArgs &e);
@@ -60,7 +59,6 @@ class EditorApplicationNPC: public EditorApplicationBase
 	//callbacks of window to delete NPCs
 	bool NPCDeleteFrameNoClicked(const CEGUI::EventArgs &e);
 	bool NPCDeleteFrameYesClicked(const CEGUI::EventArgs &e);
-
 	//callbacks of window for creating new NPCs
 	bool NPCNewFrameCancelClicked(const CEGUI::EventArgs &e);
 	bool NPCNewFrameOKClicked(const CEGUI::EventArgs &e);
