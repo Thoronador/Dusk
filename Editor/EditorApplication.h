@@ -5,11 +5,11 @@
 #include <OgreConfigFile.h>
 #include "EditorApplicationNPC.h"
 #include "EditorApplicationLight.h"
+#include "EditorApplicationItem.h"
 #include "EditorFrameListener.h"
 #include "../Engine/DuskObject.h"
 #include "../Engine/DuskTypes.h"
 #include "../Engine/DuskFunctions.h"
-#include "../Engine/ItemBase.h"
 #include <OgreCEGUIRenderer.h>
 #include <CEGUI/CEGUI.h>
 #include <string>
@@ -32,7 +32,8 @@ struct mouse_record
 //helps us to locate a item within column lists
 CEGUI::ListboxItem * getLbItemAtPoint(const CEGUI::Point& pt, CEGUI::MultiColumnList* mcl);
 
-class EditorApplication: public EditorApplicationNPC, public EditorApplicationLight
+class EditorApplication: public EditorApplicationNPC, public EditorApplicationLight,
+                         public EditorApplicationItem
 {
 public:
     /// Standard constructor
@@ -58,11 +59,9 @@ protected:
     std::vector<FileEntry> LoadFrameFiles;
     //id of item for deletion
     std::string ID_of_object_to_delete;
-    std::string ID_of_item_to_delete;
 
     //id for editing
     std::string ID_of_object_to_edit;
-    std::string ID_of_item_to_edit;
 
     //journal
     std::string ID_of_quest_to_delete;
@@ -119,18 +118,12 @@ protected:
 	void UpdateLoadWindowFiles(const std::string Directory);
 
     void RefreshObjectList(void);
-    void RefreshItemList(void);
 
     //windows for creating/ editing objects
 	void showObjectNewWindow(void);
 	void showObjectEditWindow(void);
 	void showObjectConfirmDeleteWindow(void);
 	void showObjectEditConfirmIDChangeWindow(void);
-    //windows for creating/ editing items
-    void showItemNewWindow(void);
-    void showItemEditWindow(void);
-	void showItemConfirmDeleteWindow(void);
-	void showItemEditConfirmIDChangeWindow(void);
 
 	//for editing object references
 	void showObjectReferenceEditWindow(const CEGUI::Point& pt);
@@ -156,7 +149,6 @@ protected:
 
     //methods to visually add Items or Objects to catalogue
     //  (real data is not effected, methods only show new row in catalogue)
-	void addItemRecordToCatalogue(const std::string& ID, const ItemRecord& ItemData);
 	void addObjectRecordToCatalogue(const std::string& ID, const std::string& Mesh);
 
 	//clear items/ lights/ objects in catalogue
@@ -196,10 +188,6 @@ protected:
 	bool ObjectEditClicked(const CEGUI::EventArgs &e);
 	bool ObjectDeleteClicked(const CEGUI::EventArgs &e);
 
-	bool ItemNewClicked(const CEGUI::EventArgs &e);
-	bool ItemEditClicked(const CEGUI::EventArgs &e);
-	bool ItemDeleteClicked(const CEGUI::EventArgs &e);
-
 	bool JournalEntryNewClicked(const CEGUI::EventArgs &e);
 	bool JournalEntryEditClicked(const CEGUI::EventArgs &e);
 	bool JournalEntryDeleteClicked(const CEGUI::EventArgs &e);
@@ -217,20 +205,6 @@ protected:
 	bool ObjectConfirmIDChangeRenameClicked(const CEGUI::EventArgs &e);
 	bool ObjectConfirmIDChangeNewClicked(const CEGUI::EventArgs &e);
 	bool ObjectConfirmIDChangeCancelClicked(const CEGUI::EventArgs &e);
-
-    //callbacks of window for creating new items
-	bool ItemNewFrameCancelClicked(const CEGUI::EventArgs &e);
-	bool ItemNewFrameOKClicked(const CEGUI::EventArgs &e);
-	//callbacks of windwow for editing items
-	bool ItemEditFrameCancelClicked(const CEGUI::EventArgs &e);
-	bool ItemEditFrameSaveClicked(const CEGUI::EventArgs &e);
-    //callbacks of window to delete items
-	bool ItemDeleteFrameNoClicked(const CEGUI::EventArgs &e);
-	bool ItemDeleteFrameYesClicked(const CEGUI::EventArgs &e);
-	//callbacks for window to confirm ID change (items)
-	bool ItemConfirmIDChangeRenameClicked(const CEGUI::EventArgs &e);
-	bool ItemConfirmIDChangeNewClicked(const CEGUI::EventArgs &e);
-	bool ItemConfirmIDChangeCancelClicked(const CEGUI::EventArgs &e);
 
 	//callbacks for window clicks / to implement object dragging
 	bool RootMouseDown(const CEGUI::EventArgs &e);
