@@ -6,6 +6,7 @@
 #include "EditorApplicationNPC.h"
 #include "EditorApplicationLight.h"
 #include "EditorApplicationItem.h"
+#include "EditorApplicationObject.h"
 #include "EditorFrameListener.h"
 #include "../Engine/DuskObject.h"
 #include "../Engine/DuskTypes.h"
@@ -33,7 +34,7 @@ struct mouse_record
 CEGUI::ListboxItem * getLbItemAtPoint(const CEGUI::Point& pt, CEGUI::MultiColumnList* mcl);
 
 class EditorApplication: public EditorApplicationNPC, public EditorApplicationLight,
-                         public EditorApplicationItem
+                         public EditorApplicationItem, public EditorApplicationObject
 {
 public:
     /// Standard constructor
@@ -57,11 +58,6 @@ protected:
     std::string LoadedDataFile;
     std::string LoadFrameDirectory;
     std::vector<FileEntry> LoadFrameFiles;
-    //id of item for deletion
-    std::string ID_of_object_to_delete;
-
-    //id for editing
-    std::string ID_of_object_to_edit;
 
     //journal
     std::string ID_of_quest_to_delete;
@@ -117,14 +113,6 @@ protected:
 	void showCEGUILoadWindow(void);
 	void UpdateLoadWindowFiles(const std::string Directory);
 
-    void RefreshObjectList(void);
-
-    //windows for creating/ editing objects
-	void showObjectNewWindow(void);
-	void showObjectEditWindow(void);
-	void showObjectConfirmDeleteWindow(void);
-	void showObjectEditConfirmIDChangeWindow(void);
-
 	//for editing object references
 	void showObjectReferenceEditWindow(const CEGUI::Point& pt);
 
@@ -146,10 +134,6 @@ protected:
 
 	//shows or hides catalogue window
 	void SetCatalogueVisibility(const bool visible);
-
-    //methods to visually add Items or Objects to catalogue
-    //  (real data is not effected, methods only show new row in catalogue)
-	void addObjectRecordToCatalogue(const std::string& ID, const std::string& Mesh);
 
 	//clear items/ lights/ objects in catalogue
 	//  (real data is not affected, methods only delete all shown new rows catalogue)
@@ -184,27 +168,9 @@ protected:
 	bool NPCTabClicked(const CEGUI::EventArgs &e);
 
 	//callbacks for popup menus
-	bool ObjectNewClicked(const CEGUI::EventArgs &e);
-	bool ObjectEditClicked(const CEGUI::EventArgs &e);
-	bool ObjectDeleteClicked(const CEGUI::EventArgs &e);
-
 	bool JournalEntryNewClicked(const CEGUI::EventArgs &e);
 	bool JournalEntryEditClicked(const CEGUI::EventArgs &e);
 	bool JournalEntryDeleteClicked(const CEGUI::EventArgs &e);
-
-	//callbacks of window for creating new objects
-	bool ObjectNewFrameCancelClicked(const CEGUI::EventArgs &e);
-	bool ObjectNewFrameOKClicked(const CEGUI::EventArgs &e);
-	//callbacks of window for editing objects
-	bool ObjectEditFrameCancelClicked(const CEGUI::EventArgs &e);
-	bool ObjectEditFrameSaveClicked(const CEGUI::EventArgs &e);
-	//callbacks of window to delete objects
-	bool ObjectDeleteFrameNoClicked(const CEGUI::EventArgs &e);
-	bool ObjectDeleteFrameYesClicked(const CEGUI::EventArgs &e);
-	//callbacks for window to confirm ID change (objects)
-	bool ObjectConfirmIDChangeRenameClicked(const CEGUI::EventArgs &e);
-	bool ObjectConfirmIDChangeNewClicked(const CEGUI::EventArgs &e);
-	bool ObjectConfirmIDChangeCancelClicked(const CEGUI::EventArgs &e);
 
 	//callbacks for window clicks / to implement object dragging
 	bool RootMouseDown(const CEGUI::EventArgs &e);
