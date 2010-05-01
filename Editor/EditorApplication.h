@@ -4,6 +4,7 @@
 #include <Ogre.h>
 #include <OgreConfigFile.h>
 #include "EditorApplicationNPC.h"
+#include "EditorApplicationJournal.h"
 #include "EditorApplicationLight.h"
 #include "EditorApplicationItem.h"
 #include "EditorApplicationObject.h"
@@ -34,7 +35,8 @@ struct mouse_record
 CEGUI::ListboxItem * getLbItemAtPoint(const CEGUI::Point& pt, CEGUI::MultiColumnList* mcl);
 
 class EditorApplication: public EditorApplicationNPC, public EditorApplicationLight,
-                         public EditorApplicationItem, public EditorApplicationObject
+                         public EditorApplicationItem, public EditorApplicationObject,
+                         public EditorApplicationJournal
 {
 public:
     /// Standard constructor
@@ -58,17 +60,6 @@ protected:
     std::string LoadedDataFile;
     std::string LoadFrameDirectory;
     std::vector<FileEntry> LoadFrameFiles;
-
-    //journal
-    std::string ID_of_quest_to_delete;
-    std::string ID_of_quest_to_rename;
-
-    std::string ID_of_quest_to_add_entry;
-    unsigned int Index_of_entry_to_edit;
-    std::string QuestID_of_entry_to_edit;
-
-    unsigned int Index_of_entry_to_delete;
-    std::string QuestID_of_entry_to_delete;
 
     //mouse handling data
     mouse_record mouse;
@@ -119,16 +110,6 @@ protected:
 	//window for landscape editing
 	void showLandscapeEditWindow(void);
 
-	//window for journal entries
-	void showJournalWindow(void);
-	void showJournalConfirmDeleteQuestWindow(void);
-	void showJournalRenameQuestWindow(void);
-
-	void showQuestEntryNewWindow(void);
-	void showQuestEntryConfirmDeleteWindow(void);
-
-	void showQuestEntryEditWindow(void);
-
 	//closing all windows for editing and creation of objects
 	void closeAllEditWindows(void);
 
@@ -138,10 +119,6 @@ protected:
 	//clear items/ lights/ objects in catalogue
 	//  (real data is not affected, methods only delete all shown new rows catalogue)
 	void ClearCatalogue(void);
-
-	//loads all quest IDs into list/ combobox in JournalFrame
-	void UpdateQuestList(void);
-	void UpdateQuestEntryList(const std::string& questID);
 
 	//callbacks for menu items
 	bool LoadButtonClicked(const CEGUI::EventArgs &e);
@@ -164,13 +141,7 @@ protected:
 	bool ObjectTabClicked(const CEGUI::EventArgs &e);
 	bool ItemTabClicked(const CEGUI::EventArgs &e);
 	bool LightTabClicked(const CEGUI::EventArgs &e);
-	bool JournalEntryListClicked(const CEGUI::EventArgs &e);
 	bool NPCTabClicked(const CEGUI::EventArgs &e);
-
-	//callbacks for popup menus
-	bool JournalEntryNewClicked(const CEGUI::EventArgs &e);
-	bool JournalEntryEditClicked(const CEGUI::EventArgs &e);
-	bool JournalEntryDeleteClicked(const CEGUI::EventArgs &e);
 
 	//callbacks for window clicks / to implement object dragging
 	bool RootMouseDown(const CEGUI::EventArgs &e);
@@ -187,33 +158,6 @@ protected:
 	bool LandscapeFrameFinishClicked(const CEGUI::EventArgs &e);
 	bool LandscapeFrameRadioButtonClicked(const CEGUI::EventArgs &e);
 	bool LandscapeFrameColourChanged(const CEGUI::EventArgs &e);
-
-	//callbacks for Journal window
-	bool JournalFrameNewQuestClicked(const CEGUI::EventArgs &e);
-	bool JournalFrameDeleteQuestClicked(const CEGUI::EventArgs &e);
-	bool JournalFrameRenameQuestClicked(const CEGUI::EventArgs &e);
-	bool JournalFrameCloseClicked(const CEGUI::EventArgs &e);
-	bool JournalFrameComboboxChanged(const CEGUI::EventArgs &e);
-
-	//callbacks for quest deletion window
-	bool JournalDeleteQuestFrameYesClicked(const CEGUI::EventArgs &e);
-	bool JournalDeleteQuestFrameNoClicked(const CEGUI::EventArgs &e);
-
-	//callbacks for new quest entry window
-	bool NewQuestEntryFrameOKClicked(const CEGUI::EventArgs &e);
-	bool NewQuestEntryFrameCancelClicked(const CEGUI::EventArgs &e);
-
-	//callbacks of window to delete quest entries
-	bool QuestEntryConfirmDeleteNoClicked(const CEGUI::EventArgs &e);
-	bool QuestEntryConfirmDeleteYesClicked(const CEGUI::EventArgs &e);
-
-    //callbacks for edit quest entry window
-    bool EditQuestEntryFrameOKClicked(const CEGUI::EventArgs &e);
-    bool EditQuestEntryFrameCancelClicked(const CEGUI::EventArgs &e);
-
-    //callbacks for rename quest window
-    bool QuestRenameFrameCancelClicked(const CEGUI::EventArgs &e);
-    bool QuestRenameFrameOKClicked(const CEGUI::EventArgs &e);
 
 	//scene query wrapper
 	DuskObject* GetObjectAtMouse(const CEGUI::Point& pt);

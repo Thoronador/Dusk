@@ -62,6 +62,8 @@
 		<Unit filename="EditorApplicationBase.h" />
 		<Unit filename="EditorApplicationItem.cpp" />
 		<Unit filename="EditorApplicationItem.h" />
+		<Unit filename="EditorApplicationJournal.cpp" />
+		<Unit filename="EditorApplicationJournal.h" />
 		<Unit filename="EditorApplicationLight.cpp" />
 		<Unit filename="EditorApplicationLight.h" />
 		<Unit filename="EditorApplicationNPC.cpp" />
