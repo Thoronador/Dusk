@@ -186,6 +186,10 @@ class Dialogue
 
     /* tries to run the result script of the line with ID LineID and returns
        true on success, false on failure
+
+       remarks:
+         The return value false can mean that either no line with the given ID
+         is present, or an error occured while processing the script.
     */
     bool ProcessResultScript(const std::string& LineID);
 

@@ -79,6 +79,11 @@ bool Light::Disable()
   return true;
 }
 
+bool Light::IsEnabled() const
+{
+  return (entity!=NULL);
+}
+
 ObjectTypes Light::GetType() const
 {
   return otLight;

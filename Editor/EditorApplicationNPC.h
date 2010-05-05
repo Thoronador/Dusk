@@ -1,17 +1,19 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-04-28
+ Date:    2010-05-05
  Purpose: EditorApplicationNPC class
           EditorApplicationNPC is an ancestor of EditorApplication and holds
           the methods which are needed to show and manage the (CE)GUI elements
           associated with creating/ editing NPCs.
 
  History:
-     - 2010-04-28 (rev 191)  - initial version (by thoronador)
-     - 2010-04-28 (rev 192)  - dependency to EditorApplicationBase removed
+     - 2010-04-28 (rev 191) - initial version (by thoronador)
+     - 2010-04-28 (rev 192) - dependency to EditorApplicationBase removed
+     - 2010-05-05 (rev 196) - new NPCs can now be created
 
  ToDo list:
-     - implement possibility to create/ edit NPCs
+     - refine possibility to create NPCs (inventory)
+     - implement possibility to edit NPCs
      - ???
 
  Bugs:

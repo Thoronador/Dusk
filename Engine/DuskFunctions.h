@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-04-21
+ Date:    2010-05-05
  Purpose: provides some (more or less) useful functions which are used in
           several headers and/or source files
  History:
@@ -13,6 +13,7 @@
                               split into .h and .cpp
      - 2010-02-08 (rev 168) - trim() added /moved from Script.h
      - 2010-04-21 (rev 190) - BoolToString() added
+     - 2010-05-05 (rev 196) - documentation updated
 
  ToDo list:
      - ???
@@ -70,7 +71,16 @@ struct FileEntry {
 /* returns a list of all files in the given directory as a vector */
 std::vector<FileEntry> get_DirectoryFileList(const std::string& Directory);
 
-/* Checks for existence of file FileName and returns true, if it exists. */
+/* Checks for existence of file FileName and returns true, if it exists.
+
+   remarks:
+       Do not use for checking against long file lists, because function is
+       rather slow, as long as files aren't in disk cache.
+       Files which cannot be opened due to insufficient privileges will be
+       reported as inexistent. Strictly speaking that's an error/bug. However,
+       most times you check for the existence of a file because you want to
+       read some data from it, so this error does not really matter here.
+*/
 bool FileExists(const std::string& FileName);
 
 }//namespace

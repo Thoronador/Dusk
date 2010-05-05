@@ -1,3 +1,30 @@
+/*---------------------------------------------------------------------------
+ Author:  thoronador
+ Date:    2010-05-05
+ Purpose: Inventory class
+          This class represents the collection of items a player or NPC can
+          carry.
+
+ History:
+     - 2009-07-17 (rev 102) - initial version (by thoronador)
+     - 2009-09-24 (rev 131) - IsEmpty() and MakeEmpty() added
+                            - function to add all items of 'this' to another
+                              inventory added, AddAllTo()
+                            - GetTotalValue() added
+                            - utility function GetEmptyInventory() added
+                            - GetFirst(), GetEnd() and equality operator
+     - 2009-09-27 (rev 132) - LoadFromStream() and SaveToStream() added
+     - 2009-12-18 (rev 142) - } small improvements in declarations
+     - 2010-02-08 (rev 169) - } small improvements in declarations
+     - 2010-05-05 (rev 196) - documentation update
+
+ ToDo list:
+     - ???
+
+ Bugs:
+     - No known bugs. If you find one (or more), then tell me please.
+ --------------------------------------------------------------------------*/
+
 #ifndef INVENTORY_H
 #define INVENTORY_H
 
@@ -16,7 +43,10 @@ namespace Dusk
 class Inventory
 {
   public:
+    /* constructor */
     Inventory();
+
+    /* destructor */
     virtual ~Inventory();
 
     /* AddItem: adds count items of ID ItemID to inventory; always succeeds. */

@@ -1,3 +1,55 @@
+/*---------------------------------------------------------------------------
+ Authors: ssj5000, thoronador
+ Date:    2010-05-05
+ Purpose: DuskObject class
+          This class represents a single, static object in the game and
+          serves as ancestor for many other objects in the game.
+
+ History:
+     - 2007-11-19 (rev 3)   - initial version (by ssj5000)
+     - 2009-01-19 (rev 71)  - missing header includes added (by thoronador)
+     - 2009-01-23 (rev 73)  - class moved into namespace Dusk
+                            - position and rotation added
+     - 2009-01-23 (rev 74)  - get and set methods for rotation and position
+     - 2009-07-01 (rev 101) - Ogre Entity can now be created/ destroyed via
+                              Enable() and Disable() methods
+                            - check for active entity via IsEnabled()
+                            - scale, GetScale() and SetScale() added
+                            - GetID() and ChangeID() introduced
+                            - constructor with parameter list added
+                            - object type changed from string to enumeration
+     - 2009-07-02 (rev 102) - enumeration value for items added
+     - 2009-07-13 (rev 104) - Enable() can now work with arbitrary SceneManager
+     - 2009-07-16 (rev 107) - rotation and position is now applied to entity
+                            - lower bound for scaling factor implemented
+     - 2009-08-30 (rev 123) - DuskObject is now descendant of UserDefinedObject
+                              from Ogre, and entity gets its DuskObject set as
+                              UserDefinedObject (serves as sort of a link)
+     - 2009-08-30 (rev 124) - rotation is now set to a value in 0-360°, if out
+                              of that range
+     - 2009-09-08 (rev 126) - error in SetPosition() fixed
+     - 2009-09-10 (rev 127) - enumeration value for animated objects added
+     - 2009-09-18 (rev 129) - GetType() added
+                            - enumeration value for lights added
+                            - minor improvements in class method declarations
+     - 2009-09-22 (rev 130) - methods to load and save object added
+     - 2009-09-24 (rev 131) - enumeration value for containers added
+     - 2009-12-05 (rev 139) - member objectType removed; GetType() only
+                              depends on class/type and not on instance
+                            - comments to document functions added
+     - 2009-12-08 (rev 140) - enumeration value for NPCs added
+     - 2010-01-17 (rev 156) - load and save methods improved, methods
+                              SaveDuskObjectPart() + LoadDuskObjectPart() added
+     - 2010-02-06 (rev 165) - canPickUp() added
+     - 2010-05-05 (rev 196) - documentation updated
+
+ ToDo list:
+     - ???
+
+ Bugs:
+     - No known bugs. If you find one (or more), then tell me please.
+ --------------------------------------------------------------------------*/
+
 #ifndef DUSKOBJECT_H
 #define DUSKOBJECT_H
 
@@ -106,7 +158,21 @@ class DuskObject: public Ogre::UserDefinedObject
         */
         virtual bool LoadFromStream(std::ifstream& InStream);
     protected:
+        /* Helper function which saves all data in a DuskObject to the given
+           stream. Returns true on success.
+
+           remarks:
+               Derived classes will (most likely) call this function as part of
+               their implementation of SaveToStream().
+        */
         bool SaveDuskObjectPart(std::ofstream& output) const;
+        /* Helper function which loads all data in a DuskObject from the given
+           stream. Returns true on success.
+
+           remarks:
+               Derived classes will (most likely) call this function as part of
+               their implementation of LoadFromStream().
+        */
         bool LoadDuskObjectPart(std::ifstream& InStream);
         std::string ID;
         Ogre::Entity *entity;
