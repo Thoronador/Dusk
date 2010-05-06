@@ -25,16 +25,15 @@
 
 namespace Dusk
 {
-    class Scene;
     class CommandQuit : public Dusk::Command
     {
         public:
+            /* constructor */
             CommandQuit();
+            /* destructor */
             virtual ~CommandQuit();
 
             virtual bool execute(Dusk::Scene* scene, int count = 1);
-        protected:
-        private:
     };
 }
 

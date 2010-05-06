@@ -42,6 +42,11 @@ namespace Dusk
         m_RotationPerSecond = 0.0f;
     }
 
+    bool Camera::setupDone() const
+    {
+      return (m_Primary!=NULL) and (m_Secondary!=NULL) and (m_Camera!=NULL);
+    }
+
     Camera::Camera(Ogre::SceneManager* scn)
     {
         //ctor
@@ -150,25 +155,32 @@ namespace Dusk
 
     void Camera::setZoom(const float distance)
     {
-      if (distance >= cMinimumZoom)
+      if (m_Secondary!=NULL)
       {
-        if (distance <= cMaximumZoom)
+        if (distance >= cMinimumZoom)
         {
-          m_Secondary->setPosition(0.0f, 0.0f, distance);
+          if (distance <= cMaximumZoom)
+          {
+            m_Secondary->setPosition(0.0f, 0.0f, distance);
+          }
+          else
+          {
+            m_Secondary->setPosition(0.0f, 0.0f, cMaximumZoom);
+          }
         }
         else
         {
-          m_Secondary->setPosition(0.0f, 0.0f, cMaximumZoom);
+          m_Secondary->setPosition(0.0f, 0.0f, cMinimumZoom);
         }
-      }
-      else
-      {
-        m_Secondary->setPosition(0.0f, 0.0f, cMinimumZoom);
       }
     }
 
     float Camera::getZoom() const
     {
-      return m_Secondary->getPosition().z;
+      if (m_Secondary!=NULL)
+      {
+        return m_Secondary->getPosition().z;
+      }
+      return 0.0f;
     }
 }

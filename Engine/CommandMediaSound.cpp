@@ -1,5 +1,6 @@
 #include "CommandMediaSound.h"
 #include "Sound.h"
+
 namespace Dusk
 {
   //media creation command
@@ -13,7 +14,7 @@ namespace Dusk
   //destructor
   CommandCreateMedia::~CommandCreateMedia()
   {
-
+    //empty
   }
 
   bool CommandCreateMedia::execute(Dusk::Scene* scene, int count)
@@ -32,7 +33,7 @@ namespace Dusk
   //destructor
   CommandDestroyMedia::~CommandDestroyMedia()
   {
-
+    //empty
   }
 
   bool CommandDestroyMedia::execute(Dusk::Scene* scene, int count)

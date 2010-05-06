@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------
  Authors: walljumper, thoronador
- Date:    2010-03-27
- Purpose: Camera class
+ Date:    2010-05-06
+ Purpose: Camera Singleton class
           Manages the game's camera.
 
  History:
@@ -17,6 +17,7 @@
      - 2009-12-31 (rev 147) - documentation update
      - 2010-03-24 (rev 186) - singleton pattern; jump() added
      - 2010-03-27 (rev 188) - adjustments for Player class
+     - 2010-05-06 (rev 197) - setupDone() added
 
  ToDo list:
      - ???
@@ -34,15 +35,28 @@ namespace Dusk
     class Camera
     {
         public:
+            /* singleton access method */
             static Camera& getSingleton();
+
+            /* destructor */
             virtual ~Camera();
 
             /* initializes Camera for use by application
 
                remarks:
-                  Has to be called once before the Camera is used.
+                   Has to be called once before the Camera is used.
+
+               parameters:
+                   scn - pointer to Ogre SceneManager which shall be used to
+                         create camera and camera nodes. This pointer MUST NOT
+                         be NULL, or the function will throw exceptions.
              */
             void setupCamera(Ogre::SceneManager* scn);
+
+            /* returns true, if the camera has been set up, usually by calling
+               the setupCamera() method
+            */
+            bool setupDone() const;
 
             /* retrieves the pointer to the Ogre::Camera object which is
                internally used*/
@@ -106,7 +120,17 @@ namespace Dusk
             static const float cRecommendedZoomStep;
         protected:
         private:
+            /* constructor
+
+               parameters:
+                   scn - pointer to an Ogre SceneManager
+                         If this pointer is not NULL, the given SceneManager
+                         is used to set up the camera right after creation.
+                         Also see setupCamera().
+            */
             Camera(Ogre::SceneManager* scn=NULL);
+
+            /* copy constructor - empty, because it's a singleton class */
             Camera(const Camera& op) {}
             Ogre::Camera* m_Camera;
             Ogre::SceneNode* m_Primary;

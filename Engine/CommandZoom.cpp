@@ -16,7 +16,6 @@ namespace Dusk
   bool CommandZoom::execute(Dusk::Scene* scene, int count)
   {
     Camera& cam = Camera::getSingleton();
-    //if (cam==NULL) return true;
     if (m_doZoomIn)
     { //zoom in
       cam.setZoom(cam.getZoom()- Camera::cRecommendedZoomStep);

@@ -1,5 +1,6 @@
 #include "CommandSoundVolume.h"
 #include "Sound.h"
+
 namespace Dusk
 {
   //constructor
@@ -12,7 +13,7 @@ namespace Dusk
   //destructor
   CommandSoundVolume::~CommandSoundVolume()
   {
-
+    //empty
   }
 
   bool CommandSoundVolume::execute(Dusk::Scene* scene, int count)

@@ -1,8 +1,9 @@
 #include "CommandNoiseSound.h"
 #include "Sound.h"
+
 namespace Dusk
 {
-  //noise creation command
+  /* **** noise creation command **** */
   //constructor
   CommandCreateNoise::CommandCreateNoise(const std::string& NoiseID)
   {
@@ -12,7 +13,7 @@ namespace Dusk
   //destructor
   CommandCreateNoise::~CommandCreateNoise()
   {
-
+    //empty
   }
 
   bool CommandCreateNoise::execute(Dusk::Scene* scene, int count)
@@ -21,8 +22,7 @@ namespace Dusk
   }
 
 
-  //noise deletion command
-
+  /* **** noise deletion command **** */
   //constructor
   CommandDestroyNoise::CommandDestroyNoise(const std::string& NoiseID)
   {
@@ -32,7 +32,7 @@ namespace Dusk
   //destructor
   CommandDestroyNoise::~CommandDestroyNoise()
   {
-
+    //empty
   }
 
   bool CommandDestroyNoise::execute(Dusk::Scene* scene, int count)

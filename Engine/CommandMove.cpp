@@ -7,7 +7,7 @@ namespace Dusk
     int CommandMove::moveConstant = 20;
     const int CommandMove::rotateDPS = 72;
 
-    CommandMove::CommandMove(DIRECTION dir) : m_Direction(dir)
+    CommandMove::CommandMove(const DIRECTION dir) : m_Direction(dir)
     {
         //ctor
     }
@@ -33,12 +33,6 @@ namespace Dusk
             case RIGHT:
                 m_Camera.translate(Ogre::Vector3(moveConstant,0,0));
                 break;
-            /*case UP:
-                m_Camera.translate(Ogre::Vector3(0,moveConstant,0));
-                break;
-            case DOWN:
-                m_Camera.translate(Ogre::Vector3(0,-moveConstant,0));
-                break;*/
             case TURN_LEFT:
                 m_Camera.rotate(rotateDPS);
                 break;
