@@ -60,6 +60,7 @@ bool Dialogue::LineRecord::SaveToStream(std::ofstream& out) const
   else
   {
     len = ResultScript->getStringRepresentation().length();
+    out.write((char*) &len, sizeof(unsigned int));
     out.write(ResultScript->getStringRepresentation().c_str(), len);
   }
   return out.good();
@@ -172,7 +173,7 @@ bool Dialogue::LineRecord::LoadFromStream(std::ifstream& inp)
 
   //choices
   unsigned int choices_size = 0, i;
-  inp.read((char*) choices_size, sizeof(unsigned int));
+  inp.read((char*) &choices_size, sizeof(unsigned int));
   //Should do size check?
   Choices.clear();
   for (i=0; i<choices_size; i=i+1)
@@ -223,7 +224,6 @@ bool Dialogue::LineRecord::LoadFromStream(std::ifstream& inp)
     ResultScript = new Script(scriptData);
     delete[] scriptData;
   }
-
   return inp.good();
 }
 
@@ -478,8 +478,13 @@ bool Dialogue::ConditionFulfilled(const ConditionRecord& cond, const NPC* who) c
   {
     if (!cond.ScriptedCondition->isEmpty())
     {
-      std::string errorString = "";
       LuaEngine& Lua = LuaEngine::GetSingleton();
+      // set function to nil to prevent call to an earlier version
+      lua_pushstring(Lua, LuaDialogueConditionFunction.c_str());
+      lua_pushnil(Lua);
+      lua_settable(Lua, LUA_GLOBALSINDEX);
+      //run the script (and thus get a new function)
+      std::string errorString = "";
       if (Lua.runString(cond.ScriptedCondition->getStringRepresentation(), &errorString))
       {
         //now get the function

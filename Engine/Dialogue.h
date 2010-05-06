@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-03-03
+ Date:    2010-05-06
  Purpose: Dialogue Singleton class
           holds all information about dialogues with NPCs
 
@@ -11,6 +11,9 @@
      - 2010-01-26 (rev 159) - condition for items added
      - 2010-03-03 (rev 176) - script condition and result scripts added
                             - ProcessResultScript() added
+     - 2010-05-06 (rev 199) - fixed two bugs in load/save functions
+                            - improvement in ConditionFulfilled()'s script
+                              condition handling
 
  ToDo list:
      - extend class for more conditions
@@ -189,7 +192,8 @@ class Dialogue
 
        remarks:
          The return value false can mean that either no line with the given ID
-         is present, or an error occured while processing the script.
+         is present, or an error occured while processing the script. If the
+         requested line has no result script, true is returned.
     */
     bool ProcessResultScript(const std::string& LineID);
 
