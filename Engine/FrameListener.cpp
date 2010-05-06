@@ -1,9 +1,5 @@
 #include "FrameListener.h"
-#include<sstream>
 #include "Console.h"
-#include "InputSystem.h"
-#include "InputSystemEditor.h"
-#include "InputSystemBinding.h"
 #include "InputSystem.h"
 #include "API.h"
 #include "Camera.h"
@@ -44,5 +40,4 @@ void FrameListener::exit()
     m_Continue = false;
 }
 
-}
-
+} //namespace

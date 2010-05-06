@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-04-28
+ Date:    2010-05-06
  Purpose: AnimationData Singleton class
           Holds all animated objects within the game and makes sure they all
           get their animations played properly by injecting the frame time.
@@ -18,6 +18,7 @@
                               reference
                             - GetAnimatedObjectReference() added
      - 2010-04-28 (rev 191) - deleteReferencesOfAnimatedObject() added
+     - 2010-05-06 (rev 198) - small improvements
 
  ToDo list:
      - ???
@@ -40,6 +41,7 @@ namespace Dusk
   class AnimationData
   {
     public:
+      /* destructor */
       virtual ~AnimationData();
 
       /* singleton access function */
@@ -50,13 +52,13 @@ namespace Dusk
 
       /* adds a new AnimatedObject with given ID at given position with rotation
          and scale, and returns a pointer to the created AnimatedObject. */
-      AnimatedObject* addAnimatedReference(const std::string ID, const Ogre::Vector3 position,
-                                           const Ogre::Vector3 rotation, const float scale);
+      AnimatedObject* addAnimatedReference(const std::string& ID, const Ogre::Vector3& position,
+                                           const Ogre::Vector3& rotation, const float scale);
 
       /* adds a new NPC with given ID at given position with rotation and scale.
          Returns a pointer to the created NPC. */
-      NPC* addNPCReference(const std::string ID, const Ogre::Vector3 position,
-                           const Ogre::Vector3 rot, const float Scale);
+      NPC* addNPCReference(const std::string& ID, const Ogre::Vector3& position,
+                           const Ogre::Vector3& rot, const float Scale);
 
       /* returns a pointer to the first object reference with the given ID, or
          NULL of no such object is present
@@ -97,7 +99,9 @@ namespace Dusk
       /* deletes all referenced objects */
       void ClearData();
     private:
+      /* private constructor (singleton pattern) */
       AnimationData();
+      /* empty, private copy constructor due to singleton pattern*/
       AnimationData(const AnimationData& op) {}
 
       std::map<std::string, std::vector<AnimatedObject*> > m_ReferenceMap;

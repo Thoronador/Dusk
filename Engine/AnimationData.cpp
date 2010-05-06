@@ -27,8 +27,8 @@ unsigned int AnimationData::NumberOfReferences() const
   return m_RefCount;
 }
 
-AnimatedObject* AnimationData::addAnimatedReference(const std::string ID,
-    const Ogre::Vector3 position, const Ogre::Vector3 rotation, const float scale)
+AnimatedObject* AnimationData::addAnimatedReference(const std::string& ID,
+    const Ogre::Vector3& position, const Ogre::Vector3& rotation, const float scale)
 {
   AnimatedObject * ObjectPointer = new AnimatedObject(ID, position, rotation, scale);
   m_ReferenceMap[ID].push_back(ObjectPointer);
@@ -36,8 +36,8 @@ AnimatedObject* AnimationData::addAnimatedReference(const std::string ID,
   return ObjectPointer;
 }
 
-NPC* AnimationData::addNPCReference(const std::string ID,
-     const Ogre::Vector3 position, const Ogre::Vector3 rot, const float Scale)
+NPC* AnimationData::addNPCReference(const std::string& ID,
+     const Ogre::Vector3& position, const Ogre::Vector3& rot, const float Scale)
 {
   NPC* NPCPointer = new NPC(ID, position, rot, Scale);
   m_ReferenceMap[ID].push_back(NPCPointer);
@@ -69,7 +69,7 @@ NPC* AnimationData::GetNPCReference(const std::string& ID) const
       ap = NULL;
     }
   }
-  return (NPC*)ap;
+  return (static_cast<NPC*>(ap));
 }
 
 unsigned int AnimationData::deleteReferencesOfAnimatedObject(const std::string& del_ID)
