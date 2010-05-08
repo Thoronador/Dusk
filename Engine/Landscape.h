@@ -1,3 +1,40 @@
+/*---------------------------------------------------------------------------
+ Author:  thoronador
+ Date:    2010-05-08
+ Purpose: LandscapeRecord class and Landscape Singleton class
+          both classes together manage the landscape data of the game
+
+ History:
+     - 2009-01-16 (rev 70)  - initial version (by thoronador)
+     - 2009-01-25 (rev 75)  - landscape now sends data to engine/ Ogre
+     - 2009-01-27 (rev 77)  - SaveToFile() implemented
+                            - indexed geometry for landscape
+     - 2009-02-11 (rev 79)  - Shift(), Scale(), MakePlain(), IsPlain() added,
+                              i.e. functions for data manipulation
+                            - destructor now frees Ogre::ManualObjects
+                            - RecordsAvailable() added
+     - 2009-02-13 (rev 80)  - lower bound check for Scale()
+     - 2009-02-19 (rev 81)  - Landscape class splitted into LandscapeRecord and
+                              Landscape (manager class) to ease handling of
+                              landscape data
+     - 2009-02-23 (rev 83)  - unused variable removed
+     - ...
+     - ... There's still something missing here!
+     - ...
+     - 2010-05-08 (rev 200) - documentation updated
+                            - SaveAllToStream() added
+
+ ToDo list:
+     - implement LoadRecordFromStream() for Landscape class
+     - try to get rid of GetRecordByPosition(), if it's not used anymore by any
+       other files in Engine and Editor
+     - complete history (see above)
+     - ???
+
+ Bugs:
+     - No known bugs. If you find one (or more), then tell me please.
+ --------------------------------------------------------------------------*/
+
 #ifndef LANDSCAPE_H
 #define LANDSCAPE_H
 
@@ -31,10 +68,21 @@ namespace Dusk
   class LandscapeRecord
   {
     public:
+      /* constructor */
       LandscapeRecord();
+
+      /* destructor */
       virtual ~LandscapeRecord();
-       //shift of land via x and z axis
+
+      //shift of land via x and z axis
+      /* returns the offset of record at the X-axis */
       float OffsetX() const;
+
+      /* returns the offset of record at the Z-axis
+
+         remarks:
+           Yes, it's Z and not Y, despite the name.
+      */
       float OffsetY() const;
 
       /* returns the distance between two adjacent points */
@@ -50,23 +98,71 @@ namespace Dusk
       float Lowest() const;
 
       //load and save functions
+      /* tries to load the LandscapeRecord from the given stream and returns
+         true on success, or false if an error occured.
+
+         remarks:
+             If the functions fails, the record may possibly contain incon-
+             sistent data and therefore should not be used any more.
+      */
       bool LoadFromStream(std::ifstream& AStream);
+
+      /* tries to save landscape data to stream and returns true on success */
       bool SaveToStream(std::ofstream& AStream) const;
-      //function for determining whether data is loaded or not
+
+      /*function for determining whether data is loaded or not - returns true,
+        if the record contains valid landscape data. However, only the height
+        values/data are considered, the colour data may still be crap.
+      */
       bool IsLoaded() const;
-      //mainpulate loading state directly, use with care, or better: not at all
+
+      /* manipulates loading state (i.e. return value of IsLoaded() directly
+
+         remarks:
+             Use with care, or better: not at all.
+      */
       void SetLoadedState(const bool value);
-      //manipulating landscape data
-      //   shifts land delta units up/ down
+
+      // **** manipulating landscape data ****
+
+      /* shifts land delta units up/ down - positive values produce a shift
+         upwards, negative values downwards. Returns true on success.
+
+         remarks:
+            Will always return true.
+      */
       bool Shift(const float delta);
-      //   scales land by factor (factor==10 -> all land is ten times as high)
+
+      /* scales the land data by factor, e.g. factor==10 -> all land is ten
+         times as high as before
+
+         return value:
+             True in case of success, false in case of failure.
+
+         remarks:
+            The value of factor has to be larger than cMinScale.
+            If no data is loaded (yet), the function will fail.
+      */
       bool Scale(const float factor);
-      //   make it plain at level value (i.e. all is as high as value indicates)
+      /* make it plain at level value (i.e. all is as high as value indicates)
+
+         return value:
+             True on success (currently, that function cannot fail)
+      */
       bool MakePlain(const float value);
-      //   is it plain?
+
+      /* returns true, if landscape data of this record is a plane */
       bool IsPlain() const;
-      //   create landscape data by generator function
-      //   (function has to be able to produce values for x and z in [0;1])
+
+      /* creates landscape data via generator function; returns true on success
+
+         parameters:
+             func - the function that returns the height of the landscape at a
+                    given point
+
+         remarks:
+             The function has to be able to produce values for both x and z in [0;1].
+      */
       bool GenerateByFunction( float (*func) (const float x, const float z));
 
       /* colour landscape by generator function; returns true on success
@@ -76,18 +172,55 @@ namespace Dusk
       */
       bool ColourByFunction(ColourData (*func) (const float x, const float z));
 
-      /* move recrd to new position */
+      /* move record to new position
+
+         parameters:
+             Offset_X - x-coordinate of new position
+             Offset_Y - z(!)-coordinate of new position
+      */
       void MoveTo(const float Offset_X, const float Offset_Y);
-      //funtion to move a certain point up/ down
+
+      /* moves the landscape above/below point (x, 0, z) delta units up/down
+
+         parameters:
+             x     - x-coordinate of the point that shall be moved
+             z     - z-coordinate of the point that shall be moved
+             delta - amount the point should be moved up/down
+                     (positive value -> up; negative value -> down)
+
+         return value:
+             Returns true on success.
+      */
       bool Terraform(const float x, const float z, const float delta);
-      //funtion to set colour at certain point
+
+      /* funtion to set colour at certain point. Returns true on success.
+
+         parameters:
+             x     - x-coordinate of the point that shall be moved
+             z     - z-coordinate of the point that shall be moved
+             r,g,b - new RGB-colour value
+      */
       bool SetColour(const float x, const float z, const unsigned char r,const unsigned char g, const unsigned char b);
 
+      /* sets the stride value (i.e. distance between adjacent points) to
+         new_stride and returns true on success, false otherwise.
+
+         remarks:
+             The function will fail, if the new stride value is less or equal to
+             zero. In this case, the value won't be changed.
+      */
+      bool SetStride(const float new_stride);
+
       #ifndef NO_OGRE_IN_LANDSCAPE
-      //send loaded data to scene manager
-      bool SendDataToEngine(Ogre::SceneManager * scm);
-      //remove data from scene manager
-      bool RemoveDataFromEngine();
+      /* send loaded data to scene manager and return true on success
+
+         parameters:
+             scm - SceneManager that shall be used to display landscape
+      */
+      bool Enable(Ogre::SceneManager * scm);
+
+      /*remove data from scene manager; returns true on success */
+      bool Disable();
 
       /* updates record, i.e. disable and re-enable it to get new data shown
          Returns true on success, false on failure.
@@ -99,7 +232,9 @@ namespace Dusk
       /* determines, whether record is currently shown */
       bool IsEnabled() const;
 
-      //checks a string for a valid Landscape record name
+      /* checks a string for a valid Landscape record name and returns true, if
+         the string val contains a valid name
+      */
       static bool IsLandscapeRecordName(const std::string& val);
 
       /* checks whether a ray hits this record or not
@@ -114,16 +249,15 @@ namespace Dusk
              HitPoint - a 3D vector, where the hit location will be stored
       */
       bool IsHitByRay(const Ogre::Ray& ray, Ogre::Vector3& HitPoint) const;
-
-      /* returns the position of the point represented by Height[i][j] as a 3D
-         Ogre Vector (utility function)
-      */
-      const Ogre::Vector3 GetPositionOfIndex(const unsigned int i, const unsigned int j) const;
       #endif
-      //"identifier"
+      // returns unique "identifier" of landscape record
       unsigned int GetID() const;
+
+      // contains the dafault value for stride
       static const float cDefaultStride;
+      // minimum value allowed in Scale()
       static const float cMinScale;
+      // prefix for names of all ManualObjects created during landscape enabling
       static const std::string cLandscapeNamePrefix;
     private:
       static unsigned int m_genID;
@@ -135,50 +269,149 @@ namespace Dusk
       unsigned int m_RecordID;
       #ifndef NO_OGRE_IN_LANDSCAPE
       Ogre::ManualObject * m_OgreObject;
+
+      /* returns the position of the point represented by Height[i][j] as a 3D
+         Ogre Vector (utility function)
+      */
+      const Ogre::Vector3 GetPositionOfIndex(const unsigned int i, const unsigned int j) const;
       #endif
   };
 
   class Landscape
   {
     public:
+      /* destructor */
       virtual ~Landscape();
+
+      /* singleton access method */
       static Landscape& GetSingleton();
 
       //load and save (all) records from/to file
+      /* tries to load LandscapeRecords from the file specified by FileName.
+         Returns true on success, false on failure.
+      */
       bool LoadFromFile(const std::string& FileName);
-      bool SaveToFile(const std::string& FileName);
+
+      /* tries to save all present LandscapeRecords to the file specified by
+         FileName. Returns true on success.
+      */
+      bool SaveToFile(const std::string& FileName) const;
+
+      /* tries to save all records to the given stream and returns true on
+         success
+      */
+      bool SaveAllToStream(std::ofstream& AStream) const;
+
+      /* creates a new landscape record and returns a pointer to it */
       LandscapeRecord* CreateRecord();
+
+      /* deletes the landscape record pointed to be recPtr
+
+         remarks:
+             After the call to that function, recPtr must NOT be referenced,
+             because it will point to then deleted memory.
+      */
       void DestroyRecord(const LandscapeRecord* recPtr);
+
+      /* returns the number of present LandscapeRecords */
       unsigned int RecordsAvailable();
+
+      /* returns the LandscapeRecord at internal position record, or NULL if no
+         record exists at this position
+
+         parameters:
+             record - position of the record in internal array
+
+         remarks:
+             This function will NOT always return the same record for the same
+             value of parameter record, because randomly deleting a record will
+             change the internal position of records.
+      */
       LandscapeRecord* GetRecordByPosition(const unsigned int record);
+
+      /* returns the record with ID recordID, or NULL if no record with that ID
+         is available
+
+         remarks:
+             This function is safer than GetRecordByPosition(), because you will
+             always get the same record for the same ID until the record is
+             deleted. (After deletion, it will return a NULL pointer.)
+      */
       LandscapeRecord* GetRecordByID(const unsigned int recordID);
+
+      /* tries to find the LandscapeRecord which covers the point (x,0.0,y) and
+         returns a pointer to it. If no record is at that point, NULL will be
+         returned.
+      */
       LandscapeRecord* GetRecordAtXZ(const float x, const float y) const;
+
+      /* deletes all LandscapeRecords */
       void ClearAllRecords();
+
       #ifndef NO_OGRE_IN_LANDSCAPE
-      //send loaded data to scene manager
+      /* sends all loaded data to scene manager and returns true on success
+
+         parameters:
+             scm - SceneManager that shall be used to display landscape
+      */
       bool SendToEngine(Ogre::SceneManager * scm);
-      //remove loaded data from scene manager
+
+      /* removes all loaded landscape data from scene manager and returns true
+         in case of success
+
+         parameters:
+             scm - SceneManager that displays the landscape
+
+          remarks:
+             scm should be the same SceneManager that was previously used in the
+             call to SendToEngine().
+      */
       bool RemoveFromEngine(Ogre::SceneManager * scm);
-      //notify Landscape about a record that needs to be updated
+
+      /* notify Landscape about a record that needs to be updated
+
+         parameters:
+             who - pointer to the LandscapeRecord that needs to be updated
+
+         remarks:
+             A LandscapeRecord that requests an update will be disabled and
+             re-enabled during the next call of UpdateRecords().
+      */
       void RequestUpdate(LandscapeRecord* who);
-      //returns true, if there are any records who need an update
+
+      /*returns true, if there are any records who need an update */
       bool NeedsUpdate() const;
-      //performs update of records who requested it since last call,
-      // and returns number of updated records
+
+      /* performs update of records who requested it since last call,
+         and returns number of updated records
+      */
       unsigned int UpdateRecords();
       #endif
-      //for collision detection
+      /* returns the height of the landscape at a given point, i.e. the y-value
+         of the point (x,y,z), where (x,y,z) is directly at the landscape's
+         surface. If no landscape data for the given point is present, 0.0 will
+         be returned.
+
+         remarks:
+             This function is used for "collision detection" with landscape
+             within the game.
+      */
       float GetHeightAtPosition(const float x, const float z) const;
       static const std::string cLandNodeName;
       static const unsigned int cMaxLandRecords;
     private:
+      /* private constructor (singleton) */
       Landscape();
+      /* private, empty constructor (singleton pattern) */
       Landscape(const Landscape& op){}
+
+      /* internal function to change the size/length of m_RecordList */
       void ChangeListSize(const unsigned int new_size);
 
       LandscapeRecord ** m_RecordList;
       unsigned int m_numRec, m_Capacity;
       #ifndef NO_OGRE_IN_LANDSCAPE
+      //list of LandscapeRecords that want to be updated
       std::vector<LandscapeRecord*> m_RecordsForUpdate;
       #endif
   };

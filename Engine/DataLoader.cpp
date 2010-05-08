@@ -162,20 +162,13 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   //save landscape
   if ((bits & LANDSCAPE_BIT) !=0)
   {
-    LandscapeRecord * land;
-    data_records = Landscape::GetSingleton().RecordsAvailable();
-    unsigned int i;
-    for (i=0; i<data_records; i++)
+    if (!(Landscape::GetSingleton().SaveAllToStream(output)))
     {
-      land = Landscape::GetSingleton().GetRecordByPosition(i);
-      if (!(land->SaveToStream(output)))
-      {
-        std::cout << "DataLoader::SaveToFile: ERROR: could not write landscape "
-                  << "record "<<i<<" to file \""<<FileName<<"\".\n";
-        output.close();
-        return false;
-      }//if
-    }//for
+      std::cout << "DataLoader::SaveToFile: ERROR: could not write landscape "
+                << "records to file \""<<FileName<<"\".\n";
+      output.close();
+      return false;
+    }//if
   }//if landscape
 
   //save lights

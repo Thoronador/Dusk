@@ -2260,9 +2260,9 @@ bool ReadLAND(std::ifstream& in_File)
       DuskLand->Colour[i][j][2] = MW_Colour[i][j][2];
     }//for j
   }//for i
-  DuskLand->Stride = Dusk::cDefaultStride;
-  DuskLand->OffsetX = Dusk::cDefaultStride * 64 * CellX;
-  DuskLand->OffsetY = Dusk::cDefaultStride * 64 * CellY;
+  DuskLand->SetStride(Dusk::LandscapeRecord::cDefaultStride);
+  DuskLand->MoveTo(Dusk::LandscapeRecord::cDefaultStride * 64 * CellX,
+                   Dusk::LandscapeRecord::cDefaultStride * 64 * CellY);
   DuskLand->SetLoadedState(true);
   std::cout << "Debug: conversion finished.\n";
 

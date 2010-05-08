@@ -48,7 +48,7 @@ LandscapeRecord::~LandscapeRecord()
   #ifndef NO_OGRE_IN_LANDSCAPE
   if (m_OgreObject != NULL)
   {
-    RemoveDataFromEngine();
+    Disable();
   }
   #endif
 }
@@ -219,6 +219,12 @@ bool LandscapeRecord::Shift(const float delta)
   }
   m_Highest = m_Highest+delta;
   m_Lowest = m_Lowest+delta;
+  #ifndef NO_OGRE_IN_LANDSCAPE
+  if (IsEnabled())
+  {
+    Landscape::GetSingleton().RequestUpdate(this);
+  }
+  #endif
   return true;
 }
 
@@ -241,6 +247,12 @@ bool LandscapeRecord::Scale(const float factor)
   }
   m_Highest = m_Highest*factor;
   m_Lowest = m_Lowest*factor;
+  #ifndef NO_OGRE_IN_LANDSCAPE
+  if (IsEnabled())
+  {
+    Landscape::GetSingleton().RequestUpdate(this);
+  }
+  #endif
   return true;
 }
 
@@ -258,6 +270,12 @@ bool LandscapeRecord::MakePlain(const float value)
   m_Highest = value;
   m_Lowest = value;
   SetLoadedState(true);
+  #ifndef NO_OGRE_IN_LANDSCAPE
+  if (IsEnabled())
+  {
+    Landscape::GetSingleton().RequestUpdate(this);
+  }
+  #endif
   return true;
 }
 
@@ -295,6 +313,12 @@ bool LandscapeRecord::GenerateByFunction( float (*func) (const float x, const fl
     }//for j
   }//for i
   SetLoadedState(true);
+  #ifndef NO_OGRE_IN_LANDSCAPE
+  if (IsEnabled())
+  {
+    Landscape::GetSingleton().RequestUpdate(this);
+  }
+  #endif
   return true;
 }//function
 
@@ -318,6 +342,12 @@ bool LandscapeRecord::ColourByFunction(ColourData (*func) (const float x, const 
       Colour[i][j][2] = cd.blue;
     }//for (inner)
   }//for
+  #ifndef NO_OGRE_IN_LANDSCAPE
+  if (IsEnabled())
+  {
+    Landscape::GetSingleton().RequestUpdate(this);
+  }
+  #endif
   return true;
 }
 
@@ -386,31 +416,50 @@ bool LandscapeRecord::SetColour(const float x, const float z, const unsigned cha
   return false;
 }
 
+bool LandscapeRecord::SetStride(const float new_stride)
+{
+  if (new_stride>0.0f)
+  {
+    if (new_stride!=m_Stride)
+    {
+      m_Stride = new_stride;
+      #ifndef NO_OGRE_IN_LANDSCAPE
+      if (IsEnabled())
+      {
+        Landscape::GetSingleton().RequestUpdate(this);
+      }
+      #endif
+    }
+    return true;
+  }
+  return false;
+}
+
 #ifndef NO_OGRE_IN_LANDSCAPE
-bool LandscapeRecord::SendDataToEngine(Ogre::SceneManager * scm)
+bool LandscapeRecord::Enable(Ogre::SceneManager * scm)
 {
   if (!m_Loaded)
   {
-    std::cout << "LandscapeRecord::SendDataToEngine: ERROR: Record has no valid data (yet).\n";
+    std::cout << "LandscapeRecord::Enable: ERROR: Record has no valid data (yet).\n";
     return false;
   }
 
   if (m_OgreObject != NULL)
   {
-    std::cout << "LandscapeRecord::SendDataToEngine: Hint: Record is already enabled.\n";
+    std::cout << "LandscapeRecord::Enable: Hint: Record is already enabled.\n";
     return true;
   }
 
   if (scm==NULL)
   {
-    std::cout << "LandscapeRecord::SendDataToEngine: ERROR: Got NULL for scene manager.\n";
+    std::cout << "LandscapeRecord::Enable: ERROR: Got NULL for scene manager.\n";
     return false;
   }
 
   //get own scene node for landscape
   if (!scm->hasSceneNode(Landscape::cLandNodeName))
   {
-    std::cout << "LandscapeRecord::SendDataToEngine: ERROR: LandscapeNode does not exist.\n";
+    std::cout << "LandscapeRecord::Enable: ERROR: LandscapeNode does not exist.\n";
     return false;
   }
   Ogre::SceneNode * landnode;
@@ -460,7 +509,7 @@ bool LandscapeRecord::SendDataToEngine(Ogre::SceneManager * scm)
   return true;
 }
 
-bool LandscapeRecord::RemoveDataFromEngine()
+bool LandscapeRecord::Disable()
 {
   if (m_OgreObject == NULL)
   {
@@ -471,7 +520,7 @@ bool LandscapeRecord::RemoveDataFromEngine()
   scm = m_OgreObject->getParentSceneNode()->getCreator();
   if (scm==NULL)
   {
-    std::cout << "LandscapeRecord::RemoveDataFromEngine: ERROR: Got NULL for "
+    std::cout << "LandscapeRecord::Disable: ERROR: Got NULL for "
               << "scene manager.\n";
     return false;
   }
@@ -479,7 +528,7 @@ bool LandscapeRecord::RemoveDataFromEngine()
   //get scene node for landscape
   if (!scm->hasSceneNode(Landscape::cLandNodeName))
   {
-    std::cout << "LandscapeRecord::RemoveDataFromEngine: ERROR: LandscapeNode does not exist.\n";
+    std::cout << "LandscapeRecord::Disable: ERROR: LandscapeNode does not exist.\n";
     return false;
   }
   Ogre::SceneNode * landnode;
@@ -502,12 +551,12 @@ bool LandscapeRecord::Update()
     std::cout << "LandscapeRecord::Update: ERROR: SceneManager is NULL.\n";
     return false;
   }
-  if (!RemoveDataFromEngine())
+  if (!Disable())
   {
     std::cout << "LandscapeRecord::Update: ERROR: Could not remove record.\n";
     return false;
   }
-  if (!SendDataToEngine(scm))
+  if (!Enable(scm))
   {
     std::cout << "LandscapeRecord::Update: ERROR: Could not enable record.\n";
     return false;
@@ -608,7 +657,9 @@ Landscape::Landscape()
   m_RecordList = NULL;
   m_numRec = 0;
   m_Capacity = 0;
+  #ifndef NO_OGRE_IN_LANDSCAPE
   m_RecordsForUpdate.clear();
+  #endif
 }
 
 Landscape::~Landscape()
@@ -708,7 +759,7 @@ bool Landscape::LoadFromFile(const std::string& FileName)
   return true;
 }
 
-bool Landscape::SaveToFile(const std::string& FileName)
+bool Landscape::SaveToFile(const std::string& FileName) const
 {
   if (m_numRec==0)
   {
@@ -745,6 +796,27 @@ bool Landscape::SaveToFile(const std::string& FileName)
   output.close();
   return true;
 }//SaveToFile
+
+bool Landscape::SaveAllToStream(std::ofstream& AStream) const
+{
+  if (!AStream.good())
+  {
+    std::cout << "Landscape::SaveAllToStream: ERROR: passed stream argument"
+              << " contains error(s).\n";
+    return false;
+  }
+  unsigned int i;
+  for (i=0; i<m_numRec; i=i+1)
+  {
+    if (!m_RecordList[i]->SaveToStream(AStream))
+    {
+      std::cout << "Landscape::SaveAllToStream: Error while saving record "<<i+1
+                << " to stream.\n";
+      return false;
+    }
+  }//for
+  return AStream.good();
+}
 
 void Landscape::ChangeListSize(const unsigned int new_size)
 {
@@ -907,7 +979,7 @@ bool Landscape::SendToEngine(Ogre::SceneManager * scm)
   unsigned int i;
   for (i=0; i<m_numRec; i++)
   {
-    m_RecordList[i]->SendDataToEngine(scm);
+    m_RecordList[i]->Enable(scm);
   }//for
   return true;
 }
@@ -928,7 +1000,7 @@ bool Landscape::RemoveFromEngine(Ogre::SceneManager * scm)
   unsigned int i;
   for (i=0; i<m_numRec; i++)
   {
-    m_RecordList[i]->RemoveDataFromEngine();
+    m_RecordList[i]->Disable();
   }//for
   if (scm->hasSceneNode(cLandNodeName))
   {

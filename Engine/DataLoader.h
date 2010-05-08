@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-02-05
+ Date:    2010-05-08
  Purpose: DataLoader Singleton class
           central class which wraps all load/save processes for the game
 
@@ -22,6 +22,7 @@
      - 2010-02-05 (rev 164) - possibility to save game and load saved games
                               and not only the whole data
      - 2010-02-06 (rev 165) - update for Item class
+     - 2010-05-08 (rev 200) - way of saving landscape updated
 
  ToDo list:
      - extend class when further classes for data management are added
@@ -98,7 +99,9 @@ class DataLoader
     /* tries to save a game to the file FileName and returns true on success */
     bool SaveGame(const std::string& FileName) const;
   private:
+    /* private constructor (singleton pattern) */
     DataLoader();
+    /* private, empty copy constructor (due to singleton pattern) */
     DataLoader(const DataLoader& op){}
 
     std::vector<std::string> m_LoadedFiles;
