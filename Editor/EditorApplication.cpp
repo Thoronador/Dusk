@@ -988,6 +988,11 @@ void EditorApplication::closeAllEditWindows(void)
   {
     winmgr.destroyWindow("Editor/NPCDeleteFrame");
   }
+  //frame for adding items to NPC inventory
+  if (winmgr.isWindowPresent("Editor/NPCNewFrame/AddInventoryFrame"))
+  {
+    winmgr.destroyWindow("Editor/NPCNewFrame/AddInventoryFrame");
+  }
 }
 
 bool EditorApplication::RootMouseDown(const CEGUI::EventArgs &e)

@@ -3,6 +3,7 @@
 #include "EditorApplicationBase.h"
 #include "../Engine/DuskFunctions.h"
 #include "../Engine/AnimationData.h"
+#include "../Engine/ItemBase.h"
 
 namespace Dusk
 {
@@ -230,7 +231,6 @@ bool EditorApplicationNPC::NPCDeleteFrameYesClicked(const CEGUI::EventArgs &e)
 
 void EditorApplicationNPC::showNPCNewWindow(void)
 {
-  //not completely implemented yet
   CEGUI::FrameWindow* frame = NULL;
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
   if (winmgr.isWindowPresent("Editor/NPCNewFrame"))
@@ -479,14 +479,10 @@ void EditorApplicationNPC::showNPCNewWindow(void)
     mcl->addColumn("#", 0, CEGUI::UDim(0.22, 0));
     mcl->addColumn("Item ID", 1, CEGUI::UDim(0.72, 0));
     mcl->setUserColumnDraggingEnabled(false);
-    //to do: add a callback for clicks, + popup menu
+    mcl->subscribeEvent(CEGUI::Window::EventMouseButtonUp, CEGUI::Event::Subscriber(&EditorApplicationNPC::NPCNewFrameInventoryListClicked, this));
     frame->addChildWindow(mcl);
-
-    /* to do:
-       ======
-       - put more elements (for inventory) here
-         (click callback, popup menu)
-    */
+    //adds a popup menu + callbacks for clicks
+    CreatePopupMenuNPCNewFrameList();
 
     //OK button
     button = winmgr.createWindow("TaharezLook/Button", "Editor/NPCNewFrame/OK");
@@ -508,7 +504,6 @@ void EditorApplicationNPC::showNPCNewWindow(void)
   frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.38, 0), CEGUI::UDim(0.125, 0)));
   frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.75, 0)));
   frame->moveToFront();
-  //not completely implemented yet
 }
 
 bool EditorApplicationNPC::NPCNewFrameCancelClicked(const CEGUI::EventArgs &e)
@@ -537,7 +532,8 @@ bool EditorApplicationNPC::NPCNewFrameOKClicked(const CEGUI::EventArgs &e)
       winmgr.isWindowPresent("Editor/NPCNewFrame/Vit_Spin") and
       winmgr.isWindowPresent("Editor/NPCNewFrame/Cha_Spin") and
       winmgr.isWindowPresent("Editor/NPCNewFrame/Int_Spin") and
-      winmgr.isWindowPresent("Editor/NPCNewFrame/Luck_Spin"))
+      winmgr.isWindowPresent("Editor/NPCNewFrame/Luck_Spin") and
+      winmgr.isWindowPresent("Editor/NPCNewFrame/InventoryList"))
   {
     const std::string NPC_ID = winmgr.getWindow("Editor/NPCNewFrame/ID_Edit")->getText().c_str();
     const std::string NPC_Name = winmgr.getWindow("Editor/NPCNewFrame/Name_Edit")->getText().c_str();
@@ -563,8 +559,9 @@ bool EditorApplicationNPC::NPCNewFrameOKClicked(const CEGUI::EventArgs &e)
     attr.Cha = (static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Cha_Spin")))->getCurrentValue();
     attr.Luck = (static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Luck_Spin")))->getCurrentValue();
     const bool female = (static_cast<CEGUI::RadioButton*>(winmgr.getWindow("Editor/NPCNewFrame/RadioFemale")))->isSelected();
+    const Inventory tempInv = MCLToInventory(static_cast<CEGUI::MultiColumnList*>(winmgr.getWindow("Editor/NPCNewFrame/InventoryList")));
     NPCBase::GetSingleton().addNPC(NPC_ID, NPC_Name, NPC_Mesh, level, attr,
-                                   female, Inventory::GetEmptyInventory());
+                                   female, tempInv);
     winmgr.destroyWindow("Editor/NPCNewFrame");
     RefreshNPCList();
   }//if
@@ -574,6 +571,227 @@ bool EditorApplicationNPC::NPCNewFrameOKClicked(const CEGUI::EventArgs &e)
   }
   //not completely implemented yet (inventory data)
   return true;
+}
+
+void EditorApplicationNPC::CreatePopupMenuNPCNewFrameList(void)
+{
+  CEGUI::WindowManager &wmgr = CEGUI::WindowManager::getSingleton();
+  //PopUp Menu for inventory list
+  if (wmgr.isWindowPresent("Editor/NPCNewFrame/InventoryList/PopUp"))
+  {
+    return;
+  }
+  CEGUI::PopupMenu* popup = static_cast<CEGUI::PopupMenu*> (wmgr.createWindow("TaharezLook/PopupMenu", "Editor/NPCNewFrame/InventoryList/PopUp"));
+  popup->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.3, 0)));
+  popup->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.3, 0)));
+  CEGUI::MenuItem* menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/NPCNewFrame/InventoryList/PopUp/Add"));
+  menu_item->setText("Add item...");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplicationNPC::InventoryListAddClicked, this));
+  popup->addItem(menu_item);
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/NPCNewFrame/InventoryList/PopUp/Edit"));
+  menu_item->setText("Edit selected item...");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplicationNPC::InventoryListEditClicked, this));
+  popup->addItem(menu_item);
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/NPCNewFrame/InventoryList/PopUp/Delete"));
+  menu_item->setText("Delete selected item");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplicationNPC::InventoryListDeleteClicked, this));
+  popup->addItem(menu_item);
+  wmgr.getWindow("Editor/NPCNewFrame/InventoryList")->addChildWindow(popup);
+  popup->closePopupMenu();
+}
+
+bool EditorApplicationNPC::NPCNewFrameInventoryListClicked(const CEGUI::EventArgs &e)
+{
+  const CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  CEGUI::PopupMenu * popup = static_cast<CEGUI::PopupMenu*> (winmgr.getWindow("Editor/NPCNewFrame/InventoryList/PopUp"));
+  if (!popup->isPopupMenuOpen())
+  {
+    const CEGUI::MouseEventArgs& mea = static_cast<const CEGUI::MouseEventArgs&> (e);
+    if (mea.button == CEGUI::RightButton)
+    {
+      const CEGUI::Rect mcl_rect = winmgr.getWindow("Editor/NPCNewFrame/InventoryList")->getPixelRect();
+      const float pu_x = (mea.position.d_x-mcl_rect.d_left)/mcl_rect.getWidth();
+      const float pu_y = (mea.position.d_y-mcl_rect.d_top)/mcl_rect.getHeight();
+      popup->setPosition(CEGUI::UVector2(CEGUI::UDim(pu_x, 0), CEGUI::UDim(pu_y, 0)));
+      popup->openPopupMenu();
+    }
+  }
+  else
+  {
+    popup->closePopupMenu();
+  }
+  return true;
+}
+
+bool EditorApplicationNPC::InventoryListAddClicked(const CEGUI::EventArgs &e)
+{
+  showInventoryListAddWindow();
+  return true;
+}
+
+bool EditorApplicationNPC::InventoryListEditClicked(const CEGUI::EventArgs &e)
+{
+  //not implemented yet
+  //not implemented yet
+  return true;
+}
+
+bool EditorApplicationNPC::InventoryListDeleteClicked(const CEGUI::EventArgs &e)
+{
+  const CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*>
+                         (winmgr.getWindow("Editor/NPCNewFrame/InventoryList"));
+  CEGUI::ListboxItem* lbi = mcl->getFirstSelectedItem();
+  if (lbi==NULL)
+  {
+    showHint("You have to select an item before you can delete it.");
+    return true;
+  }
+  mcl->removeRow(mcl->getItemRowIndex(lbi));
+  return true;
+}
+
+void EditorApplicationNPC::showInventoryListAddWindow(void)
+{
+  //not implemented yet (adjust size and position of child windows)
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  CEGUI::FrameWindow* frame;
+  if (winmgr.isWindowPresent("Editor/NPCNewFrame/AddInventoryFrame"))
+  {
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.getWindow("Editor/NPCNewFrame/AddInventoryFrame"));
+  }
+  else
+  {
+    //create frame and child windows
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.createWindow("TaharezLook/FrameWindow", "Editor/NPCNewFrame/AddInventoryFrame"));
+    frame->setTitleBarEnabled(true);
+    frame->setText("New NPC > Add items to inventory");
+    frame->setCloseButtonEnabled(false);
+    frame->setFrameEnabled(true);
+    frame->setSizingEnabled(true);
+    frame->setInheritsAlpha(false);
+    winmgr.getWindow("Editor/Root")->addChildWindow(frame);
+    //spinner for items
+    CEGUI::Spinner* spin = static_cast<CEGUI::Spinner*> (winmgr.createWindow("TaharezLook/Spinner", "Editor/NPCNewFrame/AddInventoryFrame/Spin"));
+    spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.2, 0)));
+    spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.2, 0)));
+    spin->setTextInputMode(CEGUI::Spinner::Integer);
+    spin->setText("1");
+    spin->setMinimumValue(1.0f);
+    spin->setStepSize(1.0f);
+    frame->addChildWindow(spin);
+    //list box for items
+    CEGUI::Combobox* CBox = static_cast<CEGUI::Combobox*> (winmgr.createWindow("TaharezLook/Combobox", "Editor/NPCNewFrame/AddInventoryFrame/ItemCombobox"));
+    CBox->setSize(CEGUI::UVector2(CEGUI::UDim(0.55, 0), CEGUI::UDim(0.5, 0)));
+    CBox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.2, 0)));
+    CBox->setReadOnly(true);
+    frame->addChildWindow(CBox);
+    UpdateItemList(CBox);
+    //create Add button
+    CEGUI::Window* button = winmgr.createWindow("TaharezLook/Button", "Editor/NPCNewFrame/AddInventoryFrame/Add");
+    button->setText("Add");
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.15, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.5, 0)));
+    frame->addChildWindow(button);
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplicationNPC::AddInventoryFrameAddClicked, this));
+    //create Cancel button
+    button = winmgr.createWindow("TaharezLook/Button", "Editor/NPCNewFrame/AddInventoryFrame/Cancel");
+    button->setText("Cancel");
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.15, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.75, 0)));
+    frame->addChildWindow(button);
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplicationNPC::AddInventoryFrameCancelClicked, this));
+  }
+  frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.25, 0)));
+  frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.3, 0)));
+  frame->moveToFront();
+}
+
+void EditorApplicationNPC::UpdateItemList(CEGUI::Combobox* combo)
+{
+  if (combo!=NULL)
+  {
+    combo->resetList();
+    CEGUI::ListboxItem* lbi = NULL;
+    std::map<std::string, ItemRecord>::const_iterator itemFirst = ItemBase::GetSingleton().GetFirst();
+    const std::map<std::string, ItemRecord>::const_iterator itemEnd = ItemBase::GetSingleton().GetEnd();
+    while (itemFirst!=itemEnd)
+    {
+      lbi = new CEGUI::ListboxTextItem(itemFirst->first);
+      lbi->setTooltipText(itemFirst->second.Name);
+      combo->addItem(lbi);
+      ++itemFirst;
+    }//while
+  }
+}
+
+bool EditorApplicationNPC::AddInventoryFrameAddClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/NPCNewFrame/AddInventoryFrame/Spin") &&
+      winmgr.isWindowPresent("Editor/NPCNewFrame/AddInventoryFrame/ItemCombobox") &&
+      winmgr.isWindowPresent("Editor/NPCNewFrame/InventoryList"))
+  {
+    //add stuff
+    CEGUI::Combobox* CBox = static_cast<CEGUI::Combobox*>
+      (winmgr.getWindow("Editor/NPCNewFrame/AddInventoryFrame/ItemCombobox"));
+    const CEGUI::ListboxItem* lbi = CBox->getSelectedItem();
+    if (lbi==NULL)
+    {
+      showHint("You have to select an item from the list. If you don't see any"
+              +std::string(" items there, you haven't created any items yet.")
+              +" Go to the item tab in the catalogue and create one.");
+      return true;
+    }
+    const CEGUI::Spinner* spin = static_cast<CEGUI::Spinner*> (winmgr.getWindow("Editor/NPCNewFrame/AddInventoryFrame/Spin"));
+    CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*>
+                (winmgr.getWindow("Editor/NPCNewFrame/InventoryList"));
+    //add it to catalogue
+    unsigned int row;
+    CEGUI::ListboxItem* lbi2 = new CEGUI::ListboxTextItem(IntToString(
+                          static_cast<unsigned int>(spin->getCurrentValue())));
+    lbi2->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
+    row = mcl->addRow(lbi2, 0);
+    lbi2 = new CEGUI::ListboxTextItem(lbi->getText());
+    lbi2->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
+    mcl->setItem(lbi2, 1, row);
+    //destroy window
+    winmgr.destroyWindow("Editor/NPCNewFrame/AddInventoryFrame");
+    return true;
+  }
+  return true;
+}
+
+bool EditorApplicationNPC::AddInventoryFrameCancelClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/NPCNewFrame/AddInventoryFrame"))
+  {
+    winmgr.destroyWindow("Editor/NPCNewFrame/AddInventoryFrame");
+  }
+  return true;
+}
+
+Inventory EditorApplicationNPC::MCLToInventory(const CEGUI::MultiColumnList* mcl)
+{
+  Inventory temp;
+  temp.MakeEmpty();
+  if (mcl!=NULL)
+  {
+    if (mcl->getColumnCount()==2)
+    {
+      const unsigned int rows = mcl->getRowCount();
+      unsigned int i;
+      for (i=0; i<rows; ++i)
+      {
+        temp.AddItem(mcl->getItemAtGridReference(CEGUI::MCLGridRef(i,1))->getText().c_str(),
+          StringToInt(mcl->getItemAtGridReference(CEGUI::MCLGridRef(i,0))->getText().c_str(),0));
+      }
+    }
+  }
+  return temp;
 }
 
 } //namespace
