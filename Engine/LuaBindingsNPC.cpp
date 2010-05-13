@@ -420,6 +420,74 @@ int SetLuck(lua_State *L)
   return 0;
 }
 
+int AddItem(lua_State *L)
+{
+  if (lua_gettop(L)==3)
+  {
+    NPC* npcPtr = static_cast<NPC*> (lua_touserdata(L, 1));
+    if (npcPtr!=NULL)
+    {
+      if (lua_type(L, 2)!=LUA_TSTRING)
+      {
+        lua_pushstring(L, "AddItem expects second argument to be of type string!\n");
+        lua_error(L);
+        return 0;
+      }
+      if (lua_type(L, 3)!=LUA_TNUMBER)
+      {
+        lua_pushstring(L, "AddItem expects third argument to be of numerical type!\n");
+        lua_error(L);
+        return 0;
+      }
+      const std::string itemID = lua_tostring(L, 2);
+      const unsigned int amount = lua_tonumber(L, 3);
+      npcPtr->getInventory().AddItem(itemID, amount);
+    }
+    return 0;
+  }
+  lua_pushstring(L, "AddItem expects exactly three arguments!\n");
+  lua_error(L);
+  return 0;
+}
+
+
+int RemoveItem(lua_State *L)
+{
+  if (lua_gettop(L)==3)
+  {
+    NPC* npcPtr = static_cast<NPC*> (lua_touserdata(L, 1));
+    if (npcPtr!=NULL)
+    {
+      const std::string itemID = lua_tostring(L, 2);
+      const unsigned int amount = lua_tonumber(L, 3);
+      lua_pushnumber(L, npcPtr->getInventory().RemoveItem(itemID, amount));
+      return 1;
+    }
+    return 0;
+  }
+  lua_pushstring(L, "RemoveItem expects exactly three arguments!\n");
+  lua_error(L);
+  return 0;
+}
+
+int GetItemCount(lua_State *L)
+{
+  if (lua_gettop(L)==2)
+  {
+    const NPC* npcPtr = static_cast<NPC*> (lua_touserdata(L, 1));
+    if (npcPtr!=NULL)
+    {
+      const std::string itemID = lua_tostring(L, 2);
+      lua_pushnumber(L, npcPtr->getConstInventory().GetItemCount(itemID));
+      return 1;
+    }
+    return 0;
+  }
+  lua_pushstring(L, "GetItemCount expects exactly two arguments!\n");
+  lua_error(L);
+  return 0;
+}
+
 void registerNPC(lua_State *L)
 {
   lua_register(L, "GetNPC", GetNPC);
@@ -444,6 +512,10 @@ void registerNPC(lua_State *L)
   lua_register(L, "SetWillpower", SetWillpower);
   lua_register(L, "SetCharisma", SetCharisma);
   lua_register(L, "SetLuck", SetLuck);
+
+  lua_register(L, "GetItemCount", GetItemCount);
+  lua_register(L, "AddItem", AddItem);
+  lua_register(L, "RemoveItem", RemoveItem);
 }
 
 } //namespace
