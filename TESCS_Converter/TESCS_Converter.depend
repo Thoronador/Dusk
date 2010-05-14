@@ -3,8 +3,12 @@
 	<iostream>
 	"Converter.h"
 
+1220476874 .h"
+
 1235328602 d:\wopcp\tescs_converter\converter.h
 	<string>
+
+1231621552 
 
 1235360174 source:d:\wopcp\tescs_converter\converter.cpp
 	"Converter.h"
@@ -28,6 +32,8 @@
 	<cstring>
 	"../Engine/Landscape.h"
 
+1238280290 /Landscape.h"
+
 1237924272 source:d:\wopcp\trunk\engine\landscape.cpp
 	"Landscape.h"
 	"API.h"
@@ -39,11 +45,15 @@
 	<string>
 	<OgreManualObject.h>
 
+1237924272 lObject.h>
+
 1220476874 c:\ogresdk\include\ogremanualobject.h
 	"OgrePrerequisites.h"
 	"OgreMovableObject.h"
 	"OgreRenderable.h"
 	"OgreResourceGroupManager.h"
+
+1220476874 rceGroupManager.h"
 
 1224106274 c:\ogresdk\include\ogreprerequisites.h
 	"OgrePlatform.h"
@@ -51,10 +61,14 @@
 	"OgreStdHeaders.h"
 	"OgreMemoryAllocatorConfig.h"
 
+1224106274 yAllocatorConfig.h"
+
 1221594858 c:\ogresdk\include\ogreplatform.h
 	"OgreConfig.h"
 	<_mingw.h>
 	"config.h"
+
+1220476874 
 
 1220476874 c:\ogresdk\include\ogreconfig.h
 	"config.h"
@@ -101,6 +115,8 @@
 	<boost/thread/condition.hpp>
 	<boost/thread/thread.hpp>
 
+1222448094 ead/thread.hpp>
+
 1225477750 c:\ogresdk\include\ogrememoryallocatorconfig.h
 	"OgrePrerequisites.h"
 	"OgreMemoryAllocatedObject.h"
@@ -108,8 +124,12 @@
 	"OgreMemoryNedAlloc.h"
 	"OgreMemoryStdAlloc.h"
 
+1225477750 yStdAlloc.h"
+
 1220476874 c:\ogresdk\include\ogrememoryallocatedobject.h
 	"OgrePrerequisites.h"
+
+1220476874 quisites.h"
 
 1220476874 c:\ogresdk\include\ogrememorystlallocator.h
 	"OgrePrerequisites.h"
@@ -122,12 +142,16 @@
 	"OgreAlignedAllocator.h"
 	"OgreMemoryTracker.h"
 
+1225477750 yTracker.h"
+
 1220476874 c:\ogresdk\include\ogrealignedallocator.h
 
 1221845410 c:\ogresdk\include\ogrememorytracker.h
 	"OgrePrerequisites.h"
 	<backward/hash_map>
 	<ext/hash_map>
+
+1222448094 map>
 
 1220476874 c:\ogresdk\include\ogremovableobject.h
 	"OgrePrerequisites.h"
@@ -140,9 +164,13 @@
 	"OgreAny.h"
 	"OgreUserDefinedObject.h"
 
+1220476874 efinedObject.h"
+
 1220476874 c:\ogresdk\include\ogrerenderqueue.h
 	"OgrePrerequisites.h"
 	"OgreIteratorWrappers.h"
+
+1220476874 torWrappers.h"
 
 1220476874 c:\ogresdk\include\ogreiteratorwrappers.h
 	"OgrePrerequisites.h"
@@ -152,10 +180,14 @@
 	"OgreVector3.h"
 	"OgreMatrix4.h"
 
+1220476874 x4.h"
+
 1220476874 c:\ogresdk\include\ogrevector3.h
 	"OgrePrerequisites.h"
 	"OgreMath.h"
 	"OgreQuaternion.h"
+
+1220476874 rnion.h"
 
 1220476874 c:\ogresdk\include\ogremath.h
 	"OgrePrerequisites.h"
@@ -163,6 +195,8 @@
 1220476874 c:\ogresdk\include\ogrequaternion.h
 	"OgrePrerequisites.h"
 	"OgreMath.h"
+
+1220476874 h"
 
 1220476874 c:\ogresdk\include\ogrematrix4.h
 	"OgrePrerequisites.h"
@@ -174,6 +208,8 @@
 1220476874 c:\ogresdk\include\ogrematrix3.h
 	"OgrePrerequisites.h"
 	"OgreVector3.h"
+
+1223325452 r3.h"
 
 1220476874 c:\ogresdk\include\ogrevector4.h
 	"OgrePrerequisites.h"
@@ -191,6 +227,8 @@
 	"OgrePrerequisites.h"
 	"OgreRenderable.h"
 
+1220476874 rable.h"
+
 1220476874 c:\ogresdk\include\ogrerenderable.h
 	"OgrePrerequisites.h"
 	"OgreCommon.h"
@@ -202,6 +240,8 @@
 	"OgreVector4.h"
 	"OgreException.h"
 	"OgreAny.h"
+
+1220476806 "
 
 1220476874 c:\ogresdk\include\ogrecommon.h
 	"OgreString.h"
@@ -218,16 +258,22 @@
 	"OgrePrerequisites.h"
 	"OgreVertexIndexData.h"
 
+1220476874 xIndexData.h"
+
 1220476874 c:\ogresdk\include\ogrevertexindexdata.h
 	"OgrePrerequisites.h"
 	"OgreHardwareVertexBuffer.h"
 	"OgreHardwareIndexBuffer.h"
+
+1220476874 areIndexBuffer.h"
 
 1220476874 c:\ogresdk\include\ogrehardwarevertexbuffer.h
 	"OgrePrerequisites.h"
 	"OgreHardwareBuffer.h"
 	"OgreSharedPtr.h"
 	"OgreColourValue.h"
+
+1220476874 rValue.h"
 
 1220476874 c:\ogresdk\include\ogrehardwarebuffer.h
 	"OgrePrerequisites.h"
@@ -243,6 +289,8 @@
 	"OgreHardwareBuffer.h"
 	"OgreSharedPtr.h"
 
+1220476874 dPtr.h"
+
 1220476874 c:\ogresdk\include\ogrematerial.h
 	"OgrePrerequisites.h"
 	"OgreResource.h"
@@ -251,6 +299,8 @@
 	"OgreColourValue.h"
 	"OgreBlendMode.h"
 
+1220476874 Mode.h"
+
 1220476874 c:\ogresdk\include\ogreresource.h
 	"OgrePrerequisites.h"
 	"OgreString.h"
@@ -258,10 +308,14 @@
 	"OgreStringInterface.h"
 	"OgreAtomicWrappers.h"
 
+1220476874 cWrappers.h"
+
 1220476874 c:\ogresdk\include\ogrestringinterface.h
 	"OgrePrerequisites.h"
 	"OgreString.h"
 	"OgreCommon.h"
+
+1220476874 n.h"
 
 1220476874 c:\ogresdk\include\ogreatomicwrappers.h
 	<signal.h>
@@ -275,6 +329,8 @@
 	"OgreString.h"
 	<exception>
 
+1220476874 >
+
 1220476874 c:\ogresdk\include\ogreblendmode.h
 	"OgrePrerequisites.h"
 	"OgreColourValue.h"
@@ -287,10 +343,14 @@
 	"OgreSerializer.h"
 	"OgreRenderOperation.h"
 
+1220476874 rOperation.h"
+
 1220476874 c:\ogresdk\include\ogreserializer.h
 	"OgrePrerequisites.h"
 	"OgreString.h"
 	"OgreDataStream.h"
+
+1220476874 tream.h"
 
 1220476874 c:\ogresdk\include\ogredatastream.h
 	"OgrePrerequisites.h"
@@ -352,6 +412,8 @@
 	"OgreSharedPtr.h"
 	"OgreStringVector.h"
 	<ctime>
+
+1220476874 gVector.h"
 
 1231621552 d:\wopcp\trunk\engine\api.h
 	<Ogre.h>
@@ -454,6 +516,8 @@
 	"OgreShadowCameraSetupPlaneOptimal.h"
 	"OgreShadowCameraSetupPSSM.h"
 
+1220476874 wCameraSetupPSSM.h"
+
 1222448094 c:\ogresdk\include\ogreanimation.h
 	"OgrePrerequisites.h"
 	"OgreString.h"
@@ -461,6 +525,8 @@
 	"OgreAnimable.h"
 	"OgreAnimationTrack.h"
 	"OgreAnimationState.h"
+
+1222448094 tionState.h"
 
 1223325452 c:\ogresdk\include\ogreanimationtrack.h
 	"OgrePrerequisites.h"
@@ -509,6 +575,8 @@
 	"OgreResourceManager.h"
 	"OgreSingleton.h"
 
+1220476874 eton.h"
+
 1220476874 c:\ogresdk\include\ogreresourcemanager.h
 	"OgrePrerequisites.h"
 	"OgreResource.h"
@@ -518,6 +586,8 @@
 	"OgreDataStream.h"
 	"OgreStringVector.h"
 	"OgreScriptLoader.h"
+
+1220476874 tLoader.h"
 
 1220476874 c:\ogresdk\include\ogrescriptloader.h
 	"OgrePrerequisites.h"
@@ -565,6 +635,8 @@
 	"OgreRay.h"
 	"OgrePlaneBoundedVolume.h"
 
+1220476874 BoundedVolume.h"
+
 1220476874 c:\ogresdk\include\ogrefrustum.h
 	"OgrePrerequisites.h"
 	"OgreMovableObject.h"
@@ -573,10 +645,14 @@
 	"OgreVertexIndexData.h"
 	"OgreMovablePlane.h"
 
+1220476874 lePlane.h"
+
 1220476874 c:\ogresdk\include\ogremovableplane.h
 	"OgrePrerequisites.h"
 	"OgrePlane.h"
 	"OgreMovableObject.h"
+
+1220476874 leObject.h"
 
 1220476874 c:\ogresdk\include\ogreray.h
 	"OgrePrerequisites.h"
@@ -613,6 +689,8 @@
 	"OgreFrameListener.h"
 	"OgreGpuProgram.h"
 
+1220476874 ogram.h"
+
 1220476874 c:\ogresdk\include\ogreframelistener.h
 	"OgrePrerequisites.h"
 
@@ -624,6 +702,8 @@
 	"OgreIteratorWrappers.h"
 	"OgreString.h"
 	"OgreTexture.h"
+
+1220476874 re.h"
 
 1220476874 c:\ogresdk\include\ogretexture.h
 	"OgrePrerequisites.h"
@@ -658,6 +738,8 @@
 	"OgreHardwareVertexBuffer.h"
 	"OgreHardwareIndexBuffer.h"
 	"OgreRenderToVertexBuffer.h"
+
+1220476874 rToVertexBuffer.h"
 
 1220476874 c:\ogresdk\include\ogrerendertovertexbuffer.h
 	"OgrePrerequisites.h"
@@ -724,6 +806,8 @@
 	"OgreException.h"
 	"OgreHighLevelGpuProgram.h"
 
+1220476874 evelGpuProgram.h"
+
 1220476874 c:\ogresdk\include\ogrelight.h
 	"OgrePrerequisites.h"
 	"OgreColourValue.h"
@@ -733,6 +817,8 @@
 	"OgreMovableObject.h"
 	"OgrePlaneBoundedVolume.h"
 	"OgreShadowCameraSetup.h"
+
+1220476874 wCameraSetup.h"
 
 1220476874 c:\ogresdk\include\ogreshadowcamerasetup.h
 	"OgrePrerequisites.h"
@@ -745,6 +831,8 @@
 	"OgreSingleton.h"
 	"OgreString.h"
 
+1220476874 g.h"
+
 1220476874 c:\ogresdk\include\ogrelog.h
 	"OgrePrerequisites.h"
 	"OgreString.h"
@@ -756,6 +844,8 @@
 	"OgreMaterial.h"
 	"OgreStringVector.h"
 	"OgreMaterialSerializer.h"
+
+1220476874 ialSerializer.h"
 
 1220476874 c:\ogresdk\include\ogrematerialserializer.h
 	"OgrePrerequisites.h"
@@ -774,10 +864,14 @@
 	"OgreMesh.h"
 	"OgrePatchMesh.h"
 
+1220476874 Mesh.h"
+
 1220476874 c:\ogresdk\include\ogrepatchmesh.h
 	"OgrePrerequisites.h"
 	"OgreMesh.h"
 	"OgrePatchSurface.h"
+
+1220476874 Surface.h"
 
 1220476874 c:\ogresdk\include\ogrepatchsurface.h
 	"OgrePrerequisites.h"
@@ -786,10 +880,14 @@
 	"OgreRenderOperation.h"
 	"OgreAxisAlignedBox.h"
 
+1220476874 lignedBox.h"
+
 1223325452 c:\ogresdk\include\ogremeshserializer.h
 	"OgrePrerequisites.h"
 	"OgreMeshSerializerImpl.h"
 	"OgreSerializer.h"
+
+1220476874 lizer.h"
 
 1220476874 c:\ogresdk\include\ogremeshserializerimpl.h
 	"OgrePrerequisites.h"
@@ -798,6 +896,8 @@
 	"OgreMaterial.h"
 	"OgreMesh.h"
 	"OgreEdgeListBuilder.h"
+
+1220476874 istBuilder.h"
 
 1220476874 c:\ogresdk\include\ogreedgelistbuilder.h
 	"OgrePrerequisites.h"
@@ -832,6 +932,8 @@
 	"OgreColourValue.h"
 	"OgreRectangle.h"
 
+1220476874 ngle.h"
+
 1220476874 c:\ogresdk\include\ogreutfstring.h
 	"OgrePrerequisites.h"
 	<iterator>
@@ -841,6 +943,8 @@
 1220476874 c:\ogresdk\include\ogreoverlayelementcommands.h
 	"OgrePrerequisites.h"
 	"OgreStringInterface.h"
+
+1220476874 gInterface.h"
 
 1220476874 c:\ogresdk\include\ogrerectangle.h
 	"OgrePrerequisites.h"
@@ -866,6 +970,8 @@
 	"OgreParticleEmitterCommands.h"
 	"OgreParticle.h"
 
+1220476874 cle.h"
+
 1220476874 c:\ogresdk\include\ogreparticleemittercommands.h
 	"OgrePrerequisites.h"
 	"OgreStringInterface.h"
@@ -873,6 +979,8 @@
 1220476874 c:\ogresdk\include\ogreparticle.h
 	"OgrePrerequisites.h"
 	"OgreBillboard.h"
+
+1220476874 oard.h"
 
 1220476874 c:\ogresdk\include\ogrebillboard.h
 	"OgrePrerequisites.h"
@@ -899,6 +1007,8 @@
 	"OgreRadixSort.h"
 	"OgreController.h"
 
+1220476874 oller.h"
+
 1220476874 c:\ogresdk\include\ogreparticleiterator.h
 	"OgrePrerequisites.h"
 
@@ -911,11 +1021,15 @@
 	"OgreLight.h"
 	"OgreTextureUnitState.h"
 
+1224106274 reUnitState.h"
+
 1220476874 c:\ogresdk\include\ogreprofiler.h
 	"OgrePrerequisites.h"
 	"OgreSingleton.h"
 	"OgreString.h"
 	"OgreOverlay.h"
+
+1220476874 ay.h"
 
 1220476874 c:\ogresdk\include\ogrerenderqueueinvocation.h
 	"OgrePrerequisites.h"
@@ -930,6 +1044,8 @@
 	"OgrePass.h"
 	"OgreRadixSort.h"
 
+1220476874 Sort.h"
+
 1220476874 c:\ogresdk\include\ogretechnique.h
 	"OgrePrerequisites.h"
 	"OgreIteratorWrappers.h"
@@ -939,6 +1055,8 @@
 	"OgreIteratorWrappers.h"
 	"OgreRenderSystemCapabilities.h"
 
+1220476874 rSystemCapabilities.h"
+
 1220476874 c:\ogresdk\include\ogrerendersystemcapabilities.h
 	"OgrePrerequisites.h"
 	"OgreString.h"
@@ -946,6 +1064,8 @@
 	"OgreStringVector.h"
 	"OgreResource.h"
 	"OgreLogManager.h"
+
+1220476874 nager.h"
 
 1220476874 c:\ogresdk\include\ogrestringconverter.h
 	"OgrePrerequisites.h"
@@ -956,6 +1076,8 @@
 1220476874 c:\ogresdk\include\ogrerenderqueuelistener.h
 	"OgrePrerequisites.h"
 	"OgreRenderQueue.h"
+
+1220476874 rQueue.h"
 
 1220476874 c:\ogresdk\include\ogrerendersystem.h
 	"OgrePrerequisites.h"
@@ -997,12 +1119,16 @@
 	"GLX/OgreTimerImp.h"
 	"OSX/OgreTimerImp.h"
 
+1220476874 imerImp.h"
+
 1220476806 c:\ogresdk\include\win32\ogretimerimp.h
 	"windows.h"
 
 1220476874 c:\ogresdk\include\ogrerendertexture.h
 	"OgrePrerequisites.h"
 	"OgreRenderTarget.h"
+
+1220476874 rTarget.h"
 
 1220476874 c:\ogresdk\include\ogreconfigoptionmap.h
 	"OgrePrerequisites.h"
@@ -1022,6 +1148,8 @@
 	"OgreSingleton.h"
 	"OgreResource.h"
 
+1220476874 rce.h"
+
 1220476874 c:\ogresdk\include\ogreribbontrail.h
 	"OgrePrerequisites.h"
 	"OgreBillboardChain.h"
@@ -1029,6 +1157,8 @@
 	"OgreIteratorWrappers.h"
 	"OgreFrameListener.h"
 	"OgreControllerManager.h"
+
+1220476874 ollerManager.h"
 
 1220476874 c:\ogresdk\include\ogreroot.h
 	"OgrePrerequisites.h"
@@ -1066,6 +1196,8 @@
 	"OgreCamera.h"
 	"OgreInstancedGeometry.h"
 
+1220476874 ncedGeometry.h"
+
 1220476874 c:\ogresdk\include\ogrescenequery.h
 	"OgrePrerequisites.h"
 	"OgreAxisAlignedBox.h"
@@ -1086,12 +1218,16 @@
 	"OgrePrerequisites.h"
 	"OgreSimpleRenderable.h"
 
+1220476874 eRenderable.h"
+
 1220476874 c:\ogresdk\include\ogresimplerenderable.h
 	"OgrePrerequisites.h"
 	"OgreMovableObject.h"
 	"OgreRenderable.h"
 	"OgreAxisAlignedBox.h"
 	"OgreMaterial.h"
+
+1220476874 ial.h"
 
 1220476874 c:\ogresdk\include\ogreshadowtexturemanager.h
 	"OgrePrerequisites.h"
@@ -1114,6 +1250,8 @@
 	"OgrePrerequisites.h"
 	"OgreSkeleton.h"
 
+1220476874 ton.h"
+
 1220476874 c:\ogresdk\include\ogreskeletonmanager.h
 	"OgrePrerequisites.h"
 	"OgreResourceManager.h"
@@ -1135,6 +1273,8 @@
 	"OgreRenderable.h"
 	"OgreHardwareBufferManager.h"
 
+1220476874 areBufferManager.h"
+
 1220476874 c:\ogresdk\include\ogresubmesh.h
 	"OgrePrerequisites.h"
 	"OgreVertexIndexData.h"
@@ -1143,6 +1283,8 @@
 	"OgreVertexBoneAssignment.h"
 	"OgreProgressiveMesh.h"
 	"OgreAnimationTrack.h"
+
+1220476874 tionTrack.h"
 
 1220476874 c:\ogresdk\include\ogrecompositor.h
 	"OgrePrerequisites.h"
@@ -1157,6 +1299,8 @@
 	"OgreCompositorSerializer.h"
 	"OgreRenderSystem.h"
 
+1220476874 rSystem.h"
+
 1220476874 c:\ogresdk\include\ogrecompositorserializer.h
 	"OgrePrerequisites.h"
 	"OgreDataStream.h"
@@ -1167,6 +1311,8 @@
 	"OgreRenderQueueListener.h"
 	"OgreCompositorInstance.h"
 	"OgreCompositor.h"
+
+1220476874 sitor.h"
 
 1220476874 c:\ogresdk\include\ogrecompositorinstance.h
 	"OgrePrerequisites.h"
@@ -1200,6 +1346,8 @@
 	"OgrePolygon.h"
 	"OgreConvexBody.h"
 
+1220476874 xBody.h"
+
 1223325452 c:\ogresdk\include\ogrepolygon.h
 	"OgrePrerequisites.h"
 	"OgreVector3.h"
@@ -1208,9 +1356,13 @@
 	"OgrePrerequisites.h"
 	"OgrePolygon.h"
 
+1231621552 on.h"
+
 1225825134 c:\ogresdk\include\ogreshadowcamerasetuplispsm.h
 	"OgrePrerequisites.h"
 	"OgreShadowCameraSetupFocused.h"
+
+1225825134 wCameraSetupFocused.h"
 
 1220476874 c:\ogresdk\include\ogreshadowcamerasetupplaneoptimal.h
 	"OgrePrerequisites.h"
@@ -1219,6 +1371,8 @@
 1220476874 c:\ogresdk\include\ogreshadowcamerasetuppssm.h
 	"OgrePrerequisites.h"
 	"OgreShadowCameraSetupLiSPSM.h"
+
+1220476874 wCameraSetupLiSPSM.h"
 
 1231621552 source:d:\wopcp\trunk\engine\api.cpp
 	"API.h"
@@ -1235,4 +1389,42 @@
 
 1231621552 d:\wopcp\trunk\engine\framelistener.h
 	<Ogre.h>
+
+1273800459 source:/home/dirk/wopcp/trunk/Engine/Landscape.cpp
+	"Landscape.h"
+	"DuskConstants.h"
+	<iostream>
+	<sstream>
+	<OgreMath.h>
+
+1273798633 /home/dirk/wopcp/trunk/Engine/Landscape.h
+	<fstream>
+	<string>
+	<OgreRay.h>
+	<OgreVector3.h>
+	<OgreManualObject.h>
+	<OgreSceneManager.h>
+	<vector>
+	"DuskTypes.h"
+
+1271008963 /home/dirk/wopcp/trunk/Engine/DuskTypes.h
+
+1271008963 /home/dirk/wopcp/trunk/Engine/DuskConstants.h
+	<string>
+
+1273616373 source:/home/dirk/wopcp/trunk/TESCS_Converter/Converter.cpp
+	"Converter.h"
+	<iostream>
+	<fstream>
+	<cstring>
+	"../Engine/Landscape.h"
+
+1248965861 /home/dirk/wopcp/trunk/TESCS_Converter/Converter.h
+	<string>
+
+1248965861 source:/home/dirk/wopcp/trunk/TESCS_Converter/main.cpp
+	<iostream>
+	<fstream>
+	<string>
+	"Converter.h"
 

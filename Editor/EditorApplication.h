@@ -135,6 +135,8 @@ protected:
 
 	bool WeatherToggleClicked(const CEGUI::EventArgs &e);
 
+	bool WireframeToggleClicked(const CEGUI::EventArgs &e);
+
 	//callbacks for buttons
 	bool LoadFrameCancelClicked(const CEGUI::EventArgs &e);
 	bool LoadFrameOKClicked(const CEGUI::EventArgs &e);

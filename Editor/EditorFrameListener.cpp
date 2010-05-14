@@ -396,7 +396,7 @@ bool EditorFrameListener::frameEnded(const Ogre::FrameEvent& evt)
   //check for landscape updates
   if (Landscape::GetSingleton().NeedsUpdate())
   {
-    std::cout << "Info: "<<Landscape::GetSingleton().UpdateRecords()<< " landscape record(s) updated.\n";
+    std::cout << "Info: "<<Landscape::GetSingleton().UpdateRecords(m_WireFrameLandscape)<< " landscape record(s) updated.\n";
   }
   return true;
 }
@@ -433,6 +433,16 @@ void EditorFrameListener::setEditorMode(const EditorMode em)
 EditorMode EditorFrameListener::getEditorMode(void)
 {
   return m_Mode;
+}
+
+void EditorFrameListener::setWireFrame(const bool wf)
+{
+  if (wf!=m_WireFrameLandscape)
+  {
+    m_WireFrameLandscape = wf;
+    Landscape::GetSingleton().RemoveFromEngine(getAPI().getOgreSceneManager());
+    Landscape::GetSingleton().SendToEngine(getAPI().getOgreSceneManager(), wf);
+  }
 }
 
 bool EditorFrameListener::IsKeyDown(const OIS::KeyCode kc)

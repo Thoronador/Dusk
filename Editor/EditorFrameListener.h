@@ -102,6 +102,7 @@ public:
 		Ogre::WindowEventUtilities::addWindowEventListener(mWindow, this);
 
         mContinue=true;
+        m_WireFrameLandscape = false;
 		mMouse->setEventCallback(this);
         mKeyboard->setEventCallback(this);
 
@@ -154,6 +155,8 @@ public:
 	void setEditorMode(const EditorMode em);
 	EditorMode getEditorMode(void);
 
+	void setWireFrame(const bool wf);
+
     //wrapper functions to query keyboard and mouse state
 	bool IsKeyDown(const OIS::KeyCode kc);
 	bool IsMouseDown(const OIS::MouseButtonID mb);
@@ -192,6 +195,7 @@ protected:
     EditorMode m_Mode;
 
 	bool mContinue;
+	bool m_WireFrameLandscape;
 };//class
 
 }//namespace

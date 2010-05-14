@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-05-08
+ Date:    2010-05-13
  Purpose: LandscapeRecord class and Landscape Singleton class
           both classes together manage the landscape data of the game
 
@@ -23,6 +23,7 @@
      - ...
      - 2010-05-08 (rev 200) - documentation updated
                             - SaveAllToStream() added
+     - 2010-05-14 (rev 203) - possibility to render Landscape as wire frame
 
  ToDo list:
      - implement LoadRecordFromStream() for Landscape class
@@ -215,9 +216,10 @@ namespace Dusk
       /* send loaded data to scene manager and return true on success
 
          parameters:
-             scm - SceneManager that shall be used to display landscape
+             scm       - SceneManager that shall be used to display landscape
+             WireFrame - if true, landscape will be drawn as wireframe
       */
-      bool Enable(Ogre::SceneManager * scm);
+      bool Enable(Ogre::SceneManager * scm, const bool WireFrame);
 
       /*remove data from scene manager; returns true on success */
       bool Disable();
@@ -226,8 +228,11 @@ namespace Dusk
          Returns true on success, false on failure.
          If the record is currently not enabled, it returns true and does
          NOT enable it.
+
+         parameters:
+             WireFrame - if true, landscape will be drawn as wireframe
       */
-      bool Update();
+      bool Update(const bool WireFrame);
 
       /* determines, whether record is currently shown */
       bool IsEnabled() const;
@@ -352,9 +357,10 @@ namespace Dusk
       /* sends all loaded data to scene manager and returns true on success
 
          parameters:
-             scm - SceneManager that shall be used to display landscape
+             scm       - SceneManager that shall be used to display landscape
+             WireFrame - if true, landscape will be drawn as wireframe
       */
-      bool SendToEngine(Ogre::SceneManager * scm);
+      bool SendToEngine(Ogre::SceneManager * scm, const bool WireFrame=false);
 
       /* removes all loaded landscape data from scene manager and returns true
          in case of success
@@ -384,8 +390,11 @@ namespace Dusk
 
       /* performs update of records who requested it since last call,
          and returns number of updated records
+
+         parameters:
+             WireFrame - if true, landscape will be drawn as wireframe
       */
-      unsigned int UpdateRecords();
+      unsigned int UpdateRecords(const bool WireFrame);
       #endif
       /* returns the height of the landscape at a given point, i.e. the y-value
          of the point (x,y,z), where (x,y,z) is directly at the landscape's

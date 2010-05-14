@@ -385,6 +385,25 @@ void EditorApplication::CreateCEGUIMenuBar(void)
   menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::WeatherToggleClicked, this));
   popup->addItem(menu_item);
 
+  //"Extra" menu
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/Extra"));
+  menu_item->setText("Extra");
+  menu_item->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.8, 0)));
+  menu_item->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.10, 0)));
+  menu->addChildWindow(menu_item);
+
+  popup = static_cast<CEGUI::PopupMenu*> (wmgr.createWindow("TaharezLook/PopupMenu", "Editor/MenuBar/Extra/PopUp"));
+  menu_item->setPopupMenu(popup);
+
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/Extra/PopUp/WireFrame"));
+  menu_item->setText("Enable wire frame landscape");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::WireframeToggleClicked, this));
+  popup->addItem(menu_item);
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/MenuBar/Extra/PopUp/NoWireFrame"));
+  menu_item->setText("Disable wire frame landscape");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplication::WireframeToggleClicked, this));
+  popup->addItem(menu_item);
+
 
   //static text to show mode
   CEGUI::Window* mode_indicator = wmgr.createWindow("TaharezLook/StaticText", "Editor/ModeIndicator");
@@ -762,7 +781,7 @@ bool EditorApplication::LoadFrameOKClicked(const CEGUI::EventArgs &e)
 
     //  --- make loaded stuff visible via Ogre
     std::cout << "DEBUG: SendToEngine...\n";
-    Landscape::GetSingleton().SendToEngine(mSceneMgr);
+    Landscape::GetSingleton().SendToEngine(mSceneMgr, false);
     std::cout << "DEBUG: EnableAllObjects...\n";
     ObjectData::GetSingleton().EnableAllObjects(mSceneMgr);
     EditorCamera::GetSingleton().resetToOrigin();
@@ -1932,6 +1951,16 @@ bool EditorApplication::WeatherToggleClicked(const CEGUI::EventArgs &e)
       }
     }
   } //window
+  return true;
+}
+
+bool EditorApplication::WireframeToggleClicked(const CEGUI::EventArgs &e)
+{
+  const CEGUI::WindowEventArgs& winevent = static_cast<const CEGUI::WindowEventArgs&> (e);
+  if (winevent.window!=NULL)
+  {
+     mFrameListener->setWireFrame(winevent.window->getName()=="Editor/MenuBar/Extra/PopUp/WireFrame");
+  }
   return true;
 }
 

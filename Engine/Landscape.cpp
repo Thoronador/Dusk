@@ -436,7 +436,7 @@ bool LandscapeRecord::SetStride(const float new_stride)
 }
 
 #ifndef NO_OGRE_IN_LANDSCAPE
-bool LandscapeRecord::Enable(Ogre::SceneManager * scm)
+bool LandscapeRecord::Enable(Ogre::SceneManager * scm, const bool WireFrame)
 {
   if (!m_Loaded)
   {
@@ -470,40 +470,86 @@ bool LandscapeRecord::Enable(Ogre::SceneManager * scm)
 
   m_OgreObject = scm->createManualObject(cLandscapeNamePrefix+convert.str());
   m_OgreObject->estimateVertexCount(65*65);
-  m_OgreObject->estimateIndexCount(64*64*6);
+  if (WireFrame)
+  {
+    m_OgreObject->estimateIndexCount(64*64*4);
+  }
+  else
+  {
+    m_OgreObject->estimateIndexCount(64*64*6);
+  }
   m_OgreObject->setDynamic(false);
-  //m_OgreObject->begin("Landscape/Green", Ogre::RenderOperation::OT_TRIANGLE_LIST);
-  m_OgreObject->begin("Landscape/VertexColour", Ogre::RenderOperation::OT_TRIANGLE_LIST);
   unsigned int j, k;
-  //vectors
-  for (j=0; j<65; j++)
-  {
-    for (k=0; k<65; k++)
+  if (WireFrame)
+  { //wire frame model
+    m_OgreObject->begin("Landscape/VertexColour", Ogre::RenderOperation::OT_LINE_LIST);
+    //vertices
+    for (j=0; j<65; ++j)
     {
-      m_OgreObject->position(m_OffsetX+m_Stride*j,
-                             Height[j][k],
-                             m_OffsetY+m_Stride*k);
-      m_OgreObject->colour(Colour[j][k][0]/255.0f,
-                           Colour[j][k][1]/255.0f,
-                           Colour[j][k][2]/255.0f);
-    }//for k
-  }//for j
+      for (k=0; k<65; ++k)
+      {
+        m_OgreObject->position(m_OffsetX+m_Stride*j,
+                               Height[j][k],
+                               m_OffsetY+m_Stride*k);
+        m_OgreObject->colour(0.0f, 1.0f, 0.0f);
+      }//for k
+    }//for j
 
-  //triangles
-  for (j=0; j<64; j++)
-  {
-    for (k=0; k<64; k++)
+    //lines in one direction
+    for(j=0; j<64; ++j)
     {
-      //first triangle: [j][k], [j][k+1], [j+1][k]
-      m_OgreObject->index(j*65+k);
-      m_OgreObject->index(j*65+k+1);
-      m_OgreObject->index((j+1)*65+k);
-      //second triangle: [j+1][k], [j][k+1], [j+1][k+1]
-      m_OgreObject->index((j+1)*65+k);
-      m_OgreObject->index(j*65+k+1);
-      m_OgreObject->index((j+1)*65+k+1);
-    }//for k
-  }//for j
+      for(k=0; k<65; ++k)
+      {
+        //line: [j][k] to [j+1][k]
+        m_OgreObject->index(j*65+k);
+        m_OgreObject->index((j+1)*65+k);
+      }//for
+    }//for
+
+    //lines in other direction
+    for(j=0; j<65; ++j)
+    {
+      for(k=0; k<64; ++k)
+      {
+        //line: [j][k] to [j][k+1]
+        m_OgreObject->index(j*65+k);
+        m_OgreObject->index(j*65+k+1);
+      }//for
+    }//for
+  }//if WireFrame
+  else
+  { //"solid" landscape
+    m_OgreObject->begin("Landscape/VertexColour", Ogre::RenderOperation::OT_TRIANGLE_LIST);
+    //vertices
+    for (j=0; j<65; ++j)
+    {
+      for (k=0; k<65; ++k)
+      {
+        m_OgreObject->position(m_OffsetX+m_Stride*j,
+                               Height[j][k],
+                               m_OffsetY+m_Stride*k);
+        m_OgreObject->colour(Colour[j][k][0]/255.0f,
+                             Colour[j][k][1]/255.0f,
+                             Colour[j][k][2]/255.0f);
+      }//for k
+    }//for j
+
+    //triangles
+    for (j=0; j<64; ++j)
+    {
+      for (k=0; k<64; ++k)
+      {
+        //first triangle: [j][k], [j][k+1], [j+1][k]
+        m_OgreObject->index(j*65+k);
+        m_OgreObject->index(j*65+k+1);
+        m_OgreObject->index((j+1)*65+k);
+        //second triangle: [j+1][k], [j][k+1], [j+1][k+1]
+        m_OgreObject->index((j+1)*65+k);
+        m_OgreObject->index(j*65+k+1);
+        m_OgreObject->index((j+1)*65+k+1);
+      }//for k
+    }//for j
+  }//if not wire frame
   m_OgreObject->end();
   landnode->attachObject(m_OgreObject);
   return true;
@@ -539,7 +585,7 @@ bool LandscapeRecord::Disable()
   return true;
 }
 
-bool LandscapeRecord::Update()
+bool LandscapeRecord::Update(const bool WireFrame)
 {
   if (m_OgreObject == NULL)
   {
@@ -556,7 +602,7 @@ bool LandscapeRecord::Update()
     std::cout << "LandscapeRecord::Update: ERROR: Could not remove record.\n";
     return false;
   }
-  if (!Enable(scm))
+  if (!Enable(scm, WireFrame))
   {
     std::cout << "LandscapeRecord::Update: ERROR: Could not enable record.\n";
     return false;
@@ -957,7 +1003,7 @@ void Landscape::ClearAllRecords()
 }
 
 #ifndef NO_OGRE_IN_LANDSCAPE
-bool Landscape::SendToEngine(Ogre::SceneManager * scm)
+bool Landscape::SendToEngine(Ogre::SceneManager * scm, const bool WireFrame)
 {
   if (m_numRec==0)
   {
@@ -979,7 +1025,7 @@ bool Landscape::SendToEngine(Ogre::SceneManager * scm)
   unsigned int i;
   for (i=0; i<m_numRec; i++)
   {
-    m_RecordList[i]->Enable(scm);
+    m_RecordList[i]->Enable(scm, WireFrame);
   }//for
   return true;
 }
@@ -1006,6 +1052,8 @@ bool Landscape::RemoveFromEngine(Ogre::SceneManager * scm)
   {
     //remove previously create scene node for landscape
     scm->getRootSceneNode()->removeChild(cLandNodeName);
+    //delete scene node
+    scm->destroySceneNode(cLandNodeName);
   }
   return true;
 }
@@ -1030,12 +1078,12 @@ bool Landscape::NeedsUpdate() const
   return (!(m_RecordsForUpdate.empty()));
 }
 
-unsigned int Landscape::UpdateRecords()
+unsigned int Landscape::UpdateRecords(const bool WireFrame)
 {
   unsigned int count = 0;
   while (!m_RecordsForUpdate.empty())
   {
-    if (m_RecordsForUpdate.back()->Update())
+    if (m_RecordsForUpdate.back()->Update(WireFrame))
     {
       count++;
     }
