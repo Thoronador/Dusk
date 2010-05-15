@@ -80,6 +80,17 @@ DuskObject* ObjectData::GetObjectByID(const std::string& ID) const
   return NULL;
 }
 
+bool ObjectData::IsObjectPresent(const std::string& ID) const
+{
+  std::map<std::string, std::vector<DuskObject*> >::const_iterator iter;
+  iter = m_ReferenceMap.find(ID);
+  if (iter!=m_ReferenceMap.end())
+  {
+    return (!(iter->second.empty()));
+  }
+  return false;
+}
+
 bool ObjectData::removeItemReference(Item* pItem)
 {
   if (pItem==NULL) return false;

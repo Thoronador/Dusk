@@ -6,9 +6,11 @@
 #if defined(_WIN32)
   //Windows includes go here
   #include <io.h>
-#else
+#elif defined(__linux__) || defined(linux)
   //Linux directory entries
   #include <dirent.h>
+#else
+  #error "Unknown operating system!"
 #endif
 
 namespace Dusk
@@ -128,7 +130,7 @@ std::vector<FileEntry> get_DirectoryFileList(const std::string& Directory)
     result.push_back(one);
   }//while
   _findclose(handle);
-  #else
+  #elif defined(__linux__) || defined(linux)
   //Linux part
   DIR * direc = opendir(Directory.c_str());
   if (direc == NULL)
@@ -152,6 +154,8 @@ std::vector<FileEntry> get_DirectoryFileList(const std::string& Directory)
     }
   }//while
   closedir(direc);
+  #else
+    #error "Unknown operating system!"
   #endif
   return result;
 }//function

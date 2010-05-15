@@ -24,8 +24,10 @@ int main(int argc, char **argv)
       // (that might be wrong, but is still better than nothing)
       #if defined(_WIN32)
       pluginFileName = "plugins-windows-release.cfg";
-      #else
+      #elif defined(__linux__) || defined(linux)
       pluginFileName = "plugins-linux.cfg";
+      #else
+        #error "Unknown operating system!"
       #endif
     }
 

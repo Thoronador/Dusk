@@ -37,7 +37,6 @@
 				<Option parameters="plugins-windows-debug.cfg" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add option="-D_DEBUG" />
 					<Add option="-DWIN32" />
 					<Add option="-D_WINDOWS" />
 					<Add directory="$(OGRE_HOME)/include" />

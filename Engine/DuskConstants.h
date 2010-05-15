@@ -8,8 +8,10 @@ namespace Dusk
 {
   #if defined(_WIN32)
     const std::string path_sep = "\\";
-  #else
+  #elif defined(__linux__) || defined(linux)
     const std::string path_sep = "/";
+  #else
+    #error "Unknown operating system!"
   #endif
 
   /*standard mesh name for non-existing objects/ items */

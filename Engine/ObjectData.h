@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-03-27
+ Date:    2010-05-15
  Purpose: ObjectData Singleton class
           holds data of all static objects, containers, lights and items in
           the game.
@@ -30,6 +30,7 @@
                               reference
                             - GetObjectByID() added
      - 2010-03-27 (rev 188) - removeItemReference() added
+     - 2010-05-15 (rev 204) - IsObjectPresent() added
 
  ToDo list:
      - extend class when further classes for non-animated objects are added
@@ -92,6 +93,10 @@ namespace Dusk
          present
       */
       DuskObject* GetObjectByID(const std::string& ID) const;
+
+      /* returns true, if at least one object of given ID is present
+      */
+      bool IsObjectPresent(const std::string& ID) const;
 
       /* tries to remove the given item from the reference map and returns true
          on success, false on failure.

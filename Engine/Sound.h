@@ -59,8 +59,10 @@
 #include <iostream>
 #if defined(_WIN32)
   #include <windows.h>
-#else
+#elif defined(__linux__) || defined(linux)
   #include <dlfcn.h>
+#else
+  #error "Unknown operating system!"
 #endif
 #include "openal/al.h" //OpenAL header
 #include "openal/alc.h"  //OpenAL header
@@ -154,7 +156,7 @@ class Sound
 
        remarks:
            If this function returns false, you will not be able to load any
-           OggVorbis files- However, you still might be able to load Wave files,
+           OggVorbis files. However, you still might be able to load Wave files,
            depending on the return value of IsInitialised().
     */
     bool HasVorbis() const;
@@ -330,9 +332,11 @@ class Sound
     #if defined(_WIN32)
       HINSTANCE libHandleAL; //handle to OpenAL dynamic library
       HINSTANCE libHandleOV; //handle to OggVorbis dynamic library
-    #else
+    #elif defined(__linux__) || defined(linux)
       void * libHandleAL; //handle to OpenAL dynamic library
       void * libHandleOV; //handle to OggVorbis dynamic library
+    #else
+      #error "Unknown operating system!"
     #endif
     //****
     //**OpenAL function pointers
