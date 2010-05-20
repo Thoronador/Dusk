@@ -19,6 +19,7 @@
                             - GetAnimatedObjectReference() added
      - 2010-04-28 (rev 191) - deleteReferencesOfAnimatedObject() added
      - 2010-05-06 (rev 198) - small improvements
+     - 2010-05-20 (rev 205) - adjustments for new object hierarchy
 
  ToDo list:
      - ???
@@ -60,10 +61,15 @@ namespace Dusk
       NPC* addNPCReference(const std::string& ID, const Ogre::Vector3& position,
                            const Ogre::Vector3& rot, const float Scale);
 
+      /* adds a new WaypointObject with given ID at given position with rotation
+         and scale, and returns a pointer to the created WaypointObject. */
+      WaypointObject* addWaypointReference(const std::string& ID, const Ogre::Vector3& position,
+                                           const Ogre::Vector3& rotation, const float scale);
+
       /* returns a pointer to the first object reference with the given ID, or
          NULL of no such object is present
       */
-      AnimatedObject* GetAnimatedObjectReference(const std::string& ID) const;
+      InjectionObject* GetAnimatedObjectReference(const std::string& ID) const;
 
       /* same as GetAnimatedObjectReference, but with check for NPC -> if the
          referenced object is not a NPC, it returns NULL
@@ -104,7 +110,7 @@ namespace Dusk
       /* empty, private copy constructor due to singleton pattern*/
       AnimationData(const AnimationData& op) {}
 
-      std::map<std::string, std::vector<AnimatedObject*> > m_ReferenceMap;
+      std::map<std::string, std::vector<InjectionObject*> > m_ReferenceMap;
       unsigned int m_RefCount;
   };//class
 }//namespace

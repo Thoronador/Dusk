@@ -319,6 +319,7 @@ bool DataLoader::LoadFromFile(const std::string& FileName)
            break;
       case cHeaderRefA:  //AnimatedObject
       case cHeaderRefN:  //NPC
+      case cHeaderRefW:  //WaypointObject
            success = AnimationData::GetSingleton().LoadNextFromStream(input, Header);
            break;
       default:

@@ -22,6 +22,7 @@
      - 2010-01-03 (rev 149) - snow (particle system) added to scene
      - 2010-01-16 (rev 156) - animated robot patrols between waypoints
      - 2010-03-12 (rev 181) - documentation (i.e. this block comment) added
+     - 2010-05-20 (rev 205) - adjustments for new object hierarchy
 
  ToDo list:
      - ???

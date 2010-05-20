@@ -19,6 +19,7 @@
                               Inventory reference
      - 2010-03-27 (rev 188) - pickUp() added for picking up items
      - 2010-04-21 (rev 190) - isFemale() added
+     - 2010-05-20 (rev 205) - adjustments for new object hierarchy
 
  ToDo list:
      - add possibility to equip weapons, clothes, armour, etc.
@@ -36,6 +37,7 @@
 #include <OgreVector3.h>
 #include <OgreSceneManager.h>
 #include "AnimatedObject.h"
+#include "WaypointObject.h"
 #include "Inventory.h"
 #include "DuskTypes.h"
 #include "Item.h"
@@ -43,15 +45,25 @@
 namespace Dusk
 {
 
-  class NPC: public AnimatedObject
+  class NPC: public AnimatedObject, public WaypointObject
   {
     public:
       NPC();
-      NPC(const std::string _ID, const Ogre::Vector3 pos, const Ogre::Vector3 rot, const float Scale);
+      NPC(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale);
       virtual ~NPC();
 
       /* returns the enumeration type indicating that this is an NPC */
       virtual ObjectTypes GetType() const;
+
+      /* animated and move the NPC according to the passed time
+
+         remarks:
+             This function is intended to be called regularly, i.e. every
+             frame, to accomplish the desired animation of the object. If you
+             don't call this function in such a manner, the animation will be
+             processed improperly and/or will not be fluent.
+      */
+      virtual void injectTime(const float SecondsPassed);
 
       /* returns the current amount of health/ hitpoints of that NPC */
       float getHealth() const;

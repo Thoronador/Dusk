@@ -81,26 +81,27 @@ void Scene::createGrassMesh()
           ObjectData::GetSingleton().EnableAllObjects(getAPI().getOgreSceneManager());
         }
 
-        //create animated object (for test purposes)
-        AnimatedObject* aniObj = NULL;
-        aniObj = AnimationData::GetSingleton().addAnimatedReference("robot",
+        //create waypoint object (for test purposes)
+        WaypointObject* wpObj = NULL;
+        wpObj = AnimationData::GetSingleton().addWaypointReference("robot",
                                     Ogre::Vector3(0.0f, 0.0f, 30.0f),
                                     Ogre::Vector3(0.0f, 0.0f, 0.0f), 0.55f);
-        aniObj->Enable(m_SceneManager);
-        aniObj->SetSpeed(12.5f);
+        wpObj->Enable(m_SceneManager);
+        wpObj->SetSpeed(12.5f);
         //aniObj->TravelToDestination(Ogre::Vector3(200.0f, 30.0f, 0.0f));
-        aniObj->PlayAnimation("Walk", true);
-        aniObj->AddWaypoint(Ogre::Vector3(200.0f, 30.0f, 0.0f));
-        aniObj->AddWaypoint(Ogre::Vector3(200.0f, 50.0f, -200.0f));
-        aniObj->AddWaypoint(Ogre::Vector3(0.0f, 0.0f, 30.0f));
-        aniObj->setUseWaypoints(true);
-        aniObj->setPatrolMode(true);
+        //aniObj->PlayAnimation("Walk", true);
+        wpObj->AddWaypoint(Ogre::Vector3(200.0f, 30.0f, 0.0f));
+        wpObj->AddWaypoint(Ogre::Vector3(200.0f, 50.0f, -200.0f));
+        wpObj->AddWaypoint(Ogre::Vector3(0.0f, 0.0f, 30.0f));
+        wpObj->setUseWaypoints(true);
+        wpObj->setPatrolMode(true);
         //just out of curiosity
-        std::cout << "Animated robot type enum (int): "<<(int)(aniObj->GetType())<<"\n"
+        std::cout << "Animated robot type enum (int): "<<(int)(wpObj->GetType())<<"\n"
                   << "  sizeof(DuskObject): "<<sizeof(DuskObject)<<" bytes\n"
                   << "  sizeof(Light): "<<sizeof(Light)<<" bytes\n"
                   << "  sizeof(Container): "<<sizeof(Container)<<" bytes\n"
                   << "  sizeof(AnimatedObject): "<<sizeof(AnimatedObject)<<" bytes\n"
+                  << "  sizeof(WaypointObject): "<<sizeof(WaypointObject)<<" bytes\n"
                   << "  sizeof(NPC): "<<sizeof(NPC)<<" bytes\n";
         //end of animated object
 

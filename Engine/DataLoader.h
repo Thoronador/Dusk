@@ -23,6 +23,7 @@
                               and not only the whole data
      - 2010-02-06 (rev 165) - update for Item class
      - 2010-05-08 (rev 200) - way of saving landscape updated
+     - 2010-05-20 (rev 205) - update for WaypointObject
 
  ToDo list:
      - extend class when further classes for data management are added

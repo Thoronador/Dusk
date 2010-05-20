@@ -1,7 +1,6 @@
 #include "AnimatedObject.h"
 #include "ObjectBase.h" //should replace this one later
 #include <OgreAnimationState.h>
-#include <OgreMath.h>
 #include "DuskConstants.h"
 
 namespace Dusk
@@ -15,22 +14,13 @@ AnimatedObject::AnimatedObject()
   rotation = Ogre::Vector3::ZERO;
   m_Scale = 1.0f;
   entity = NULL;
-  m_Direction = Ogre::Vector3::ZERO;
-  m_Destination = Ogre::Vector3::ZERO;
-  m_Speed = 0.0f;
-  m_Travel = false;
 
   m_Anim = "";
   m_DoPlayAnim = false;
   m_LoopAnim = false;
-
-  m_WaypointTravel = false;
-  m_Waypoints.clear();
-  m_currentWaypoint = 0;
-  m_Patrol = false;
 }
 
-AnimatedObject::AnimatedObject(const std::string _ID, const Ogre::Vector3 pos, const Ogre::Vector3 rot, const float Scale)
+AnimatedObject::AnimatedObject(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale)
 {
   ID = _ID;
   position = pos;
@@ -42,63 +32,16 @@ AnimatedObject::AnimatedObject(const std::string _ID, const Ogre::Vector3 pos, c
     m_Scale = 1.0f;
   }
   entity = NULL;
-  m_Direction = Ogre::Vector3::ZERO;
-  m_Destination = Ogre::Vector3::ZERO;
-  m_Speed = 0.0f;
-  m_Travel = false;
 
   m_Anim = "";
   m_DoPlayAnim = false;
   m_LoopAnim = false;
-
-  m_WaypointTravel = false;
-  m_Waypoints.clear();
-  m_currentWaypoint = 0;
-  m_Patrol = false;
 }
 
 AnimatedObject::~AnimatedObject()
 {
   //dtor
   Disable();
-}
-
-Ogre::Vector3 AnimatedObject::GetDirection() const
-{
-  return m_Direction;
-}
-
-void AnimatedObject::SetDirection(const Ogre::Vector3& direc)
-{
-  m_Direction = direc;
-  m_Direction.normalise();
-}
-
-float AnimatedObject::GetSpeed() const
-{
-  return m_Speed;
-}
-
-void AnimatedObject::SetSpeed(const float v)
-{
-  m_Speed = v;
-}
-
-void AnimatedObject::TravelToDestination(const Ogre::Vector3& dest)
-{
-  m_Destination = dest;
-  m_Travel = true;
-  SetDirection(dest-GetPosition());
-}
-
-Ogre::Vector3 AnimatedObject::GetDestination() const
-{
-  return m_Destination;
-}
-
-bool AnimatedObject::IsOnTravel() const
-{
-  return m_Travel;
 }
 
 bool AnimatedObject::Enable(Ogre::SceneManager* scm)
@@ -136,6 +79,10 @@ bool AnimatedObject::Enable(Ogre::SceneManager* scm)
       state->setTimePosition(0.0f);
       state->setLoop(m_LoopAnim);
       state->setEnabled(true);
+    }
+    else
+    {
+      m_Anim = "";
     }
   }
   return (entity!=NULL);
@@ -199,100 +146,22 @@ std::string AnimatedObject::GetAnimation() const
   return m_Anim;
 }
 
-void AnimatedObject::Move(const float SecondsPassed)
+bool AnimatedObject::GetLoopState() const
+{
+  return m_LoopAnim;
+}
+
+void AnimatedObject::injectTime(const float SecondsPassed)
 {
   if (SecondsPassed<=0.0f)
   {
     return;
   }
-  if (m_Travel)
+  //adjust animation state
+  if (m_Anim!="")
   {
-    const float Distance = Ogre::Vector3(m_Destination-GetPosition()).squaredLength();
-    //are we moving to fast?
-    if (Ogre::Math::Sqr(m_Speed*SecondsPassed)>Distance)
-    { //finished travelling
-      SetPosition(m_Destination);
-      if (!m_WaypointTravel)
-      {
-        m_Travel = false;
-        m_Direction = Ogre::Vector3::ZERO;
-        m_Speed = 0.0f;
-      }
-      else
-      { //we have waypoints, select the next one
-        if (m_currentWaypoint+1>=m_Waypoints.size())
-        { //we have run out of waypoints,...
-          if (m_Patrol)
-          { //...but we are in patrol mode, so start again
-            m_currentWaypoint = 0;
-            TravelToDestination(m_Waypoints.at(0));
-          }
-          else
-          { //...so let's stop, since we do not patrol
-            m_Travel = false;
-            m_WaypointTravel = false;
-            m_Direction = Ogre::Vector3::ZERO;
-            m_Speed = 0.0f;
-          }
-        }
-        else
-        { //there are more waypoints, so select next
-          m_currentWaypoint++;
-          TravelToDestination(m_Waypoints.at(m_currentWaypoint));
-        }
-      }
-    }
-    else
-    {
-      position = position + SecondsPassed*m_Speed*m_Direction;
-    }
+    entity->getAnimationState(m_Anim)->addTime(SecondsPassed);
   }
-  else
-  {
-    position = position + SecondsPassed*m_Speed*m_Direction;
-  }
-  //adjust position of scene node/ entity in Ogre
-  if (IsEnabled())
-  {
-    SetPosition(position);
-    if (m_Anim!="")
-    {
-      entity->getAnimationState(m_Anim)->addTime(SecondsPassed);
-    }
-  }
-}
-
-unsigned int AnimatedObject::AddWaypoint(const Ogre::Vector3& waypoint)
-{
-  if (m_Waypoints.empty())
-  {
-    m_Waypoints.push_back(waypoint);
-    return 1;
-  }
-  //avoid having the same waypoint twice in a row
-  if (m_Waypoints.back()!=waypoint)
-  {
-    m_Waypoints.push_back(waypoint);
-  }
-  return m_Waypoints.size();
-}
-
-/* tells the object whether to use waypoints or not */
-void AnimatedObject::setUseWaypoints(const bool doUse)
-{
-  m_WaypointTravel = doUse;
-  if (doUse && m_currentWaypoint<m_Waypoints.size())
-  { //we have points and want movement, so start it
-    TravelToDestination(m_Waypoints.at(m_currentWaypoint));
-  }
-}
-
-void AnimatedObject::clearWaypoints()
-{
-  m_Waypoints.clear();
-  m_WaypointTravel = false;
-  m_Patrol = false;
-  m_currentWaypoint = 0;
 }
 
 bool AnimatedObject::SaveToStream(std::ofstream& OutStream) const
@@ -317,55 +186,14 @@ bool AnimatedObject::SaveToStream(std::ofstream& OutStream) const
 
 bool AnimatedObject::SaveAnimatedObjectPart(std::ofstream& OutStream) const
 {
-  // go on with new data members from AnimatedObject
-  //direction
-  float xyz = m_Direction.x;
-  OutStream.write((char*) &xyz, sizeof(float));
-  xyz = m_Direction.y;
-  OutStream.write((char*) &xyz, sizeof(float));
-  xyz = m_Direction.z;
-  OutStream.write((char*) &xyz, sizeof(float));
-  //destination
-  xyz = m_Destination.x;
-  OutStream.write((char*) &xyz, sizeof(float));
-  xyz = m_Destination.y;
-  OutStream.write((char*) &xyz, sizeof(float));
-  xyz = m_Destination.z;
-  OutStream.write((char*) &xyz, sizeof(float));
-  //speed
-  OutStream.write((char*) &m_Speed, sizeof(float));
-  //travel?
-  OutStream.write((char*) &m_Travel, sizeof(bool));
-  //animation data
+  // save new data members from AnimatedObject
   // -- anim name
-  unsigned int len = m_Anim.length();
+  const unsigned int len = m_Anim.length();
   OutStream.write((char*) &len, sizeof(len));
   // -- loop mode?
   OutStream.write((char*) &m_LoopAnim, sizeof(bool));
   // -- playing?
   OutStream.write((char*) &m_DoPlayAnim, sizeof(bool));
-  //waypoint data
-  // -- waypoint travel enabled?
-  OutStream.write((char*) &m_WaypointTravel, sizeof(bool));
-  // -- patrol mode?
-  OutStream.write((char*) &m_Patrol, sizeof(bool));
-  // -- current waypoint
-  OutStream.write((char*) &m_currentWaypoint, sizeof(m_currentWaypoint));
-  // -- waypoints themselves
-  // ---- number of WPs
-  len = m_Waypoints.size();
-  OutStream.write((char*) &len, sizeof(unsigned int));
-  // ---- waypoint data
-  unsigned int i;
-  for (i=0; i<len; i=i+1)
-  {
-    xyz = m_Waypoints.at(i).x;
-    OutStream.write((char*) &xyz, sizeof(float));
-    xyz = m_Waypoints.at(i).y;
-    OutStream.write((char*) &xyz, sizeof(float));
-    xyz = m_Waypoints.at(i).z;
-    OutStream.write((char*) &xyz, sizeof(float));
-  } //for
   return OutStream.good();
 }
 
@@ -405,39 +233,14 @@ bool AnimatedObject::LoadFromStream(std::ifstream& InStream)
 bool AnimatedObject::LoadAnimatedObjectPart(std::ifstream& InStream)
 {
   //load data members from AnimatedObject
-  float f_temp;
-  //direction
-  InStream.read((char*) &f_temp, sizeof(float));
-  m_Direction.x = f_temp;
-  InStream.read((char*) &f_temp, sizeof(float));
-  m_Direction.y = f_temp;
-  InStream.read((char*) &f_temp, sizeof(float));
-  m_Direction.z = f_temp;
-  //destination
-  InStream.read((char*) &f_temp, sizeof(float));
-  m_Destination.x = f_temp;
-  InStream.read((char*) &f_temp, sizeof(float));
-  m_Destination.y = f_temp;
-  InStream.read((char*) &f_temp, sizeof(float));
-  m_Destination.z = f_temp;
-  //speed
-  InStream.read((char*) &m_Speed, sizeof(float));
-  //travel
-  InStream.read((char*) &m_Travel, sizeof(bool));
-  if (!InStream.good())
-  {
-    std::cout << "AnimatedObject::LoadFromStream: ERROR while reading "
-              << "direction, destination and speed.\n";
-    return false;
-  }
   //animation data
   // -- anim name
   unsigned int len = 0;
   InStream.read((char*) &len, sizeof(unsigned int));
   if (len>255)
   {
-    std::cout << "AnimatedObject::LoadFromStream: ERROR: animation name cannot"
-              << " be longer than 255 characters.\n";
+    std::cout << "AnimatedObject::LoadAnimatedObjectPart: ERROR: animation "
+              << "name cannot be longer than 255 characters.\n";
     return false;
   }
   char ID_Buffer[256];
@@ -445,8 +248,8 @@ bool AnimatedObject::LoadAnimatedObjectPart(std::ifstream& InStream)
   ID_Buffer[len] = '\0';
   if (!InStream.good())
   {
-    std::cout << "AnimatedObject::LoadFromStream: ERROR while reading animation"
-              << " name.\n";
+    std::cout << "AnimatedObject::LoadAnimatedObjectPart: ERROR while reading "
+              << "animation name.\n";
     return false;
   }
   m_Anim = std::string(ID_Buffer);
@@ -454,63 +257,7 @@ bool AnimatedObject::LoadAnimatedObjectPart(std::ifstream& InStream)
   InStream.read((char*) &m_LoopAnim, sizeof(bool));
   // -- playing?
   InStream.read((char*) &m_DoPlayAnim, sizeof(bool));
-  //waypoint data
-  // -- waypoint travel enabled?
-  InStream.read((char*) &m_WaypointTravel, sizeof(bool));
-  // -- patrol mode?
-  InStream.read((char*) &m_Patrol, sizeof(bool));
-  if (!InStream.good())
-  {
-    std::cout << "AnimatedObject::LoadFromStream: ERROR while reading flags.\n";
-    return false;
-  }
-  // -- current waypoint
-  InStream.read((char*) &m_currentWaypoint, sizeof(m_currentWaypoint));
-  // -- waypoints themselves
-  // ---- number of WPs
-  unsigned int wp_count = 0;
-  InStream.read((char*) &wp_count, sizeof(unsigned int));
-  if (wp_count>100)
-  {
-    std::cout << "AnimatedObject::LoadFromStream: ERROR: There are more than "
-              << "100 waypoints for one object. Aborting to avoid to much "
-              << "data in vector.\n";
-    return false;
-  }
-  m_Waypoints.clear();
-  Ogre::Vector3 temp_vec;
-  for (len=0; len<wp_count; len=len+1)
-  {
-    InStream.read((char*) &f_temp, sizeof(float));
-    temp_vec.x = f_temp;
-    InStream.read((char*) &f_temp, sizeof(float));
-    temp_vec.y = f_temp;
-    InStream.read((char*) &f_temp, sizeof(float));
-    temp_vec.z = f_temp;
-    if (!(InStream.good()))
-    {
-      std::cout << "AnimatedObject::LoadFromStream: ERROR while reading "
-                << "waypoints data.\n";
-      return false;
-    }
-    m_Waypoints.push_back(temp_vec);
-  } //for
   return (InStream.good());
 }
 
-
-void AnimatedObject::setPatrolMode(const bool doPatrol)
-{
-  m_Patrol = doPatrol;
-  if (doPatrol and m_Waypoints.size()<2)
-  { //patrol mode not useful, if there is only one waypoint or none at all
-    m_Patrol = false;
-  }
-}
-
-bool AnimatedObject::getPatrolMode() const
-{
-  return m_Patrol;
-}
-
-}
+} //namespace

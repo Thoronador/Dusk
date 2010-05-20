@@ -95,6 +95,8 @@
 		<Unit filename="../Engine/DuskObject.cpp" />
 		<Unit filename="../Engine/DuskObject.h" />
 		<Unit filename="../Engine/DuskTypes.h" />
+		<Unit filename="../Engine/InjectionObject.cpp" />
+		<Unit filename="../Engine/InjectionObject.h" />
 		<Unit filename="../Engine/Inventory.cpp" />
 		<Unit filename="../Engine/Inventory.h" />
 		<Unit filename="../Engine/Item.cpp" />
@@ -138,6 +140,10 @@
 		<Unit filename="../Engine/Settings.h" />
 		<Unit filename="../Engine/Sound.cpp" />
 		<Unit filename="../Engine/Sound.h" />
+		<Unit filename="../Engine/UniformMotionObject.cpp" />
+		<Unit filename="../Engine/UniformMotionObject.h" />
+		<Unit filename="../Engine/WaypointObject.cpp" />
+		<Unit filename="../Engine/WaypointObject.h" />
 		<Unit filename="../Engine/Weather.cpp" />
 		<Unit filename="../Engine/Weather.h" />
 		<Extensions>

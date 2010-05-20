@@ -25,9 +25,8 @@ status:
 This Header defines the AnimatedObject class
 
 description:
-    The class represents an animated and possibly moving object in
-    the game. This could be something like a flag waving in the wind
-    or a rolling barrel.
+    The class represents an animated object in the game. This
+    could be something like a flag waving in the wind.
 status:
     testing, but seems to work
 */
@@ -293,6 +292,19 @@ description:
 
 
 /*
+This Header defines the InjectionObject class
+
+description:
+    This is an abstract class which serves as interface for all
+    kinds of objects that need to be regularly updated, i.e.
+    animated and moving objects..
+status:
+    testing, but seems to work
+*/
+#include "InjectionObject.h"
+
+
+/*
 This Header defines the InputEvent class.
 
 description:
@@ -480,6 +492,32 @@ status:
     Seems to work fine (until proven otherwise)
 */
 #include "Sound.h"
+
+
+/*
+This Header defines the UniformMotionObject class
+
+description:
+    The class represents a moving object in the game, which moves
+    straight to a certain point (and then stops) or into a certain
+    direction at constant speed.
+status:
+    testing, but seems to work
+*/
+#include "UniformMotionObject.h"
+
+
+/*
+This Header defines the WaypointObject class
+
+description:
+    The class represents a moving object in the game, which moves
+    between some predefined waypoints. This could be something like
+    a guard on patrol.
+status:
+    testing, but seems to work
+*/
+#include "WaypointObject.h"
 
 
 /*

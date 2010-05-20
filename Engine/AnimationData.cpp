@@ -40,14 +40,23 @@ NPC* AnimationData::addNPCReference(const std::string& ID,
      const Ogre::Vector3& position, const Ogre::Vector3& rot, const float Scale)
 {
   NPC* NPCPointer = new NPC(ID, position, rot, Scale);
-  m_ReferenceMap[ID].push_back(NPCPointer);
+  m_ReferenceMap[ID].push_back(static_cast<AnimatedObject*>(NPCPointer));
   ++m_RefCount;
   return NPCPointer;
 }
 
-AnimatedObject* AnimationData::GetAnimatedObjectReference(const std::string& ID) const
+WaypointObject* AnimationData::addWaypointReference(const std::string& ID, const Ogre::Vector3& position,
+                                           const Ogre::Vector3& rotation, const float scale)
 {
-  std::map<std::string, std::vector<AnimatedObject*> >::const_iterator iter;
+  WaypointObject* wpPointer = new WaypointObject(ID, position, rotation, scale);
+  m_ReferenceMap[ID].push_back(static_cast<WaypointObject*>(wpPointer));
+  ++m_RefCount;
+  return wpPointer;
+}
+
+InjectionObject* AnimationData::GetAnimatedObjectReference(const std::string& ID) const
+{
+  std::map<std::string, std::vector<InjectionObject*> >::const_iterator iter;
   iter = m_ReferenceMap.find(ID);
   if (iter!=m_ReferenceMap.end())
   {
@@ -61,20 +70,20 @@ AnimatedObject* AnimationData::GetAnimatedObjectReference(const std::string& ID)
 
 NPC* AnimationData::GetNPCReference(const std::string& ID) const
 {
-  AnimatedObject* ap = GetAnimatedObjectReference(ID);
+  InjectionObject* ap = GetAnimatedObjectReference(ID);
   if (ap!=NULL)
   {
     if (ap->GetType() != otNPC)
     {
-      ap = NULL;
+      return NULL;
     }
   }
-  return (static_cast<NPC*>(ap));
+  return (dynamic_cast<NPC*>(ap));
 }
 
 unsigned int AnimationData::deleteReferencesOfAnimatedObject(const std::string& del_ID)
 {
-  std::map<std::string, std::vector<AnimatedObject*> >::iterator iter;
+  std::map<std::string, std::vector<InjectionObject*> >::iterator iter;
   iter = m_ReferenceMap.find(del_ID);
   if (iter==m_ReferenceMap.end())
   { //nothing found
@@ -99,7 +108,7 @@ unsigned int AnimationData::deleteReferencesOfAnimatedObject(const std::string& 
 void AnimationData::InjectAnimationTime(const float TimePassed)
 {
   unsigned int i;
-  std::map<std::string, std::vector<AnimatedObject*> >::const_iterator iter;
+  std::map<std::string, std::vector<InjectionObject*> >::const_iterator iter;
   iter = m_ReferenceMap.begin();
   while (iter!=m_ReferenceMap.end())
   {
@@ -107,7 +116,7 @@ void AnimationData::InjectAnimationTime(const float TimePassed)
     {
       if (iter->second.at(i)!=NULL)
       {
-        iter->second.at(i)->Move(TimePassed);
+        iter->second.at(i)->injectTime(TimePassed);
       }
     }//for
     ++iter;
@@ -116,8 +125,8 @@ void AnimationData::InjectAnimationTime(const float TimePassed)
 
 void AnimationData::ClearData()
 {
-  AnimatedObject * ObjPtr;
-  std::map<std::string, std::vector<AnimatedObject*> >::iterator iter;
+  InjectionObject * ObjPtr;
+  std::map<std::string, std::vector<InjectionObject*> >::iterator iter;
   iter = m_ReferenceMap.begin();
   while (iter!=m_ReferenceMap.end())
   {
@@ -143,7 +152,7 @@ bool AnimationData::SaveAllToStream(std::ofstream& output) const
     return false;
   }
   unsigned int i;
-  std::map<std::string, std::vector<AnimatedObject*> >::const_iterator iter;
+  std::map<std::string, std::vector<InjectionObject*> >::const_iterator iter;
   iter = m_ReferenceMap.begin();
   while (iter!=m_ReferenceMap.end())
   {
@@ -166,7 +175,7 @@ bool AnimationData::SaveAllToStream(std::ofstream& output) const
 
 bool AnimationData::LoadNextFromStream(std::ifstream& Stream, const unsigned int PrefetchedHeader)
 {
-  AnimatedObject * animPtr = NULL;
+  InjectionObject * animPtr = NULL;
   switch(PrefetchedHeader)
   {
     case cHeaderRefA:
@@ -181,6 +190,16 @@ bool AnimationData::LoadNextFromStream(std::ifstream& Stream, const unsigned int
          break;
     case cHeaderRefN:
          animPtr = new NPC;
+         if (animPtr->LoadFromStream(Stream))
+         {
+           m_ReferenceMap[animPtr->GetID()].push_back(animPtr);
+           ++m_RefCount;
+           return true;
+         }
+         delete animPtr;
+         break;
+    case cHeaderRefW:
+         animPtr = new WaypointObject;
          if (animPtr->LoadFromStream(Stream))
          {
            m_ReferenceMap[animPtr->GetID()].push_back(animPtr);

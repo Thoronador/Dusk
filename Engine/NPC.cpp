@@ -21,7 +21,7 @@ NPC::NPC()
   m_Health = getMaxHealth();
 }
 
-NPC::NPC(const std::string _ID, const Ogre::Vector3 pos, const Ogre::Vector3 rot, const float Scale)
+NPC::NPC(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale)
  : AnimatedObject(_ID, pos, rot, Scale)
 {
   if (NPCBase::GetSingleton().hasNPC(ID))
@@ -59,6 +59,12 @@ NPC::~NPC()
 ObjectTypes NPC::GetType() const
 {
   return otNPC;
+}
+
+void NPC::injectTime(const float SecondsPassed)
+{
+  AnimatedObject::injectTime(SecondsPassed);
+  WaypointObject::injectTime(SecondsPassed);
 }
 
 float NPC::getHealth() const
@@ -247,6 +253,10 @@ bool NPC::Enable(Ogre::SceneManager* scm)
       state->setLoop(m_LoopAnim);
       state->setEnabled(true);
     }
+    else
+    {
+      m_Anim = "";
+    }
   }
   return (entity!=NULL);
 }
@@ -270,6 +280,18 @@ bool NPC::SaveToStream(std::ofstream& OutStream) const
   if (!SaveAnimatedObjectPart(OutStream))
   {
     std::cout << "NPC::SaveToStream: ERROR while saving animation data!\n";
+    return false;
+  }
+  // go on with new data members from UniformMotionObject
+  if (!SaveUniformMotionObjectPart(OutStream))
+  {
+    std::cout << "NPC::SaveToStream: ERROR while saving basic motion data!\n";
+    return false;
+  }
+  // go on with new data members from WaypointObject
+  if (!SaveWaypointObjectPart(OutStream))
+  {
+    std::cout << "NPC::SaveToStream: ERROR while saving waypoint data!\n";
     return false;
   }
   //done with inherited data members; go on with NPC stuff
@@ -331,6 +353,18 @@ bool NPC::LoadFromStream(std::ifstream& InStream)
   if (!LoadAnimatedObjectPart(InStream))
   {
     std::cout << "NPC::LoadFromStream: ERROR while loading animation data.\n";
+    return false;
+  }
+  // go on with data members from UniformMotionObject
+  if (!LoadUniformMotionObjectPart(InStream))
+  {
+    std::cout << "NPC::LoadFromStream: ERROR while loading motion data.\n";
+    return false;
+  }
+  // go on with data members from WaypointObject
+  if (!LoadWaypointObjectPart(InStream))
+  {
+    std::cout << "NPC::LoadFromStream: ERROR while loading waypoint data.\n";
     return false;
   }
   //done with inherited data, go on with NPC data
