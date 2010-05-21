@@ -72,7 +72,7 @@ bool AnimatedObject::Enable(Ogre::SceneManager* scm)
   entity->setUserObject(this);
   if (m_Anim != "")
   {
-    Ogre::AnimationStateSet* anim_set = entity->getAllAnimationStates();
+    const Ogre::AnimationStateSet* anim_set = entity->getAllAnimationStates();
     if (anim_set->hasAnimationState(m_Anim))
     {
       Ogre::AnimationState* state = anim_set->getAnimationState(m_Anim);
@@ -102,8 +102,7 @@ void AnimatedObject::PlayAnimation(const std::string& AnimName, const bool DoLoo
   if (entity!=NULL)
   {
     Ogre::AnimationState* state = NULL;
-    Ogre::AnimationStateSet * anim_set = NULL;
-    anim_set = entity->getAllAnimationStates();
+    const Ogre::AnimationStateSet * anim_set = entity->getAllAnimationStates();
     if (m_Anim != "")
     {
       if (anim_set == NULL)
@@ -144,6 +143,27 @@ void AnimatedObject::PlayAnimation(const std::string& AnimName, const bool DoLoo
 std::string AnimatedObject::GetAnimation() const
 {
   return m_Anim;
+}
+
+std::vector<std::string> AnimatedObject::GetPossibleAnimationStates() const
+{
+  if (entity==NULL)
+  {
+    return std::vector<std::string>();
+  }
+  const Ogre::AnimationStateSet * anim_set = entity->getAllAnimationStates();
+  if (NULL==anim_set)
+  {
+    return std::vector<std::string>();
+  }
+  Ogre::ConstAnimationStateIterator cIter = anim_set->getAnimationStateIterator();
+  std::vector<std::string> result;
+  while (cIter.hasMoreElements())
+  {
+    result.push_back(cIter.peekNextKey());
+    cIter.moveNext();
+  } //while
+  return result;
 }
 
 bool AnimatedObject::GetLoopState() const

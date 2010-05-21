@@ -54,7 +54,7 @@ WaypointObject* AnimationData::addWaypointReference(const std::string& ID, const
   return wpPointer;
 }
 
-InjectionObject* AnimationData::GetAnimatedObjectReference(const std::string& ID) const
+InjectionObject* AnimationData::GetInjectionObjectReference(const std::string& ID) const
 {
   std::map<std::string, std::vector<InjectionObject*> >::const_iterator iter;
   iter = m_ReferenceMap.find(ID);
@@ -68,9 +68,27 @@ InjectionObject* AnimationData::GetAnimatedObjectReference(const std::string& ID
   return NULL;
 }
 
+AnimatedObject* AnimationData::GetAnimatedObjectReference(const std::string& ID) const
+{
+  std::map<std::string, std::vector<InjectionObject*> >::const_iterator iter;
+  iter = m_ReferenceMap.find(ID);
+  if (iter!=m_ReferenceMap.end())
+  {
+    if (!(iter->second.empty()))
+    {
+      if ((iter->second.at(0)->GetType()==otNPC) or
+          (iter->second.at(0)->GetType()==otAnimated))
+      {
+        return (dynamic_cast<AnimatedObject*>(iter->second.at(0)));
+      }
+    }
+  }
+  return NULL;
+}
+
 NPC* AnimationData::GetNPCReference(const std::string& ID) const
 {
-  InjectionObject* ap = GetAnimatedObjectReference(ID);
+  InjectionObject* ap = GetInjectionObjectReference(ID);
   if (ap!=NULL)
   {
     if (ap->GetType() != otNPC)

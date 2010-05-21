@@ -8,6 +8,7 @@
 #include "AnimatedObject.h"
 #include "AnimationData.h"
 #include "Weather.h"
+#include "Player.h"
 
 namespace Dusk
 {
@@ -102,8 +103,9 @@ void Scene::createGrassMesh()
                   << "  sizeof(Container): "<<sizeof(Container)<<" bytes\n"
                   << "  sizeof(AnimatedObject): "<<sizeof(AnimatedObject)<<" bytes\n"
                   << "  sizeof(WaypointObject): "<<sizeof(WaypointObject)<<" bytes\n"
-                  << "  sizeof(NPC): "<<sizeof(NPC)<<" bytes\n";
-        //end of animated object
+                  << "  sizeof(NPC): "<<sizeof(NPC)<<" bytes\n"
+                  << "  sizeof(Player): "<<sizeof(Player)<<" bytes\n";
+        //end of waypoint object
 
         Ogre::Plane plane;
         plane.normal = Ogre::Vector3::UNIT_Y;
@@ -144,6 +146,8 @@ void Scene::createGrassMesh()
         w_singleton.setFogColour(0.9, 0.9, 0.9);
         w_singleton.startLinearFog(50.0, 500.0);
         w_singleton.startSnow();
+        Player::GetSingleton().Enable(m_SceneManager);
+        Player::GetSingleton().SetRotation(Ogre::Vector3(0.0, 180.0, 0.0));
     }
 
     void Scene::destroyScene()

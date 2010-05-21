@@ -20,6 +20,7 @@
      - 2010-04-28 (rev 191) - deleteReferencesOfAnimatedObject() added
      - 2010-05-06 (rev 198) - small improvements
      - 2010-05-20 (rev 205) - adjustments for new object hierarchy
+     - 2010-05-21 (rev 206) - GetInjectionObjectReference() added
 
  ToDo list:
      - ???
@@ -67,9 +68,14 @@ namespace Dusk
                                            const Ogre::Vector3& rotation, const float scale);
 
       /* returns a pointer to the first object reference with the given ID, or
-         NULL of no such object is present
+         NULL if no such object is present
       */
-      InjectionObject* GetAnimatedObjectReference(const std::string& ID) const;
+      InjectionObject* GetInjectionObjectReference(const std::string& ID) const;
+
+      /* returns a pointer to the first animated object reference (including NPC)
+         with the given ID, or NULL if no such object is present
+      */
+      AnimatedObject* GetAnimatedObjectReference(const std::string& ID) const;
 
       /* same as GetAnimatedObjectReference, but with check for NPC -> if the
          referenced object is not a NPC, it returns NULL

@@ -8,8 +8,10 @@
  History:
      - 2010-03-27 (rev 188) - initial version
      - 2010-05-06 (rev 198) - documentation update
+     - 2010-05-21 (rev 206) - Enable() now actually does something
 
  ToDo list:
+     - actually implement LoadFromStream() and SaveToStream()
      - ???
 
  Bugs:
@@ -48,8 +50,24 @@ namespace Dusk
       */
       bool pickUpNearest();
 
-      /* override NPC's Enable() method */
+      /* displays NPC mesh */
       virtual bool Enable(Ogre::SceneManager* scm);
+
+      /* saves NPC to given stream and returns true on success, false otherwise
+
+         remarks:
+            In its current state, this function does nothing but return false.
+      */
+      virtual bool SaveToStream(std::ofstream& OutStream) const;
+
+      /* Loads NPC from stream and returns true on success, false otherwise.
+         The NPC's data is probably inconsistent after that function failed, so
+         don't rely on its data in that case.
+
+         remarks:
+            In its current state, this function does nothing but return false.
+      */
+      virtual bool LoadFromStream(std::ifstream& InStream);
     private:
       /* constructor - private due to singleton pattern */
       Player();

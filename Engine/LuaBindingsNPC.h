@@ -6,6 +6,7 @@
  History:
      - 2010-03-04 (rev 177) - initial version (by thoronador)
      - 2010-05-13 (rev 201) - inventory-related functions added
+     - 2010-05-21 (rev 206) - documentation updated and small improvements
 
  ToDo list:
      - ???
@@ -21,27 +22,206 @@
 
 namespace Dusk
 {
+
+namespace Lua
+{
+  /* returns the requested NPC as pointer/light userdata
+
+     return value(s) on stack: 1
+         #1 (userdata) - pointer to the NPC
+
+     expected stack parameters: 1
+         #1 (string) - ID of the NPC
+  */
   int GetNPC(lua_State *L);
 
+  /* returns the current health of the given NPC
+
+     return value(s) on stack: 1
+         #1 (number) - health of NPC
+
+     expected stack parameters: 1
+         #1 (userdata) - pointer to the NPC
+  */
   int GetHealth(lua_State *L);
+
+  /* sets the current health of the given NPC
+
+     return value(s) on stack: 0
+         nothing/ nil
+
+     expected stack parameters: 1
+         #1 (userdata) - pointer to the NPC
+         #2 (number)   - new health value
+  */
   int SetHealth(lua_State *L);
 
+  /* returns the current level of the given NPC
+
+     return value(s) on stack: 1
+         #1 (number) - level of NPC
+
+     expected stack parameters: 1
+         #1 (userdata) - pointer to the NPC
+  */
   int GetLevel(lua_State *L);
+
+  /* returns the current strenght of the given NPC
+
+     return value(s) on stack: 1
+         #1 (number) - strength of NPC
+
+     expected stack parameters: 1
+         #1 (userdata) - pointer to the NPC
+  */
   int GetStrength(lua_State *L);
+
+  /* returns the current agility of the given NPC
+
+     return value(s) on stack: 1
+         #1 (number) - agility of NPC
+
+     expected stack parameters: 1
+         #1 (userdata) - pointer to the NPC
+  */
   int GetAgility(lua_State *L);
+
+  /* returns the current vitality of the given NPC
+
+     return value(s) on stack: 1
+         #1 (number) - vitality of NPC
+
+     expected stack parameters: 1
+         #1 (userdata) - pointer to the NPC
+  */
   int GetVitality(lua_State *L);
+
+  /* returns the current intelligence of the given NPC
+
+     return value(s) on stack: 1
+         #1 (number) - intelligence of NPC
+
+     expected stack parameters: 1
+         #1 (userdata) - pointer to the NPC
+  */
   int GetIntelligence(lua_State *L);
+
+  /* returns the current willpower of the given NPC
+
+     return value(s) on stack: 1
+         #1 (number) - willpower of NPC
+
+     expected stack parameters: 1
+         #1 (userdata) - pointer to the NPC
+  */
   int GetWillpower(lua_State *L);
+
+  /* returns the current charisma of the given NPC
+
+     return value(s) on stack: 1
+         #1 (number) - charisma of NPC
+
+     expected stack parameters: 1
+         #1 (userdata) - pointer to the NPC
+  */
   int GetCharisma(lua_State *L);
+
+  /* returns the current luck of the given NPC
+
+     return value(s) on stack: 1
+         #1 (number) - luck of NPC
+
+     expected stack parameters: 1
+         #1 (userdata) - pointer to the NPC
+  */
   int GetLuck(lua_State *L);
 
+  /* sets the current level of the given NPC
+
+     return value(s) on stack: 0
+         nothing/ nil
+
+     expected stack parameters: 1
+         #1 (userdata) - pointer to the NPC
+         #2 (number)   - new level (0-255)
+  */
   int SetLevel(lua_State *L);
+
+  /* sets the strength of the given NPC
+
+     return value(s) on stack: 0
+         nothing/ nil
+
+     expected stack parameters: 1
+         #1 (userdata) - pointer to the NPC
+         #2 (number)   - new strength value (0-255)
+  */
   int SetStrength(lua_State *L);
+
+  /* sets the agility of the given NPC
+
+     return value(s) on stack: 0
+         nothing/ nil
+
+     expected stack parameters: 1
+         #1 (userdata) - pointer to the NPC
+         #2 (number)   - new agility value (0-255)
+  */
   int SetAgility(lua_State *L);
+
+  /* sets the vitality of the given NPC
+
+     return value(s) on stack: 0
+         nothing/ nil
+
+     expected stack parameters: 1
+         #1 (userdata) - pointer to the NPC
+         #2 (number)   - new vitality value (0-255)
+  */
   int SetVitality(lua_State *L);
+
+  /* sets the intelligence of the given NPC
+
+     return value(s) on stack: 0
+         nothing/ nil
+
+     expected stack parameters: 1
+         #1 (userdata) - pointer to the NPC
+         #2 (number)   - new intelligence value (0-255)
+  */
   int SetIntelligence(lua_State *L);
+
+  /* sets the willpower of the given NPC
+
+     return value(s) on stack: 0
+         nothing/ nil
+
+     expected stack parameters: 1
+         #1 (userdata) - pointer to the NPC
+         #2 (number)   - new willpower value (0-255)
+  */
   int SetWillpower(lua_State *L);
+
+  /* sets the charisma of the given NPC
+
+     return value(s) on stack: 0
+         nothing/ nil
+
+     expected stack parameters: 1
+         #1 (userdata) - pointer to the NPC
+         #2 (number)   - new charisma value (0-255)
+  */
   int SetCharisma(lua_State *L);
+
+  /* sets the luck value of the given NPC
+
+     return value(s) on stack: 0
+         nothing/ nil
+
+     expected stack parameters: 1
+         #1 (userdata) - pointer to the NPC
+         #2 (number)   - new luck value (0-255)
+  */
   int SetLuck(lua_State *L);
 
   //inventory-related functions
@@ -80,7 +260,9 @@ namespace Dusk
   */
   int GetItemCount(lua_State *L);
 
+  //registers all of the above functions at Lua
   void registerNPC(lua_State *L);
-} //namespace
+} //namespace Lua
+} //namespace Dusk
 
 #endif // LUABINDINGSNPC_H

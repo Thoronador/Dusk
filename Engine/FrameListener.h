@@ -27,6 +27,7 @@
                               Camera
      - 2010-05-06 (rev 198) - documentation update (this comment block added)
                             - small improvements
+     - 2010-05-21 (rev 206) - adjustments for player movement
 
  ToDo list:
      - ???

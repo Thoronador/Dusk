@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "AnimationData.h"
 #include "LuaEngine.h"
+#include "Player.h"
 
 namespace Dusk
 {
@@ -27,6 +28,7 @@ bool FrameListener::frameStarted(const Ogre::FrameEvent& evt)
     LuaEngine::GetSingleton().processScripts();
     Camera::getSingleton().move(evt);
     AnimationData::GetSingleton().InjectAnimationTime(evt.timeSinceLastFrame);
+    Player::GetSingleton().injectTime(evt.timeSinceLastFrame);
     return m_Continue;
 }
 //-----------------------------------------------------------------------------------

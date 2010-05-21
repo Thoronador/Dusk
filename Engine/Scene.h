@@ -23,6 +23,7 @@
      - 2010-01-16 (rev 156) - animated robot patrols between waypoints
      - 2010-03-12 (rev 181) - documentation (i.e. this block comment) added
      - 2010-05-20 (rev 205) - adjustments for new object hierarchy
+     - 2010-05-21 (rev 206) - adjustments for player's movement
 
  ToDo list:
      - ???
@@ -49,8 +50,11 @@ namespace Dusk
 
         /* creates a few objects for the scene */
         void createScene();
+
+        /* destroys objects in scene */
         void destroyScene();
     private:
+        /* utility function to create a grass mesh */
         void createGrassMesh();
 
         /* constructor */

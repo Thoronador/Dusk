@@ -4,6 +4,8 @@
 
 namespace Dusk
 {
+namespace Lua
+{
 
 int GetNPC(lua_State *L)
 {
@@ -21,7 +23,7 @@ int GetHealth(lua_State *L)
 {
   if (lua_gettop(L)==1)
   {
-    NPC* npcPtr = static_cast<NPC*> (lua_touserdata(L, 1));
+    const NPC* npcPtr = static_cast<NPC*> (lua_touserdata(L, 1));
     if (npcPtr!=NULL)
     {
       const float health = npcPtr->getHealth();
@@ -56,7 +58,7 @@ int GetLevel(lua_State *L)
 {
   if (lua_gettop(L)==1)
   {
-    NPC* npcPtr = static_cast<NPC*> (lua_touserdata(L, 1));
+    const NPC* npcPtr = static_cast<NPC*> (lua_touserdata(L, 1));
     if (npcPtr!=NULL)
     {
       lua_pushnumber(L, npcPtr->getLevel());
@@ -74,7 +76,7 @@ int GetStrength(lua_State *L)
 {
   if (lua_gettop(L)==1)
   {
-    NPC* npcPtr = static_cast<NPC*> (lua_touserdata(L, 1));
+    const NPC* npcPtr = static_cast<NPC*> (lua_touserdata(L, 1));
     if (npcPtr!=NULL)
     {
       lua_pushnumber(L, npcPtr->getStrength());
@@ -92,7 +94,7 @@ int GetAgility(lua_State *L)
 {
   if (lua_gettop(L)==1)
   {
-    NPC* npcPtr = static_cast<NPC*> (lua_touserdata(L, 1));
+    const NPC* npcPtr = static_cast<NPC*> (lua_touserdata(L, 1));
     if (npcPtr!=NULL)
     {
       lua_pushnumber(L, npcPtr->getAgility());
@@ -110,7 +112,7 @@ int GetVitality(lua_State *L)
 {
   if (lua_gettop(L)==1)
   {
-    NPC* npcPtr = static_cast<NPC*> (lua_touserdata(L, 1));
+    const NPC* npcPtr = static_cast<NPC*> (lua_touserdata(L, 1));
     if (npcPtr!=NULL)
     {
       lua_pushnumber(L, npcPtr->getVitality());
@@ -128,7 +130,7 @@ int GetIntelligence(lua_State *L)
 {
   if (lua_gettop(L)==1)
   {
-    NPC* npcPtr = static_cast<NPC*> (lua_touserdata(L, 1));
+    const NPC* npcPtr = static_cast<NPC*> (lua_touserdata(L, 1));
     if (npcPtr!=NULL)
     {
       lua_pushnumber(L, npcPtr->getIntelligence());
@@ -146,7 +148,7 @@ int GetWillpower(lua_State *L)
 {
   if (lua_gettop(L)==1)
   {
-    NPC* npcPtr = static_cast<NPC*> (lua_touserdata(L, 1));
+    const NPC* npcPtr = static_cast<NPC*> (lua_touserdata(L, 1));
     if (npcPtr!=NULL)
     {
       lua_pushnumber(L, npcPtr->getWillpower());
@@ -164,7 +166,7 @@ int GetCharisma(lua_State *L)
 {
   if (lua_gettop(L)==1)
   {
-    NPC* npcPtr = static_cast<NPC*> (lua_touserdata(L, 1));
+    const NPC* npcPtr = static_cast<NPC*> (lua_touserdata(L, 1));
     if (npcPtr!=NULL)
     {
       lua_pushnumber(L, npcPtr->getCharisma());
@@ -182,7 +184,7 @@ int GetLuck(lua_State *L)
 {
   if (lua_gettop(L)==1)
   {
-    NPC* npcPtr = static_cast<NPC*> (lua_touserdata(L, 1));
+    const NPC* npcPtr = static_cast<NPC*> (lua_touserdata(L, 1));
     if (npcPtr!=NULL)
     {
       lua_pushnumber(L, npcPtr->getLuck());
@@ -518,4 +520,5 @@ void registerNPC(lua_State *L)
   lua_register(L, "RemoveItem", RemoveItem);
 }
 
-} //namespace
+} //namespace Lua
+} //namespace Dusk

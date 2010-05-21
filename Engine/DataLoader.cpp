@@ -556,6 +556,7 @@ bool DataLoader::LoadSaveGame(const std::string& FileName)
     {
       case cHeaderRefA:  //AnimatedObject
       case cHeaderRefN:  //NPC
+      case cHeaderRefW:  //WaypointObject
            success = AnimationData::GetSingleton().LoadNextFromStream(input, Header);
            break;
       case cHeaderRefC: //Container

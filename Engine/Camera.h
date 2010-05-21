@@ -18,8 +18,12 @@
      - 2010-03-24 (rev 186) - singleton pattern; jump() added
      - 2010-03-27 (rev 188) - adjustments for Player class
      - 2010-05-06 (rev 197) - setupDone() added
+     - 2010-05-21 (rev 206) - adjustments for player movement
 
  ToDo list:
+     - adjust value of const. gravity in move() and initial value of
+       m_JumpVelocity in jump() to get more realistic jump height and
+       duration (i.e. "realistic" as in "looks real")
      - ???
  Bugs:
      - No known bugs. If you find one (or more), then tell us please.

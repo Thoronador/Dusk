@@ -63,7 +63,64 @@ bool Player::pickUpNearest()
 
 bool Player::Enable(Ogre::SceneManager* scm)
 {
-  //do nothing yet, because we don't have a player mesh
+  /* Until we have a proper player mesh, we use the Ogre mascot mesh from
+     Zi Ye / omniter. */
+  if (entity!=NULL)
+  {
+    return true;
+  }
+  if (scm==NULL)
+  {
+    std::cout << "Player::Enable: ERROR: no scene manager present.\n";
+    return false;
+  }
+  //generate unique entity name
+  std::stringstream entity_name;
+  entity_name << ID << GenerateUniqueObjectID();
+  //create entity + node and attach entity to node
+  entity = scm->createEntity(entity_name.str(), "Sinbad.mesh");
+  Ogre::SceneNode* ent_node = scm->getRootSceneNode()->createChildSceneNode(entity_name.str(), position);
+  ent_node->attachObject(entity);
+  ent_node->scale(m_Scale, m_Scale, m_Scale);
+  //not sure whether this is the best one for rotation
+  ent_node->rotate(Ogre::Vector3::UNIT_X, Ogre::Degree(rotation.x));
+  ent_node->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(rotation.y));
+  ent_node->rotate(Ogre::Vector3::UNIT_Z, Ogre::Degree(rotation.z));
+  //set user defined object to this NPC as reverse link
+  entity->setUserObject(this);
+  if (m_Anim != "")
+  {
+    const Ogre::AnimationStateSet* anim_set = entity->getAllAnimationStates();
+    if (anim_set->hasAnimationState(m_Anim))
+    {
+      Ogre::AnimationState* state = anim_set->getAnimationState(m_Anim);
+      state->setTimePosition(0.0f);
+      state->setLoop(m_LoopAnim);
+      state->setEnabled(true);
+    }
+    else
+    {
+      m_Anim = "";
+    }
+  }
+  unsigned int i;
+  const std::vector<std::string> as = GetPossibleAnimationStates();
+  for (i=0; i<as.size(); ++i)
+  {
+    std::cout << "Player animation state available: "<<as[i]<<"\n";
+  }//for
+  return (entity!=NULL);
+}
+
+bool Player::SaveToStream(std::ofstream& OutStream) const
+{
+  //not implemented yet
+  return false;
+}
+
+bool Player::LoadFromStream(std::ifstream& InStream)
+{
+  //not implemented yet
   return false;
 }
 

@@ -33,6 +33,7 @@
      - 2010-01-17 (rev 156) - LoadFromStream() and SaveToStream() updated
                             - patrol mode introduced
      - 2010-05-20 (rev 205) - reduction to pure animation
+     - 2010-05-21 (rev 206) - GetPossibleAnimationStates() added
 
  ToDo list:
      - ???
@@ -82,6 +83,16 @@ namespace Dusk
         /* Returns the name of the currently playing animation. If no animation
            is playing, it returns an empty string. */
         std::string GetAnimation() const;
+
+        /* Returns the list of possible animations for an enabled object. This
+           works only for enabled objects. If the object is not enabled, the
+           function will return an empty vector.
+
+           remarks/ bugs:
+              This function is not thread-safe, because the internally used
+              iterator isn't thread-safe.
+        */
+        std::vector<std::string> GetPossibleAnimationStates() const;
 
         /* returns true, if the animation (if present) shall be looped */
         bool GetLoopState() const;
@@ -139,7 +150,7 @@ namespace Dusk
         bool m_LoopAnim;
     };
 
-    static const Ogre::Vector3 Gravitation(0.0, -9.81, 0.0);
+    //static const Ogre::Vector3 Gravitation(0.0, -9.81, 0.0);
 }
 
 #endif // ANIMATEDOBJECT_H

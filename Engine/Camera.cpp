@@ -5,7 +5,7 @@
 
 namespace Dusk
 {
-
+    //height of camera above ground/ landscape (in world units)
     const float Camera::cAboveGroundLevel = 50.0;
 
     //limits for zoom distance (values are chosen randomly)
@@ -136,6 +136,15 @@ namespace Dusk
     void Camera::translate(const Ogre::Vector3& translationVector)
     {
         m_translationVector += translationVector;
+        //check for player class
+        if (m_translationVector!= Ogre::Vector3::ZERO)
+        { //player/camera started moving/ moves on, so play run animation
+          Player::GetSingleton().PlayAnimation("RunBase", true);
+        }
+        else
+        { //player has stopped moving, stop animation
+          Player::GetSingleton().PlayAnimation("", false);
+        }
     }
 
     void Camera::rotate(const float rotation)

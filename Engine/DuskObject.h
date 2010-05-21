@@ -42,6 +42,8 @@
                               SaveDuskObjectPart() + LoadDuskObjectPart() added
      - 2010-02-06 (rev 165) - canPickUp() added
      - 2010-05-05 (rev 196) - documentation updated
+     - 2010-05-20 (rev 205) - enumeration value for WaypointObjects added
+     - 2010-05-21 (rev 206) - documentation updated
 
  ToDo list:
      - ???
@@ -69,8 +71,13 @@ unsigned int GenerateUniqueObjectID();
 class DuskObject: public Ogre::UserDefinedObject
 {
     public:
+        /* default constructor */
         DuskObject();
+
+        /* constructor with parameter list */
         DuskObject(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale);
+
+        /* destructor */
         virtual ~DuskObject();
 
         /* Retrieves object's position */

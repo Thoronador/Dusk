@@ -245,7 +245,7 @@ bool NPC::Enable(Ogre::SceneManager* scm)
   entity->setUserObject(this);
   if (m_Anim != "")
   {
-    Ogre::AnimationStateSet* anim_set = entity->getAllAnimationStates();
+    const Ogre::AnimationStateSet* anim_set = entity->getAllAnimationStates();
     if (anim_set->hasAnimationState(m_Anim))
     {
       Ogre::AnimationState* state = anim_set->getAnimationState(m_Anim);

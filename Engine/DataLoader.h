@@ -24,6 +24,7 @@
      - 2010-02-06 (rev 165) - update for Item class
      - 2010-05-08 (rev 200) - way of saving landscape updated
      - 2010-05-20 (rev 205) - update for WaypointObject
+     - 2010-05-21 (rev 206) - missing switch-case for WaypointObject added
 
  ToDo list:
      - extend class when further classes for data management are added

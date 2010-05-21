@@ -5,7 +5,7 @@
           represents a single NPC within the game
 
  History:
-     - 2009-12-09 (rev 141) - initial version
+     - 2009-12-09 (rev 141) - initial version (by thoronador)
      - 2009-12-18 (rev 142) - attributes and inventory added
      - 2009-12-22 (rev 143) - Enable() implemented, ancestor class will handle
                               Disable() and IsEnabled()
@@ -20,6 +20,7 @@
      - 2010-03-27 (rev 188) - pickUp() added for picking up items
      - 2010-04-21 (rev 190) - isFemale() added
      - 2010-05-20 (rev 205) - adjustments for new object hierarchy
+     - 2010-05-21 (rev 206) - small improvement
 
  ToDo list:
      - add possibility to equip weapons, clothes, armour, etc.
@@ -48,8 +49,13 @@ namespace Dusk
   class NPC: public AnimatedObject, public WaypointObject
   {
     public:
+      /* default constructor */
       NPC();
+
+      /* constructor with parameter list */
       NPC(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale);
+
+      /* destructor */
       virtual ~NPC();
 
       /* returns the enumeration type indicating that this is an NPC */
@@ -74,7 +80,8 @@ namespace Dusk
       /* returns true, if the NPC is considered to be alive */
       bool isAlive() const;
 
-      /*attribute set/get methods */
+      /* ---- attribute set/get methods ---- */
+      // returns the NPC's current level
       uint8 getLevel() const;
       uint8 getStrength() const;
       uint8 getAgility() const;
@@ -83,6 +90,7 @@ namespace Dusk
       uint8 getWillpower() const;
       uint8 getCharisma() const;
       uint8 getLuck() const;
+      // set the NPC's current level to new_level
       void setLevel(const uint8 new_level);
       void setStrength(const uint8 str);
       void setAgility(const uint8 agi);
@@ -120,9 +128,10 @@ namespace Dusk
       */
       virtual bool SaveToStream(std::ofstream& OutStream) const;
 
-      /* Loads contents of inventory from stream and returns true on success,
-         false otherwise. The Inventory content is probably inconsistent after
-         that function failed, so don't rely on its contents in that case. */
+      /* Loads NPC from stream and returns true on success, false otherwise.
+         The NPC's data is probably inconsistent after that function failed, so
+         don't rely on its data in that case.
+      */
       virtual bool LoadFromStream(std::ifstream& InStream);
 
       /* the maximum distance an item can be away from the NPC while being
