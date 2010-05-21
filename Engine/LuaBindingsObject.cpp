@@ -6,6 +6,9 @@
 namespace Dusk
 {
 
+namespace Lua
+{
+
 int GetObject(lua_State *L)
 {
   if (lua_gettop(L)==1)
@@ -269,4 +272,6 @@ void registerObject(lua_State *L)
   lua_register(L, "SetObjectScale", SetScale);
 }
 
-} //namespace
+} //namespace Lua
+
+} //namespace Dusk

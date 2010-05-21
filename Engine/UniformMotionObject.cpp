@@ -59,6 +59,7 @@ float UniformMotionObject::GetSpeed() const
 void UniformMotionObject::SetSpeed(const float v)
 {
   m_Speed = v;
+  if (v<0.0f) m_Speed = 0.0f;
 }
 
 void UniformMotionObject::TravelToDestination(const Ogre::Vector3& dest)

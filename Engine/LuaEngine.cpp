@@ -4,6 +4,7 @@
 #include "LuaBindingsSound.h"
 #include "LuaBindingsWeather.h"
 #include "LuaBindingsObject.h"
+#include "LuaBindingsUniformMotion.h"
 #include "LuaBindingsAnimated.h"
 #include "LuaBindingsNPC.h"
 #include "LuaBindingsQuestLog.h"
@@ -147,7 +148,8 @@ void LuaEngine::registerDusk()
 {
   registerSound(m_Lua);
   registerWeather(m_Lua);
-  registerObject(m_Lua);
+  Lua::registerObject(m_Lua);
+  Lua::registerMotion(m_Lua);
   Lua::registerAnimated(m_Lua);
   Lua::registerNPC(m_Lua);
   registerQuestLog(m_Lua);

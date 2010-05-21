@@ -189,6 +189,8 @@
 		<Unit filename="LuaBindingsQuestLog.h" />
 		<Unit filename="LuaBindingsSound.cpp" />
 		<Unit filename="LuaBindingsSound.h" />
+		<Unit filename="LuaBindingsUniformMotion.cpp" />
+		<Unit filename="LuaBindingsUniformMotion.h" />
 		<Unit filename="LuaBindingsWeather.cpp" />
 		<Unit filename="LuaBindingsWeather.h" />
 		<Unit filename="LuaEngine.cpp" />

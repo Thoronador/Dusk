@@ -6,6 +6,7 @@
 
  History:
      - 2010-05-20 (rev 205) - initial version (by thoronador)
+     - 2010-05-21 (rev 207) - small improvement in SetSpeed()
 
  ToDo list:
      - implement possibility to make object "look" into the direction it is
@@ -55,7 +56,14 @@ class UniformMotionObject: virtual public InjectionObject
     /* returns the movement speed*/
     float GetSpeed() const;
 
-    /* sets the movement speed*/
+    /* sets the movement speed
+
+       remarks:
+           Smallest possible value is zero. Values less than zero will be set
+           to zero instead.
+           If you want the object to move backwards, use SetDirection() to
+           change its direction to the opposite.
+    */
     void SetSpeed(const float v);
 
     /* Sets a point in space to which the object will start moving, as long
