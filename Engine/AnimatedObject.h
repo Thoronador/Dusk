@@ -34,8 +34,12 @@
                             - patrol mode introduced
      - 2010-05-20 (rev 205) - reduction to pure animation
      - 2010-05-21 (rev 206) - GetPossibleAnimationStates() added
+     - 2010-05-27 (rev 208) - StartAnimation(), StopAnimation(),
+                              StopAllAnimations() & IsAnimationActive() added
 
  ToDo list:
+     - adjust GetAnimation() and GetLoopState() so that they can be used to get
+       information about all currently playing animation states
      - ???
 
  Bugs:
@@ -79,6 +83,60 @@ namespace Dusk
                           infinite time (or until another animation is set).
         */
         void PlayAnimation(const std::string& AnimName, const bool DoLoop);
+
+        /* causes an animation to be played and returns true on success
+
+           parameters:
+               AnimName - name of the animation
+               DoLoop   - if false, the animation will stop after it has been
+                          played once. If true, the animation will loop for an
+                          infinite time (or until is stopped manually).
+
+           remarks:
+               This function only works, if the object is enabled (see Enabled()
+               or IsEnabled()). As long as the object isn't enabled, this will
+               always return false / fail.
+        */
+        bool StartAnimation(const std::string& AnimName, const bool DoLoop);
+
+        /* stops a named animation and returns true on success
+
+           parameters:
+               AnimName - name of the animation to be stopped
+
+           remarks:
+               This function only works, if the object is enabled (see Enabled()
+               or IsEnabled()). However, as long as the object isn't enabled,
+               this will always return true, because a disabled object cannot
+               play any animations, thus every animation can be considered to be
+               stopped. ;D.
+        */
+        bool StopAnimation(const std::string& AnimName);
+
+        /* stops all animations and returns the number of stopped animations
+
+           remarks:
+               This function only works, if the object is enabled (see Enabled()
+               or IsEnabled()). However, as long as the object isn't enabled,
+               this will always return zero, because a disabled object cannot
+               play any animations, thus every animation can be considered to be
+               stopped already. ;D.
+        */
+        unsigned int StopAllAnimations();
+
+        /* returns true, if the names animation is playing
+
+           parameters:
+               AnimName - name of the animation to be checked
+
+           remarks:
+               This function only works, if the object is enabled (see Enabled()
+               or IsEnabled()). However, as long as the object isn't enabled,
+               this will always return false, because a disabled object cannot
+               play any animations, thus every animation can be considered to be
+               stopped. ;D.
+        */
+        bool IsAnimationActive(const std::string& AnimName) const;
 
         /* Returns the name of the currently playing animation. If no animation
            is playing, it returns an empty string. */

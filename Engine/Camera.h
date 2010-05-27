@@ -19,6 +19,7 @@
      - 2010-03-27 (rev 188) - adjustments for Player class
      - 2010-05-06 (rev 197) - setupDone() added
      - 2010-05-21 (rev 206) - adjustments for player movement
+     - 2010-05-27 (rev 208) - adjustments for player's animations
 
  ToDo list:
      - adjust value of const. gravity in move() and initial value of

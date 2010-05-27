@@ -1,9 +1,26 @@
 #include "Player.h"
 #include "API.h"
 //#include <OgreSceneQuery.h>
+#include <OgreSkeleton.h>
 
 namespace Dusk
 {
+
+void listBoneChildren(const Ogre::Node* b, const unsigned int indents)
+{
+  unsigned int i;
+  for (i=0; i<b->numChildren(); ++i)
+  {
+    Ogre::Node* cb = b->getChild(i);
+    std::cout << std::string(indents, ' ') << cb->getName();
+    std::cout << " (Children: " << cb->numChildren() << ")\n";
+    if (cb->numChildren()>0)
+    {
+      listBoneChildren(cb, indents+2);
+    }//if
+
+  }//for
+}
 
 Player& Player::GetSingleton()
 {
@@ -103,12 +120,37 @@ bool Player::Enable(Ogre::SceneManager* scm)
       m_Anim = "";
     }
   }
+  //just for information
+  // -- animation states
   unsigned int i;
   const std::vector<std::string> as = GetPossibleAnimationStates();
   for (i=0; i<as.size(); ++i)
   {
     std::cout << "Player animation state available: "<<as[i]<<"\n";
   }//for
+  // -- bones of skeleton
+  if ( entity->hasSkeleton())
+  {
+    Ogre::SkeletonInstance* skelInst = entity->getSkeleton();
+    std::cout << "Player animation bones available: "<< skelInst->getNumBones()<< "\n";
+    Ogre::Skeleton::BoneIterator rbIter = skelInst->getRootBoneIterator();
+    while ( rbIter.hasMoreElements())
+    {
+      Ogre::Bone* b = rbIter.getNext();
+      std::cout << "  Bone name: " << b->getName() << "\n";
+      std::cout << "    Children: " << b->numChildren() << "\n";
+      listBoneChildren(b, 4);
+    } //while
+  }//if
+  Ogre::Entity* ent_sword = scm->createEntity(entity_name.str()+"_sword.Right", "Sword.mesh");
+  entity->attachObjectToBone("Sheath.R", ent_sword);
+  ent_sword = scm->createEntity(entity_name.str()+"_sword.Left", "Sword.mesh");
+  entity->attachObjectToBone("Sheath.L", ent_sword);
+  ent_sword = scm->createEntity(entity_name.str()+"_sword.HandLeft", "Sword.mesh");
+  entity->attachObjectToBone("Handle.L", ent_sword);
+  ent_sword = scm->createEntity(entity_name.str()+"_sword.HandRight", "Sword.mesh");
+  entity->attachObjectToBone("Handle.R", ent_sword);
+  StartAnimation("HandsClosed", false);
   return (entity!=NULL);
 }
 

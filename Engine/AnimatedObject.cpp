@@ -140,6 +140,102 @@ void AnimatedObject::PlayAnimation(const std::string& AnimName, const bool DoLoo
   m_DoPlayAnim = (AnimName != "");
 }
 
+bool AnimatedObject::StartAnimation(const std::string& AnimName, const bool DoLoop)
+{
+  if (AnimName=="")
+    return false;
+  if (entity!=NULL)
+  {
+    const Ogre::AnimationStateSet * anim_set = entity->getAllAnimationStates();
+    if (anim_set!=NULL)
+    {
+      if (!anim_set->hasAnimationState(AnimName))
+      {
+        std::cout << "AnimatedObject::EnableAnimation: Error: mesh has no "
+                  << "animation named \"" <<AnimName<<"\"!\n";
+        return false;
+      }
+      Ogre::AnimationState* state = entity->getAnimationState(AnimName);
+      state->setTimePosition(0.0f);
+      state->setLoop(DoLoop);
+      state->setEnabled(true);
+      return true;
+    }//animation set given
+  }
+  return false;
+}
+
+bool AnimatedObject::StopAnimation(const std::string& AnimName)
+{
+  if (entity==NULL)  // no entitiy -> no animation, so basically
+    return true;     //   the animation is already "stopped" :P
+  if (AnimName=="")
+    return false;
+
+  const Ogre::AnimationStateSet * anim_set = entity->getAllAnimationStates();
+  if (anim_set!=NULL)
+  {
+    if (!anim_set->hasAnimationState(AnimName))
+    {
+      std::cout << "AnimatedObject::StopAnimation: Error: mesh has no "
+                << "animation named \"" <<AnimName<<"\"!\n";
+      return false;
+    }
+    Ogre::AnimationState* state = entity->getAnimationState(AnimName);
+    state->setTimePosition(0.0f);
+    state->setEnabled(false);
+    return true;
+  }//animation set given
+  return false;
+}
+
+unsigned int AnimatedObject::StopAllAnimations()
+{
+  if (entity==NULL)  // no entitiy -> no animation, so basically
+    return 0;        // all animations are already "stopped" :P
+  const Ogre::AnimationStateSet * anim_set = entity->getAllAnimationStates();
+  if (NULL==anim_set)
+  {
+    return 0;
+  }
+  unsigned int result = 0;
+  Ogre::ConstEnabledAnimationStateIterator easIter = anim_set->getEnabledAnimationStateIterator();
+  Ogre::AnimationState* as = NULL;
+  while (easIter.hasMoreElements())
+  {
+    as = easIter.getNext();
+    /* ****
+       ** WARNING! This line might possibly invalidate the iterator, because
+       ** setting enabled to false will change the list of enabled animation
+       ** states.
+       ****
+    */
+    as->setEnabled(false);
+    ++result;
+  }//while
+  return result;
+}
+
+bool AnimatedObject::IsAnimationActive(const std::string& AnimName) const
+{
+  if (entity==NULL)  // no entitiy -> no animation, so basically
+    return false;     //   the animation is already "stopped" :P
+  if (AnimName=="")
+    return false;
+  const Ogre::AnimationStateSet * anim_set = entity->getAllAnimationStates();
+  if (anim_set!=NULL)
+  {
+    if (!anim_set->hasAnimationState(AnimName))
+    {
+      std::cout << "AnimatedObject::IsAnimationActive: Error: mesh has no "
+                << "animation named \"" <<AnimName<<"\"!\n";
+      return false;
+    }
+    return entity->getAnimationState(AnimName)->getEnabled();
+  }//animation set given
+  return false;
+}
+
 std::string AnimatedObject::GetAnimation() const
 {
   return m_Anim;
@@ -177,11 +273,20 @@ void AnimatedObject::injectTime(const float SecondsPassed)
   {
     return;
   }
-  //adjust animation state
-  if (m_Anim!="")
+  //adjust animation states
+  if (entity!=NULL)
   {
-    entity->getAnimationState(m_Anim)->addTime(SecondsPassed);
-  }
+    const Ogre::AnimationStateSet* animSet = entity->getAllAnimationStates();
+    if (animSet!=NULL)
+    {
+      Ogre::ConstEnabledAnimationStateIterator easIter = animSet->getEnabledAnimationStateIterator();
+      while (easIter.hasMoreElements())
+      {
+        Ogre::AnimationState* as = easIter.getNext();
+        as->addTime(SecondsPassed);
+      }//while
+    }// anim set present
+  }//if
 }
 
 bool AnimatedObject::SaveToStream(std::ofstream& OutStream) const

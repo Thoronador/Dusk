@@ -138,12 +138,20 @@ namespace Dusk
         m_translationVector += translationVector;
         //check for player class
         if (m_translationVector!= Ogre::Vector3::ZERO)
-        { //player/camera started moving/ moves on, so play run animation
-          Player::GetSingleton().PlayAnimation("RunBase", true);
+        { //player/camera started moving/ moves on, so play run animation...
+          Player::GetSingleton().StartAnimation("RunBase", true);
+          Player::GetSingleton().StartAnimation("RunTop", true);
+          //... and stop idle animations
+          Player::GetSingleton().StopAnimation("IdleBase");
+          Player::GetSingleton().StopAnimation("IdleTop");
         }
         else
-        { //player has stopped moving, stop animation
-          Player::GetSingleton().PlayAnimation("", false);
+        { //player has stopped moving, stop run animation...
+          Player::GetSingleton().StopAnimation("RunBase");
+          Player::GetSingleton().StopAnimation("RunTop");
+          //... and play idle animations
+          Player::GetSingleton().StartAnimation("IdleBase", true);
+          Player::GetSingleton().StartAnimation("IdleTop", true);
         }
     }
 
