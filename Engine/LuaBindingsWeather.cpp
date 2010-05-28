@@ -4,6 +4,9 @@
 namespace Dusk
 {
 
+namespace Lua
+{
+
 int StartLinearFog(lua_State *L)
 {
   if (lua_gettop(L)==2)
@@ -273,4 +276,6 @@ void registerWeather(lua_State *L)
   lua_register(L, "toggleRain", ToggleRain);
 }
 
-} //namespace
+} //namespace Lua
+
+} //namespace Dusk

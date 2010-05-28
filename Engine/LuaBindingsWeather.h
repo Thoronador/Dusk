@@ -5,6 +5,7 @@
 
  History:
      - 2010-02-09 (rev 170) - initial version (by thoronador)
+     - 2010-05-28 (rev 209) - namespace and documentation update
 
  ToDo list:
      - ???
@@ -21,27 +22,180 @@
 namespace Dusk
 {
 
-int StartLinearFog(lua_State *L);
-int StartExponentialFog(lua_State *L);
-int StopFog(lua_State *L);
-int IsFoggy(lua_State *L);
-int IsLinearFog(lua_State *L);
-int SetFogColour(lua_State *L);
-int GetFogColour(lua_State *L);
-int ToggleFog(lua_State *L);
+namespace Lua
+{
 
-int StartSnow(lua_State *L);
-int StopSnow(lua_State *L);
-int IsSnowing(lua_State *L);
-int ToggleSnow(lua_State *L);
+  /* creates linear fog
 
-int StartRain(lua_State *L);
-int StopRain(lua_State *L);
-int IsRaining(lua_State *L);
-int ToggleRain(lua_State *L);
+     return value(s) on stack: 0
+         nothing /nil
 
-void registerWeather(lua_State *L);
+     expected stack parameters: 2
+         #1 (number) - fog start distance (>=0.0f)
+         #2 (number) - maximum fog distance (>#1)
+  */
+  int StartLinearFog(lua_State *L);
 
-} //namespace
+  /* creates exponential fog
+
+     return value(s) on stack: 0
+         nothing /nil
+
+     expected stack parameters: 1
+         #1 (number) - fog density
+  */
+  int StartExponentialFog(lua_State *L);
+
+  /* clears any fog
+
+     return value(s) on stack: 0
+         nothing /nil
+
+     expected stack parameters: 0
+         nothing /nil
+  */
+  int StopFog(lua_State *L);
+
+  /* checks for presence of fog
+
+     return value(s) on stack: 1
+         #1 (boolean) - true, if fog is present
+
+     expected stack parameters: 0
+         nothing / nil
+  */
+  int IsFoggy(lua_State *L);
+
+  /* checks fog mode for linear fog
+
+     return value(s) on stack: 1
+         #1 (boolean) - true, if fog mode is linear fog
+
+     expected stack parameters: 0
+         nothing / nil
+  */
+  int IsLinearFog(lua_State *L);
+
+  /* sets the fog colour
+
+     return value(s) on stack: 0
+         nothing / nil
+
+     expected stack parameters: 3
+         #1 (number) - red colour component (in range [0;1])
+         #2 (number) - green colour component (in range [0;1])
+         #3 (number) - blue colour component (in range [0;1])
+  */
+  int SetFogColour(lua_State *L);
+
+  /* returns the fog colour
+
+     return value(s) on stack: 3
+         #1 (number) - red colour component (in range [0;1])
+         #2 (number) - green colour component (in range [0;1])
+         #3 (number) - blue colour component (in range [0;1])
+
+     expected stack parameters: 0
+         nothing /nil
+  */
+  int GetFogColour(lua_State *L);
+
+  /* toggles the fog, i.e. turns it on/off
+
+     return value(s) on stack: 0
+         nothing /nil
+
+     expected stack parameters: 0
+         nothing /nil
+  */
+  int ToggleFog(lua_State *L);
+
+
+  /* let it snow!
+
+     return value(s) on stack: 0
+         nothing /nil
+
+     expected stack parameters: 0
+         nothing /nil
+  */
+  int StartSnow(lua_State *L);
+
+  /* clears any snow
+
+     return value(s) on stack: 0
+         nothing /nil
+
+     expected stack parameters: 0
+         nothing /nil
+  */
+  int StopSnow(lua_State *L);
+
+  /* checks for presence of snow
+
+     return value(s) on stack: 1
+         #1 (boolean) - true, if it snows
+
+     expected stack parameters: 0
+         nothing / nil
+  */
+  int IsSnowing(lua_State *L);
+
+  /* toggles the snow, i.e. turns it on/off
+
+     return value(s) on stack: 0
+         nothing /nil
+
+     expected stack parameters: 0
+         nothing /nil
+  */
+  int ToggleSnow(lua_State *L);
+
+  /* starts rain
+
+     return value(s) on stack: 0
+         nothing /nil
+
+     expected stack parameters: 0
+         nothing /nil
+  */
+  int StartRain(lua_State *L);
+
+  /* stops the rain
+
+     return value(s) on stack: 0
+         nothing /nil
+
+     expected stack parameters: 0
+         nothing /nil
+  */
+  int StopRain(lua_State *L);
+
+  /* checks for presence of rains
+
+     return value(s) on stack: 1
+         #1 (boolean) - true, if it is raining
+
+     expected stack parameters: 0
+         nothing / nil
+  */
+  int IsRaining(lua_State *L);
+
+  /* toggles the rain, i.e. turns it on/off
+
+     return value(s) on stack: 0
+         nothing /nil
+
+     expected stack parameters: 0
+         nothing /nil
+  */
+  int ToggleRain(lua_State *L);
+
+  //register the above functions at Lua
+  void registerWeather(lua_State *L);
+
+} //namespace Lua
+
+} //namespace Dusk
 
 #endif // LUABINDINGSWEATHER_H

@@ -5,6 +5,7 @@
 
  History:
      - 2010-05-21 (rev 206) - initial version (by thoronador)
+     - 2010-05-27 (rev 209) - bindings for new methods of AnimatedObject
 
  ToDo list:
      - ???
@@ -74,6 +75,50 @@ namespace Lua
          #3 (boolean)  - loop state
   */
   int AnimatedPlayAnimation(lua_State *L);
+
+  /* starts the named animation with the given loop state
+
+     return value(s) on stack: 1
+         #1 (boolean) - returns true on success, false on failure
+
+     expected stack parameters: 3
+         #1 (userdata) - pointer to the AnimatedObject
+         #2 (string)   - name of animation
+         #3 (boolean)  - loop state of animation
+  */
+  int AnimatedStartAnimation(lua_State *L);
+
+  /* stops the named animation
+
+     return value(s) on stack: 1
+         #1 (boolean) - returns true on success, false on failure
+
+     expected stack parameters: 2
+         #1 (userdata) - pointer to the AnimatedObject
+         #2 (string)   - name of animation
+  */
+  int AnimatedStopAnimation(lua_State *L);
+
+  /* stops all animations of the given object
+
+     return value(s) on stack: 1
+         #1 (number) - number of stopped animations
+
+     expected stack parameters: 1
+         #1 (userdata) - pointer to the AnimatedObject
+  */
+  int AnimatedStopAllAnimations(lua_State *L);
+
+  /* stops the named animation
+
+     return value(s) on stack: 1
+         #1 (boolean) - returns true if animation is active, false otherwise
+
+     expected stack parameters: 2
+         #1 (userdata) - pointer to the AnimatedObject
+         #2 (string)   - name of animation
+  */
+  int AnimatedIsAnimationActive(lua_State *L);
 
   //registers all of the above functions at Lua
   void registerAnimated(lua_State *L);

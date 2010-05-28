@@ -4,6 +4,9 @@
 namespace Dusk
 {
 
+namespace Lua
+{
+
 int AddQuestEntry(lua_State *L)
 {
   if (lua_gettop(L)==2)
@@ -121,4 +124,6 @@ void registerQuestLog(lua_State *L)
   lua_register(L, "GetMaximumPresentIndex", GetMaximumPresentIndex);
 }
 
-} //namespace
+} //namespace Lua
+
+} //namespace Dusk

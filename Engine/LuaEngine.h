@@ -15,6 +15,7 @@
      - 2010-03-08 (rev 178) - bindings for QuestLog added
      - 2010-05-21 (rev 206) - bindings for AnimatedObject added
      - 2010-05-21 (rev 207) - bindings for UniformMotionObject added
+     - 2010-05-28 (rev 209) - adjustments for namespace in QuestLog's bindings
 
  ToDo list:
      - ???

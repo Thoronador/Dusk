@@ -111,6 +111,8 @@
 		<Unit filename="../Engine/Light.h" />
 		<Unit filename="../Engine/LightBase.cpp" />
 		<Unit filename="../Engine/LightBase.h" />
+		<Unit filename="../Engine/LuaBindingsAnimated.cpp" />
+		<Unit filename="../Engine/LuaBindingsAnimated.h" />
 		<Unit filename="../Engine/LuaBindingsNPC.cpp" />
 		<Unit filename="../Engine/LuaBindingsNPC.h" />
 		<Unit filename="../Engine/LuaBindingsObject.cpp" />
@@ -119,6 +121,8 @@
 		<Unit filename="../Engine/LuaBindingsQuestLog.h" />
 		<Unit filename="../Engine/LuaBindingsSound.cpp" />
 		<Unit filename="../Engine/LuaBindingsSound.h" />
+		<Unit filename="../Engine/LuaBindingsUniformMotion.cpp" />
+		<Unit filename="../Engine/LuaBindingsUniformMotion.h" />
 		<Unit filename="../Engine/LuaBindingsWeather.cpp" />
 		<Unit filename="../Engine/LuaBindingsWeather.h" />
 		<Unit filename="../Engine/LuaEngine.cpp" />
@@ -132,6 +136,8 @@
 		<Unit filename="../Engine/ObjectBase.h" />
 		<Unit filename="../Engine/ObjectData.cpp" />
 		<Unit filename="../Engine/ObjectData.h" />
+		<Unit filename="../Engine/Player.cpp" />
+		<Unit filename="../Engine/Player.h" />
 		<Unit filename="../Engine/QuestLog.cpp" />
 		<Unit filename="../Engine/QuestLog.h" />
 		<Unit filename="../Engine/Script.cpp" />

@@ -147,12 +147,12 @@ unsigned int LuaEngine::processScripts(unsigned int maxEntries)
 void LuaEngine::registerDusk()
 {
   registerSound(m_Lua);
-  registerWeather(m_Lua);
+  Lua::registerWeather(m_Lua);
   Lua::registerObject(m_Lua);
   Lua::registerMotion(m_Lua);
   Lua::registerAnimated(m_Lua);
   Lua::registerNPC(m_Lua);
-  registerQuestLog(m_Lua);
+  Lua::registerQuestLog(m_Lua);
 }
 
 } //namespace
