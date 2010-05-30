@@ -210,6 +210,8 @@
 		<Unit filename="ObjectData.h" />
 		<Unit filename="Player.cpp" />
 		<Unit filename="Player.h" />
+		<Unit filename="ProjectileBase.cpp" />
+		<Unit filename="ProjectileBase.h" />
 		<Unit filename="QuestLog.cpp" />
 		<Unit filename="QuestLog.h" />
 		<Unit filename="Scene.cpp" />
