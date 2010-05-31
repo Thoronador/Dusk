@@ -11,6 +11,7 @@
 #include "ObjectBase.h"
 #include "ObjectData.h"
 #include "QuestLog.h"
+#include "ProjectileBase.h"
 #include "DuskConstants.h"
 
 namespace Dusk
@@ -87,6 +88,10 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   {
     data_records += ObjectBase::GetSingleton().NumberOfObjects();
   }
+  if ((bits & PROJECTILE_BIT) !=0)
+  {
+    data_records += ProjectileBase::GetSingleton().GetNumberOfProjectiles();
+  }
   if ((bits & QUEST_LOG_BIT) !=0)
   {
     data_records += 1;
@@ -110,6 +115,18 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
       return false;
     }
   }//containers
+
+  //save projectiles
+  if ((bits & PROJECTILE_BIT)!=0)
+  {
+    if (!ProjectileBase::GetSingleton().SaveAllToStream(output))
+    {
+      std::cout << "DataLoader::SaveToFile: ERROR: could not write Projectile "
+                << "data to file \""<<FileName<<"\".\n";
+      output.close();
+      return false;
+    }
+  }//projectiles
 
   //save dialogues
   if ((bits & DIALOGUE_BIT)!=0)
@@ -319,6 +336,7 @@ bool DataLoader::LoadFromFile(const std::string& FileName)
            break;
       case cHeaderRefA:  //AnimatedObject
       case cHeaderRefN:  //NPC
+      case cHeaderRefP:  //Projectiles
       case cHeaderRefW:  //WaypointObject
            success = AnimationData::GetSingleton().LoadNextFromStream(input, Header);
            break;
@@ -402,6 +420,11 @@ void DataLoader::ClearData(const unsigned int bits)
   {
     NPCBase::GetSingleton().ClearAllNPCs();
   }//NPC data
+
+  if ((bits & PROJECTILE_BIT) != 0)
+  {
+    ProjectileBase::GetSingleton().ClearAll();
+  }//projectile information
 
   if ((bits & QUEST_LOG_BIT) !=0)
   {
@@ -556,6 +579,7 @@ bool DataLoader::LoadSaveGame(const std::string& FileName)
     {
       case cHeaderRefA:  //AnimatedObject
       case cHeaderRefN:  //NPC
+      case cHeaderRefP:  //Projectiles
       case cHeaderRefW:  //WaypointObject
            success = AnimationData::GetSingleton().LoadNextFromStream(input, Header);
            break;

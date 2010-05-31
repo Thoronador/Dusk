@@ -48,7 +48,8 @@ namespace Dusk
   const unsigned int cHeaderRefL = 1281779026; //"RefL" (for Referenced Light)
   const unsigned int cHeaderRefN = 1315333458; //"RefN" (for Referenced NPC)
   const unsigned int cHeaderRefO = 1332110674; //"RefO" (for Referenced Object)
-  const unsigned int cHeaderRefW = 1768191348; //"RefO" (for Referenced WaypointObject)
+  const unsigned int cHeaderRefP = 1348887890; //"RefP" (for Referenced Projectile)
+  const unsigned int cHeaderRefW = 1768191348; //"RefW" (for Referenced WaypointObject)
   const unsigned int cHeaderSave = 1702256979; //"Save" (for SaveGame)
 }//namespace
 

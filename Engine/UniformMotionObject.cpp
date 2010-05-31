@@ -14,6 +14,7 @@ UniformMotionObject::UniformMotionObject()
   m_Direction = Ogre::Vector3::ZERO;
   m_Destination = Ogre::Vector3::ZERO;
   m_Speed = 0.0f;
+  m_Travel = false;
 }
 
 /* constructor with parameter list */
@@ -32,6 +33,7 @@ UniformMotionObject::UniformMotionObject(const std::string& _ID, const Ogre::Vec
   m_Direction = Ogre::Vector3::ZERO;
   m_Destination = Ogre::Vector3::ZERO;
   m_Speed = 0.0f;
+  m_Travel = false;
 }
 
 UniformMotionObject::~UniformMotionObject()

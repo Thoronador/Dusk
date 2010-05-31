@@ -7,6 +7,7 @@
  History:
      - 2010-05-20 (rev 205) - initial version (by thoronador)
      - 2010-05-21 (rev 207) - small improvement in SetSpeed()
+     - 2010-05-31 (rev 211) - small fix
 
  ToDo list:
      - implement possibility to make object "look" into the direction it is
@@ -71,7 +72,7 @@ class UniformMotionObject: virtual public InjectionObject
        The object will automatically stop moving after it has reached this
        place.
     */
-    void TravelToDestination(const Ogre::Vector3& dest);
+    virtual void TravelToDestination(const Ogre::Vector3& dest);
 
     /* Returns the destination the object will is travelling to.
 

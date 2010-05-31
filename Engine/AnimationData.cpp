@@ -8,6 +8,7 @@ AnimationData::AnimationData()
 {
   m_ReferenceMap.clear();
   m_RefCount = 0;
+  m_DeletionObjects.clear();
 }
 
 AnimationData::~AnimationData()
@@ -52,6 +53,15 @@ WaypointObject* AnimationData::addWaypointReference(const std::string& ID, const
   m_ReferenceMap[ID].push_back(static_cast<WaypointObject*>(wpPointer));
   ++m_RefCount;
   return wpPointer;
+}
+
+Projectile* AnimationData::addProjectileReference(const std::string& ID, const Ogre::Vector3& position,
+                                   const Ogre::Vector3& rotation, const float scale)
+{
+  Projectile* projPtr = new Projectile(ID, position, rotation, scale);
+  m_ReferenceMap[ID].push_back(projPtr);
+  ++m_RefCount;
+  return projPtr;
 }
 
 InjectionObject* AnimationData::GetInjectionObjectReference(const std::string& ID) const
@@ -125,6 +135,10 @@ unsigned int AnimationData::deleteReferencesOfAnimatedObject(const std::string& 
 
 void AnimationData::InjectAnimationTime(const float TimePassed)
 {
+  if (!m_DeletionObjects.empty())
+  {
+    performRequestedDeletions();
+  }
   unsigned int i;
   std::map<std::string, std::vector<InjectionObject*> >::const_iterator iter;
   iter = m_ReferenceMap.begin();
@@ -216,6 +230,16 @@ bool AnimationData::LoadNextFromStream(std::ifstream& Stream, const unsigned int
          }
          delete animPtr;
          break;
+    case cHeaderRefP:
+         animPtr = new Projectile;
+         if (animPtr->LoadFromStream(Stream))
+         {
+           m_ReferenceMap[animPtr->GetID()].push_back(animPtr);
+           ++m_RefCount;
+           return true;
+         }
+         delete animPtr;
+         break;
     case cHeaderRefW:
          animPtr = new WaypointObject;
          if (animPtr->LoadFromStream(Stream))
@@ -232,6 +256,51 @@ bool AnimationData::LoadNextFromStream(std::ifstream& Stream, const unsigned int
          break;
   }//swi
   return false;
+}
+
+void AnimationData::requestDeletion(InjectionObject* objPtr)
+{
+  //we don't want NULL pointers
+  if (objPtr!=NULL)
+  {
+    if (m_DeletionObjects.empty())
+    {
+      m_DeletionObjects.push_back(objPtr);
+    }
+    //and we don't want to push the same object twice in a row
+    else if (m_DeletionObjects.back()!=objPtr)
+    {
+      m_DeletionObjects.push_back(objPtr);
+    }
+  }
+}
+
+void AnimationData::performRequestedDeletions()
+{
+  std::map<std::string, std::vector<InjectionObject*> >::iterator iter;
+  while (!m_DeletionObjects.empty())
+  {
+    iter = m_ReferenceMap.find(m_DeletionObjects.back()->GetID());
+    if (iter!=m_ReferenceMap.end())
+    {
+      unsigned int i;
+      for (i=0; i<iter->second.size(); ++i)
+      {
+        if (iter->second.at(i)==m_DeletionObjects.back())
+        {
+          //found it
+          m_DeletionObjects.back()->Disable();
+          delete m_DeletionObjects.back();
+          m_DeletionObjects.back() = NULL; //not really needed here
+          iter->second.at(i)= iter->second.at(iter->second.size()-1);
+          iter->second.at(iter->second.size()-1) = NULL;
+          iter->second.pop_back();
+          --m_RefCount;
+        }
+      }//for
+    }
+    m_DeletionObjects.pop_back();
+  } //while
 }
 
 }//namespace

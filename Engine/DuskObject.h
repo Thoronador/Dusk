@@ -44,6 +44,7 @@
      - 2010-05-05 (rev 196) - documentation updated
      - 2010-05-20 (rev 205) - enumeration value for WaypointObjects added
      - 2010-05-21 (rev 206) - documentation updated
+     - 2010-05-31 (rev 211) - enumeration value for Projectiles added
 
  ToDo list:
      - ???
@@ -64,7 +65,8 @@
 
 namespace Dusk{
 
-enum ObjectTypes {otUndefined, otStatic, otItem, otAnimated, otWaypoint, otLight, otContainer, otNPC};
+enum ObjectTypes {otUndefined, otStatic, otItem, otAnimated, otWaypoint,
+                  otLight, otContainer, otNPC, otProjectile};
 
 unsigned int GenerateUniqueObjectID();
 

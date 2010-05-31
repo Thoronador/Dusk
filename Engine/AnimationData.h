@@ -21,6 +21,9 @@
      - 2010-05-06 (rev 198) - small improvements
      - 2010-05-20 (rev 205) - adjustments for new object hierarchy
      - 2010-05-21 (rev 206) - GetInjectionObjectReference() added
+     - 2010-05-31 (rev 211) - requestDeletion() and performRequestedDeletions(),
+                              addProjectileReference() added
+                            - adjustments for Projectiles
 
  ToDo list:
      - ???
@@ -32,6 +35,7 @@
 #ifndef ANIMATIONDATA_H
 #define ANIMATIONDATA_H
 
+#include "Projectile.h"
 #include "AnimatedObject.h"
 #include "NPC.h"
 #include <fstream>
@@ -66,6 +70,12 @@ namespace Dusk
          and scale, and returns a pointer to the created WaypointObject. */
       WaypointObject* addWaypointReference(const std::string& ID, const Ogre::Vector3& position,
                                            const Ogre::Vector3& rotation, const float scale);
+
+      /* adds a new Projectile with given ID at given position with rotation
+         and scale, and returns a pointer to the created WaypointObject.
+      */
+      Projectile* addProjectileReference(const std::string& ID, const Ogre::Vector3& position,
+                                         const Ogre::Vector3& rotation, const float scale);
 
       /* returns a pointer to the first object reference with the given ID, or
          NULL if no such object is present
@@ -110,6 +120,20 @@ namespace Dusk
 
       /* deletes all referenced objects */
       void ClearData();
+
+      /* notify AnimationData about an object that wants to be deleted
+
+         parameters:
+             objPtr - pointer to the InjectionObject that wants to be deleted
+
+         remarks:
+             An object that requested to be deleted will be deleted during the
+             next frame after that call. The pointer objPtr should not be used
+             after that!
+             The same object MUST NOT request deletion more than one time,
+             because doing so might cause a memory access violation.
+      */
+      void requestDeletion(InjectionObject* objPtr);
     private:
       /* private constructor (singleton pattern) */
       AnimationData();
@@ -118,6 +142,14 @@ namespace Dusk
 
       std::map<std::string, std::vector<InjectionObject*> > m_ReferenceMap;
       unsigned int m_RefCount;
+
+      /* vector to hold the objects which requested to be deleted */
+      std::vector<InjectionObject*> m_DeletionObjects;
+
+      /* deletes all objects that previously requested to be deleted and have
+         not been deleted yet
+      */
+      void performRequestedDeletions();
   };//class
 }//namespace
 
