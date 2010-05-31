@@ -51,6 +51,7 @@ namespace Dusk
   const unsigned int cHeaderRefP = 1348887890; //"RefP" (for Referenced Projectile)
   const unsigned int cHeaderRefW = 1768191348; //"RefW" (for Referenced WaypointObject)
   const unsigned int cHeaderSave = 1702256979; //"Save" (for SaveGame)
+  const unsigned int cHeaderWeap = 1885431127; //"Weap" (for Weapon(Base))
 }//namespace
 
 #endif //DUSKCONSTANTS_H

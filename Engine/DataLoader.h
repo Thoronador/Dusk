@@ -25,7 +25,8 @@
      - 2010-05-08 (rev 200) - way of saving landscape updated
      - 2010-05-20 (rev 205) - update for WaypointObject
      - 2010-05-21 (rev 206) - missing switch-case for WaypointObject added
-     - 2010-05-31 (rev 210) - update for Projectiles and ProjectileBase
+     - 2010-05-31 (rev 211) - update for Projectiles and ProjectileBase
+     - 2010-05-31 (rev 212) - update for WeaponBase
 
  ToDo list:
      - extend class when further classes for data management are added
@@ -56,11 +57,12 @@ namespace Dusk
   const unsigned int PROJECTILE_BIT = 512;
   const unsigned int QUEST_LOG_BIT = 1024;
   const unsigned int REFERENCE_BIT = 2048;
+  const unsigned int WEAPON_BIT = 4096;
 
   const unsigned int ALL_BITS = ANIMATED_BIT | CONTAINER_BIT | DIALOGUE_BIT |
                                 ITEM_BIT | JOURNAL_BIT | LANDSCAPE_BIT |
                                 LIGHT_BIT | NPC_BIT | OBJECT_BIT | PROJECTILE_BIT
-                                | QUEST_LOG_BIT | REFERENCE_BIT;
+                                | QUEST_LOG_BIT | REFERENCE_BIT | WEAPON_BIT;
 
   const unsigned int SAVE_MEAN_BITS = ANIMATED_BIT | QUEST_LOG_BIT | REFERENCE_BIT;
 

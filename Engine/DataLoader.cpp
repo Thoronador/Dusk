@@ -12,6 +12,7 @@
 #include "ObjectData.h"
 #include "QuestLog.h"
 #include "ProjectileBase.h"
+#include "WeaponBase.h"
 #include "DuskConstants.h"
 
 namespace Dusk
@@ -100,6 +101,10 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   {
     data_records += ObjectData::GetSingleton().NumberOfReferences();
   }
+  if ((bits & WEAPON_BIT) !=0)
+  {
+    data_records += WeaponBase::GetSingleton().NumberOfWeapons();
+  }
   //write number of records
   output.write((char*) &data_records, sizeof(unsigned int));
 
@@ -127,6 +132,18 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
       return false;
     }
   }//projectiles
+
+  //save weapons
+  if ((bits & WEAPON_BIT)!=0)
+  {
+    if (!WeaponBase::GetSingleton().SaveAllToStream(output))
+    {
+      std::cout << "DataLoader::SaveToFile: ERROR: could not write Weapon "
+                << "data to file \""<<FileName<<"\".\n";
+      output.close();
+      return false;
+    }
+  }//weapons
 
   //save dialogues
   if ((bits & DIALOGUE_BIT)!=0)
@@ -340,6 +357,9 @@ bool DataLoader::LoadFromFile(const std::string& FileName)
       case cHeaderRefW:  //WaypointObject
            success = AnimationData::GetSingleton().LoadNextFromStream(input, Header);
            break;
+      case cHeaderWeap:
+           success = WeaponBase::GetSingleton().LoadNextWeaponFromStream(input);
+           break;
       default:
           std::cout << "DataLoader::LoadFromFile: ERROR: Got unexpected header "
                     <<Header << " in file \""<<FileName<<"\" at position "
@@ -430,6 +450,11 @@ void DataLoader::ClearData(const unsigned int bits)
   {
     QuestLog::GetSingleton().ClearAllData();
   }//quest log
+
+  if ((bits & WEAPON_BIT) !=0)
+  {
+    WeaponBase::GetSingleton().ClearAll();
+  }//weapons
 
 }//clear data function
 

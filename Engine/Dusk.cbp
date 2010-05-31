@@ -228,6 +228,8 @@
 		<Unit filename="UniformMotionObject.h" />
 		<Unit filename="WaypointObject.cpp" />
 		<Unit filename="WaypointObject.h" />
+		<Unit filename="WeaponBase.cpp" />
+		<Unit filename="WeaponBase.h" />
 		<Unit filename="Weather.cpp" />
 		<Unit filename="Weather.h" />
 		<Unit filename="main.cpp" />
