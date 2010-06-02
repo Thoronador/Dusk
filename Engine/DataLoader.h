@@ -27,6 +27,7 @@
      - 2010-05-21 (rev 206) - missing switch-case for WaypointObject added
      - 2010-05-31 (rev 211) - update for Projectiles and ProjectileBase
      - 2010-05-31 (rev 212) - update for WeaponBase
+     - 2010-06-02 (rev 213) - update for Weapons
 
  ToDo list:
      - extend class when further classes for data management are added

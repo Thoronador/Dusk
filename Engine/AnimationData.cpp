@@ -240,7 +240,7 @@ bool AnimationData::LoadNextFromStream(std::ifstream& Stream, const unsigned int
          }
          delete animPtr;
          break;
-    case cHeaderRefW:
+    case cHeaderRfWP:
          animPtr = new WaypointObject;
          if (animPtr->LoadFromStream(Stream))
          {

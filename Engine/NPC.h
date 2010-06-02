@@ -21,6 +21,10 @@
      - 2010-04-21 (rev 190) - isFemale() added
      - 2010-05-20 (rev 205) - adjustments for new object hierarchy
      - 2010-05-21 (rev 206) - small improvement
+     - 2010-06-02 (rev 213) - getCurrentEncumbrance() and isEncumbered() added
+                            - inflictDamage() added
+                            - equip(), unequip(), hasEquipped() added; allows to
+                              equip/unequip items in NPC's hands
 
  ToDo list:
      - add possibility to equip weapons, clothes, armour, etc.
@@ -77,6 +81,9 @@ namespace Dusk
       /* sets the current health of the NPC */
       void setHealth(const float new_health);
 
+      /* inflicts damage on that NPC */
+      void inflictDamage(const float damage_amount);
+
       /* returns true, if the NPC is considered to be alive */
       bool isAlive() const;
 
@@ -108,8 +115,14 @@ namespace Dusk
 
       const Inventory& getConstInventory() const;
 
+      /* current encumbrance */
+      unsigned int getCurrentEncumbrance() const;
+
       /* maximum encumbrance */
       unsigned int getMaxEncumbrance() const;
+
+      /* returns true, if the NPC is carrying more weight than it is able to */
+      bool isEncumbered() const;
 
       /* maximum health */
       unsigned int getMaxHealth() const;
@@ -118,6 +131,25 @@ namespace Dusk
          Returns true on success, false otherwise.
       */
       bool pickUp(Item* target);
+
+      /* tries to equip the Item with the given ID in one hand. Usually, items
+         are equipped in the right hand first, or, if the right hand is not
+         free, in the left hand. If no hand is free, nothing will be equipped.
+         Returns true on success (i.e. item could be equipped), false otherwise.
+
+         remarks:
+           An item with the given ID must be in the NPC's inventory in order to
+           be equipped.
+      */
+      bool equip(const std::string& ItemID);
+
+      /* returns true, if the NPC has equipped an item with the given ID */
+      bool hasEquipped(const std::string& ItemID) const;
+
+      /* tries to unequip the Item in the given ID..
+         Returns true on success (i.e. item could be unequipped), false otherwise.
+      */
+      bool unequip(const std::string& ItemID);
 
       /* Enables the NPC, i.e. tells the SceneManager to display it.
          Returns true on success, false on error.
@@ -139,12 +171,31 @@ namespace Dusk
       */
       static const float cMaximumPickUpDistance;
     protected:
+      //enumeration type for equipment slots
+      enum SlotType { stRightHand, stLeftHand };
+
+      /* plays animation to signal NPC's death */
+      void playDeathAnimation();
+
+      /* equips an item in the given slot */
+      bool equip(const std::string& ItemID, const SlotType slot);
+
+      /* tries to unequip the Item in the given slot..
+         Returns true on success (i.e. slot could be freed), false otherwise.
+      */
+      bool unequip(const SlotType slot);
+
+      //the NPC's inventory
       Inventory m_Inventory;
+      //current health
       float m_Health;
       //level
       uint8 m_Level;
       //attributes
       uint8 m_Strength, m_Agility, m_Vitality, m_Intelligence, m_Willpower, m_Charisma, m_Luck;
+      //equipped items in left and right hand
+      Item* m_EquippedLeft;
+      Item* m_EquippedRight;
   }; //class
 
 } //namespace

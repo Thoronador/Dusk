@@ -6,6 +6,9 @@
 
  History:
      - 2010-02-06 (rev 165) - initial version (by thoronador)
+     - 2010-06-02 (rev 213) - isEquipped() and setEquipped() added
+                            - possibility to enable object without a scene node
+                              added
 
  ToDo list:
      - ???
@@ -43,6 +46,21 @@ class Item: public DuskObject
     */
     virtual bool Enable(Ogre::SceneManager* scm);
 
+    /* Creates an entity of the object, but does not attach it to anny scene
+       node. Returns true on success, false on error.
+
+       remarks:
+           This is only used in NPC::equip(), because only objects without
+           parent nodes can be attached to a bone.
+           Derived classes potentially implement their individual versions of
+           this function.
+    */
+    virtual bool EnableWithoutSceneNode(Ogre::SceneManager* scm);
+
+    /* Disables the object, i.e. tells the SceneManager not to display it.
+       Returns true on success, false on error. */
+    virtual bool Disable();
+
     /* retrieves the object type as an enumeration value, which is useful for derived classes.*/
     virtual ObjectTypes GetType() const;
 
@@ -51,9 +69,15 @@ class Item: public DuskObject
        remarks:
            This function will always return true for Item (and possibly for its
            derived classes, too, unless these classes provide their own
-           implementation of this function.
+           implementation of this function) as long as the item is not equipped.
     */
     virtual bool canPickUp() const;
+
+    /* returns true, if the item is currently equipped by an NPC */
+    bool isEquipped() const;
+
+    /* change the equipped status */
+    void setEquipped(const bool value);
 
     /* Saves the item to the given stream. Returns true on success, false
        otherwise.
@@ -74,6 +98,30 @@ class Item: public DuskObject
            corrupted. It's advised not to use the item in this case.
     */
     virtual bool LoadFromStream(std::ifstream& InStream);
+
+    /* returns the Ogre entity which is used to display that object */
+    Ogre::Entity* exposeEntity() const;
+  protected:
+    /* Helper function which saves all data in an Item to the given stream.
+       Returns true on success.
+
+       remarks:
+           Derived classes will (most likely) call this function as part of
+           their implementation of SaveToStream().
+    */
+    bool SaveItemPart(std::ofstream& output) const;
+
+    /* Helper function which loads all data in an Item from the given stream.
+       Returns true on success.
+
+       remarks:
+           Derived classes will (most likely) call this function as part of
+           their implementation of LoadFromStream().
+    */
+    bool LoadItemPart(std::ifstream& input);
+
+    //indicates whether a NPC has this item equipped
+    bool m_Equipped;
 }; //class
 
 } //namespace

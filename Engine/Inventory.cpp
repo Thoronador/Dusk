@@ -1,5 +1,6 @@
 #include "Inventory.h"
 #include "ItemBase.h"
+#include "WeaponBase.h"
 #include "DuskConstants.h"
 #include <iostream>
 
@@ -45,7 +46,16 @@ void Inventory::AddItem(const std::string& ItemID, const unsigned int count)
   {
     m_Items[ItemID] = count;
   }
-  m_TotalWeight = m_TotalWeight +count*ItemBase::GetSingleton().GetItemWeight(ItemID);
+  //adjust weight of inventory according to added items
+  if (ItemBase::GetSingleton().hasItem(ItemID))
+  {
+    m_TotalWeight = m_TotalWeight +count*ItemBase::GetSingleton().GetItemWeight(ItemID);
+  }
+  else
+  {
+    //if there's no such item in item base, it must have been a weapon
+    m_TotalWeight = m_TotalWeight +count*WeaponBase::GetSingleton().getWeaponWeight(ItemID);
+  }
 }
 
 unsigned int Inventory::RemoveItem(const std::string& ItemID, const unsigned int count)
@@ -71,7 +81,16 @@ unsigned int Inventory::RemoveItem(const std::string& ItemID, const unsigned int
       iter->second = 0;
       m_Items.erase(iter);
     }
-    m_TotalWeight = m_TotalWeight - removed*ItemBase::GetSingleton().GetItemWeight(ItemID);
+    //adjust weight of inventory according to removed items
+    if (ItemBase::GetSingleton().hasItem(ItemID))
+    {
+      m_TotalWeight = m_TotalWeight - removed*ItemBase::GetSingleton().GetItemWeight(ItemID);
+    }
+    else
+    {
+      //must have been a weapon instead
+      m_TotalWeight = m_TotalWeight - removed*WeaponBase::GetSingleton().getWeaponWeight(ItemID);
+    }
     return removed;
   }
   return 0;
@@ -120,8 +139,15 @@ int Inventory::GetTotalValue() const
   iter = m_Items.begin();
   while (iter!=m_Items.end())
   {
-    sum = sum + iter->second * ItemBase::GetSingleton().GetItemValue(iter->first);
-    iter++;
+    if (ItemBase::GetSingleton().hasItem(iter->first))
+    { //it's an item
+      sum = sum + iter->second * ItemBase::GetSingleton().GetItemValue(iter->first);
+    }
+    else
+    { //it's a weapon
+      sum = sum + iter->second * WeaponBase::GetSingleton().getWeaponValue(iter->first);
+    }
+    ++iter;
   }//while
   return sum;
 }
@@ -232,8 +258,8 @@ bool Inventory::operator==(const Inventory& other) const
     {
       return false;
     }
-    self_one++;
-    other_one++;
+    ++self_one;
+    ++other_one;
   }//while
   if ((self_one!=self_end) xor (other_one!=other_end))
   {

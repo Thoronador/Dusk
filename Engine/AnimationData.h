@@ -24,6 +24,7 @@
      - 2010-05-31 (rev 211) - requestDeletion() and performRequestedDeletions(),
                               addProjectileReference() added
                             - adjustments for Projectiles
+     - 2010-06-02 (rev 213) - adjustments for weapons
 
  ToDo list:
      - ???

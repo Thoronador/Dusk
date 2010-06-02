@@ -6,6 +6,7 @@
 
  History:
      - 2010-05-20 (rev 205) - initial version (by thoronador)
+     - 2010-06-02 (rev 213) - changed header in load/save functions
 
  ToDo list:
      - implement possibility to make object "look" into the direction it is

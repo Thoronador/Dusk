@@ -86,21 +86,27 @@ void DuskObject::SetPosition(const Ogre::Vector3& pos)
 {
   if(entity!=NULL)
   {
-    entity->getParentSceneNode()->setPosition(pos);
+    if (entity->getParentSceneNode()!=NULL)
+    {
+      entity->getParentSceneNode()->setPosition(pos);
+    }
   }
   position = pos;
 }
 
 void DuskObject::SetRotation(const Ogre::Vector3& rot)
 {
-  if (entity != NULL)
+  if (entity!=NULL)
   {
-    entity->getParentSceneNode()->resetOrientation();
-    //not sure whether this is the best one...
-    // maybe we still need to set a different transform space
-    entity->getParentSceneNode()->rotate(Ogre::Vector3::UNIT_X, Ogre::Degree(rot.x));
-    entity->getParentSceneNode()->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(rot.y));
-    entity->getParentSceneNode()->rotate(Ogre::Vector3::UNIT_Z, Ogre::Degree(rot.z));
+    if (entity->getParentSceneNode()!=NULL)
+    {
+      entity->getParentSceneNode()->resetOrientation();
+      //not sure whether this is the best one...
+      // maybe we still need to set a different transform space
+      entity->getParentSceneNode()->rotate(Ogre::Vector3::UNIT_X, Ogre::Degree(rot.x));
+      entity->getParentSceneNode()->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(rot.y));
+      entity->getParentSceneNode()->rotate(Ogre::Vector3::UNIT_Z, Ogre::Degree(rot.z));
+    }
   }
   rotation = rot;
   IntervalVector360(rotation);

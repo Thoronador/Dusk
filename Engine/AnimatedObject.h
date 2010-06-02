@@ -36,6 +36,7 @@
      - 2010-05-21 (rev 206) - GetPossibleAnimationStates() added
      - 2010-05-27 (rev 208) - StartAnimation(), StopAnimation(),
                               StopAllAnimations() & IsAnimationActive() added
+     - 2010-06-02 (rev 213) - fixed an issue in StopAllAnimations()
 
  ToDo list:
      - adjust GetAnimation() and GetLoopState() so that they can be used to get

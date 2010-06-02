@@ -9,6 +9,7 @@
      - 2010-01-14 (rev 153) - load/ save functions
      - 2010-04-21 (rev 190) - female flag added
                             - GetFirst() and GetEnd() added
+     - 2010-06-02 (rev 213) - information for animations and tag points added
 
  ToDo list:
      - ???
@@ -35,6 +36,38 @@ namespace Dusk
     uint8 Str, Agi, Vit, Int, Will, Cha, Luck;
     static NPCAttributes GetNullAttributes();
   };
+  /* struct to summarize all animations of NPC */
+  struct NPCAnimations
+  {
+    //idle animation, i.e. when NPC is doing nothing
+    std::string Idle;
+    //walking animation
+    std::string Walk;
+    //animation for melee attack
+    std::string MeleeAttack;
+    //animation for ranged/ projectile attack
+    std::string ProjectileAttack;
+    //animation for jumping
+    std::string Jump;
+    //animation for dying
+    std::string Death;
+    static const NPCAnimations& GetNullAnimations();
+  }; //struct
+
+  struct NPCTagPoints
+  {
+    //tag point for item in left hand
+    std::string HandLeft;
+    //tag point for item in right hand
+    std::string HandRight;
+    //tag point for sheathed weapon on the left side of the NPC's body
+    std::string SheathLeft;
+    //tag point for sheathed weapon on the right side of the NPC's body
+    std::string SheathRight;
+    static const NPCTagPoints& GetNullTagPoints();
+  }; //struct
+
+  /* struct to summarize all properties of an NPC*/
   struct NPCRecord
   {
     std::string Name, Mesh;
@@ -42,6 +75,8 @@ namespace Dusk
     NPCAttributes Attributes;
     bool Female;
     Inventory InventoryAtStart;
+    NPCAnimations Animations;
+    NPCTagPoints TagPoints;
   }; //struct
 
 
@@ -82,7 +117,8 @@ namespace Dusk
       */
       void addNPC(const std::string& ID, const std::string& Name,
                   const std::string& Mesh, const uint8 Level, const NPCAttributes& Attr,
-                  const bool female, const Inventory& StartingInventory);
+                  const bool female, const Inventory& StartingInventory,
+                  const NPCAnimations& Anims, const NPCTagPoints& TagPoints);
 
       /* Tries to delete the NPC record with the given ID. Returns true, if such
          a record was present, or false otherwise. */
@@ -133,6 +169,12 @@ namespace Dusk
 
       /* Returns the inventory of the NPC, if present. */
       const Inventory& getNPCInventory(const std::string& NPC_ID) const;
+
+      /* returns the animations of the given NPC */
+      const NPCAnimations& getNPCAnimations(const std::string& NPC_ID) const;
+
+      /* returns the names of the tag points of the NPC with the given ID */
+      const NPCTagPoints& getNPCTagPoints(const std::string& NPC_ID) const;
 
       /* Tries to save all data to the given stream and returns true on success,
          or false if an error occured.

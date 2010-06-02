@@ -31,6 +31,8 @@
                             - GetObjectByID() added
      - 2010-03-27 (rev 188) - removeItemReference() added
      - 2010-05-15 (rev 204) - IsObjectPresent() added
+     - 2010-06-02 (rev 213) - addWeaponReference() added; ObjectData can now
+                              handle Weapons, too.
 
  ToDo list:
      - extend class when further classes for non-animated objects are added
@@ -48,6 +50,7 @@
 #include "Item.h"
 #include "Light.h"
 #include "Container.h"
+#include "Weapon.h"
 #include <vector>
 #include <map>
 #include <fstream>
@@ -87,6 +90,12 @@ namespace Dusk
          to the game and returns a pointer to the newly created item
       */
       Item* addItemReference(const std::string& ID, const Ogre::Vector3& position,
+                             const Ogre::Vector3& rotation, const float scale);
+
+      /* adds a new weapon instance with given ID, position, rotation and scale
+         to the game and returns a pointer to the newly created weapon
+      */
+      Weapon* addWeaponReference(const std::string& ID, const Ogre::Vector3& position,
                              const Ogre::Vector3& rotation, const float scale);
 
       /* returns the first object of given ID, or NULL if no such object is

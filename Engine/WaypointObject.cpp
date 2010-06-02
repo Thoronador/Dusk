@@ -277,8 +277,8 @@ bool WaypointObject::SaveToStream(std::ofstream& OutStream) const
     std::cout << "WaypointObject::SaveToStream: ERROR: Stream contains errors!\n";
     return false;
   }
-  //write header "RefW" (reference of WaypointObject)
-  OutStream.write((char*) &cHeaderRefW, sizeof(unsigned int));
+  //write header "RfWP" (reference of WaypointObject)
+  OutStream.write((char*) &cHeaderRfWP, sizeof(unsigned int));
   //write all data inherited from DuskObject
   if (!SaveDuskObjectPart(OutStream))
   {
@@ -310,10 +310,10 @@ bool WaypointObject::LoadFromStream(std::ifstream& InStream)
     std::cout << "WaypointObject::LoadFromStream: ERROR: Stream contains errors!\n";
     return false;
   }
-  //read header "RefW"
+  //read header "RfWP"
   unsigned int Header = 0;
   InStream.read((char*) &Header, sizeof(unsigned int));
-  if (Header!=cHeaderRefW)
+  if (Header!=cHeaderRfWP)
   {
     std::cout << "WaypointObject::LoadFromStream: ERROR: Stream contains "
               << "invalid reference header.\n";

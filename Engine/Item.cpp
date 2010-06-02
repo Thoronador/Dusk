@@ -1,6 +1,7 @@
 #include "Item.h"
 #include "DuskConstants.h"
 #include "ItemBase.h"
+#include "API.h"
 
 namespace Dusk
 {
@@ -33,7 +34,7 @@ bool Item::Enable(Ogre::SceneManager* scm)
   }
   if (scm==NULL)
   {
-    std::cout << "DuskObject::Enable: ERROR: no scene manager present.\n";
+    std::cout << "Item::Enable: ERROR: no scene manager present.\n";
     return false;
   }
   //generate unique entity name
@@ -53,6 +54,68 @@ bool Item::Enable(Ogre::SceneManager* scm)
   return (entity!=NULL);
 }
 
+bool Item::EnableWithoutSceneNode(Ogre::SceneManager* scm)
+{
+  //We basically use the exact code from the above Enable() function here,
+  // just with the difference of not creating a scene node for it.
+  if (entity!=NULL)
+  {
+    return true;
+  }
+  if (scm==NULL)
+  {
+    std::cout << "Item::EnableWithoutNode: ERROR: no scene manager present.\n";
+    return false;
+  }
+  //generate unique entity name
+  std::stringstream entity_name;
+  entity_name << ID << GenerateUniqueObjectID();
+  //create entity + node and attach entity to node
+  entity = scm->createEntity(entity_name.str(), ItemBase::GetSingleton().GetMeshName(ID));
+  /*Ogre::SceneNode* ent_node = scm->getRootSceneNode()->createChildSceneNode(entity_name.str(), position);
+  ent_node->attachObject(entity);
+  ent_node->scale(m_Scale, m_Scale, m_Scale);
+  //not sure whether this is the best one for rotation
+  ent_node->rotate(Ogre::Vector3::UNIT_X, Ogre::Degree(rotation.x));
+  ent_node->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(rotation.y));
+  ent_node->rotate(Ogre::Vector3::UNIT_Z, Ogre::Degree(rotation.z));*/
+  //set user defined object to this object as reverse link
+  entity->setUserObject(this);
+  return (entity!=NULL);
+}
+
+bool Item::Disable()
+{
+  if (entity == NULL)
+  {
+    return true;
+  }
+
+  Ogre::SceneNode* ent_node = entity->getParentSceneNode();
+  Ogre::SceneManager * scm;
+  if (ent_node!=NULL)
+  {
+    scm = ent_node->getCreator();
+  }
+  else
+  {
+    scm = getAPI().getOgreSceneManager();
+  }
+  if (scm==NULL)
+  {
+    std::cout << "DuskObject::Disable: ERROR: got NULL for scene manager.\n";
+    return false;
+  }
+  if (ent_node!=NULL)
+  {
+    ent_node->detachObject(entity);
+    scm->getRootSceneNode()->removeAndDestroyChild(ent_node->getName());
+  }
+  scm->destroyEntity(entity);
+  entity = NULL;
+  return true;
+}
+
 ObjectTypes Item::GetType() const
 {
   return otItem;
@@ -60,7 +123,7 @@ ObjectTypes Item::GetType() const
 
 bool Item::canPickUp() const
 {
-  return true;
+  return !m_Equipped;
 }
 
 bool Item::SaveToStream(std::ofstream& OutStream) const
@@ -79,7 +142,12 @@ bool Item::SaveToStream(std::ofstream& OutStream) const
               << "data!\n";
     return false;
   }
-  //Item has no own data members yet, so return true here
+  //write all data from Item
+  if (!SaveItemPart(OutStream))
+  {
+    std::cout << "Item::SaveToStream: ERROR while writing item data!\n";
+    return false;
+  }
   return true;
 }
 
@@ -112,8 +180,42 @@ bool Item::LoadFromStream(std::ifstream& InStream)
               << "data.\n";
     return false;
   }//if
-  //class Item has no new data members yet, so return true here
+  //read all stuff from Item
+  if (!LoadItemPart(InStream))
+  {
+    std::cout << "Item::LoadFromStream: ERROR while reading item data.\n";
+    return false;
+  }//if
   return true;
+}
+
+bool Item::SaveItemPart(std::ofstream& output) const
+{
+  // -- equipped
+  output.write((char*) &m_Equipped, sizeof(bool));
+  return output.good();
+}
+
+bool Item::LoadItemPart(std::ifstream& input)
+{
+  // -- equipped
+  input.read((char*) &m_Equipped, sizeof(bool));
+  return input.good();
+}
+
+bool Item::isEquipped() const
+{
+  return m_Equipped;
+}
+
+void Item::setEquipped(const bool value)
+{
+  m_Equipped = value;
+}
+
+Ogre::Entity* Item::exposeEntity() const
+{
+  return entity;
 }
 
 } //namespace

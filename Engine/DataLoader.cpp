@@ -349,12 +349,13 @@ bool DataLoader::LoadFromFile(const std::string& FileName)
       case cHeaderRefI: //Item
       case cHeaderRefL: //Light
       case cHeaderRefO: //DuskObject
+      case cHeaderRfWe: //Weapon
            success = ObjectData::GetSingleton().LoadNextFromStream(input, Header);
            break;
       case cHeaderRefA:  //AnimatedObject
       case cHeaderRefN:  //NPC
       case cHeaderRefP:  //Projectiles
-      case cHeaderRefW:  //WaypointObject
+      case cHeaderRfWP:  //WaypointObject
            success = AnimationData::GetSingleton().LoadNextFromStream(input, Header);
            break;
       case cHeaderWeap:
@@ -605,13 +606,14 @@ bool DataLoader::LoadSaveGame(const std::string& FileName)
       case cHeaderRefA:  //AnimatedObject
       case cHeaderRefN:  //NPC
       case cHeaderRefP:  //Projectiles
-      case cHeaderRefW:  //WaypointObject
+      case cHeaderRfWP:  //WaypointObject
            success = AnimationData::GetSingleton().LoadNextFromStream(input, Header);
            break;
       case cHeaderRefC: //Container
       case cHeaderRefI: //Item
       case cHeaderRefL: //Light
       case cHeaderRefO: //DuskObject
+      case cHeaderRfWe: //Weapon
            success = ObjectData::GetSingleton().LoadNextFromStream(input, Header);
            break;
       case cHeaderQLog: //questlog

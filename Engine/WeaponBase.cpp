@@ -61,6 +61,26 @@ std::string WeaponBase::getWeaponName(const std::string& ID) const
   return "";
 }
 
+int WeaponBase::getWeaponValue(const std::string& weaponID) const
+{
+  std::map<std::string, WeaponRecord>::const_iterator iter = m_Weapons.find(weaponID);
+  if (iter!=m_Weapons.end())
+  {
+    return iter->second.value;
+  }
+  return -1;
+}
+
+float WeaponBase::getWeaponWeight(const std::string& weaponID) const
+{
+  std::map<std::string, WeaponRecord>::const_iterator iter = m_Weapons.find(weaponID);
+  if (iter!=m_Weapons.end())
+  {
+    return iter->second.weight;
+  }
+  return 0.0f;
+}
+
 WeaponRecord WeaponBase::getWeaponData(const std::string& ID) const
 {
   std::map<std::string, WeaponRecord>::const_iterator iter = m_Weapons.find(ID);

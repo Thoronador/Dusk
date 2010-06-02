@@ -7,6 +7,7 @@
 
  History:
      - 2010-05-31 (rev 212) - initial version (by thoronador)
+     - 2010-06-02 (rev 213) - getWeaponValue() and getWeaponWeight() added
 
  ToDo list:
      - ???
@@ -79,6 +80,20 @@ class WeaponBase
        with that ID is present
     */
     std::string getWeaponName(const std::string& ID) const;
+
+    /* returns the value of the weapon with ID weaponID, or -1 if no weapon with
+       that ID is present.
+    */
+    int getWeaponValue(const std::string& weaponID) const;
+
+    /* returns the weight of the weapon with ID weaponID, or zero if no weapon
+       with that ID is present.
+
+       remarks:
+           Since zero is also a valid weight value for weaponss, a return value
+           of zero is NOT a safe way to detect absence of a certain weapon.
+    */
+    float getWeaponWeight(const std::string& weaponID) const;
 
     /* returns all data of the weapon with the given ID. If no weapon with that
        ID is present, the return value is undefined

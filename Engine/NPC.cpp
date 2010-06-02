@@ -1,6 +1,8 @@
 #include "NPC.h"
 #include <sstream>
 #include "NPCBase.h"
+#include "ItemBase.h"
+#include "WeaponBase.h"
 #include "Settings.h"
 #include "DuskConstants.h"
 #include "ObjectData.h"
@@ -19,6 +21,8 @@ NPC::NPC()
   m_Level = 1; //assume level 1
   m_Inventory.MakeEmpty(); //empty inventory
   m_Health = getMaxHealth();
+  m_EquippedLeft = NULL;
+  m_EquippedRight = NULL;
 }
 
 NPC::NPC(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale)
@@ -48,6 +52,8 @@ NPC::NPC(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& 
     m_Inventory.MakeEmpty(); //empty inventory
   }
   m_Health = getMaxHealth();
+  m_EquippedLeft = NULL;
+  m_EquippedRight = NULL;
 }
 
 NPC::~NPC()
@@ -74,9 +80,37 @@ float NPC::getHealth() const
 
 void NPC::setHealth(const float new_health)
 {
-  m_Health = new_health;
-  if (m_Health<0.0f) m_Health = 0.0f;
+  if (new_health<0.0f)
+  {
+    if (m_Health>0.0f)
+    { //if we are alive (yet), play the animation for death
+      playDeathAnimation();
+    }
+    m_Health = 0.0f;
+  }
+  else
+  {
+    m_Health = new_health;
+  }
 }
+
+void NPC::inflictDamage(const float damage_amount)
+{
+  /*after amour has been added, this function should also consider the equipped
+    armour to lower the inflicted damage */
+
+  /* We only need to inflict (further) damage, if the NPC is still alive. */
+  if (m_Health>0.0f)
+  {
+    m_Health = m_Health - damage_amount;
+    if (m_Health<=0.0f)
+    {
+      m_Health = 0.0f;
+      playDeathAnimation();
+    }
+  }
+}
+
 bool NPC::isAlive() const
 {
   return (m_Health>0.0f);
@@ -178,12 +212,27 @@ const Inventory& NPC::getConstInventory() const
   return m_Inventory;
 }
 
+unsigned int NPC::getCurrentEncumbrance() const
+{
+  const float w = m_Inventory.GetTotalWeight();
+  if (w<=0.0f)
+  {
+    return 0;
+  }
+  return static_cast<unsigned int>(w);
+}
+
 unsigned int NPC::getMaxEncumbrance() const
 {
   const Settings& set = Settings::GetSingleton();
   return set.getSetting_uint("BaseEncumbrance") +
          set.getSetting_uint("EncumbranceStrengthCoefficient")*m_Strength;
   //cBaseEncumbrance + cEncumbranceStrengthCoefficient*m_Strength
+}
+
+bool NPC::isEncumbered() const
+{
+  return (getCurrentEncumbrance()>getMaxEncumbrance());
 }
 
 unsigned int NPC::getMaxHealth() const
@@ -216,6 +265,140 @@ bool NPC::pickUp(Item* target)
     return true;
   }
   return false;
+}
+
+bool NPC::equip(const std::string& ItemID)
+{
+  if (m_Inventory.GetItemCount(ItemID)==0)
+  {
+    return false; //NPC has no such item
+  }
+  if (entity==NULL)
+  {
+    return false; //cannot equip on an unenabled NPC
+  }
+  if (m_EquippedRight==NULL)
+  {
+    return equip(ItemID, stRightHand);
+  }
+  else if (m_EquippedLeft==NULL)
+  {
+    return equip(ItemID, stLeftHand);
+  }
+  //if we're here, no hand is free
+  return false;
+}
+
+bool NPC::equip(const std::string& ItemID, const SlotType slot)
+{
+  //protected version of equip()
+  Item* pItem = NULL;
+  if (ItemBase::GetSingleton().hasItem(ItemID))
+  {
+    pItem = new Item(ItemID, Ogre::Vector3::ZERO, Ogre::Vector3::ZERO, 1.0f);
+  }
+  else if (WeaponBase::GetSingleton().hasWeapon(ItemID))
+  {
+    pItem = new Weapon(ItemID, Ogre::Vector3::ZERO, Ogre::Vector3::ZERO, 1.0f);
+  }
+  else
+  {
+    std::cout << "NPC::equip: ERROR: there is no Item or weapon with the given "
+              << "ID \""<<ItemID<<"\".\n";
+    return false;
+  }
+  //now to the tag points
+  std::string bone_name;
+  switch (slot)
+  {
+    case stRightHand:
+         bone_name = NPCBase::GetSingleton().getNPCTagPoints(ID).HandRight;
+         break;
+    case stLeftHand:
+         bone_name = NPCBase::GetSingleton().getNPCTagPoints(ID).HandLeft;
+         break;
+    default:
+         std::cout << "NPC::equip: ERROR: unknown slot type!\n";
+         delete pItem;
+         return false;
+  } //swi
+  if (bone_name=="")
+  {
+    delete pItem;
+    return false; //no bone name, no equip()
+  }
+  pItem->EnableWithoutSceneNode(entity->getParentSceneNode()->getCreator());
+  entity->attachObjectToBone(bone_name, pItem->exposeEntity());
+  pItem->setEquipped(true);
+  if (slot==stLeftHand)
+  {
+    m_EquippedLeft = pItem;
+  }
+  else
+  {
+    m_EquippedRight = pItem;
+  }
+  return true;
+}
+
+bool NPC::hasEquipped(const std::string& ItemID) const
+{
+  if (m_EquippedRight!=NULL)
+  {
+    if (m_EquippedRight->GetID()==ItemID) return true;
+    if (m_EquippedLeft!=NULL)
+    {
+      if (m_EquippedLeft->GetID()==ItemID) return true;
+    }
+  }
+  return false;
+}
+
+bool NPC::unequip(const std::string& ItemID)
+{
+  if (entity==NULL)
+  {
+    return false; //cannot unequip when NPC's not enabled
+  }
+  if (m_EquippedLeft!=NULL)
+  {
+    if ( m_EquippedLeft->GetID()==ItemID)
+      return unequip(stLeftHand);
+  }
+  if (m_EquippedRight!=NULL)
+  {
+    if ( m_EquippedRight->GetID()==ItemID)
+      return unequip(stRightHand);
+  }
+  return false;
+}
+
+bool NPC::unequip(const SlotType slot)
+{
+  if (entity==NULL)
+  {
+    return false; //cannot unequip when NPC's not enabled
+  }
+  switch(slot)
+  {
+    case stLeftHand:
+         if (m_EquippedLeft==NULL) return true;
+         entity->detachObjectFromBone(m_EquippedLeft->exposeEntity());
+         delete m_EquippedLeft;
+         m_EquippedLeft = NULL;
+         return true;
+         break;
+    case stRightHand:
+         if (m_EquippedRight==NULL) return true;
+         entity->detachObjectFromBone(m_EquippedRight->exposeEntity());
+         delete m_EquippedRight;
+         m_EquippedRight = NULL;
+         return true;
+         break;
+    default:
+         std::cout << "NPC::unequip: ERROR: unknown slot type!\n";
+         return false;
+  } //swi
 }
 
 bool NPC::Enable(Ogre::SceneManager* scm)
@@ -393,6 +576,16 @@ bool NPC::LoadFromStream(std::ifstream& InStream)
     return false;
   }
   return InStream.good();
+}
+
+void NPC::playDeathAnimation()
+{
+  StopAllAnimations();
+  const std::string anim = NPCBase::GetSingleton().getNPCAnimations(ID).Death;
+  if (anim!="")
+  {
+    PlayAnimation(anim, false);
+  }
 }
 
 } //namespace

@@ -12,6 +12,21 @@ NPCAttributes NPCAttributes::GetNullAttributes()
   return temp;
 }
 
+const NPCAnimations& NPCAnimations::GetNullAnimations()
+{
+  static NPCAnimations anims;
+  anims.Idle = anims.Walk = anims.MeleeAttack = anims.ProjectileAttack
+             = anims.Jump = anims.Death = "";
+  return anims;
+}
+
+const NPCTagPoints& NPCTagPoints::GetNullTagPoints()
+{
+  static NPCTagPoints tags;
+  tags.HandLeft = tags.HandRight = tags.SheathLeft = tags.SheathRight = "";
+  return tags;
+}
+
 NPCBase::NPCBase()
 {
   m_NPCList = std::map<std::string,NPCRecord>();
@@ -31,7 +46,8 @@ NPCBase& NPCBase::GetSingleton()
 void NPCBase::addNPC(const std::string& ID, const std::string& Name,
                      const std::string& Mesh, const uint8 Level,
                      const NPCAttributes& Attr, const bool female,
-                     const Inventory& StartingInventory)
+                     const Inventory& StartingInventory,
+                     const NPCAnimations& Anims, const NPCTagPoints& TagPoints)
 {
   if (ID=="" or Name=="" or Mesh=="")
   {
@@ -48,6 +64,8 @@ void NPCBase::addNPC(const std::string& ID, const std::string& Name,
     iter->second.Female = female;
     iter->second.InventoryAtStart.MakeEmpty();
     StartingInventory.AddAllItemsTo(iter->second.InventoryAtStart);
+    iter->second.Animations = Anims;
+    iter->second.TagPoints = TagPoints;
     return;
   }
   NPCRecord temp;
@@ -57,6 +75,8 @@ void NPCBase::addNPC(const std::string& ID, const std::string& Name,
   temp.Attributes = Attr;
   temp.Female = female;
   temp.InventoryAtStart = StartingInventory;
+  temp.Animations = Anims;
+  temp.TagPoints = TagPoints;
   m_NPCList[ID] = temp;
 }
 
@@ -151,6 +171,26 @@ const Inventory& NPCBase::getNPCInventory(const std::string& NPC_ID) const
   return Inventory::GetEmptyInventory();
 }
 
+const NPCAnimations& NPCBase::getNPCAnimations(const std::string& NPC_ID) const
+{
+  std::map<std::string, NPCRecord>::const_iterator iter = m_NPCList.find(NPC_ID);
+  if (iter!=m_NPCList.end())
+  {
+    return iter->second.Animations;
+  }
+  return NPCAnimations::GetNullAnimations();
+}
+
+const NPCTagPoints& NPCBase::getNPCTagPoints(const std::string& NPC_ID) const
+{
+  std::map<std::string, NPCRecord>::const_iterator iter = m_NPCList.find(NPC_ID);
+  if (iter!=m_NPCList.end())
+  {
+    return iter->second.TagPoints;
+  }
+  return NPCTagPoints::GetNullTagPoints();
+}
+
 bool NPCBase::SaveToStream(std::ofstream& output) const
 {
   if (!(output.good()))
@@ -196,7 +236,49 @@ bool NPCBase::SaveToStream(std::ofstream& output) const
                 << "of NPC \""<<iter->first<<"\" to stream.\n";
       return false;
     }
-    iter++;
+    // -- animations
+    // ---- idle
+    len = iter->second.Animations.Idle.length();
+    output.write((char*) &len, sizeof(unsigned int));
+    output.write(iter->second.Animations.Idle.c_str(), len);
+    // ---- walk
+    len = iter->second.Animations.Walk.length();
+    output.write((char*) &len, sizeof(unsigned int));
+    output.write(iter->second.Animations.Walk.c_str(), len);
+    // ---- melee
+    len = iter->second.Animations.MeleeAttack.length();
+    output.write((char*) &len, sizeof(unsigned int));
+    output.write(iter->second.Animations.MeleeAttack.c_str(), len);
+    // ---- projectile
+    len = iter->second.Animations.ProjectileAttack.length();
+    output.write((char*) &len, sizeof(unsigned int));
+    output.write(iter->second.Animations.ProjectileAttack.c_str(), len);
+    // ---- jump
+    len = iter->second.Animations.Jump.length();
+    output.write((char*) &len, sizeof(unsigned int));
+    output.write(iter->second.Animations.Jump.c_str(), len);
+    // ---- death
+    len = iter->second.Animations.Death.length();
+    output.write((char*) &len, sizeof(unsigned int));
+    output.write(iter->second.Animations.Death.c_str(), len);
+    // -- tag points
+    // ---- left hand
+    len = iter->second.TagPoints.HandLeft.length();
+    output.write((char*) &len, sizeof(unsigned int));
+    output.write(iter->second.TagPoints.HandLeft.c_str(), len);
+    // ---- right hand
+    len = iter->second.TagPoints.HandRight.length();
+    output.write((char*) &len, sizeof(unsigned int));
+    output.write(iter->second.TagPoints.HandRight.c_str(), len);
+    // ---- left sheath
+    len = iter->second.TagPoints.SheathLeft.length();
+    output.write((char*) &len, sizeof(unsigned int));
+    output.write(iter->second.TagPoints.SheathLeft.c_str(), len);
+    // ---- right sheath
+    len = iter->second.TagPoints.SheathRight.length();
+    output.write((char*) &len, sizeof(unsigned int));
+    output.write(iter->second.TagPoints.SheathRight.c_str(), len);
+    ++iter;
   } //while
   return output.good();
 }
@@ -300,8 +382,203 @@ bool NPCBase::LoadNextRecordFromStream(std::ifstream& input)
               << "inventory from stream.\n";
     return false;
   }
+  //animations
+  // -- idle
+  len = 0;
+  input.read((char*) &len, sizeof(unsigned int));
+  if (len > 255)
+  {
+    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR: NPC animation name"
+              << " seems to be longer than 255 characters.\n";
+    return false;
+  }
+  buffer[0] = '\0';
+  input.read(buffer, len);
+  buffer[len] = '\0';
+  if (!(input.good()))
+  {
+    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR while reading NPC "
+              << "animation name from stream.\n";
+    return false;
+  }
+  temp_rec.Animations.Idle = std::string(buffer);
+  // -- walk
+  len = 0;
+  input.read((char*) &len, sizeof(unsigned int));
+  if (len > 255)
+  {
+    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR: NPC animation name"
+              << " seems to be longer than 255 characters.\n";
+    return false;
+  }
+  buffer[0] = '\0';
+  input.read(buffer, len);
+  buffer[len] = '\0';
+  if (!(input.good()))
+  {
+    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR while reading NPC "
+              << "animation name from stream.\n";
+    return false;
+  }
+  temp_rec.Animations.Walk = std::string(buffer);
+  // -- melee
+  len = 0;
+  input.read((char*) &len, sizeof(unsigned int));
+  if (len > 255)
+  {
+    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR: NPC animation name"
+              << " seems to be longer than 255 characters.\n";
+    return false;
+  }
+  buffer[0] = '\0';
+  input.read(buffer, len);
+  buffer[len] = '\0';
+  if (!(input.good()))
+  {
+    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR while reading NPC "
+              << "animation name from stream.\n";
+    return false;
+  }
+  temp_rec.Animations.MeleeAttack = std::string(buffer);
+  // -- projectile
+  len = 0;
+  input.read((char*) &len, sizeof(unsigned int));
+  if (len > 255)
+  {
+    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR: NPC animation name"
+              << " seems to be longer than 255 characters.\n";
+    return false;
+  }
+  buffer[0] = '\0';
+  input.read(buffer, len);
+  buffer[len] = '\0';
+  if (!(input.good()))
+  {
+    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR while reading NPC "
+              << "animation name from stream.\n";
+    return false;
+  }
+  temp_rec.Animations.ProjectileAttack = std::string(buffer);
+  // -- jump
+  len = 0;
+  input.read((char*) &len, sizeof(unsigned int));
+  if (len > 255)
+  {
+    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR: NPC animation name"
+              << " seems to be longer than 255 characters.\n";
+    return false;
+  }
+  buffer[0] = '\0';
+  input.read(buffer, len);
+  buffer[len] = '\0';
+  if (!(input.good()))
+  {
+    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR while reading NPC "
+              << "animation name from stream.\n";
+    return false;
+  }
+  temp_rec.Animations.Jump = std::string(buffer);
+  // -- death
+  len = 0;
+  input.read((char*) &len, sizeof(unsigned int));
+  if (len > 255)
+  {
+    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR: NPC animation name"
+              << " seems to be longer than 255 characters.\n";
+    return false;
+  }
+  buffer[0] = '\0';
+  input.read(buffer, len);
+  buffer[len] = '\0';
+  if (!(input.good()))
+  {
+    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR while reading NPC "
+              << "animation name from stream.\n";
+    return false;
+  }
+  temp_rec.Animations.Death = std::string(buffer);
+
+  //tag points
+  // -- left hand
+  len = 0;
+  input.read((char*) &len, sizeof(unsigned int));
+  if (len > 255)
+  {
+    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR: NPC TagPoint name"
+              << " seems to be longer than 255 characters.\n";
+    return false;
+  }
+  buffer[0] = '\0';
+  input.read(buffer, len);
+  buffer[len] = '\0';
+  if (!(input.good()))
+  {
+    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR while reading NPC "
+              << "TagPoint name from stream.\n";
+    return false;
+  }
+  temp_rec.TagPoints.HandLeft = std::string(buffer);
+  // -- right hand
+  len = 0;
+  input.read((char*) &len, sizeof(unsigned int));
+  if (len > 255)
+  {
+    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR: NPC TagPoint name"
+              << " seems to be longer than 255 characters.\n";
+    return false;
+  }
+  buffer[0] = '\0';
+  input.read(buffer, len);
+  buffer[len] = '\0';
+  if (!(input.good()))
+  {
+    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR while reading NPC "
+              << "TagPoint name from stream.\n";
+    return false;
+  }
+  temp_rec.TagPoints.HandRight = std::string(buffer);
+  // -- left sheath
+  len = 0;
+  input.read((char*) &len, sizeof(unsigned int));
+  if (len > 255)
+  {
+    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR: NPC TagPoint name"
+              << " seems to be longer than 255 characters.\n";
+    return false;
+  }
+  buffer[0] = '\0';
+  input.read(buffer, len);
+  buffer[len] = '\0';
+  if (!(input.good()))
+  {
+    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR while reading NPC "
+              << "TagPoint name from stream.\n";
+    return false;
+  }
+  temp_rec.TagPoints.SheathLeft = std::string(buffer);
+  // -- righ sheath
+  len = 0;
+  input.read((char*) &len, sizeof(unsigned int));
+  if (len > 255)
+  {
+    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR: NPC TagPoint name"
+              << " seems to be longer than 255 characters.\n";
+    return false;
+  }
+  buffer[0] = '\0';
+  input.read(buffer, len);
+  buffer[len] = '\0';
+  if (!(input.good()))
+  {
+    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR while reading NPC "
+              << "TagPoint name from stream.\n";
+    return false;
+  }
+  temp_rec.TagPoints.SheathRight = std::string(buffer);
+
   addNPC(tempID, temp_rec.Name, temp_rec.Mesh, temp_rec.Level,
-         temp_rec.Attributes, temp_rec.Female, temp_rec.InventoryAtStart);
+         temp_rec.Attributes, temp_rec.Female, temp_rec.InventoryAtStart,
+         temp_rec.Animations, temp_rec.TagPoints);
   return input.good();
 }
 

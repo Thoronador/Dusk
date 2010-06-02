@@ -32,6 +32,18 @@ status:
 */
 #include "AnimatedObject.h"
 
+/*
+This Header defines the AnimationData Singleton class
+
+description:
+    The class holds/manages all animated object in the game and
+    makes sure they all get their animations played properly by
+    injecting the animation time each frame.
+status:
+    seems to work
+*/
+#include "AnimationData.h"
+
 
 /*
 This Header defines the Application class
@@ -110,6 +122,16 @@ description:
 */
 #include "CommandNoiseSound.h"
 
+
+/*
+This Header defines the CommandPickUp class
+
+description:
+    Its purpose is to allow the player to pick up items.
+status:
+    works
+*/
+#include "CommandPickUp.h"
 
 /*
 This Header defines the CommandPlaySound class
@@ -348,6 +370,17 @@ status:
 
 
 /*
+This Header defines the Inventory class.
+
+description:
+    This class represents the inventory of an NPC or a container
+    within the game.
+status:
+    works
+*/
+#include "Inventory.h"
+
+/*
 This Header defines the Item class.
 
 description:
@@ -355,9 +388,20 @@ description:
     the player character.
 
 status:
-    not tested
+    seems to work, but not fully tested yet
 */
 #include "Item.h"
+
+/*
+This Header defines the ItemBase Singleton class.
+
+description:
+    This class represents a sort of look-up table for all distinct items
+    in the game.
+status:
+    seems to work
+*/
+#include "ItemBase.h"
 
 
 /*
@@ -392,17 +436,39 @@ status:
 */
 #include "Light.h"
 
+/*
+This header defines the LightBase singleton class.
+
+description:
+    Holds information about all distinct lights in the game
+    Think of it as a sort of look-up table for lights.
+status:
+    untested
+*/
+#include "LightBase.h"
+
 
 /*
 This Header defines the LuaEngine singleton class.
 
 description:
     This class will run all Lua code/ scripts in the game.
-
 status:
-    not tested
+    works, but could need more testing and improvement
 */
 #include "LuaEngine.h"
+
+
+/*
+This Header wraps all the #includes needed for Lua.
+
+description:
+    "Wrapper" for Lua-specific inludes; manages differences
+    between Lua 5.0 and 5.1.
+status:
+    works
+*/
+#include "LuaIncludes.h"
 
 
 /*
@@ -412,6 +478,7 @@ description:
     Manages display of dialogue menues.
 status:
     untested
+    still needs A LOT more features than in its current state
 */
 #include "Menu.h"
 
@@ -432,23 +499,83 @@ This Header defines the NPCBase Singelton class.
 
 description:
     NPCBase holds information about the state of NPCs at the point of their
-    creation.
+    creation, i.e. look-up table for NPCs.
 status:
     untested, but I don't expect to many problems in its current state
 */
 #include "NPCBase.h"
 
 /*
+This Header defines the ObjectBase Singelton class.
+
+description:
+    Holds information about all distinct (static) objects in the game;
+    look-up table for DuskObjects.
+status:
+    works
+*/
+#include "ObjectBase.h"
+
+
+/*
+This Header defines the ObjectData Singelton class.
+
+description:
+    Holds all static objects in the game.
+status:
+    works
+*/
+#include "ObjectBase.h"
+
+
+/*
 This Header defines the Player singleton class.
 
 description:
     This class represents the player character in the game.
-
 status:
-    The player isn't displayed yet, Enable() will fail by default,
-    but it moves around with the camera.
+    The player isn't displayed yet, Enable() works,
+    player moves around with the camera.
+    Needs still more work.
 */
 #include "Player.h"
+
+
+/*
+This Header defines the Projectile class.
+
+description:
+    This class represents a single projectile in the game.
+status:
+    untested / currently not used
+    The projectile doesn't perform collision detection yet.
+    Thus, it also cannot inflict damage yet.
+*/
+#include "Projectile.h"
+
+
+/*
+This Header defines the ProjectileBase Singleton class.
+
+description:
+    Holds information about distinct projectile types in the game.
+    (Look-up table...)
+status:
+    untested.
+*/
+#include "ProjectileBase.h"
+
+
+/*
+This Header defines the QuestLog singelton class.
+
+description:
+    It manages the player's quest entries.
+status:
+    untested
+*/
+#include "QuestLog.h"
+
 
 /*
 This Header defines the Scene singelton class.
@@ -465,7 +592,7 @@ status:
 This Header defines the Script class.
 
 description:
-    It unites some Commands
+    Holds a script that can be executed via Dispatcher/Console.
 status:
     Works well
 */
@@ -473,12 +600,13 @@ status:
 
 
 /*
-This Header is currently empty.
+This Header defines the Settings singleton class.
 
 description:
-    It shall be used for global settings.
+    The Singleton class can store different named settings (integer,
+    string and float values). It shall be used for global settings.
 status:
-    empty (apart from the namespace)
+    needs more testing
 */
 #include "Settings.h"
 
@@ -518,6 +646,30 @@ status:
     testing, but seems to work
 */
 #include "WaypointObject.h"
+
+
+/*
+This Header defines the Weapon class
+
+description:
+    The class represents a weapon object in the game, which can be
+    used to attack NPCs.
+status:
+    not finished yet
+*/
+#include "Weapon.h"
+
+
+/*
+This Header defines the WeaponBase singleton class
+
+description:
+    The class holds information about all distinct weapons within the game.
+    Think of it as a sort of look-up table.
+status:
+    not finished yet
+*/
+#include "WeaponBase.h"
 
 
 /*

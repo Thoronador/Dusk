@@ -203,15 +203,17 @@ unsigned int AnimatedObject::StopAllAnimations()
   Ogre::AnimationState* as = NULL;
   while (easIter.hasMoreElements())
   {
-    as = easIter.getNext();
-    /* ****
-       ** WARNING! This line might possibly invalidate the iterator, because
-       ** setting enabled to false will change the list of enabled animation
-       ** states.
-       ****
-    */
+    as = easIter.peekNext();
     as->setEnabled(false);
     ++result;
+    /* ****
+       ** We have to get the iterator again at the end of this loop, because
+       ** setting enabled to false (as in the line above) will change the list
+       ** of enabled animation states and invalidate(!) the iterator. Thus we
+       ** cannot just advance the iterator.
+       ****
+    */
+    easIter = anim_set->getEnabledAnimationStateIterator();
   }//while
   return result;
 }

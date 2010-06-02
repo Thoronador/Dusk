@@ -66,6 +66,15 @@ Item* ObjectData::addItemReference(const std::string& ID,
   return ItemPointer;
 }
 
+Weapon* ObjectData::addWeaponReference(const std::string& ID,
+    const Ogre::Vector3& position, const Ogre::Vector3& rotation, const float scale)
+{
+  Weapon* WeaponPointer = new Weapon(ID, position, rotation, scale);
+  m_ReferenceMap[ID].push_back(WeaponPointer);
+  ++m_RefCount;
+  return WeaponPointer;
+}
+
 DuskObject* ObjectData::GetObjectByID(const std::string& ID) const
 {
   std::map<std::string, std::vector<DuskObject*> >::const_iterator iter;
@@ -178,6 +187,16 @@ bool ObjectData::LoadNextFromStream(std::ifstream& Stream, const unsigned int Pr
          break;
     case cHeaderRefI:
          objPtr = new Item;
+         if (objPtr->LoadFromStream(Stream))
+         {
+           m_ReferenceMap[objPtr->GetID()].push_back(objPtr);
+           ++m_RefCount;
+           return true;
+         }
+         delete objPtr;
+         break;
+    case cHeaderRfWe:
+         objPtr = new Weapon;
          if (objPtr->LoadFromStream(Stream))
          {
            m_ReferenceMap[objPtr->GetID()].push_back(objPtr);

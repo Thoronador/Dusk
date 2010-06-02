@@ -17,8 +17,11 @@
      - 2009-12-18 (rev 142) - } small improvements in declarations
      - 2010-02-08 (rev 169) - } small improvements in declarations
      - 2010-05-05 (rev 196) - documentation update
+     - 2010-06-02 (rev 213) - update to work with Weapons, too
 
  ToDo list:
+     - Probably we should change the inventory class from a map of strings and
+       integers to a map of strings an Item pointers, combined with integers.
      - ???
 
  Bugs:
@@ -91,7 +94,10 @@ class Inventory
        that function failed, so don't rely on its contents in that case. */
     virtual bool LoadFromStream(std::ifstream& InStream);
 
+    /* utility function to get iterator to the beginning of the internal map */
     std::map<std::string, unsigned int>::const_iterator GetFirst() const;
+
+    /* utility function to get iterator to the end of the internal map */
     std::map<std::string, unsigned int>::const_iterator GetEnd() const;
 
     /* comparison operator for Inventory - returns true, if two Inventorys
