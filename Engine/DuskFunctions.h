@@ -14,6 +14,7 @@
      - 2010-02-08 (rev 168) - trim() added /moved from Script.h
      - 2010-04-21 (rev 190) - BoolToString() added
      - 2010-05-05 (rev 196) - documentation updated
+     - 2010-06-03 (rev 214) - CountBitsSet() added
 
  ToDo list:
      - ???
@@ -29,6 +30,9 @@
 
 namespace Dusk
 {
+
+/* returns the number of bits set in value*/
+unsigned int CountBitsSet(unsigned int value);
 
 /* Returns string representation of integer 'value' */
 std::string IntToString(const int value);

@@ -16,6 +16,16 @@
 namespace Dusk
 {
 
+unsigned int CountBitsSet(unsigned int value)
+{
+  unsigned int b;
+  for (b=0; value; ++b)
+  {
+    value &= value - 1; //clear the least significant bit set
+  }
+  return b;
+}
+
 std::string IntToString(const int value)
 {
   std::stringstream s_str;

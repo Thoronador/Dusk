@@ -11,6 +11,7 @@
      - 2010-04-28 (rev 192) - dependency to EditorApplicationBase removed
      - 2010-05-05 (rev 196) - new NPCs can now be created
      - 2010-05-13 (rev 202) - new NPCs can now have items in their inventory
+     - 2010-06-03 (rev 214) - small improvements to get rid of compiler warnings
 
  ToDo list:
      - refine possibility to create NPCs (inventory)

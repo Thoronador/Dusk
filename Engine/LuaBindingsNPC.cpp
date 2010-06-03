@@ -442,7 +442,7 @@ int AddItem(lua_State *L)
         return 0;
       }
       const std::string itemID = lua_tostring(L, 2);
-      const unsigned int amount = lua_tonumber(L, 3);
+      const unsigned int amount = static_cast<unsigned int>(lua_tonumber(L, 3));
       npcPtr->getInventory().AddItem(itemID, amount);
     }
     return 0;
@@ -461,7 +461,7 @@ int RemoveItem(lua_State *L)
     if (npcPtr!=NULL)
     {
       const std::string itemID = lua_tostring(L, 2);
-      const unsigned int amount = lua_tonumber(L, 3);
+      const unsigned int amount = static_cast<unsigned int> (lua_tonumber(L, 3));
       lua_pushnumber(L, npcPtr->getInventory().RemoveItem(itemID, amount));
       return 1;
     }

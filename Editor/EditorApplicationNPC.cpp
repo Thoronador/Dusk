@@ -549,19 +549,21 @@ bool EditorApplicationNPC::NPCNewFrameOKClicked(const CEGUI::EventArgs &e)
               +"choose a different ID or delete the other NPC first.\n");
       return true;
     }
-    const uint8 level = (static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Level_Spin")))->getCurrentValue();
+    const uint8 level = static_cast<uint8>((static_cast<CEGUI::Spinner*>(
+          winmgr.getWindow("Editor/NPCNewFrame/Level_Spin")))->getCurrentValue());
     NPCAttributes attr;
-    attr.Str = (static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Str_Spin")))->getCurrentValue();
-    attr.Agi = (static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Agi_Spin")))->getCurrentValue();
-    attr.Vit = (static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Vit_Spin")))->getCurrentValue();
-    attr.Int = (static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Int_Spin")))->getCurrentValue();
-    attr.Will = (static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Will_Spin")))->getCurrentValue();
-    attr.Cha = (static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Cha_Spin")))->getCurrentValue();
-    attr.Luck = (static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Luck_Spin")))->getCurrentValue();
+    attr.Str = static_cast<uint8>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Str_Spin")))->getCurrentValue());
+    attr.Agi = static_cast<uint8>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Agi_Spin")))->getCurrentValue());
+    attr.Vit = static_cast<uint8>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Vit_Spin")))->getCurrentValue());
+    attr.Int = static_cast<uint8>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Int_Spin")))->getCurrentValue());
+    attr.Will = static_cast<uint8>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Will_Spin")))->getCurrentValue());
+    attr.Cha = static_cast<uint8>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Cha_Spin")))->getCurrentValue());
+    attr.Luck = static_cast<uint8>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Luck_Spin")))->getCurrentValue());
     const bool female = (static_cast<CEGUI::RadioButton*>(winmgr.getWindow("Editor/NPCNewFrame/RadioFemale")))->isSelected();
     const Inventory tempInv = MCLToInventory(static_cast<CEGUI::MultiColumnList*>(winmgr.getWindow("Editor/NPCNewFrame/InventoryList")));
     NPCBase::GetSingleton().addNPC(NPC_ID, NPC_Name, NPC_Mesh, level, attr,
-                                   female, tempInv);
+                                   female, tempInv, NPCAnimations::GetNullAnimations(),
+                                   NPCTagPoints::GetNullTagPoints());
     winmgr.destroyWindow("Editor/NPCNewFrame");
     RefreshNPCList();
   }//if

@@ -7,6 +7,7 @@
      - 2010-03-04 (rev 177) - initial version (by thoronador)
      - 2010-05-13 (rev 201) - inventory-related functions added
      - 2010-05-21 (rev 206) - documentation updated and small improvements
+     - 2010-06-03 (rev 214) - small improvement to get rid of compiler warnings
 
  ToDo list:
      - ???
