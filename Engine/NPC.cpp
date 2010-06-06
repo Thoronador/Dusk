@@ -6,6 +6,9 @@
 #include "Settings.h"
 #include "DuskConstants.h"
 #include "ObjectData.h"
+#include "AnimationData.h"
+#include "API.h"
+#include "DiceBox.h"
 
 namespace Dusk
 {
@@ -23,6 +26,8 @@ NPC::NPC()
   m_Health = getMaxHealth();
   m_EquippedLeft = NULL;
   m_EquippedRight = NULL;
+  m_TimeToNextAttack = 0.0f;
+  m_DoesAttack = false;
 }
 
 NPC::NPC(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale)
@@ -54,6 +59,8 @@ NPC::NPC(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& 
   m_Health = getMaxHealth();
   m_EquippedLeft = NULL;
   m_EquippedRight = NULL;
+  m_TimeToNextAttack = 0.0f;
+  m_DoesAttack = false;
 }
 
 NPC::~NPC()
@@ -71,6 +78,33 @@ void NPC::injectTime(const float SecondsPassed)
 {
   AnimatedObject::injectTime(SecondsPassed);
   WaypointObject::injectTime(SecondsPassed);
+  if (m_DoesAttack)
+  {
+    m_TimeToNextAttack = m_TimeToNextAttack - SecondsPassed;
+    if (m_TimeToNextAttack<=0.0f)
+    {
+      //time for next attack has come
+      performAttack();
+      //update time
+      bool update_done = false;
+      if (m_EquippedRight!=NULL)
+      {
+        if (m_EquippedRight->GetType()==otWeapon)
+        {
+          m_TimeToNextAttack = m_TimeToNextAttack + WeaponBase::GetSingleton().getWeaponData(m_EquippedRight->GetID()).TimeBetweenAttacks;
+          update_done = true;
+        }
+      }//if
+      if (!update_done and (m_EquippedLeft!=NULL))
+      {
+        if (m_EquippedLeft->GetType()==otWeapon)
+        {
+          m_TimeToNextAttack = m_TimeToNextAttack + WeaponBase::GetSingleton().getWeaponData(m_EquippedLeft->GetID()).TimeBetweenAttacks;
+          update_done = true;
+        }
+      }//if
+    }
+  }
 }
 
 float NPC::getHealth() const
@@ -84,6 +118,7 @@ void NPC::setHealth(const float new_health)
   {
     if (m_Health>0.0f)
     { //if we are alive (yet), play the animation for death
+      stopAttack();
       playDeathAnimation();
     }
     m_Health = 0.0f;
@@ -106,6 +141,7 @@ void NPC::inflictDamage(const float damage_amount)
     if (m_Health<=0.0f)
     {
       m_Health = 0.0f;
+      stopAttack();
       playDeathAnimation();
     }
   }
@@ -271,10 +307,13 @@ bool NPC::equip(const std::string& ItemID)
 {
   if (m_Inventory.GetItemCount(ItemID)==0)
   {
+    std::cout << "NPC::equip: ERROR: NPC has no item with ID \""<<ItemID
+              << "\" in inventory.\n";
     return false; //NPC has no such item
   }
   if (entity==NULL)
   {
+    std::cout << "NPC::equip: ERROR: NPC is not enabled!\n";
     return false; //cannot equip on an unenabled NPC
   }
   if (m_EquippedRight==NULL)
@@ -324,6 +363,8 @@ bool NPC::equip(const std::string& ItemID, const SlotType slot)
   } //swi
   if (bone_name=="")
   {
+    std::cout << "NPC::equip: ERROR: received empty tag point identifier for "
+              << "NPC \""<<ID<<"\".\n";
     delete pItem;
     return false; //no bone name, no equip()
   }
@@ -399,6 +440,53 @@ bool NPC::unequip(const SlotType slot)
          std::cout << "NPC::unequip: ERROR: unknown slot type!\n";
          return false;
   } //swi
+}
+
+bool NPC::startAttack()
+{
+  if (m_DoesAttack)
+  {
+    //NPC is already attacking, so return true
+    return true;
+  }
+  if (!isAlive())
+  {
+    //dead NPC cannot attack any more
+    return false;
+  }
+  if (m_EquippedRight!=NULL)
+  {
+    if (m_EquippedRight->GetType()==otWeapon)
+    {
+      //we got a weapon here, so use it
+      m_DoesAttack = true;
+      startAttackAnimation();
+      return true;
+    }//if weapon
+  }
+  if (m_EquippedLeft!=NULL)
+  {
+    if (m_EquippedLeft->GetType()==otWeapon)
+    {
+      //we got a weapon here, so use it
+      m_DoesAttack = true;
+      startAttackAnimation();
+      return true;
+    }//if weapon
+  }
+  //NPC has not equipped a weapon, we can't start an attack
+  return false;
+}
+
+bool NPC::stopAttack()
+{
+  if (m_DoesAttack)
+  {
+    stopAttackAnimation();
+    m_DoesAttack = false;
+    m_TimeToNextAttack = 0.0f;
+  }
+  return true;
 }
 
 bool NPC::Enable(Ogre::SceneManager* scm)
@@ -586,6 +674,190 @@ void NPC::playDeathAnimation()
   {
     PlayAnimation(anim, false);
   }
+}
+
+void NPC::startAttackAnimation()
+{
+  const NPCAnimations& anim = NPCBase::GetSingleton().getNPCAnimations(ID);
+  bool melee = false;
+  if (m_EquippedRight!=NULL)
+  {
+    if (m_EquippedRight->GetType()==otWeapon)
+    {
+      melee = WeaponBase::GetSingleton().getWeaponData(m_EquippedRight->GetID()).Type==wtMelee;
+    }
+  }
+  else if (m_EquippedLeft!=NULL)
+  {
+    if (m_EquippedLeft->GetType()==otWeapon)
+    {
+      melee = WeaponBase::GetSingleton().getWeaponData(m_EquippedLeft->GetID()).Type==wtMelee;
+    }
+  }
+  if (melee and (anim.MeleeAttack!=""))
+  {
+    PlayAnimation(anim.MeleeAttack, true);
+  }
+  if (!melee and (anim.ProjectileAttack!=""))
+  {
+    PlayAnimation(anim.ProjectileAttack, true);
+  }
+}
+
+void NPC::stopAttackAnimation()
+{
+  const NPCAnimations& anim_rec = NPCBase::GetSingleton().getNPCAnimations(ID);
+  StopAnimation(anim_rec.MeleeAttack);
+  StopAnimation(anim_rec.ProjectileAttack);
+}
+
+void NPC::performAttack()
+{
+  float attack_range = -1.0f;
+  SlotType attackSlot;
+  if (m_EquippedRight!=NULL)
+  {
+    if (m_EquippedRight->GetType()==otWeapon)
+    {
+      attack_range = WeaponBase::GetSingleton().getWeaponData(m_EquippedRight->GetID()).Range;
+      attackSlot = stRightHand;
+    }
+  }
+  if (attack_range<0.0f and (m_EquippedLeft!=NULL))
+  {
+    if (m_EquippedLeft->GetType()==otWeapon)
+    {
+      attack_range = WeaponBase::GetSingleton().getWeaponData(m_EquippedLeft->GetID()).Range;
+      attackSlot = stLeftHand;
+    }
+  }
+  if (attack_range<0.0f)
+  {
+    std::cout << "NPC::performAttack: ERROR: weapon range is below zero.\n";
+    return;
+  }
+  bool projectileBasedAttack = false;
+  if (attackSlot==stLeftHand)
+  {
+    projectileBasedAttack = WeaponBase::GetSingleton().getWeaponData(m_EquippedLeft->GetID()).Type==wtGun;
+  }
+  else
+  {
+    //right hand attacks
+    projectileBasedAttack = WeaponBase::GetSingleton().getWeaponData(m_EquippedRight->GetID()).Type==wtGun;
+  }
+
+  if (projectileBasedAttack)
+  {
+    //create a new projectile for that weapon
+    std::string ProjID;
+    if (attackSlot==stLeftHand)
+    {
+      ProjID = WeaponBase::GetSingleton().getWeaponData(m_EquippedLeft->GetID()).ProjectileID;
+    }
+    else
+    {
+      //right hand attacks
+      ProjID = WeaponBase::GetSingleton().getWeaponData(m_EquippedRight->GetID()).ProjectileID;
+    }
+    /* TODO:
+         - adjust position of projectile that way that it "spawns" a bit away
+           from NPC in order to avoid hitting the NPC itself
+    */
+    AnimationData::GetSingleton().addProjectileReference(
+      ProjID, //ID
+      position,
+      rotation,
+      1.0f);
+    //we are done here
+    return;
+  }//projectile based
+
+  /* We perform a melee attack, thus perform scene query to get all possible
+     targets.
+  */
+  Ogre::SceneManager* scm = getAPI().getOgreSceneManager();
+  if (scm==NULL) return;
+  Ogre::SphereSceneQuery* sp_query =
+      scm->createSphereQuery(Ogre::Sphere(position, attack_range));
+  Ogre::SceneQueryResult& result = sp_query->execute();
+  //check results for NPCs
+  DuskObject* obj_ptr;
+  Ogre::SceneQueryResultMovableList::iterator iter = result.movables.begin();
+  uint8 times=0, dice=0;
+  if (attackSlot==stLeftHand)
+  { //left hand
+    WeaponRecord wr = WeaponBase::GetSingleton().getWeaponData(m_EquippedLeft->GetID());
+    times = wr.DamageTimes;
+    dice = wr.DamageDice;
+  }
+  else
+  { //right hand
+    WeaponRecord wr = WeaponBase::GetSingleton().getWeaponData(m_EquippedRight->GetID());
+    times = wr.DamageTimes;
+    dice = wr.DamageDice;
+  }
+  while (iter!=result.movables.end())
+  {
+    if ((*iter)->getUserObject()!=NULL)
+    {
+      obj_ptr = static_cast<DuskObject*>((*iter)->getUserObject());
+      if (obj_ptr->GetType()==otNPC)
+      {
+        //We've found an NPC!
+        NPC* NPC_Ptr = dynamic_cast<NPC*>(obj_ptr);
+        if (NPC_Ptr!=this)
+        {
+          //calculate damage
+          unsigned int mult;
+          if (criticalHit())
+          {
+            mult = Settings::GetSingleton().getSetting_uint("CriticalDamageFactor");
+          }
+          else
+          {
+            mult = 1;
+          }
+          switch (dice)
+          {
+            case 0:
+                 //no damage at all
+                 break;
+            case 4:
+                 NPC_Ptr->inflictDamage(DiceBox::GetSingleton().d4(times*mult));
+                 break;
+            case 6:
+                 NPC_Ptr->inflictDamage(DiceBox::GetSingleton().d6(times*mult));
+                 break;
+            case 8:
+                 NPC_Ptr->inflictDamage(DiceBox::GetSingleton().d8(times*mult));
+                 break;
+            case 10:
+                 NPC_Ptr->inflictDamage(DiceBox::GetSingleton().d10(times*mult));
+                 break;
+            case 20:
+                 NPC_Ptr->inflictDamage(DiceBox::GetSingleton().d20(times*mult));
+                 break;
+            default:
+                 std::cout << "NPC::performAttack: ERROR: weapon has unsupported"
+                           << " hit die (d="<<(int) dice << ".\n";
+                 break;
+          }//swi
+        }//NPC is not self
+      }//NPC found
+    }//object found
+    ++iter;
+  }//while
+  //clean up scene query
+  scm->destroyQuery(sp_query);
+  sp_query = NULL;
+  return;
+}
+
+bool NPC::criticalHit() const
+{
+  /* NPC does a critical hit, if his/her luck is greater or equal to a d20. */
+  return getLuck()>=DiceBox::GetSingleton().d20();
 }
 
 } //namespace

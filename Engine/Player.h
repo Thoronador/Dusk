@@ -10,6 +10,7 @@
      - 2010-05-06 (rev 198) - documentation update
      - 2010-05-21 (rev 206) - Enable() now actually does something
      - 2010-05-27 (rev 208) - player will now wield swords, too
+     - 2010-06-06 (rev 215) - changes in Enable()
 
  ToDo list:
      - actually implement LoadFromStream() and SaveToStream()

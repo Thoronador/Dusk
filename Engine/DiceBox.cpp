@@ -33,6 +33,12 @@ unsigned int DiceBox::d6()
   return 1+ int(6*res);
 }
 
+unsigned int DiceBox::d8()
+{
+  const float res = rand()/float(RAND_MAX);
+  return 1+ int(8*res);
+}
+
 unsigned int DiceBox::d10()
 {
   const float res = rand()/float(RAND_MAX);
@@ -63,6 +69,17 @@ unsigned int DiceBox::d6(const unsigned short int n)
   for (i=0; i<n; i=i+1)
   {
     result += d6();
+  }
+  return result;
+}
+
+unsigned int DiceBox::d8(const unsigned short int n)
+{
+  unsigned int result = 0;
+  unsigned int i;
+  for (i=0; i<n; i=i+1)
+  {
+    result += d8();
   }
   return result;
 }

@@ -1,6 +1,5 @@
 #include "Player.h"
 #include "API.h"
-//#include <OgreSceneQuery.h>
 #include <OgreSkeleton.h>
 
 namespace Dusk
@@ -32,6 +31,7 @@ Player::Player()
   : NPC("player", Ogre::Vector3(0.0, 0.0, 300), Ogre::Vector3::ZERO, 1.0f)
 {
   //not much done yet
+  ID = "player";
 }
 
 Player::~Player()
@@ -146,11 +146,13 @@ bool Player::Enable(Ogre::SceneManager* scm)
   entity->attachObjectToBone("Sheath.R", ent_sword);
   ent_sword = scm->createEntity(entity_name.str()+"_sword.Left", "Sword.mesh");
   entity->attachObjectToBone("Sheath.L", ent_sword);
+  /*
   ent_sword = scm->createEntity(entity_name.str()+"_sword.HandLeft", "Sword.mesh");
   entity->attachObjectToBone("Handle.L", ent_sword);
   ent_sword = scm->createEntity(entity_name.str()+"_sword.HandRight", "Sword.mesh");
   entity->attachObjectToBone("Handle.R", ent_sword);
   StartAnimation("HandsClosed", false);
+  */
   return (entity!=NULL);
 }
 

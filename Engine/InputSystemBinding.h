@@ -27,6 +27,7 @@
                               file is present. Otherwise preset bindings are used.
      - 2010-03-24 (rev 186) - binding for jumping
      - 2010-03-27 (rev 188) - binding for picking up items
+     - 2010-06-06 (rev 215) - binding for attacking
 
  ToDo list:
      - method to load bind list from an external resource

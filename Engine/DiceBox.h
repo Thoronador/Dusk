@@ -5,6 +5,7 @@
           Provides a central point for all random numbers in the game
  History:
      - 2009-12-23 (rev 144) - initial version; contains d4, d6, d10 and d20
+     - 2010-06-06 (rev 215) - d8() added
 
  ToDo list:
      - add more functions/ dice, if needed
@@ -34,6 +35,9 @@ namespace Dusk
       /* "Throws" a six-sided die, returns a random number between 1 and 6 */
       unsigned int d6();
 
+      /* "Throws" a eight-sided die, returns a random number between 1 and 8 */
+      unsigned int d8();
+
       /* "Throws" a ten-sided die, returns a random number between 1 and 10 */
       unsigned int d10();
 
@@ -51,6 +55,9 @@ namespace Dusk
 
       /* "Throws" n six-sided dice and returns the sum of all */
       unsigned int d6(const unsigned short int n);
+
+      /* "Throws" n eight-sided dice and returns the sum of all */
+      unsigned int d8(const unsigned short int n);
 
       /* "Throws" n ten-sided dice and returns the sum of all */
       unsigned int d10(const unsigned short int n);

@@ -2,7 +2,6 @@
 
 #include <fstream>
 #include "Console.h"
-//#include "API.h"
 #include "Menu.h"
 #include "DuskFunctions.h"
 
@@ -163,11 +162,19 @@ bool InputSystemBinding::mouseMoved( const OIS::MouseEvent &arg )
 
 bool InputSystemBinding::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
 {
+    if (id==OIS::MB_Left)
+    {
+      Console::getInstance()->addScript(Script("StartAttack"));
+    }
     return true;
 }
 
 bool InputSystemBinding::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
 {
+    if (id==OIS::MB_Left)
+    {
+      Console::getInstance()->addScript(Script("StopAttack"));
+    }
     return true;
 }
 

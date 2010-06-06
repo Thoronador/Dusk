@@ -30,6 +30,7 @@
      - 2010-01-19 (rev 157) - CommandWeather updated for rain
      - 2010-03-04 (rev 177) - small fix for some function parameters
      - 2010-03-27 (rev 188) - adjustments for CommandPickUp
+     - 2010-06-06 (rev 215) - adjustments for CommandAttack
 
  ToDo list:
      - update Console as soon as new commands are available

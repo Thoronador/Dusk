@@ -9,6 +9,8 @@
 #include "AnimationData.h"
 #include "Weather.h"
 #include "Player.h"
+#include "NPCBase.h"
+#include "WeaponBase.h"
 
 namespace Dusk
 {
@@ -141,13 +143,72 @@ void Scene::createGrassMesh()
 
         sg->build();
 
-        //fog effect
+        //weather effects
         Weather& w_singleton = Weather::getSingelton();
         w_singleton.setFogColour(0.9, 0.9, 0.9);
         w_singleton.startLinearFog(50.0, 500.0);
         w_singleton.startSnow();
+        //add sword item to weapon base
+        WeaponRecord wrec;
+        wrec.DamageTimes = 2; // 2d8 damage
+        wrec.DamageDice = 8;
+        wrec.Mesh = "Sword.mesh";
+        wrec.Name = "Sword";
+        wrec.ProjectileID = "";
+        wrec.Range = 75.0f;
+        wrec.TimeBetweenAttacks = 2.0f; //2 secs cooldown
+        wrec.Type = wtMelee;
+        wrec.value = 100;
+        wrec.weight = 2.5f;
+        WeaponBase::GetSingleton().addWeapon("sword", wrec);
+        //add player information to NPCBase
+        NPCAnimations anims;
+        anims.Death = "Dance";
+        anims.Idle = "IdleBase;IdleTop";
+        anims.Jump = "JumpLoop";
+        anims.MeleeAttack = "SliceHorizontal";
+        anims.ProjectileAttack = "SliceVertical";
+        anims.Walk = "RunBase;RunTop";
+        NPCTagPoints tps;
+        tps.HandLeft = "Handle.L";
+        tps.HandRight = "Handle.R";
+        tps.SheathLeft = "Sheath.L";
+        tps.SheathRight = "Sheath.R";
+        NPCBase::GetSingleton().addNPC("player", "The Player him-/herself",
+                        "Sinbad.mesh", 1, NPCAttributes::GetNullAttributes(),
+                        false, Inventory::GetEmptyInventory(), anims, tps);
+        if (NPCBase::GetSingleton().hasNPC("player"))
+        {
+          std::cout << "NPCBase's got player entry.\n";
+          std::cout << "Tag points of \"player\":\n";
+          const NPCTagPoints& tttp = NPCBase::GetSingleton().getNPCTagPoints("player");
+          std::cout << "  Left  hand:   \""<<tttp.HandLeft<<"\"\n"
+                    << "  Right hand:   \""<<tttp.HandRight<<"\"\n"
+                    << "  Left  sheath: \""<<tttp.SheathLeft<<"\"\n"
+                    << "  Right sheath: \""<<tttp.SheathRight<<"\"\n";
+        }
+        else
+        {
+          std::cout << "NPCBase does NOT have a player entry.\n";
+        }
+        //add player mesh
+        Player::GetSingleton().getInventory().AddItem("sword", 5);
+        std::cout << "Player now has "<<Player::GetSingleton().getConstInventory().GetItemCount("sword")
+                  << " swords in inventory.\n";
         Player::GetSingleton().Enable(m_SceneManager);
         Player::GetSingleton().SetRotation(Ogre::Vector3(0.0, 180.0, 0.0));
+        if (Player::GetSingleton().equip("sword"))
+        {
+          std::cout << "First equip() successful.\n";
+          if (Player::GetSingleton().equip("sword"))
+          {
+            std::cout << "Second equip() successful.\n";
+          }
+        }
+        else
+        {
+          std::cout << "Player::equip() failed.\n";
+        }
     }
 
     void Scene::destroyScene()

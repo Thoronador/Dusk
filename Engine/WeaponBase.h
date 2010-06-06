@@ -8,6 +8,7 @@
  History:
      - 2010-05-31 (rev 212) - initial version (by thoronador)
      - 2010-06-02 (rev 213) - getWeaponValue() and getWeaponWeight() added
+     - 2010-06-06 (rev 215) - time between attacks/ weapon attack speed added
 
  ToDo list:
      - ???
@@ -41,6 +42,8 @@ struct WeaponRecord
   WeaponType Type;
   //weapon range (for melee weapons/ wtMelee)
   float Range;
+  //time between two subsequent attacks
+  float TimeBetweenAttacks;
   //projectile ID (for guns/ wtGun)
   std::string ProjectileID;
   /*damage (for melee weapons; guns get damage from projectiles)

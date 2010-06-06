@@ -16,6 +16,7 @@
                               manages all settings and allows to change them or
                               read them from a file
      - 2010-01-07 (rev 150) - settings file can now have line comments
+     - 2010-06-06 (rev 215) - factor for critical damage added to initial values
 
  ToDo list:
      - ???

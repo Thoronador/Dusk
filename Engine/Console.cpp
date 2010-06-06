@@ -5,6 +5,7 @@
 #include "CommandQuit.h"
 #include "CommandPlaySound.h"
 #include "CommandMove.h"
+#include "CommandAttack.h"
 #include "CommandPickUp.h"
 #include "CommandLoopSound.h"
 #include "CommandSoundVolume.h"
@@ -177,6 +178,22 @@ int Console::executeCommand(const std::string& p_string)
 
             std::cout<<"Move Mouse"<<std::endl;
         }
+
+        //-------------------------------------------------------
+        // attack commands
+        else if (command[0] == "StartAttack")
+        {
+            com = new CommandAttack(true);
+            m_Dispatcher->executeCommand(com);
+            std::cout << "attack started!" << std::endl;
+        }
+        else if (command[0] == "StopAttack")
+        {
+            com = new CommandAttack(true);
+            m_Dispatcher->executeCommand(com);
+            std::cout << "attack stopped!" << std::endl;
+        }
+
         //-------------------------------------------------------
         // Sound Commands
 

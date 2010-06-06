@@ -39,6 +39,7 @@ void Settings::InitialSettings()
   addSetting_uint("HealthBase", 10);
   addSetting_uint("HealthVitalityFactor", 3);
   addSetting_uint("HealthLevelFactor", 2);
+  addSetting_uint("CriticalDamageFactor", 2);
 }
 
 Settings::~Settings()

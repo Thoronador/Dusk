@@ -24,6 +24,7 @@
      - 2010-03-12 (rev 181) - documentation (i.e. this block comment) added
      - 2010-05-20 (rev 205) - adjustments for new object hierarchy
      - 2010-05-21 (rev 206) - adjustments for player's movement
+     - 2010-06-06 (rev 215) - adjustments for player record in NPCBase
 
  ToDo list:
      - ???

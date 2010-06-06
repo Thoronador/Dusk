@@ -25,9 +25,12 @@
                             - inflictDamage() added
                             - equip(), unequip(), hasEquipped() added; allows to
                               equip/unequip items in NPC's hands
+     - 2010-06-06 (rev 215) - some of the attack-related stuff implemented
 
  ToDo list:
      - add possibility to equip weapons, clothes, armour, etc.
+     - update load/save functions for equipped items and attack status
+     - adjust position of created projectile in performAttack()
      - ???
 
  Bugs:
@@ -151,6 +154,27 @@ namespace Dusk
       */
       bool unequip(const std::string& ItemID);
 
+      /* tries to start an attack and returns true if an attack was started
+
+         remarks:
+             In order to attack the NPC must have a weapon equipped.
+      */
+      bool startAttack();
+
+      /* tries to stop an attack and returns true, if the NPC is not attacking
+         any more
+      */
+      bool stopAttack();
+
+      /* returns true, if the NPC does/did a critical hit
+
+         remarks:
+            Call this only once(!) during attack to determine whether to do a
+            critical hit or not, because the return value might change after
+            every call.
+      */
+      bool criticalHit() const;
+
       /* Enables the NPC, i.e. tells the SceneManager to display it.
          Returns true on success, false on error.
       */
@@ -177,6 +201,15 @@ namespace Dusk
       /* plays animation to signal NPC's death */
       void playDeathAnimation();
 
+      /* starts animation to signal NPC's attacking */
+      void startAttackAnimation();
+
+      /* stops NPC's attack animation */
+      void stopAttackAnimation();
+
+      /* function to attack surrounding NPCs */
+      void performAttack();
+
       /* equips an item in the given slot */
       bool equip(const std::string& ItemID, const SlotType slot);
 
@@ -196,6 +229,10 @@ namespace Dusk
       //equipped items in left and right hand
       Item* m_EquippedLeft;
       Item* m_EquippedRight;
+      //time until next attack/ hit is triggered
+      float m_TimeToNextAttack;
+      //flag to indicate whether NPC is attacking
+      bool m_DoesAttack;
   }; //class
 
 } //namespace

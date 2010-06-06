@@ -24,7 +24,7 @@ WeaponBase& WeaponBase::GetSingleton()
 void WeaponBase::addWeapon(const std::string& ID, const WeaponRecord& data)
 {
   if (ID=="" or data.Mesh=="" or data.Name=="" or data.value<0
-      or data.weight<0.0f)
+      or data.weight<0.0f or data.Range<0.0f)
   {
     return;
   }
@@ -94,6 +94,7 @@ WeaponRecord WeaponBase::getWeaponData(const std::string& ID) const
   temp.weight = 0.0f;
   temp.Type = wtMelee;
   temp.Range = 0.0f;
+  temp.TimeBetweenAttacks = 1.0e20; //long time, because weapon cannot attack
   temp.ProjectileID = "";
   temp.DamageTimes = 0;
   temp.DamageDice = 0;
@@ -156,6 +157,8 @@ bool WeaponBase::SaveAllToStream(std::ofstream& OutStream) const
     OutStream.write((char*) &(iter->second.Type), sizeof(WeaponType));
     //range
     OutStream.write((char*) &(iter->second.Range), sizeof(float));
+    //time between attacks
+    OutStream.write((char*) &(iter->second.TimeBetweenAttacks), sizeof(float));
     //projectile ID
     len = iter->second.ProjectileID.length();
     OutStream.write((char*) &len, sizeof(unsigned int));
@@ -251,10 +254,18 @@ bool WeaponBase::LoadNextWeaponFromStream(std::ifstream& InStream)
   InStream.read((char*) &(wRec.Type), sizeof(WeaponType));
   //range
   InStream.read((char*) &(wRec.Range), sizeof(float));
+  //time between attacks
+  InStream.read((char*) &(wRec.TimeBetweenAttacks), sizeof(float));
   if (!InStream.good())
   {
     std::cout << "WeaponBase::LoadNextWeaponFromStream: ERROR while reading "
               << "data from stream!\n";
+    return false;
+  }
+  if ((wRec.Range<0.0f) or (wRec.TimeBetweenAttacks<0.0f))
+  {
+    std::cout << "WeaponBase::LoadNextWeaponFromStream: ERROR while reading "
+              << "data from stream. Weapon has invalid range or attack time.\n";
     return false;
   }
   //projectile ID

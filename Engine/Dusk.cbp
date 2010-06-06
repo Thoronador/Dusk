@@ -112,6 +112,8 @@
 		<Unit filename="Command.h" />
 		<Unit filename="CommandAssociateSound.cpp" />
 		<Unit filename="CommandAssociateSound.h" />
+		<Unit filename="CommandAttack.cpp" />
+		<Unit filename="CommandAttack.h" />
 		<Unit filename="CommandLoopSound.cpp" />
 		<Unit filename="CommandLoopSound.h" />
 		<Unit filename="CommandMediaSound.cpp" />
