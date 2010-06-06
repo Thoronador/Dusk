@@ -189,7 +189,7 @@ int Console::executeCommand(const std::string& p_string)
         }
         else if (command[0] == "StopAttack")
         {
-            com = new CommandAttack(true);
+            com = new CommandAttack(false);
             m_Dispatcher->executeCommand(com);
             std::cout << "attack stopped!" << std::endl;
         }
