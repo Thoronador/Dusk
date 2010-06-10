@@ -14,6 +14,9 @@ namespace Dusk
 {
 
 const float NPC::cMaximumPickUpDistance=100; //it's a guess; adjust it, if needed
+const unsigned char NPC::Flag_DoesAttack = 1;
+const unsigned char NPC::Flag_CanRightAttack = 2;
+const unsigned char NPC::Flag_CanLeftAttack = 4;
 
 NPC::NPC()
   : AnimatedObject("", Ogre::Vector3::ZERO, Ogre::Vector3::ZERO, 1.0f)
@@ -26,8 +29,8 @@ NPC::NPC()
   m_Health = getMaxHealth();
   m_EquippedLeft = NULL;
   m_EquippedRight = NULL;
-  m_TimeToNextAttack = 0.0f;
-  m_DoesAttack = false;
+  m_TimeToNextAttackLeft = m_TimeToNextAttackRight = 0.0f;
+  m_AttackFlags = 0;
 }
 
 NPC::NPC(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale)
@@ -59,8 +62,8 @@ NPC::NPC(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& 
   m_Health = getMaxHealth();
   m_EquippedLeft = NULL;
   m_EquippedRight = NULL;
-  m_TimeToNextAttack = 0.0f;
-  m_DoesAttack = false;
+  m_TimeToNextAttackLeft = m_TimeToNextAttackRight = 0.0f;
+  m_AttackFlags = 0;
 }
 
 NPC::~NPC()
@@ -78,33 +81,45 @@ void NPC::injectTime(const float SecondsPassed)
 {
   AnimatedObject::injectTime(SecondsPassed);
   WaypointObject::injectTime(SecondsPassed);
-  if (m_DoesAttack)
+  if (doesAttack())
   {
-    m_TimeToNextAttack = m_TimeToNextAttack - SecondsPassed;
-    if (m_TimeToNextAttack<=0.0f)
+    if (canAttackLeft())
     {
-      //time for next attack has come
-      performAttack();
-      //update time
-      bool update_done = false;
-      if (m_EquippedRight!=NULL)
+      m_TimeToNextAttackLeft = m_TimeToNextAttackLeft - SecondsPassed;
+      if (m_TimeToNextAttackLeft<=0.0f)
       {
-        if (m_EquippedRight->GetType()==otWeapon)
+        //time for next attack has come
+        if (m_EquippedLeft!=NULL)
         {
-          m_TimeToNextAttack = m_TimeToNextAttack + WeaponBase::GetSingleton().getWeaponData(m_EquippedRight->GetID()).TimeBetweenAttacks;
-          update_done = true;
-        }
-      }//if
-      if (!update_done and (m_EquippedLeft!=NULL))
+          if (m_EquippedLeft->GetType()==otWeapon)
+          {
+            performAttack(stLeftHand);
+            //update time
+            m_TimeToNextAttackLeft = m_TimeToNextAttackLeft
+                +WeaponBase::GetSingleton().getWeaponData(m_EquippedLeft->GetID()).TimeBetweenAttacks;
+          }
+        }//if
+      }//time less/equal zero
+    }// can attack left
+    if (canAttackRight())
+    {
+      m_TimeToNextAttackRight = m_TimeToNextAttackRight - SecondsPassed;
+      if (m_TimeToNextAttackRight<=0.0f)
       {
-        if (m_EquippedLeft->GetType()==otWeapon)
+        //time for next attack has come
+        if (m_EquippedRight!=NULL)
         {
-          m_TimeToNextAttack = m_TimeToNextAttack + WeaponBase::GetSingleton().getWeaponData(m_EquippedLeft->GetID()).TimeBetweenAttacks;
-          update_done = true;
-        }
-      }//if
-    }
-  }
+          if (m_EquippedRight->GetType()==otWeapon)
+          {
+            performAttack(stRightHand);
+            //update time
+            m_TimeToNextAttackRight = m_TimeToNextAttackRight
+                +WeaponBase::GetSingleton().getWeaponData(m_EquippedRight->GetID()).TimeBetweenAttacks;
+          }
+        }//if
+      }//time less/equal zero
+    }// can attack right hand
+  }//if NPC does attack
 }
 
 float NPC::getHealth() const
@@ -374,10 +389,22 @@ bool NPC::equip(const std::string& ItemID, const SlotType slot)
   if (slot==stLeftHand)
   {
     m_EquippedLeft = pItem;
+    if (pItem->GetType()==otWeapon)
+    {
+      //set attack flag for left hand
+      m_AttackFlags |= Flag_CanLeftAttack;
+      m_TimeToNextAttackLeft = 0.0f;
+    }
   }
   else
   {
     m_EquippedRight = pItem;
+    if (pItem->GetType()==otWeapon)
+    {
+      //set attack flag for right hand
+      m_AttackFlags |= Flag_CanRightAttack;
+      m_TimeToNextAttackRight = 0.0f;
+    }
   }
   return true;
 }
@@ -403,12 +430,12 @@ bool NPC::unequip(const std::string& ItemID)
   }
   if (m_EquippedLeft!=NULL)
   {
-    if ( m_EquippedLeft->GetID()==ItemID)
+    if (m_EquippedLeft->GetID()==ItemID)
       return unequip(stLeftHand);
   }
   if (m_EquippedRight!=NULL)
   {
-    if ( m_EquippedRight->GetID()==ItemID)
+    if (m_EquippedRight->GetID()==ItemID)
       return unequip(stRightHand);
   }
   return false;
@@ -427,6 +454,8 @@ bool NPC::unequip(const SlotType slot)
          entity->detachObjectFromBone(m_EquippedLeft->exposeEntity());
          delete m_EquippedLeft;
          m_EquippedLeft = NULL;
+         //reset left attack bit
+         m_AttackFlags &= ~Flag_CanLeftAttack;
          return true;
          break;
     case stRightHand:
@@ -434,6 +463,8 @@ bool NPC::unequip(const SlotType slot)
          entity->detachObjectFromBone(m_EquippedRight->exposeEntity());
          delete m_EquippedRight;
          m_EquippedRight = NULL;
+         //reset right attack bit
+         m_AttackFlags &= ~Flag_CanRightAttack;
          return true;
          break;
     default:
@@ -444,7 +475,7 @@ bool NPC::unequip(const SlotType slot)
 
 bool NPC::startAttack()
 {
-  if (m_DoesAttack)
+  if (doesAttack())
   {
     //NPC is already attacking, so return true
     return true;
@@ -459,7 +490,7 @@ bool NPC::startAttack()
     if (m_EquippedRight->GetType()==otWeapon)
     {
       //we got a weapon here, so use it
-      m_DoesAttack = true;
+      m_AttackFlags |= Flag_DoesAttack;
       startAttackAnimation();
       return true;
     }//if weapon
@@ -469,7 +500,7 @@ bool NPC::startAttack()
     if (m_EquippedLeft->GetType()==otWeapon)
     {
       //we got a weapon here, so use it
-      m_DoesAttack = true;
+      m_AttackFlags |= Flag_DoesAttack;
       startAttackAnimation();
       return true;
     }//if weapon
@@ -480,11 +511,11 @@ bool NPC::startAttack()
 
 bool NPC::stopAttack()
 {
-  if (m_DoesAttack)
+  if (doesAttack())
   {
     stopAttackAnimation();
-    m_DoesAttack = false;
-    m_TimeToNextAttack = 0.0f;
+    m_AttackFlags &= compl Flag_DoesAttack;
+    //m_TimeToNextAttack = 0.0f;
   }
   return true;
 }
@@ -589,6 +620,40 @@ bool NPC::SaveToStream(std::ofstream& OutStream) const
     std::cout << "NPC::SaveToStream: ERROR while writing inventory data.\n";
     return false;
   }
+
+  //attack flags and times
+  OutStream.write((char*) &m_AttackFlags, sizeof(unsigned char));
+  OutStream.write((char*) &m_TimeToNextAttackRight, sizeof(float));
+  OutStream.write((char*) &m_TimeToNextAttackLeft, sizeof(float));
+  if (!OutStream.good())
+  {
+    std::cout << "NPC::SaveToStream: ERROR while writing attack data.\n";
+    return false;
+  }
+  //equipped items
+  unsigned int equipCount = 0;
+  if (m_EquippedRight!=NULL) equipCount = 1;
+  if (m_EquippedLeft!=NULL) ++equipCount;
+  OutStream.write((char*) &equipCount, sizeof(unsigned int));
+  if (m_EquippedRight!=NULL)
+  {
+    //write ID of right hand item
+    equipCount = m_EquippedRight->GetID().length();
+    OutStream.write((char*) &equipCount, sizeof(unsigned int));
+    OutStream.write(m_EquippedRight->GetID().c_str(), equipCount);
+  }
+  if (m_EquippedLeft!=NULL)
+  {
+    //write ID of left hand item
+    equipCount = m_EquippedLeft->GetID().length();
+    OutStream.write((char*) &equipCount, sizeof(unsigned int));
+    OutStream.write(m_EquippedLeft->GetID().c_str(), equipCount);
+  }
+  if (!OutStream.good())
+  {
+    std::cout << "NPC::SaveToStream: ERROR while writing equipped items.\n";
+    return false;
+  }
   return OutStream.good();
 }
 
@@ -663,6 +728,73 @@ bool NPC::LoadFromStream(std::ifstream& InStream)
     std::cout << "NPC::LoadFromStream: ERROR while reading inventory data.\n";
     return false;
   }
+
+  //attack flags and times
+  InStream.read((char*) &m_AttackFlags, sizeof(unsigned char));
+  InStream.read((char*) &m_TimeToNextAttackRight, sizeof(float));
+  InStream.read((char*) &m_TimeToNextAttackLeft, sizeof(float));
+  if (!InStream.good())
+  {
+    std::cout << "NPC::LoadFromStream: ERROR while reading attack data.\n";
+    return false;
+  }
+  //equipped items
+  unsigned int equipCount = 0;
+  InStream.read((char*) &equipCount, sizeof(unsigned int));
+  if (equipCount>0)
+  {
+    //read ID of right hand item
+    unsigned int len = 0;
+    InStream.read((char*) &len, sizeof(unsigned int));
+    if (len>255)
+    {
+      std::cout << "NPC::LoadFromStream: ERROR: ID of right hand item seems "
+                << "to be longer than 255 characters.\n";
+      return false;
+    }
+    char Buffer[256];
+    Buffer[0] = Buffer[255] = '\0';
+    InStream.read(Buffer, len);
+    Buffer[len] = '\0';
+    if (!InStream.good())
+    {
+      std::cout << "NPC::LoadFromStream: ERROR while reading ID of right hand "
+                << "item.\n";
+      return false;
+    }
+    if (!equip(std::string(Buffer)))
+    {
+      std::cout << "NPC::LoadFromStream: ERROR while equipping right hand item.\n";
+      return false;
+    }
+    //check for presence of another item
+    if (equipCount>1)
+    {
+      //read ID of left hand item
+      len = 0;
+      InStream.read((char*) &len, sizeof(unsigned int));
+      if (len>255)
+      {
+        std::cout << "NPC::LoadFromStream: ERROR: ID of left hand item seems "
+                  << "to be longer than 255 characters.\n";
+        return false;
+      }
+      Buffer[0] = Buffer[255] = '\0';
+      InStream.read(Buffer, len);
+      Buffer[len] = '\0';
+      if (!InStream.good())
+      {
+        std::cout << "NPC::LoadFromStream: ERROR while reading ID of left hand "
+                  << "item.\n";
+        return false;
+      }
+      if (!equip(std::string(Buffer)))
+      {
+        std::cout << "NPC::LoadFromStream: ERROR while equipping left hand item.\n";
+        return false;
+      }
+    }//second item
+  }//have something equipped
   return InStream.good();
 }
 
@@ -711,64 +843,41 @@ void NPC::stopAttackAnimation()
   StopAnimation(anim_rec.ProjectileAttack);
 }
 
-void NPC::performAttack()
+void NPC::performAttack(const SlotType attackSlot)
 {
-  float attack_range = -1.0f;
-  SlotType attackSlot;
-  if (m_EquippedRight!=NULL)
+  if (attackSlot!=stRightHand and attackSlot!=stLeftHand)
   {
-    if (m_EquippedRight->GetType()==otWeapon)
-    {
-      attack_range = WeaponBase::GetSingleton().getWeaponData(m_EquippedRight->GetID()).Range;
-      attackSlot = stRightHand;
-    }
+    std::cout << "NPC::performAttack(): ERROR: invalid slot.\n";
+    return;
   }
-  if (attack_range<0.0f and (m_EquippedLeft!=NULL))
+  WeaponRecord wRec;
+  if (attackSlot==stRightHand)
   {
-    if (m_EquippedLeft->GetType()==otWeapon)
-    {
-      attack_range = WeaponBase::GetSingleton().getWeaponData(m_EquippedLeft->GetID()).Range;
-      attackSlot = stLeftHand;
-    }
+    wRec = WeaponBase::GetSingleton().getWeaponData(m_EquippedRight->GetID());
   }
-  if (attack_range<0.0f)
+  else
+  {
+    wRec = WeaponBase::GetSingleton().getWeaponData(m_EquippedLeft->GetID());
+  }
+  if (wRec.Range<0.0f)
   {
     std::cout << "NPC::performAttack: ERROR: weapon range is below zero.\n";
     return;
   }
-  bool projectileBasedAttack = false;
-  if (attackSlot==stLeftHand)
-  {
-    projectileBasedAttack = WeaponBase::GetSingleton().getWeaponData(m_EquippedLeft->GetID()).Type==wtGun;
-  }
-  else
-  {
-    //right hand attacks
-    projectileBasedAttack = WeaponBase::GetSingleton().getWeaponData(m_EquippedRight->GetID()).Type==wtGun;
-  }
-
-  if (projectileBasedAttack)
+  //check for projectile-based attack
+  if (wRec.Type==wtGun)
   {
     //create a new projectile for that weapon
-    std::string ProjID;
-    if (attackSlot==stLeftHand)
-    {
-      ProjID = WeaponBase::GetSingleton().getWeaponData(m_EquippedLeft->GetID()).ProjectileID;
-    }
-    else
-    {
-      //right hand attacks
-      ProjID = WeaponBase::GetSingleton().getWeaponData(m_EquippedRight->GetID()).ProjectileID;
-    }
     /* TODO:
          - adjust position of projectile that way that it "spawns" a bit away
            from NPC in order to avoid hitting the NPC itself
     */
-    AnimationData::GetSingleton().addProjectileReference(
-      ProjID, //ID
+    Projectile* projPtr = AnimationData::GetSingleton().addProjectileReference(
+      wRec.ProjectileID, //ID
       position,
       rotation,
       1.0f);
+    projPtr->Enable(getAPI().getOgreSceneManager());
     //we are done here
     return;
   }//projectile based
@@ -779,24 +888,11 @@ void NPC::performAttack()
   Ogre::SceneManager* scm = getAPI().getOgreSceneManager();
   if (scm==NULL) return;
   Ogre::SphereSceneQuery* sp_query =
-      scm->createSphereQuery(Ogre::Sphere(position, attack_range));
+      scm->createSphereQuery(Ogre::Sphere(position, wRec.Range));
   Ogre::SceneQueryResult& result = sp_query->execute();
   //check results for NPCs
   DuskObject* obj_ptr;
   Ogre::SceneQueryResultMovableList::iterator iter = result.movables.begin();
-  uint8 times=0, dice=0;
-  if (attackSlot==stLeftHand)
-  { //left hand
-    WeaponRecord wr = WeaponBase::GetSingleton().getWeaponData(m_EquippedLeft->GetID());
-    times = wr.DamageTimes;
-    dice = wr.DamageDice;
-  }
-  else
-  { //right hand
-    WeaponRecord wr = WeaponBase::GetSingleton().getWeaponData(m_EquippedRight->GetID());
-    times = wr.DamageTimes;
-    dice = wr.DamageDice;
-  }
   while (iter!=result.movables.end())
   {
     if ((*iter)->getUserObject()!=NULL)
@@ -809,38 +905,39 @@ void NPC::performAttack()
         if (NPC_Ptr!=this)
         {
           //calculate damage
-          unsigned int mult;
+          unsigned int times;
           if (criticalHit())
           {
-            mult = Settings::GetSingleton().getSetting_uint("CriticalDamageFactor");
+            times = wRec.DamageTimes
+                    * Settings::GetSingleton().getSetting_uint("CriticalDamageFactor");
           }
           else
           {
-            mult = 1;
+            times = wRec.DamageTimes;
           }
-          switch (dice)
+          switch (wRec.DamageDice)
           {
             case 0:
                  //no damage at all
                  break;
             case 4:
-                 NPC_Ptr->inflictDamage(DiceBox::GetSingleton().d4(times*mult));
+                 NPC_Ptr->inflictDamage(DiceBox::GetSingleton().d4(times));
                  break;
             case 6:
-                 NPC_Ptr->inflictDamage(DiceBox::GetSingleton().d6(times*mult));
+                 NPC_Ptr->inflictDamage(DiceBox::GetSingleton().d6(times));
                  break;
             case 8:
-                 NPC_Ptr->inflictDamage(DiceBox::GetSingleton().d8(times*mult));
+                 NPC_Ptr->inflictDamage(DiceBox::GetSingleton().d8(times));
                  break;
             case 10:
-                 NPC_Ptr->inflictDamage(DiceBox::GetSingleton().d10(times*mult));
+                 NPC_Ptr->inflictDamage(DiceBox::GetSingleton().d10(times));
                  break;
             case 20:
-                 NPC_Ptr->inflictDamage(DiceBox::GetSingleton().d20(times*mult));
+                 NPC_Ptr->inflictDamage(DiceBox::GetSingleton().d20(times));
                  break;
             default:
                  std::cout << "NPC::performAttack: ERROR: weapon has unsupported"
-                           << " hit die (d="<<(int) dice << ".\n";
+                           << " hit die (d="<<(int) wRec.DamageDice << ".\n";
                  break;
           }//swi
         }//NPC is not self
@@ -858,6 +955,21 @@ bool NPC::criticalHit() const
 {
   /* NPC does a critical hit, if his/her luck is greater or equal to a d20. */
   return getLuck()>=DiceBox::GetSingleton().d20();
+}
+
+bool NPC::doesAttack() const
+{
+  return ((m_AttackFlags & Flag_DoesAttack)!=0);
+}
+
+bool NPC::canAttackLeft() const
+{
+  return ((m_AttackFlags & Flag_CanLeftAttack)!=0);
+}
+
+bool NPC::canAttackRight() const
+{
+  return ((m_AttackFlags & Flag_CanRightAttack)!=0);
 }
 
 } //namespace

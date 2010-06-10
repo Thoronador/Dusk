@@ -9,6 +9,7 @@
      - 2010-05-31 (rev 212) - initial version (by thoronador)
      - 2010-06-02 (rev 213) - getWeaponValue() and getWeaponWeight() added
      - 2010-06-06 (rev 215) - time between attacks/ weapon attack speed added
+     - 2010-06-10 (rev 217) - tiny adjustment in getWeaponData()
 
  ToDo list:
      - ???

@@ -26,6 +26,10 @@
                             - equip(), unequip(), hasEquipped() added; allows to
                               equip/unequip items in NPC's hands
      - 2010-06-06 (rev 215) - some of the attack-related stuff implemented
+     - 2010-06-10 (rev 217) - adjustments in load/save functions to load/save
+                              equipped items and attacking state, too
+                            - attack-related code can now handle two-weapon
+                              attacks better
 
  ToDo list:
      - add possibility to equip weapons, clothes, armour, etc.
@@ -208,13 +212,21 @@ namespace Dusk
       void stopAttackAnimation();
 
       /* function to attack surrounding NPCs */
-      void performAttack();
+      void performAttack(const SlotType attackSlot);
 
-      /* equips an item in the given slot */
+      /* equips an item in the given slot
+
+         parameters:
+             ItemID - ID of the item/weapon that shall be equipped
+             slot   - slot where the item/weapon has to be equipped
+      */
       bool equip(const std::string& ItemID, const SlotType slot);
 
       /* tries to unequip the Item in the given slot..
          Returns true on success (i.e. slot could be freed), false otherwise.
+
+         parameters:
+           slot - slot where the item/weapon has to be removed
       */
       bool unequip(const SlotType slot);
 
@@ -230,9 +242,23 @@ namespace Dusk
       Item* m_EquippedLeft;
       Item* m_EquippedRight;
       //time until next attack/ hit is triggered
-      float m_TimeToNextAttack;
-      //flag to indicate whether NPC is attacking
-      bool m_DoesAttack;
+      float m_TimeToNextAttackLeft;
+      float m_TimeToNextAttackRight;
+      //holds attack-related flags
+      unsigned char m_AttackFlags;
+      /*flag to indicate that NPC is attacking */
+      static const unsigned char Flag_DoesAttack;
+      /*flag to indicate that NPC is holding a weapon in the right hand */
+      static const unsigned char Flag_CanRightAttack;
+      /*flag to indicate that NPC is holding a weapon in the left hand */
+      static const unsigned char Flag_CanLeftAttack;
+
+      /* utility function to check for attack flag */
+      bool doesAttack() const;
+      /* utility function to check for attack flag - left hand */
+      bool canAttackLeft() const;
+      /* utility function to check for attack flag - right hand */
+      bool canAttackRight() const;
   }; //class
 
 } //namespace

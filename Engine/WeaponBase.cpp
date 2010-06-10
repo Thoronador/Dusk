@@ -93,7 +93,7 @@ WeaponRecord WeaponBase::getWeaponData(const std::string& ID) const
   temp.value = -1;
   temp.weight = 0.0f;
   temp.Type = wtMelee;
-  temp.Range = 0.0f;
+  temp.Range = -1.0f;
   temp.TimeBetweenAttacks = 1.0e20; //long time, because weapon cannot attack
   temp.ProjectileID = "";
   temp.DamageTimes = 0;
