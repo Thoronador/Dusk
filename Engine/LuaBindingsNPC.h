@@ -8,6 +8,7 @@
      - 2010-05-13 (rev 201) - inventory-related functions added
      - 2010-05-21 (rev 206) - documentation updated and small improvements
      - 2010-06-03 (rev 214) - small improvement to get rid of compiler warnings
+     - 2010-06-11 (rev 218) - functions for equipped items and attack added
 
  ToDo list:
      - ???
@@ -225,6 +226,16 @@ namespace Lua
   */
   int SetLuck(lua_State *L);
 
+  /* returns true, if the given NPC is female
+
+     return value(s) on stack: 1
+         #1 (number) - true, if NPC is female
+
+     expected stack parameters: 1
+         #1 (userdata) - pointer to the NPC
+  */
+  int IsFemale(lua_State *L);
+
   //inventory-related functions
   /* adds an arbitrary number of items to the NPC's inventory
 
@@ -260,6 +271,61 @@ namespace Lua
          #2 (string)   - ID of item
   */
   int GetItemCount(lua_State *L);
+
+  //equipment functions
+  /* tries to equip an items with the given ID and returns true on success
+
+     return value(s) on stack: 1
+         #1 (boolean) - true, if item could be equipped
+
+     expected stack parameters: 2
+         #1 (userdata) - pointer to NPC
+         #2 (string)   - ID of item
+  */
+  int NPCEquip(lua_State *L);
+
+  /* tries to unequip an items with the given ID and returns true on success
+
+     return value(s) on stack: 1
+         #1 (boolean) - true, if item could be unequipped
+
+     expected stack parameters: 2
+         #1 (userdata) - pointer to NPC
+         #2 (string)   - ID of item
+  */
+  int NPCUnequip(lua_State *L);
+
+  /* checks whether the NPC has a certain item equipped
+
+     return value(s) on stack: 1
+         #1 (boolean) - true, if item with given ID is equipped
+
+     expected stack parameters: 2
+         #1 (userdata) - pointer to NPC
+         #2 (string)   - ID of item
+  */
+  int NPCHasEquipped(lua_State *L);
+
+  //attack related functions
+  /* tries to start an attack
+
+     return value(s) on stack: 1
+         #1 (boolean) - true, if attack could be started
+
+     expected stack parameters: 1
+         #1 (userdata) - pointer to NPC
+  */
+  int NPCAttack(lua_State *L);
+
+  /* tries to stop an attack
+
+     return value(s) on stack: 1
+         #1 (boolean) - true, if NPC is not attacking any more
+
+     expected stack parameters: 1
+         #1 (userdata) - pointer to NPC
+  */
+  int NPCStopAttack(lua_State *L);
 
   //registers all of the above functions at Lua
   void registerNPC(lua_State *L);

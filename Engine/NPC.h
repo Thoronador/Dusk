@@ -30,6 +30,7 @@
                               equipped items and attacking state, too
                             - attack-related code can now handle two-weapon
                               attacks better
+     - 2010-06-11 (rev 218) - fixed a bug with animations
 
  ToDo list:
      - add possibility to equip weapons, clothes, armour, etc.

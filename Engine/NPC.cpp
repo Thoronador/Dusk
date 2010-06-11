@@ -455,7 +455,8 @@ bool NPC::unequip(const SlotType slot)
          delete m_EquippedLeft;
          m_EquippedLeft = NULL;
          //reset left attack bit
-         m_AttackFlags &= ~Flag_CanLeftAttack;
+         m_AttackFlags = m_AttackFlags & ~Flag_CanLeftAttack;
+         if (!canAttackRight()) stopAttack();
          return true;
          break;
     case stRightHand:
@@ -464,7 +465,8 @@ bool NPC::unequip(const SlotType slot)
          delete m_EquippedRight;
          m_EquippedRight = NULL;
          //reset right attack bit
-         m_AttackFlags &= ~Flag_CanRightAttack;
+         m_AttackFlags = m_AttackFlags & ~Flag_CanRightAttack;
+         if (!canAttackLeft()) stopAttack();
          return true;
          break;
     default:
@@ -485,7 +487,7 @@ bool NPC::startAttack()
     //dead NPC cannot attack any more
     return false;
   }
-  if (m_EquippedRight!=NULL)
+  /*if (m_EquippedRight!=NULL)
   {
     if (m_EquippedRight->GetType()==otWeapon)
     {
@@ -504,6 +506,13 @@ bool NPC::startAttack()
       startAttackAnimation();
       return true;
     }//if weapon
+  }*/
+  if (canAttackLeft() or canAttackRight())
+  {
+    //we have at least one weapon -> attack
+    m_AttackFlags = m_AttackFlags | Flag_DoesAttack;
+    startAttackAnimation();
+    return true;
   }
   //NPC has not equipped a weapon, we can't start an attack
   return false;
@@ -804,7 +813,7 @@ void NPC::playDeathAnimation()
   const std::string anim = NPCBase::GetSingleton().getNPCAnimations(ID).Death;
   if (anim!="")
   {
-    PlayAnimation(anim, false);
+    StartAnimation(anim, false);
   }
 }
 
@@ -828,11 +837,11 @@ void NPC::startAttackAnimation()
   }
   if (melee and (anim.MeleeAttack!=""))
   {
-    PlayAnimation(anim.MeleeAttack, true);
+    StartAnimation(anim.MeleeAttack, true);
   }
   if (!melee and (anim.ProjectileAttack!=""))
   {
-    PlayAnimation(anim.ProjectileAttack, true);
+    StartAnimation(anim.ProjectileAttack, true);
   }
 }
 

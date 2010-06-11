@@ -41,6 +41,7 @@
  ToDo list:
      - adjust GetAnimation() and GetLoopState() so that they can be used to get
        information about all currently playing animation states
+     - remove PlayAnimation(), because StartAnimation() can replace it
      - ???
 
  Bugs:
@@ -209,7 +210,6 @@ namespace Dusk
         bool m_LoopAnim;
     };
 
-    //static const Ogre::Vector3 Gravitation(0.0, -9.81, 0.0);
-}
+} //namespace
 
 #endif // ANIMATEDOBJECT_H

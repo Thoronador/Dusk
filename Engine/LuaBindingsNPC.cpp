@@ -422,6 +422,25 @@ int SetLuck(lua_State *L)
   return 0;
 }
 
+int IsFemale(lua_State *L)
+{
+  if (lua_gettop(L)==1)
+  {
+    const NPC* npcPtr = static_cast<NPC*> (lua_touserdata(L, 1));
+    if (npcPtr!=NULL)
+    {
+      if (npcPtr->isFemale())
+        lua_pushboolean(L, 1);
+      else lua_pushboolean(L, 0);
+      return 1;
+    }
+    return 0;
+  }
+  lua_pushstring(L, "IsFemale expects exactly one argument!\n");
+  lua_error(L);
+  return 0;
+}
+
 int AddItem(lua_State *L)
 {
   if (lua_gettop(L)==3)
@@ -490,6 +509,111 @@ int GetItemCount(lua_State *L)
   return 0;
 }
 
+int NPCEquip(lua_State *L)
+{
+  if (lua_gettop(L)==2)
+  {
+    NPC* npcPtr = static_cast<NPC*> (lua_touserdata(L, 1));
+    if (npcPtr!=NULL)
+    {
+      if (npcPtr->equip(lua_tostring(L, 2)))
+      {
+        lua_pushboolean(L, 1);
+      }
+      else lua_pushboolean(L, 0);
+      return 1;
+    }
+    return 0;
+  }
+  lua_pushstring(L, "NPCEquip expects exactly two arguments!\n");
+  lua_error(L);
+  return 0;
+}
+
+int NPCUnequip(lua_State *L)
+{
+  if (lua_gettop(L)==2)
+  {
+    NPC* npcPtr = static_cast<NPC*> (lua_touserdata(L, 1));
+    if (npcPtr!=NULL)
+    {
+      if (npcPtr->unequip(lua_tostring(L, 2)))
+      {
+        lua_pushboolean(L, 1);
+      }
+      else lua_pushboolean(L, 0);
+      return 1;
+    }
+    return 0;
+  }
+  lua_pushstring(L, "NPCUnequip expects exactly two arguments!\n");
+  lua_error(L);
+  return 0;
+}
+
+int NPCHasEquipped(lua_State *L)
+{
+  if (lua_gettop(L)==2)
+  {
+    const NPC* npcPtr = static_cast<NPC*> (lua_touserdata(L, 1));
+    if (npcPtr!=NULL)
+    {
+      if (npcPtr->hasEquipped(lua_tostring(L, 2)))
+      {
+        lua_pushboolean(L, 1);
+      }
+      else lua_pushboolean(L, 0);
+      return 1;
+    }
+    return 0;
+  }
+  lua_pushstring(L, "NPChasEquipped expects exactly two arguments!\n");
+  lua_error(L);
+  return 0;
+}
+
+int NPCAttack(lua_State *L)
+{
+  if (lua_gettop(L)==1)
+  {
+    NPC* npcPtr = static_cast<NPC*> (lua_touserdata(L, 1));
+    if (npcPtr!=NULL)
+    {
+      if (npcPtr->startAttack())
+      {
+        lua_pushboolean(L, 1);
+      }
+      else lua_pushboolean(L, 0);
+      return 1;
+    }
+    return 0;
+  }
+  lua_pushstring(L, "NPCAttack expects exactly one argument!\n");
+  lua_error(L);
+  return 0;
+}
+
+int NPCStopAttack(lua_State *L)
+{
+  if (lua_gettop(L)==1)
+  {
+    NPC* npcPtr = static_cast<NPC*> (lua_touserdata(L, 1));
+    if (npcPtr!=NULL)
+    {
+      if (npcPtr->stopAttack())
+      {
+        lua_pushboolean(L, 1);
+      }
+      else lua_pushboolean(L, 0);
+      return 1;
+    }
+    return 0;
+  }
+  lua_pushstring(L, "NPCStopAttack expects exactly one argument!\n");
+  lua_error(L);
+  return 0;
+}
+
 void registerNPC(lua_State *L)
 {
   lua_register(L, "GetNPC", GetNPC);
@@ -514,6 +638,15 @@ void registerNPC(lua_State *L)
   lua_register(L, "SetWillpower", SetWillpower);
   lua_register(L, "SetCharisma", SetCharisma);
   lua_register(L, "SetLuck", SetLuck);
+
+  lua_register(L, "IsFemale", IsFemale);
+
+  lua_register(L, "Equip", NPCEquip);
+  lua_register(L, "Unequip", NPCUnequip);
+  lua_register(L, "HasEquipped", NPCHasEquipped);
+
+  lua_register(L, "Attack", NPCAttack);
+  lua_register(L, "StopAttack", NPCStopAttack);
 
   lua_register(L, "GetItemCount", GetItemCount);
   lua_register(L, "AddItem", AddItem);
