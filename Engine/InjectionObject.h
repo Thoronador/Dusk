@@ -7,6 +7,7 @@
 
  History:
      - 2010-05-20 (rev 205) - initial version (by thoronador)
+     - 2010-07-31 (rev 220) - GetObjectMesh() added (pure virtual here)
 
  ToDo list:
      - ???
@@ -42,6 +43,17 @@ class InjectionObject: virtual public DuskObject
     virtual bool SaveToStream(std::ofstream& OutStream) const = 0;
 
     virtual bool LoadFromStream(std::ifstream& InStream) = 0;
+  protected:
+    /* returns the name/path of the mesh that is used during enabling this
+       object
+
+       remarks:
+           Every(!) derived, non-abstract class has to implement their own
+           version of that function to ensure the use of the right meshes.
+           We declare this pure virtual here to enforce implementation in all
+           derived classes.
+    */
+    virtual std::string GetObjectMesh() const = 0;
 }; //class
 
 } //namespace

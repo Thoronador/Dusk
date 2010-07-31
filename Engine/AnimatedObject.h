@@ -40,6 +40,7 @@
      - 2010-07-31 (rev 219) - PlayAnimation() removed
                             - adjustments to class to work with multiple
                               parallel animations
+     - 2010-08-01 (rev 220) - GetObjectMesh() added
 
  ToDo list:
      - ???
@@ -199,6 +200,15 @@ namespace Dusk
         */
         virtual bool LoadFromStream(std::ifstream& InStream);
     protected:
+        /* returns the name/path of the mesh that is used during enabling this
+           object
+
+           remarks:
+               Every(!) derived, non-abstract class has to implement their own
+               version of that function to ensure the use of the right meshes.
+        */
+        virtual std::string GetObjectMesh() const;
+
         /* Utility function which saves all data that is specific to an
            AnimatedObject to the given stream. Returns true on success.
 

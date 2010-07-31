@@ -17,7 +17,6 @@ void listBoneChildren(const Ogre::Node* b, const unsigned int indents)
     {
       listBoneChildren(cb, indents+2);
     }//if
-
   }//for
 }
 
@@ -78,10 +77,15 @@ bool Player::pickUpNearest()
   return false;
 }
 
-bool Player::Enable(Ogre::SceneManager* scm)
+std::string Player::GetObjectMesh() const
 {
   /* Until we have a proper player mesh, we use the Ogre mascot mesh from
      Zi Ye / omniter. */
+  return "Sinbad.mesh";
+}
+
+bool Player::Enable(Ogre::SceneManager* scm)
+{
   if (entity!=NULL)
   {
     return true;
@@ -91,50 +95,7 @@ bool Player::Enable(Ogre::SceneManager* scm)
     std::cout << "Player::Enable: ERROR: no scene manager present.\n";
     return false;
   }
-  //generate unique entity name
-  std::stringstream entity_name;
-  entity_name << ID << GenerateUniqueObjectID();
-  //create entity + node and attach entity to node
-  entity = scm->createEntity(entity_name.str(), "Sinbad.mesh");
-  Ogre::SceneNode* ent_node = scm->getRootSceneNode()->createChildSceneNode(entity_name.str(), position);
-  ent_node->attachObject(entity);
-  ent_node->scale(m_Scale, m_Scale, m_Scale);
-  //not sure whether this is the best one for rotation
-  ent_node->rotate(Ogre::Vector3::UNIT_X, Ogre::Degree(rotation.x));
-  ent_node->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(rotation.y));
-  ent_node->rotate(Ogre::Vector3::UNIT_Z, Ogre::Degree(rotation.z));
-  //set user defined object to this NPC as reverse link
-  entity->setUserObject(this);
-  //restore saved or queued animations
-  if (!(m_Anims.empty()))
-  {
-    const Ogre::AnimationStateSet* anim_set = entity->getAllAnimationStates();
-    std::map<std::string, AnimRecord>::iterator iter;
-    iter = m_Anims.begin();
-    //iterate through animations
-    while (iter!=m_Anims.end())
-    {
-      //check if given animation name identifies a valid animation
-      if (anim_set->hasAnimationState(iter->first))
-      {
-        //if so, enable it
-        Ogre::AnimationState* state = anim_set->getAnimationState(iter->first);
-        state->setTimePosition(iter->second.position);
-        state->setLoop(iter->second.DoLoop);
-        state->setEnabled(true);
-        //... and advance iterator
-        ++iter;
-      }
-      else
-      {
-        //otherwise delete it from list
-        const std::string currentName = iter->first;
-        m_Anims.erase(iter);
-        //... and set iter to next element
-        iter = m_Anims.upper_bound(currentName);
-      }
-    }//while
-  }//animations queued
+  if (!NPC::Enable(scm)) return false;
   //just for information
   // -- animation states
   unsigned int i;
@@ -149,7 +110,7 @@ bool Player::Enable(Ogre::SceneManager* scm)
     Ogre::SkeletonInstance* skelInst = entity->getSkeleton();
     std::cout << "Player animation bones available: "<< skelInst->getNumBones()<< "\n";
     Ogre::Skeleton::BoneIterator rbIter = skelInst->getRootBoneIterator();
-    while ( rbIter.hasMoreElements())
+    while (rbIter.hasMoreElements())
     {
       Ogre::Bone* b = rbIter.getNext();
       std::cout << "  Bone name: " << b->getName() << "\n";
@@ -157,6 +118,11 @@ bool Player::Enable(Ogre::SceneManager* scm)
       listBoneChildren(b, 4);
     } //while
   }//if
+
+  //generate unique entity name
+  std::stringstream entity_name;
+  entity_name << ID << GenerateUniqueObjectID();
+  //sheathed weapons
   Ogre::Entity* ent_sword = scm->createEntity(entity_name.str()+"_sword.Right", "Sword.mesh");
   entity->attachObjectToBone("Sheath.R", ent_sword);
   ent_sword = scm->createEntity(entity_name.str()+"_sword.Left", "Sword.mesh");

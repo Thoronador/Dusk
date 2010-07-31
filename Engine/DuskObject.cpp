@@ -150,6 +150,11 @@ bool DuskObject::ChangeID(const std::string& newID)
   return false;
 }
 
+std::string DuskObject::GetObjectMesh() const
+{
+  return ObjectBase::GetSingleton().GetMeshName(ID);
+}
+
 bool DuskObject::Enable(Ogre::SceneManager* scm)
 {
   if (entity!=NULL)
@@ -166,7 +171,7 @@ bool DuskObject::Enable(Ogre::SceneManager* scm)
   std::stringstream entity_name;
   entity_name << ID << GenerateUniqueObjectID();
   //create entity + node and attach entity to node
-  entity = scm->createEntity(entity_name.str(), ObjectBase::GetSingleton().GetMeshName(ID));
+  entity = scm->createEntity(entity_name.str(), GetObjectMesh());
   Ogre::SceneNode* ent_node = scm->getRootSceneNode()->createChildSceneNode(entity_name.str(), position);
   ent_node->attachObject(entity);
   ent_node->scale(m_Scale, m_Scale, m_Scale);

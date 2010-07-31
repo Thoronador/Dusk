@@ -7,6 +7,8 @@
 
  History:
      - 2010-05-31 (rev 211) - initial version (by thoronador)
+     - 2010-08-01 (rev 220) - GetObjectMesh() added,
+                            - Enable() removed (inherited method is used instead)
 
  ToDo list:
      - Implement collision detection for projectile, i.e. checks in every frame
@@ -63,11 +65,6 @@ class Projectile: public UniformMotionObject
     /* function to inject time for movement and perform movement */
     virtual void injectTime(const float SecondsPassed);
 
-    /* Enables the object, i.e. tells the SceneManager to display it.
-       Returns true on success, false on error.
-    */
-    virtual bool Enable(Ogre::SceneManager* scm);
-
     /* causes the object to move towards a certain destination.
        Contrary to the implementation in UniformMotionObject, the projectile
        will NOT stop moving after it has reached that destination.
@@ -86,7 +83,17 @@ class Projectile: public UniformMotionObject
        success, false otherwise.
     */
     virtual bool LoadFromStream(std::ifstream& InStream);
+  protected:
+    /* returns the name/path of the mesh that is used during enabling this
+       object
+
+       remarks:
+           Every(!) derived, non-abstract class has to implement their own
+           version of that function to ensure the use of the right meshes.
+    */
+    virtual std::string GetObjectMesh() const;
   private:
+    // time to live before objet should be deleted
     float m_TTL;
 }; //class
 

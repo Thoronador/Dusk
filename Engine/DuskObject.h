@@ -46,6 +46,7 @@
      - 2010-05-21 (rev 206) - documentation updated
      - 2010-05-31 (rev 211) - enumeration value for Projectiles added
      - 2010-06-02 (rev 213) - enumeration value for Weapon added
+     - 2010-07-31 (rev 220) - GetObjectMesh() added
 
  ToDo list:
      - ???
@@ -168,6 +169,15 @@ class DuskObject: public Ogre::UserDefinedObject
         */
         virtual bool LoadFromStream(std::ifstream& InStream);
     protected:
+        /* returns the name/path of the mesh that is used during enabling this
+           object
+
+           remarks:
+               Every(!) derived, non-abstract class has to implement their own
+               version of that function to ensure the use of the right meshes.
+        */
+        virtual std::string GetObjectMesh() const;
+
         /* Helper function which saves all data in a DuskObject to the given
            stream. Returns true on success.
 

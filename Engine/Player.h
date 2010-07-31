@@ -12,6 +12,7 @@
      - 2010-05-27 (rev 208) - player will now wield swords, too
      - 2010-06-06 (rev 215) - changes in Enable()
      - 2010-07-31 (rev 219) - update to reflect changes of AnimatedObject
+     - 2010-08-01 (rev 220) - GetObjectMesh() added, Enable() simplified
 
  ToDo list:
      - actually implement LoadFromStream() and SaveToStream()
@@ -71,6 +72,15 @@ namespace Dusk
             In its current state, this function does nothing but return false.
       */
       virtual bool LoadFromStream(std::ifstream& InStream);
+    protected:
+      /* returns the name/path of the mesh that is used during enabling this
+         object
+
+         remarks:
+             Every(!) derived, non-abstract class has to implement their own
+             version of that function to ensure the use of the right meshes.
+      */
+      virtual std::string GetObjectMesh() const;
     private:
       /* constructor - private due to singleton pattern */
       Player();

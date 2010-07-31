@@ -22,65 +22,9 @@ Weapon::~Weapon()
   Disable();
 }
 
-bool Weapon::Enable(Ogre::SceneManager* scm)
+std::string Weapon::GetObjectMesh() const
 {
-  //We basically use the exact code from Item's Enable() function here,
-  // just with the difference of using WeaponBase instead of ItemBase for mesh
-  // retrieval.
-  if (entity!=NULL)
-  {
-    return true;
-  }
-  if (scm==NULL)
-  {
-    std::cout << "Weapon::Enable: ERROR: no scene manager present.\n";
-    return false;
-  }
-  //generate unique entity name
-  std::stringstream entity_name;
-  entity_name << ID << GenerateUniqueObjectID();
-  //create entity + node and attach entity to node
-  entity = scm->createEntity(entity_name.str(), WeaponBase::GetSingleton().getWeaponMesh(ID));
-  Ogre::SceneNode* ent_node = scm->getRootSceneNode()->createChildSceneNode(entity_name.str(), position);
-  ent_node->attachObject(entity);
-  ent_node->scale(m_Scale, m_Scale, m_Scale);
-  //not sure whether this is the best one for rotation
-  ent_node->rotate(Ogre::Vector3::UNIT_X, Ogre::Degree(rotation.x));
-  ent_node->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(rotation.y));
-  ent_node->rotate(Ogre::Vector3::UNIT_Z, Ogre::Degree(rotation.z));
-  //set user defined object to this object as reverse link
-  entity->setUserObject(this);
-  return (entity!=NULL);
-}
-
-bool Weapon::EnableWithoutSceneNode(Ogre::SceneManager* scm)
-{
-  //We basically use the exact code from the above Enable() function here,
-  // just with the difference of not creating a scene node for it.
-  if (entity!=NULL)
-  {
-    return true;
-  }
-  if (scm==NULL)
-  {
-    std::cout << "Weapon::EnableWithoutNode: ERROR: no scene manager present.\n";
-    return false;
-  }
-  //generate unique entity name
-  std::stringstream entity_name;
-  entity_name << ID << GenerateUniqueObjectID();
-  //create entity
-  entity = scm->createEntity(entity_name.str(), WeaponBase::GetSingleton().getWeaponMesh(ID));
-  /*Ogre::SceneNode* ent_node = scm->getRootSceneNode()->createChildSceneNode(entity_name.str(), position);
-  ent_node->attachObject(entity);
-  ent_node->scale(m_Scale, m_Scale, m_Scale);
-  //not sure whether this is the best one for rotation
-  ent_node->rotate(Ogre::Vector3::UNIT_X, Ogre::Degree(rotation.x));
-  ent_node->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(rotation.y));
-  ent_node->rotate(Ogre::Vector3::UNIT_Z, Ogre::Degree(rotation.z));*/
-  //set user defined object to this object as reverse link
-  entity->setUserObject(this);
-  return (entity!=NULL);
+  return WeaponBase::GetSingleton().getWeaponMesh(ID);
 }
 
 ObjectTypes Weapon::GetType() const

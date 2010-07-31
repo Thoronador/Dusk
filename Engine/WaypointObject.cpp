@@ -99,33 +99,9 @@ bool WaypointObject::getPatrolMode() const
   return m_Patrol;
 }
 
-bool WaypointObject::Enable(Ogre::SceneManager* scm)
+std::string WaypointObject::GetObjectMesh() const
 {
-  if (entity!=NULL)
-  {
-    return true;
-  }
-  if (scm==NULL)
-  {
-    std::cout << "WaypointObject::Enable: ERROR: no scene manager present.\n";
-    return false;
-  }
-
-  //generate unique entity name
-  std::stringstream entity_name;
-  entity_name << ID << GenerateUniqueObjectID();
-  //create entity + node and attach entity to node
-  entity = scm->createEntity(entity_name.str(), ObjectBase::GetSingleton().GetMeshName(ID));
-  Ogre::SceneNode* ent_node = scm->getRootSceneNode()->createChildSceneNode(entity_name.str(), position);
-  ent_node->attachObject(entity);
-  ent_node->scale(m_Scale, m_Scale, m_Scale);
-  //not sure whether this is the best one for rotation
-  ent_node->rotate(Ogre::Vector3::UNIT_X, Ogre::Degree(rotation.x));
-  ent_node->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(rotation.y));
-  ent_node->rotate(Ogre::Vector3::UNIT_Z, Ogre::Degree(rotation.z));
-  //set user defined object to this object as reverse link
-  entity->setUserObject(this);
-  return (entity!=NULL);
+  return ObjectBase::GetSingleton().GetMeshName(ID);
 }
 
 ObjectTypes WaypointObject::GetType() const

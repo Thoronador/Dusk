@@ -529,62 +529,18 @@ bool NPC::stopAttack()
   return true;
 }
 
+std::string NPC::GetObjectMesh() const
+{
+  return NPCBase::GetSingleton().getNPCMesh(ID);
+}
+
 bool NPC::Enable(Ogre::SceneManager* scm)
 {
   if (entity!=NULL)
   {
     return true;
   }
-  if (scm==NULL)
-  {
-    std::cout << "NPC::Enable: ERROR: no scene manager present.\n";
-    return false;
-  }
-  //generate unique entity name
-  std::stringstream entity_name;
-  entity_name << ID << GenerateUniqueObjectID();
-  //create entity + node and attach entity to node
-  entity = scm->createEntity(entity_name.str(), NPCBase::GetSingleton().getNPCMesh(ID));
-  Ogre::SceneNode* ent_node = scm->getRootSceneNode()->createChildSceneNode(entity_name.str(), position);
-  ent_node->attachObject(entity);
-  ent_node->scale(m_Scale, m_Scale, m_Scale);
-  //not sure whether this is the best one for rotation
-  ent_node->rotate(Ogre::Vector3::UNIT_X, Ogre::Degree(rotation.x));
-  ent_node->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(rotation.y));
-  ent_node->rotate(Ogre::Vector3::UNIT_Z, Ogre::Degree(rotation.z));
-  //set user defined object to this NPC as reverse link
-  entity->setUserObject(this);
-  //restore saved or queued animations
-  if (!(m_Anims.empty()))
-  {
-    const Ogre::AnimationStateSet* anim_set = entity->getAllAnimationStates();
-    std::map<std::string, AnimRecord>::iterator iter;
-    iter = m_Anims.begin();
-    //iterate through animations
-    while (iter!=m_Anims.end())
-    {
-      //check if given animation name identifies a valid animation
-      if (anim_set->hasAnimationState(iter->first))
-      {
-        //if so, enable it
-        Ogre::AnimationState* state = anim_set->getAnimationState(iter->first);
-        state->setTimePosition(iter->second.position);
-        state->setLoop(iter->second.DoLoop);
-        state->setEnabled(true);
-        //... and advance iterator
-        ++iter;
-      }
-      else
-      {
-        //otherwise delete it from list
-        const std::string currentName = iter->first;
-        m_Anims.erase(iter);
-        //... and set iter to next element
-        iter = m_Anims.upper_bound(currentName);
-      }
-    }//while
-  }//animations queued
-  return (entity!=NULL);
+  return AnimatedObject::Enable(scm);
 }
 
 bool NPC::SaveToStream(std::ofstream& OutStream) const

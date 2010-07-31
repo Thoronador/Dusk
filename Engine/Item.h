@@ -9,6 +9,8 @@
      - 2010-06-02 (rev 213) - isEquipped() and setEquipped() added
                             - possibility to enable object without a scene node
                               added
+     - 2010-07-31 (rev 220) - GetObjectMesh() added
+                            - Enable() removed (uses inherited method instead)
 
  ToDo list:
      - ???
@@ -36,15 +38,6 @@ class Item: public DuskObject
 
     /* destructor */
     virtual ~Item();
-
-    /* Enables the object, i.e. tells the SceneManager to display it.
-       Returns true on success, false on error.
-
-       remarks:
-           Derived classes potentially implement their individual versions of
-           this function.
-    */
-    virtual bool Enable(Ogre::SceneManager* scm);
 
     /* Creates an entity of the object, but does not attach it to anny scene
        node. Returns true on success, false on error.
@@ -102,6 +95,15 @@ class Item: public DuskObject
     /* returns the Ogre entity which is used to display that object */
     Ogre::Entity* exposeEntity() const;
   protected:
+    /* returns the name/path of the mesh that is used during enabling this
+       object
+
+       remarks:
+           Every(!) derived, non-abstract class has to implement their own
+           version of that function to ensure the use of the right meshes.
+    */
+    virtual std::string GetObjectMesh() const;
+
     /* Helper function which saves all data in an Item to the given stream.
        Returns true on success.
 

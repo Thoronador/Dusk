@@ -32,6 +32,7 @@
                               attacks better
      - 2010-06-11 (rev 218) - fixed a bug with animations
      - 2010-07-31 (rev 219) - update to reflect changes of AnimatedObject
+     - 2010-08-01 (rev 220) - GetObjectMesh() added, Enable() simplified
 
  ToDo list:
      - add possibility to equip weapons, clothes, armour, etc.
@@ -201,7 +202,16 @@ namespace Dusk
       */
       static const float cMaximumPickUpDistance;
     protected:
-      //enumeration type for equipment slots
+      /* returns the name/path of the mesh that is used during enabling this
+         object
+
+         remarks:
+             Every(!) derived, non-abstract class has to implement their own
+             version of that function to ensure the use of the right meshes.
+      */
+      virtual std::string GetObjectMesh() const;
+
+      /*enumeration type for equipment slots */
       enum SlotType { stRightHand, stLeftHand };
 
       /* plays animation to signal NPC's death */

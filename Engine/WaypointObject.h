@@ -7,6 +7,8 @@
  History:
      - 2010-05-20 (rev 205) - initial version (by thoronador)
      - 2010-06-02 (rev 213) - changed header in load/save functions
+     - 2010-08-01 (rev 220) - GetObjectMesh() added,
+                            - Enable() removed (inherited method is used instead)
 
  ToDo list:
      - implement possibility to make object "look" into the direction it is
@@ -76,9 +78,6 @@ class WaypointObject: public UniformMotionObject
     /* returns whether the patrol mode is set or not*/
     bool getPatrolMode() const;
 
-    /* displays the object */
-    virtual bool Enable(Ogre::SceneManager* scm);
-
     /* returns object's type as enumeration */
     virtual ObjectTypes GetType() const;
 
@@ -105,6 +104,15 @@ class WaypointObject: public UniformMotionObject
     */
     virtual bool LoadFromStream(std::ifstream& InStream);
   protected:
+    /* returns the name/path of the mesh that is used during enabling this
+       object
+
+       remarks:
+           Every(!) derived, non-abstract class has to implement their own
+           version of that function to ensure the use of the right meshes.
+    */
+    virtual std::string GetObjectMesh() const;
+
     /* Utility function which saves all data that is specific to an
        WaypointObject to the given stream. Returns true on success.
 

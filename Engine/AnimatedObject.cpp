@@ -52,6 +52,11 @@ AnimatedObject::~AnimatedObject()
   Disable();
 }
 
+std::string AnimatedObject::GetObjectMesh() const
+{
+  return ObjectBase::GetSingleton().GetMeshName(ID);
+}
+
 bool AnimatedObject::Enable(Ogre::SceneManager* scm)
 {
   if (entity!=NULL)
@@ -63,12 +68,11 @@ bool AnimatedObject::Enable(Ogre::SceneManager* scm)
     std::cout << "AnimatedObject::Enable: ERROR: no scene manager present.\n";
     return false;
   }
-
   //generate unique entity name
   std::stringstream entity_name;
   entity_name << ID << GenerateUniqueObjectID();
   //create entity + node and attach entity to node
-  entity = scm->createEntity(entity_name.str(), ObjectBase::GetSingleton().GetMeshName(ID));
+  entity = scm->createEntity(entity_name.str(), GetObjectMesh());
   Ogre::SceneNode* ent_node = scm->getRootSceneNode()->createChildSceneNode(entity_name.str(), position);
   ent_node->attachObject(entity);
   ent_node->scale(m_Scale, m_Scale, m_Scale);

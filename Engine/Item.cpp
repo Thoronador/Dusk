@@ -23,40 +23,14 @@ Item::~Item()
   Disable();
 }
 
-bool Item::Enable(Ogre::SceneManager* scm)
+std::string Item::GetObjectMesh() const
 {
-  //We basically use the exact code from DuskObject's Enable() function here,
-  // just with the difference of using ItemBase instead of ObjectBase for mesh
-  // retrieval.
-  if (entity!=NULL)
-  {
-    return true;
-  }
-  if (scm==NULL)
-  {
-    std::cout << "Item::Enable: ERROR: no scene manager present.\n";
-    return false;
-  }
-  //generate unique entity name
-  std::stringstream entity_name;
-  entity_name << ID << GenerateUniqueObjectID();
-  //create entity + node and attach entity to node
-  entity = scm->createEntity(entity_name.str(), ItemBase::GetSingleton().GetMeshName(ID));
-  Ogre::SceneNode* ent_node = scm->getRootSceneNode()->createChildSceneNode(entity_name.str(), position);
-  ent_node->attachObject(entity);
-  ent_node->scale(m_Scale, m_Scale, m_Scale);
-  //not sure whether this is the best one for rotation
-  ent_node->rotate(Ogre::Vector3::UNIT_X, Ogre::Degree(rotation.x));
-  ent_node->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(rotation.y));
-  ent_node->rotate(Ogre::Vector3::UNIT_Z, Ogre::Degree(rotation.z));
-  //set user defined object to this object as reverse link
-  entity->setUserObject(this);
-  return (entity!=NULL);
+  return ItemBase::GetSingleton().GetMeshName(ID);
 }
 
 bool Item::EnableWithoutSceneNode(Ogre::SceneManager* scm)
 {
-  //We basically use the exact code from the above Enable() function here,
+  //We basically use the exact code from the DuskObject Enable() function here,
   // just with the difference of not creating a scene node for it.
   if (entity!=NULL)
   {
@@ -71,7 +45,7 @@ bool Item::EnableWithoutSceneNode(Ogre::SceneManager* scm)
   std::stringstream entity_name;
   entity_name << ID << GenerateUniqueObjectID();
   //create entity + node and attach entity to node
-  entity = scm->createEntity(entity_name.str(), ItemBase::GetSingleton().GetMeshName(ID));
+  entity = scm->createEntity(entity_name.str(), GetObjectMesh());
   /*Ogre::SceneNode* ent_node = scm->getRootSceneNode()->createChildSceneNode(entity_name.str(), position);
   ent_node->attachObject(entity);
   ent_node->scale(m_Scale, m_Scale, m_Scale);
@@ -90,7 +64,6 @@ bool Item::Disable()
   {
     return true;
   }
-
   Ogre::SceneNode* ent_node = entity->getParentSceneNode();
   Ogre::SceneManager * scm;
   if (ent_node!=NULL)

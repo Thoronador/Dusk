@@ -11,6 +11,8 @@
      - 2009-12-08 (rev 140) - TransferAllContentTo() renamed
      - 2010-01-01 (rev 148) - documentation update
      - 2010-01-17 (rev 156) - update of SaveToStream() and LoadFromStream()
+     - 2010-07-31 (rev 220) - GetObjectMesh() added
+                            - Enable() removed (uses inherited method instead)
 
  ToDo list:
      - ???
@@ -59,11 +61,6 @@ namespace Dusk
       /* Returns the number of items with ID ItemID within the container */
       unsigned int GetItemCount(const std::string& ItemID) const;
 
-      /* enables container object, i.e. makes it visible in-game.
-         Returns true on success, false otherwise.
-      */
-      virtual bool Enable(Ogre::SceneManager* scm);
-
       /* returns object type (in this case otContainer) */
       virtual ObjectTypes GetType() const;
 
@@ -79,8 +76,19 @@ namespace Dusk
              The container may have inconsistent data, if the function fails.
       */
       virtual bool LoadFromStream(std::ifstream& InStream);
-    private:
+    protected:
+      /* returns the name/path of the mesh that is used during enabling this
+         object
+
+         remarks:
+             Every(!) derived, non-abstract class has to implement their own
+             version of that function to ensure the use of the right meshes.
+      */
+      virtual std::string GetObjectMesh() const;
+
+      //holds the contents of this container
       Inventory m_Contents;
+      //flag that indicates whether this container's content was changed
       bool m_Changed;
   };//class
 

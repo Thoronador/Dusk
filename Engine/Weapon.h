@@ -6,6 +6,9 @@
 
  History:
      - 2010-06-02 (rev 213) - initial version (by thoronador)
+     - 2010-08-01 (rev 220) - GetObjectMesh() added
+                            - Enable() and EnableWithoutSceneNode() removed
+                              (inherited method is used instead)
 
  ToDo list:
      - add possibility to actually attack and inflict damage with a weapon
@@ -35,26 +38,6 @@ class Weapon: public Item
     /* destructor */
     virtual ~Weapon();
 
-    /* Enables the object, i.e. tells the SceneManager to display it.
-       Returns true on success, false on error.
-
-       remarks:
-           Derived classes potentially implement their individual versions of
-           this function.
-    */
-    virtual bool Enable(Ogre::SceneManager* scm);
-
-    /* Creates an entity of the object, but does not attach it to anny scene
-       node. Returns true on success, false on error.
-
-       remarks:
-           This is only used in NPC::equip(), because only objects without
-           parent nodes can be attached to a bone.
-           Derived classes potentially implement their individual versions of
-           this function.
-    */
-    virtual bool EnableWithoutSceneNode(Ogre::SceneManager* scm);
-
     /* retrieves the object type as an enumeration value, which is useful for derived classes.*/
     virtual ObjectTypes GetType() const;
 
@@ -74,6 +57,15 @@ class Weapon: public Item
            corrupted. It's advised not to use the weapon in this case.
     */
     virtual bool LoadFromStream(std::ifstream& InStream);
+  protected:
+    /* returns the name/path of the mesh that is used during enabling this
+       object
+
+       remarks:
+           Every(!) derived, non-abstract class has to implement their own
+           version of that function to ensure the use of the right meshes.
+    */
+    virtual std::string GetObjectMesh() const;
 }; //class
 
 } //namespace
