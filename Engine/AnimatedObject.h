@@ -37,11 +37,11 @@
      - 2010-05-27 (rev 208) - StartAnimation(), StopAnimation(),
                               StopAllAnimations() & IsAnimationActive() added
      - 2010-06-02 (rev 213) - fixed an issue in StopAllAnimations()
+     - 2010-07-31 (rev 219) - PlayAnimation() removed
+                            - adjustments to class to work with multiple
+                              parallel animations
 
  ToDo list:
-     - adjust GetAnimation() and GetLoopState() so that they can be used to get
-       information about all currently playing animation states
-     - remove PlayAnimation(), because StartAnimation() can replace it
      - ???
 
  Bugs:
@@ -53,11 +53,23 @@
 #include <OgreSceneManager.h>
 #include <OgreVector3.h>
 #include <vector>
+#include <map>
 #include <fstream>
 #include "InjectionObject.h"
 
 namespace Dusk
 {
+
+    struct AnimRecord
+    {
+      float position;
+      bool DoLoop;
+      //default constuctor
+      AnimRecord();
+      //constuctor with params
+      AnimRecord(const float pos, const bool loop);
+    };//struct
+
     class AnimatedObject : virtual public InjectionObject
     {
     public:
@@ -73,18 +85,13 @@ namespace Dusk
         /* displays the object */
         virtual bool Enable(Ogre::SceneManager* scm);
 
+        /* Disables the object, i.e. tells the SceneManager not to display it.
+           Returns true on success, false on error.
+        */
+        virtual bool Disable();
+
         /* returns the object type as enumeration */
         virtual ObjectTypes GetType() const;
-
-        /* Sets the name of the animation which shall be played.
-
-           parameters:
-               AnimName - name of the animation
-               DoLoop   - if false, the animation will stop after it has been
-                          played once. If true, the animation will loop for an
-                          infinite time (or until another animation is set).
-        */
-        void PlayAnimation(const std::string& AnimName, const bool DoLoop);
 
         /* causes an animation to be played and returns true on success
 
@@ -140,9 +147,10 @@ namespace Dusk
         */
         bool IsAnimationActive(const std::string& AnimName) const;
 
-        /* Returns the name of the currently playing animation. If no animation
-           is playing, it returns an empty string. */
-        std::string GetAnimation() const;
+        /* Returns the names of all currently playing animations. If no
+            animation is playing, it returns an empty vector.
+        */
+        std::vector<std::string> GetCurrentAnimations() const;
 
         /* Returns the list of possible animations for an enabled object. This
            works only for enabled objects. If the object is not enabled, the
@@ -154,8 +162,12 @@ namespace Dusk
         */
         std::vector<std::string> GetPossibleAnimationStates() const;
 
-        /* returns true, if the animation (if present) shall be looped */
-        bool GetLoopState() const;
+        /* returns true, if the given animation is /will be looped
+
+           parameters:
+               AnimName - name of the animation
+        */
+        bool GetLoopState(const std::string& AnimName) const;
 
         /* animated the object according to the passed time
 
@@ -205,9 +217,13 @@ namespace Dusk
         */
         bool LoadAnimatedObjectPart(std::ifstream& InStream);
 
-        std::string m_Anim;
-        bool m_DoPlayAnim;
-        bool m_LoopAnim;
+        /* updates the information about anims listed in m_Anims with currently
+           playing animations
+        */
+        void SynchronizeAnimationList();
+
+        //map that holds the animations while object is disabled
+        std::map<std::string, AnimRecord> m_Anims;
     };
 
 } //namespace

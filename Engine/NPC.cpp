@@ -554,21 +554,36 @@ bool NPC::Enable(Ogre::SceneManager* scm)
   ent_node->rotate(Ogre::Vector3::UNIT_Z, Ogre::Degree(rotation.z));
   //set user defined object to this NPC as reverse link
   entity->setUserObject(this);
-  if (m_Anim != "")
+  //restore saved or queued animations
+  if (!(m_Anims.empty()))
   {
     const Ogre::AnimationStateSet* anim_set = entity->getAllAnimationStates();
-    if (anim_set->hasAnimationState(m_Anim))
+    std::map<std::string, AnimRecord>::iterator iter;
+    iter = m_Anims.begin();
+    //iterate through animations
+    while (iter!=m_Anims.end())
     {
-      Ogre::AnimationState* state = anim_set->getAnimationState(m_Anim);
-      state->setTimePosition(0.0f);
-      state->setLoop(m_LoopAnim);
-      state->setEnabled(true);
-    }
-    else
-    {
-      m_Anim = "";
-    }
-  }
+      //check if given animation name identifies a valid animation
+      if (anim_set->hasAnimationState(iter->first))
+      {
+        //if so, enable it
+        Ogre::AnimationState* state = anim_set->getAnimationState(iter->first);
+        state->setTimePosition(iter->second.position);
+        state->setLoop(iter->second.DoLoop);
+        state->setEnabled(true);
+        //... and advance iterator
+        ++iter;
+      }
+      else
+      {
+        //otherwise delete it from list
+        const std::string currentName = iter->first;
+        m_Anims.erase(iter);
+        //... and set iter to next element
+        iter = m_Anims.upper_bound(currentName);
+      }
+    }//while
+  }//animations queued
   return (entity!=NULL);
 }
 

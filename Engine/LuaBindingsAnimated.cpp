@@ -35,12 +35,12 @@ int GetAnimated(lua_State *L)
 
 int GetAnimatedLoop(lua_State *L)
 {
-  if (lua_gettop(L)==1)
+  if (lua_gettop(L)==2)
   {
     const AnimatedObject* aniPtr = static_cast<AnimatedObject*> (lua_touserdata(L, 1));
     if (aniPtr!=NULL)
     {
-      if (aniPtr->GetLoopState())
+      if (aniPtr->GetLoopState(lua_tostring(L, 2)))
       {
         lua_pushboolean(L, 1);
       }
@@ -54,45 +54,31 @@ int GetAnimatedLoop(lua_State *L)
     lua_error(L);
     return 0;
   }
-  lua_pushstring(L, "GetAnimatedLoop expects exactly one argument!\n");
+  lua_pushstring(L, "GetAnimatedLoop expects exactly two arguments!\n");
   lua_error(L);
   return 0;
 }
 
-int GetAnimatedAnimation(lua_State *L)
+int GetAnimatedAnimations(lua_State *L)
 {
   if (lua_gettop(L)==1)
   {
     const AnimatedObject* aniPtr = static_cast<AnimatedObject*> (lua_touserdata(L, 1));
     if (aniPtr!=NULL)
     {
-      lua_pushstring(L, aniPtr->GetAnimation().c_str());
-      return 1;
+      const std::vector<std::string> result = aniPtr->GetCurrentAnimations();
+      unsigned int i;
+      for (i=0; i<result.size(); ++i)
+      {
+        lua_pushstring(L, result[i].c_str());
+      }//for
+      return result.size();
     }
     lua_pushstring(L, "GetAnimatedLoop got NULL for object pointer!\n");
     lua_error(L);
     return 0;
   }
   lua_pushstring(L, "GetAnimatedAnimation expects exactly one argument!\n");
-  lua_error(L);
-  return 0;
-}
-
-int AnimatedPlayAnimation(lua_State *L)
-{
-  if (lua_gettop(L)==3)
-  {
-    AnimatedObject* aniPtr = static_cast<AnimatedObject*> (lua_touserdata(L, 1));
-    if (aniPtr!=NULL)
-    {
-      aniPtr->PlayAnimation(lua_tostring(L, 2), lua_toboolean(L, 3));
-      return 0;
-    }
-    lua_pushstring(L, "AnimatedPlayAnimation got NULL for object pointer!\n");
-    lua_error(L);
-    return 0;
-  }
-  lua_pushstring(L, "AnimatedPlayAnimation expects exactly three arguments!\n");
   lua_error(L);
   return 0;
 }
@@ -184,9 +170,8 @@ void registerAnimated(lua_State *L)
   lua_register(L, "GetAnimatedObject", GetAnimated);
   lua_register(L, "GetPlayer", GetPlayer);
 
-  lua_register(L, "GetAnimatedAnimation", GetAnimatedAnimation);
+  lua_register(L, "GetAnimatedAnimations", GetAnimatedAnimations);
   lua_register(L, "GetAnimatedLoop", GetAnimatedLoop);
-  lua_register(L, "AnimatedPlayAnimation", AnimatedPlayAnimation);
   lua_register(L, "AnimatedStartAnimation", AnimatedStartAnimation);
   lua_register(L, "AnimatedStopAnimation", AnimatedStopAnimation);
   lua_register(L, "AnimatedStopAllAnimations", AnimatedStopAllAnimations);
