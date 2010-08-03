@@ -47,6 +47,7 @@
      - 2010-05-31 (rev 211) - enumeration value for Projectiles added
      - 2010-06-02 (rev 213) - enumeration value for Weapon added
      - 2010-07-31 (rev 220) - GetObjectMesh() added
+     - 2010-08-04 (rev 221) - isHitByRay() added
 
  ToDo list:
      - ???
@@ -64,6 +65,7 @@
 #include <OgreEntity.h>
 #include <OgreSceneManager.h>
 #include <OgreVector3.h>
+#include <OgreRay.h>
 
 namespace Dusk{
 
@@ -149,10 +151,24 @@ class DuskObject: public Ogre::UserDefinedObject
         */
         virtual bool canPickUp() const;
 
+        /* checks if a static object is hit by a ray. If the ray hits the
+           object, the function will return true and impact will be set to the
+           point where the ray hits the object.
+
+           parameters:
+               ray    - the ray which should be examined
+               impact - vector that will hold the location of the impact, if
+                        the function returned true
+
+           remarks:
+               Not tested!
+        */
+        virtual bool isHitByRay(const Ogre::Ray& ray, Ogre::Vector3& impact) const;
+
         /* Saves the object to the given stream. Returns true on success, false
            otherwise.
 
-           remark:
+           remarks:
                Every derived class has to have its own implementation of this
                function to ensure the object is saved properly.
         */

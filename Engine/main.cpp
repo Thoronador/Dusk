@@ -1,8 +1,10 @@
 // ----------------------------------------------------------------------------
 // Include the main OGRE header files
-// Ogre.h just expands to including lots of individual OGRE header files
+// Ogre.h just expands to including lots of individual OGRE header files, and
+// not all of them are needed here, so just include OgreException.h. Other OGRE
+// headers are included in other headers/ source files, where needed.
 // ----------------------------------------------------------------------------
-#include <Ogre.h>
+#include <OgreException.h>
 
 #include "Application.h"
 

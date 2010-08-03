@@ -3,6 +3,7 @@
 #include "DuskConstants.h"
 #include <sstream>
 #include <OgreSceneNode.h>
+#include "VertexDataFunc.h"
 
 namespace Dusk{
 
@@ -218,6 +219,60 @@ ObjectTypes DuskObject::GetType() const
 
 bool DuskObject::canPickUp() const
 {
+  return false;
+}
+
+bool DuskObject::isHitByRay(const Ogre::Ray& ray, Ogre::Vector3& impact) const
+{
+  //if object is not enabled, it can not be hit by a ray
+  if (!IsEnabled()) return false;
+  //perform bounding box check first, because it's less expensive and faster
+  // than a full ray-to-polygon check
+  if (!(ray.intersects(entity->getWorldBoundingBox()).first)) return false;
+
+  /* The rest of this function's code is taken from
+       http://www.ogre3d.org/tikiwiki/tiki-index.php?page=Raycasting%20to%20the%20polygon%20level
+     with some minor adjustments.
+  */
+  // mesh data to retrieve
+  size_t vertex_count;
+  size_t index_count;
+  Ogre::Vector3 *vertices;
+  unsigned long *indices;
+  // get the mesh information
+  GetMeshInformation(entity->getMesh(), vertex_count, vertices, index_count,
+                     indices, entity->getParentNode()->getWorldPosition(),
+                     entity->getParentNode()->getWorldOrientation(),
+                     entity->getParentNode()->_getDerivedScale());
+  // test for hitting individual triangles on the mesh
+  Ogre::Real closest_distance = -1.0f;
+  std::pair<bool, Ogre::Real> hit;
+  unsigned int i;
+  for (i=0; i<index_count; i=i+3)
+  {
+    // check for a hit against this triangle
+    hit = Ogre::Math::intersects(ray, vertices[indices[i]], vertices[indices[i+1]],
+                                 vertices[indices[i+2]], true, false);
+    // Was it hit?
+    if (hit.first)
+    {
+      //Is distance closer than previous closest distance?
+      if ((hit.second<closest_distance) || (closest_distance<0.0f))
+      {
+        // closest intersect so far, save it
+        closest_distance = hit.second;
+      }//if new closest distance
+    }//if hit
+  }//for
+  // free the verticies and indicies memory
+  delete[] vertices;
+  delete[] indices;
+  //return values
+  if (closest_distance>-0.5f)
+  {
+    impact = ray.getPoint(closest_distance);
+    return true;
+  }
   return false;
 }
 

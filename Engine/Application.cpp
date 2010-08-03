@@ -27,7 +27,7 @@ namespace Dusk
     /**
     *@return if initialisation of the ogre core <br> - true initialisation successfull  <br> - false init failed
     */
-    bool Application::initialise(std::string pluginFileName)
+    bool Application::initialise(const std::string& pluginFileName)
     {
         std::cout << "Plugin file: "<<pluginFileName<<"\n";
         m_Root = new Ogre::Root(pluginFileName);
@@ -42,7 +42,7 @@ namespace Dusk
         createCamera();
         createViewports();
         //Register Ogre Objects in API class
-        getAPI().setOgreObjects(m_Root,/*m_Camera,*/m_Window,m_SceneManager);
+        getAPI().setOgreObjects(m_Root,m_Window,m_SceneManager);
         // Set default mipmap level (NB some APIs ignore this)
         Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
 
@@ -74,7 +74,7 @@ namespace Dusk
         return true;
     }
 
-    void Application::go(std::string pluginFileName)
+    void Application::go(const std::string& pluginFileName)
     {
         if (!initialise(pluginFileName))
             return;

@@ -228,6 +228,8 @@
 		<Unit filename="Sound.h" />
 		<Unit filename="UniformMotionObject.cpp" />
 		<Unit filename="UniformMotionObject.h" />
+		<Unit filename="VertexDataFunc.cpp" />
+		<Unit filename="VertexDataFunc.h" />
 		<Unit filename="WaypointObject.cpp" />
 		<Unit filename="WaypointObject.h" />
 		<Unit filename="Weapon.cpp" />

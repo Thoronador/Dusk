@@ -18,6 +18,7 @@
      - 2010-02-08 (rev 169) - } small improvements in declarations
      - 2010-05-05 (rev 196) - documentation update
      - 2010-06-02 (rev 213) - update to work with Weapons, too
+     - 2010-08-03 (rev 221) - minor improvement
 
  ToDo list:
      - Probably we should change the inventory class from a map of strings and
@@ -37,6 +38,9 @@
 
 namespace Dusk
 {
+
+//iterator for items in inventory
+typedef std::map<std::string, unsigned int>::const_iterator ConstInventoryIterator;
 
 /* class Inventory
          Holds all the items (as defined by class ItemBase) of a NPC (or the
@@ -95,10 +99,10 @@ class Inventory
     virtual bool LoadFromStream(std::ifstream& InStream);
 
     /* utility function to get iterator to the beginning of the internal map */
-    std::map<std::string, unsigned int>::const_iterator GetFirst() const;
+    ConstInventoryIterator GetFirst() const;
 
     /* utility function to get iterator to the end of the internal map */
-    std::map<std::string, unsigned int>::const_iterator GetEnd() const;
+    ConstInventoryIterator GetEnd() const;
 
     /* comparison operator for Inventory - returns true, if two Inventorys
        contain the same items (ID) and same amount of them  */

@@ -227,12 +227,12 @@ bool Inventory::LoadFromStream(std::ifstream& InStream)
   return InStream.good();
 }
 
-std::map<std::string, unsigned int>::const_iterator Inventory::GetFirst() const
+ConstInventoryIterator Inventory::GetFirst() const
 {
   return m_Items.begin();
 }
 
-std::map<std::string, unsigned int>::const_iterator Inventory::GetEnd() const
+ConstInventoryIterator Inventory::GetEnd() const
 {
   return m_Items.end();
 }
@@ -247,10 +247,10 @@ bool Inventory::operator==(const Inventory& other) const
   { //only one is empty, so they are not the same
     return false;
   }
-  std::map<std::string, unsigned int>::const_iterator other_one = other.GetFirst();
-  std::map<std::string, unsigned int>::const_iterator other_end = other.GetEnd();
-  std::map<std::string, unsigned int>::const_iterator self_one = m_Items.begin();
-  std::map<std::string, unsigned int>::const_iterator self_end = m_Items.end();
+  ConstInventoryIterator other_one = other.GetFirst();
+  ConstInventoryIterator other_end = other.GetEnd();
+  ConstInventoryIterator self_one = m_Items.begin();
+  ConstInventoryIterator self_end = m_Items.end();
 
   while (self_one!=self_end and other_one!=other_end)
   {
