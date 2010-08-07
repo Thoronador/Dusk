@@ -830,6 +830,8 @@ void NPC::performAttack(const SlotType attackSlot)
     std::cout << "NPC::performAttack(): ERROR: invalid slot.\n";
     return;
   }
+  //only enabled NPC can perform an attack
+  if (!IsEnabled()) return;
   WeaponRecord wRec;
   if (attackSlot==stRightHand)
   {
@@ -857,7 +859,12 @@ void NPC::performAttack(const SlotType attackSlot)
       position,
       rotation,
       1.0f);
+    //not sure whether this is the best choice
+    projPtr->SetDirection(entity->getParentSceneNode()->getOrientation()*Ogre::Vector3(0.0, 0.0, 1.0));
+    projPtr->SetEmitter(this);
+    //enable it
     projPtr->Enable(getAPI().getOgreSceneManager());
+    std::cout << "NPC::performAttack: projectile \""<< wRec.ProjectileID << "\" emitted.\n";
     //we are done here
     return;
   }//projectile based
@@ -865,6 +872,10 @@ void NPC::performAttack(const SlotType attackSlot)
   /* We perform a melee attack, thus perform scene query to get all possible
      targets.
   */
+  std::cout << "NPC::performAttack: performing melee attack on ";
+  if (attackSlot==stRightHand) std::cout << "right";
+  if (attackSlot==stLeftHand) std::cout << "left";
+  std::cout << " hand.\n";
   Ogre::SceneManager* scm = getAPI().getOgreSceneManager();
   if (scm==NULL) return;
   Ogre::SphereSceneQuery* sp_query =

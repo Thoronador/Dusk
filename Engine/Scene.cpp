@@ -11,6 +11,7 @@
 #include "Player.h"
 #include "NPCBase.h"
 #include "WeaponBase.h"
+#include "ProjectileBase.h"
 
 namespace Dusk
 {
@@ -161,6 +162,14 @@ void Scene::createGrassMesh()
         wrec.value = 100;
         wrec.weight = 2.5f;
         WeaponBase::GetSingleton().addWeapon("sword", wrec);
+        //add projectile-shooting sword to weapon base
+        wrec.Name = "Sword shooting swords";
+        wrec.ProjectileID = "sword_projectile";
+        wrec.Type = wtGun;
+        WeaponBase::GetSingleton().addWeapon("sword_gun", wrec);
+        //add projectile information
+        ProjectileBase::GetSingleton().addProjectile("sword_projectile",
+                                                "Sword.mesh", 25.0, 40.0, 2, 8);
         //add player information to NPCBase
         NPCAnimations anims;
         anims.Death = "Dance";
@@ -195,12 +204,15 @@ void Scene::createGrassMesh()
         Player::GetSingleton().getInventory().AddItem("sword", 5);
         std::cout << "Player now has "<<Player::GetSingleton().getConstInventory().GetItemCount("sword")
                   << " swords in inventory.\n";
+        Player::GetSingleton().getInventory().AddItem("sword_gun", 5);
+        std::cout << "Player now has "<<Player::GetSingleton().getConstInventory().GetItemCount("sword_gun")
+                  << " sword guns in inventory.\n";
         Player::GetSingleton().Enable(m_SceneManager);
         Player::GetSingleton().SetRotation(Ogre::Vector3(0.0, 180.0, 0.0));
         if (Player::GetSingleton().equip("sword"))
         {
           std::cout << "First equip() successful.\n";
-          if (Player::GetSingleton().equip("sword"))
+          if (Player::GetSingleton().equip("sword_gun"))
           {
             std::cout << "Second equip() successful.\n";
           }

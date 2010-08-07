@@ -33,6 +33,7 @@
      - 2010-06-11 (rev 218) - fixed a bug with animations
      - 2010-07-31 (rev 219) - update to reflect changes of AnimatedObject
      - 2010-08-01 (rev 220) - GetObjectMesh() added, Enable() simplified
+     - 2010-08-07 (rev 222) - projectile creation during gun attacks improved
 
  ToDo list:
      - add possibility to equip weapons, clothes, armour, etc.

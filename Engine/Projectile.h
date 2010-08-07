@@ -7,13 +7,14 @@
 
  History:
      - 2010-05-31 (rev 211) - initial version (by thoronador)
-     - 2010-08-01 (rev 220) - GetObjectMesh() added,
+     - 2010-08-01 (rev 220) - GetObjectMesh() added
                             - Enable() removed (inherited method is used instead)
+     - 2010-08-07 (rev 222) - ray-based collision detection implemented
+                            - emitter property added
 
  ToDo list:
-     - Implement collision detection for projectile, i.e. checks in every frame
-       to see if projectile hit something. And, if it hit an NPC, inflict some
-       damage to it and destroy the projectile.
+     - Improve collision detection for projectile. Currently only collisions
+       with landscape, static objects (DuskObjects) and NPCs will work.
      - ???
 
  Bugs:
@@ -62,6 +63,20 @@ class Projectile: public UniformMotionObject
     /* constant value which can be used to signal infinite TTL */
     static const float InfiniteTTL;
 
+    /* sets the object (usually an NPC) who shot this projectile
+
+       parameters:
+           emitter - object that emitted the projectile
+
+       remarks:
+           The emitter will be the only NPC that will NOT be hurt by the
+           projectile.
+    */
+    void SetEmitter(DuskObject* emitter);
+
+    /* returns the projectile's emitter, if any */
+    DuskObject* GetEmitter() const;
+
     /* function to inject time for movement and perform movement */
     virtual void injectTime(const float SecondsPassed);
 
@@ -95,6 +110,8 @@ class Projectile: public UniformMotionObject
   private:
     // time to live before objet should be deleted
     float m_TTL;
+    //NPC who shot this projectile
+    DuskObject* m_Emitter;
 }; //class
 
 } //namespace

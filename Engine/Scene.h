@@ -25,6 +25,8 @@
      - 2010-05-20 (rev 205) - adjustments for new object hierarchy
      - 2010-05-21 (rev 206) - adjustments for player's movement
      - 2010-06-06 (rev 215) - adjustments for player record in NPCBase
+     - 2010-08-07 (rev 222) - adjustments for weapon records in WeaponBase and
+                              player's equipment
 
  ToDo list:
      - ???
