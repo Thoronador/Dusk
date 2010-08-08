@@ -241,8 +241,25 @@ bool DuskObject::isHitByRay(const Ogre::Ray& ray, Ogre::Vector3& impact) const
   unsigned long *indices;
   // get the mesh information
   GetMeshInformation(entity->getMesh(), vertex_count, vertices, index_count,
-                     indices, entity->getParentNode()->getWorldPosition(),
+                     indices,
+  #if defined(OGRE_VERSION_MAJOR) && defined(OGRE_VERSION_MINOR)
+    /* With Ogre "Shoggoth" 1.6 the functions getWorldPosition() and
+       getWorldOrientation() were removed from Ogre::Node, so we have to use
+       _getDerivedPosition() and _getDerivedOrientation() instead.
+    */
+    #if ((OGRE_VERSION_MAJOR>1) || (OGRE_VERSION_MAJOR==1&& OGRE_VERSION_MINOR>=6))
+       //Code for Ogre "Shoggoth" 1.6 and later
+                     entity->getParentNode()->_getDerivedPosition(),
+                     entity->getParentNode()->_getDerivedOrientation(),
+    #else
+       //Code for earlier Ogre Versions, e.g. Ogre "Eihort" 1.4
+                     entity->getParentNode()->getWorldPosition(),
                      entity->getParentNode()->getWorldOrientation(),
+    #endif
+  #else
+    #error OGRE_VERSION_MAJOR and OGRE_VERSION_MINOR are not defined!
+    #error Are you sure you the Ogre headers are included?
+  #endif
                      entity->getParentNode()->_getDerivedScale());
   // test for hitting individual triangles on the mesh
   Ogre::Real closest_distance = -1.0f;
