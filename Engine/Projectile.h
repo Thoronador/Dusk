@@ -11,6 +11,7 @@
                             - Enable() removed (inherited method is used instead)
      - 2010-08-07 (rev 222) - ray-based collision detection implemented
                             - emitter property added
+     - 2010-08-15 (rev 224) - ray-based collision detection extended
 
  ToDo list:
      - Improve collision detection for projectile. Currently only collisions

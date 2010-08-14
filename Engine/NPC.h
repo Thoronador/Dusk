@@ -34,6 +34,7 @@
      - 2010-07-31 (rev 219) - update to reflect changes of AnimatedObject
      - 2010-08-01 (rev 220) - GetObjectMesh() added, Enable() simplified
      - 2010-08-07 (rev 222) - projectile creation during gun attacks improved
+     - 2010-08-15 (rev 224) - isHitByRay() added
 
  ToDo list:
      - add possibility to equip weapons, clothes, armour, etc.
@@ -75,6 +76,20 @@ namespace Dusk
 
       /* returns the enumeration type indicating that this is an NPC */
       virtual ObjectTypes GetType() const;
+
+      /* checks if a static object is hit by a ray. If the ray hits the
+           object, the function will return true and impact will be set to the
+           point where the ray hits the object.
+
+           parameters:
+               ray    - the ray which should be examined
+               impact - vector that will hold the location of the impact, if
+                        the function returned true
+
+           remarks:
+               Not tested!
+        */
+        virtual bool isHitByRay(const Ogre::Ray& ray, Ogre::Vector3& impact) const;
 
       /* animated and move the NPC according to the passed time
 

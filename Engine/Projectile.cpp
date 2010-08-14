@@ -102,12 +102,13 @@ void Projectile::injectTime(const float SecondsPassed)
         else
         { //no landscape, so it must be a DuskObject (or derived type)
           DuskObject* obj = static_cast<DuskObject*>(result.at(i).movable->getUserObject());
-          if (obj!=NULL)
+          if (obj!=NULL and obj!=m_Emitter)
           {
             //hit a static object (or item or weapon)?
-            if ((obj->GetType()==otStatic and obj!=m_Emitter)
-               or ((obj->GetType()==otItem or obj->GetType()==otWeapon) and
-                   obj!=m_Emitter and !(static_cast<Item*>(obj))->isEquipped()))
+            if ((obj->GetType()==otStatic or obj->GetType()==otAnimated
+                 or obj->GetType()==otWaypoint or obj->GetType()==otContainer)
+               or ((obj->GetType()==otItem or obj->GetType()==otWeapon)
+                   and !(static_cast<Item*>(obj))->isEquipped()))
             {
               Ogre::Vector3 vec_i(0.0, 0.0, 0.0);
               if (obj->isHitByRay(ray, vec_i))
@@ -161,7 +162,7 @@ void Projectile::injectTime(const float SecondsPassed)
                 }//if distance shot enough
               }//hit?
             }//NPC?
-          }//not NULL
+          }//not NULL and not equal to emitter
         }//else branch
       }//if movable != NULL
     }//for i

@@ -2,6 +2,7 @@
 #include "ObjectBase.h" //should replace this one later
 #include <OgreAnimationState.h>
 #include "DuskConstants.h"
+#include "VertexDataFunc.h"
 
 namespace Dusk
 {
@@ -142,6 +143,82 @@ bool AnimatedObject::Disable()
 ObjectTypes AnimatedObject::GetType() const
 {
   return otAnimated;
+}
+
+bool AnimatedObject::isHitByRay(const Ogre::Ray& ray, Ogre::Vector3& impact) const
+{
+  /* Basically, this function has the same code that DuskObject::isHitByRay()
+     uses. The main difference is the use of GetMeshInformationAnimated() to
+     retrieve the vertex data for animated entities instead of the function
+     GetMeshInformation() for static entities.
+  */
+  //if object is not enabled, it can not be hit by a ray
+  if (!IsEnabled()) return false;
+  //perform bounding box check first, because it's less expensive and faster
+  // than a full ray-to-polygon check
+  if (!(ray.intersects(entity->getWorldBoundingBox()).first)) return false;
+
+  /* The rest of this function's code is taken from
+       http://www.ogre3d.org/tikiwiki/tiki-index.php?page=Raycasting%20to%20the%20polygon%20level
+     with some minor adjustments.
+  */
+  // mesh data to retrieve
+  size_t vertex_count;
+  size_t index_count;
+  Ogre::Vector3 *vertices;
+  unsigned long *indices;
+  // get the mesh information
+  GetMeshInformationAnimated(entity, vertex_count, vertices, index_count,
+                             indices,
+  #if defined(OGRE_VERSION_MAJOR) && defined(OGRE_VERSION_MINOR)
+    /* With Ogre "Shoggoth" 1.6 the functions getWorldPosition() and
+       getWorldOrientation() were removed from Ogre::Node, so we have to use
+       _getDerivedPosition() and _getDerivedOrientation() instead.
+    */
+    #if ((OGRE_VERSION_MAJOR>1) || (OGRE_VERSION_MAJOR==1&& OGRE_VERSION_MINOR>=6))
+       //Code for Ogre "Shoggoth" 1.6 and later
+                             entity->getParentNode()->_getDerivedPosition(),
+                             entity->getParentNode()->_getDerivedOrientation(),
+    #else
+       //Code for earlier Ogre Versions, e.g. Ogre "Eihort" 1.4
+                             entity->getParentNode()->getWorldPosition(),
+                             entity->getParentNode()->getWorldOrientation(),
+    #endif
+  #else
+    #error OGRE_VERSION_MAJOR and OGRE_VERSION_MINOR are not defined!
+    #error Are you sure you the Ogre headers are included?
+  #endif
+                             entity->getParentNode()->_getDerivedScale());
+  // test for hitting individual triangles on the mesh
+  Ogre::Real closest_distance = -1.0f;
+  std::pair<bool, Ogre::Real> hit;
+  unsigned int i;
+  for (i=0; i<index_count; i=i+3)
+  {
+    // check for a hit against this triangle
+    hit = Ogre::Math::intersects(ray, vertices[indices[i]], vertices[indices[i+1]],
+                                 vertices[indices[i+2]], true, false);
+    // Was it hit?
+    if (hit.first)
+    {
+      //Is distance closer than previous closest distance?
+      if ((hit.second<closest_distance) || (closest_distance<0.0f))
+      {
+        // closest intersect so far, save it
+        closest_distance = hit.second;
+      }//if new closest distance
+    }//if hit
+  }//for
+  // free the verticies and indicies memory
+  delete[] vertices;
+  delete[] indices;
+  //return values
+  if (closest_distance>-0.5f)
+  {
+    impact = ray.getPoint(closest_distance);
+    return true;
+  }
+  return false;
 }
 
 bool AnimatedObject::StartAnimation(const std::string& AnimName, const bool DoLoop)

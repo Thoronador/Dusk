@@ -49,7 +49,7 @@
      - 2010-07-31 (rev 220) - GetObjectMesh() added
      - 2010-08-04 (rev 221) - isHitByRay() added
      - 2010-08-09 (rev 223) - fixed a bug that prevented compiling of DuskObject
-                              under Ogre "1.6.0" Shoggoth and later versions
+                              under Ogre "Shoggoth" 1.6.0 and later versions
 
  ToDo list:
      - ???

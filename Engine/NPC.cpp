@@ -77,6 +77,12 @@ ObjectTypes NPC::GetType() const
   return otNPC;
 }
 
+bool NPC::isHitByRay(const Ogre::Ray& ray, Ogre::Vector3& impact) const
+{
+  //just make sure we use the right one here
+  return AnimatedObject::isHitByRay(ray, impact);
+}
+
 void NPC::injectTime(const float SecondsPassed)
 {
   AnimatedObject::injectTime(SecondsPassed);

@@ -41,6 +41,7 @@
                             - adjustments to class to work with multiple
                               parallel animations
      - 2010-08-01 (rev 220) - GetObjectMesh() added
+     - 2010-08-15 (rev 224) - isHitByRay() added
 
  ToDo list:
      - ???
@@ -93,6 +94,20 @@ namespace Dusk
 
         /* returns the object type as enumeration */
         virtual ObjectTypes GetType() const;
+
+        /* checks if a static object is hit by a ray. If the ray hits the
+           object, the function will return true and impact will be set to the
+           point where the ray hits the object.
+
+           parameters:
+               ray    - the ray which should be examined
+               impact - vector that will hold the location of the impact, if
+                        the function returned true
+
+           remarks:
+               Not tested!
+        */
+        virtual bool isHitByRay(const Ogre::Ray& ray, Ogre::Vector3& impact) const;
 
         /* causes an animation to be played and returns true on success
 
