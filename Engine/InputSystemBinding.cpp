@@ -59,7 +59,9 @@ InputSystemBinding::InputSystemBinding()
 InputSystemBinding::~InputSystemBinding()
 {
   //empty
-  SaveKeyConfiguration(cKeyConfigurationFile);
+  // We don't need to save key configuration yet, because the player cannot
+  // change it yet ingame.
+  //SaveKeyConfiguration(cKeyConfigurationFile);
 }
 
 bool InputSystemBinding::keyPressed (const OIS::KeyEvent &arg)

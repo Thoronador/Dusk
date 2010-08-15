@@ -225,7 +225,17 @@ void Scene::createGrassMesh()
 
     void Scene::destroyScene()
     {
+      std::cout << "Scene destruction in progress...\n";
+      std::cout << "  Delete objects...\n";
+      DataLoader::GetSingleton().ClearData(ALL_BITS);
+      std::cout<<"  Delete weather effects...\n";
+      Weather& w_singleton = Weather::getSingelton();
+      if (w_singleton.isFoggy()) w_singleton.stopFog();
+      if (w_singleton.isRaining()) w_singleton.stopRain();
+      if (w_singleton.isSnowing()) w_singleton.stopSnow();
+      std::cout << "  Delete Landscape...\n";
       Landscape::GetSingleton().RemoveFromEngine(getAPI().getOgreSceneManager());
-      ObjectData::GetSingleton().ClearData();
+      Landscape::GetSingleton().ClearAllRecords();
+      std::cout << "Scene destroyed.\n";
     }
-}
+} //namespace

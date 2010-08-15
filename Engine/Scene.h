@@ -27,6 +27,7 @@
      - 2010-06-06 (rev 215) - adjustments for player record in NPCBase
      - 2010-08-07 (rev 222) - adjustments for weapon records in WeaponBase and
                               player's equipment
+     - 2010-08-15 (rev 228) - destroyScene() does now destroy a bit more :P
 
  ToDo list:
      - ???

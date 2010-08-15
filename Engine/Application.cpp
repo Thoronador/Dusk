@@ -80,8 +80,8 @@ namespace Dusk
             return;
         m_Root->startRendering();
 
-        // clean up
-        Scene::get().destroyScene();
+        /* clean up is already done by quit command */
+        //Scene::get().destroyScene();
     }
 
     void Application::addResourceLocations()
