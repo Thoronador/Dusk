@@ -1,5 +1,6 @@
 #include "InputSystemEditor.h"
-
+#include <OgreRoot.h>
+#include <OgreSceneManager.h>
 #include "Console.h"
 #include "LuaEngine.h"
 #include "API.h"
@@ -56,10 +57,36 @@ InputSystemEditor::InputSystemEditor()
 
 InputSystemEditor::~InputSystemEditor()
 {
-    delete myBackgroundRect;
-    delete mySceneNode;
-    delete myTextbox;
-    delete myOverlay;
+    /* Due to the deletion of some Ogre Singletons it may happen that some or
+       all of the created objects were already destroyed and the pointers are
+       just dangling pointers. That's why we have to check for presence of
+       singletons first and destroy afterwards.
+    */
+    if (myBackgroundRect->getParentSceneNode()!=NULL)
+    {
+      myBackgroundRect->getParentSceneNode()->detachObject(myBackgroundRect);
+    }
+    if (Ogre::HardwareBufferManager::getSingletonPtr()!=NULL)
+    {
+      delete myBackgroundRect;
+    }
+    myBackgroundRect = NULL;
+    if (Ogre::Root::getSingletonPtr()!=NULL and
+        Ogre::Root::getSingleton().getSceneManagerIterator().getNext()!=NULL)
+    {
+      delete mySceneNode;
+    }
+    mySceneNode = NULL;
+    if (Ogre::OverlayManager::getSingletonPtr()!=NULL)
+    {
+      myOverlay->remove2D((Ogre::OverlayContainer*)myTextbox);
+      Ogre::OverlayManager::getSingleton().destroyOverlayElement(myTextbox);
+      myTextbox = NULL;
+      Ogre::OverlayManager::getSingleton().destroy(myOverlay);
+      myOverlay = NULL;
+    }
+    myTextbox = NULL;
+    myOverlay = NULL;
 }
 
 bool InputSystemEditor::frameStarted(const Ogre::FrameEvent &evt)

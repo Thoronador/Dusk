@@ -1,3 +1,38 @@
+/*---------------------------------------------------------------------------
+ Authors: DaSteph, walljumper, thoronador
+ Date:    2010-03-03
+ Purpose: InputSystemEditor Singleton class
+          ???
+
+ History:
+     - 2007-11-26 (rev 7)   - initial version (by DaSteph)
+     - 2007-11-27 (rev 8)   - InputSystemEditor is now descendant of Ogre's
+                              FrameListener; frameStarted()+frameEnded() added
+     - 2007-12-29 (rev 15)  - keyPressed(), keyReleased() added
+     - 2007-12-29 (rev 16)  - handleEvent() removed
+     - 2008-01-17 (rev 23)  - InputSystemEditor registers itself at API
+                              (by walljumper)
+     - 2008-01-26 (rev 30)  - InputSystemEditor is now singleton
+     - 2008-02-22 (rev 39)  - exit() added
+     - 2008-03-26 (rev 57)  - mouse handling added
+     - 2009-05-27 (rev 96)  - renamed InputSytem*.cpp to InputSystem*.cpp
+                              (by thoronador)
+     - 2010-03-04 (rev 177) - ISE can now switch between Console and LuaEngine
+                              and has a "browsable" input history
+     - 2010-03-12 (rev 181) - "<" and ">" are now allowed input characters, too
+     - 2010-03-13 (rev 184) - input and output are now handled separately
+     - 2010-03-13 (rev 204) - curly brackets are now allowed input characters, too
+     - 2010-08-15 (rev 226) - fixed bugs that could cause a crash/ error on
+                              program termination
+                            - documentation (history) updated
+
+ ToDo list:
+     - ???
+
+ Bugs:
+     - Untested. If you find a bug (or more), then tell us please.
+ --------------------------------------------------------------------------*/
+
 #ifndef INPUTSYSTEMEDITOR_H_INCLUDED
 #define INPUTSYSTEMEDITOR_H_INCLUDED
 
@@ -6,7 +41,9 @@
 #include <string>
 #include <deque>
 #include <OgreFrameListener.h>
-#include <Ogre.h>
+#include <OgreOverlay.h>
+#include <OgreOverlayElement.h>
+#include <OgreSceneNode.h>
 
 #include "Script.h"
 
