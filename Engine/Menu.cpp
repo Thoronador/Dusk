@@ -92,7 +92,11 @@ void Menu::showDialogue(const std::string& first, const std::vector<std::string>
 
 void Menu::hideDialogue()
 {
-  Ogre::Overlay* ol = Ogre::OverlayManager::getSingleton().getByName(cDialogueOverlay);
+  Ogre::OverlayManager* olMgr =Ogre::OverlayManager::getSingletonPtr();
+  /*If overlay manager is NULL, then it is not present any more and all overlays
+    should already be destroyed at that point. So we can return anyway. */
+  if (olMgr==NULL) return;
+  Ogre::Overlay* ol = olMgr->getByName(cDialogueOverlay);
   if (ol!=NULL)
   {
     ol->hide();
@@ -111,13 +115,16 @@ bool Menu::isDialogueActive() const
 
 void Menu::killDialogueOverlayLines()
 {
-  Ogre::OverlayManager& om = Ogre::OverlayManager::getSingleton();
-  Ogre::OverlayContainer* oc = static_cast<Ogre::OverlayContainer*> (om.getOverlayElement(cDialogueOverlay+"/Box"));
+  Ogre::OverlayManager* om = Ogre::OverlayManager::getSingletonPtr();
+  /*If overlay manager is NULL, then it is not present any more and all overlays
+    should already be destroyed at that point. So we can return anyway. */
+  if (om==NULL) return;
+  Ogre::OverlayContainer* oc = static_cast<Ogre::OverlayContainer*> (om->getOverlayElement(cDialogueOverlay+"/Box"));
   unsigned int i;
   for (i=0; i<m_DialogueLineCount; i=i+1)
   {
     oc->removeChild(cDialogueOverlay+"/Box/Line"+IntToString(i));
-    om.destroyOverlayElement(cDialogueOverlay+"/Box/Line"+IntToString(i));
+    om->destroyOverlayElement(cDialogueOverlay+"/Box/Line"+IntToString(i));
   }//for
   m_DialogueLineCount = 0;
 }

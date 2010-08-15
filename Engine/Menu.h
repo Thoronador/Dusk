@@ -9,6 +9,8 @@
      - 2010-01-26 (rev 159) - startDialogueWithNPC() and nextDialogueChoice()
                               added to handle display of dialogue lines
      - 2010-03-03 (rev 176) - processing of result scripts added
+     - 2010-08-15 (rev 225) - fixed two bugs that could cause a crash/ error on
+                              program termination
 
  ToDo list:
      - get a better material or texture for dialogue menu background
