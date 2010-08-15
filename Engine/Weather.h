@@ -12,6 +12,8 @@
      - 2010-01-19 (rev 157) - rain implemented as particle system
      - 2010-02-09 (rev 170) - getFogColour() added
      - 2010-03-12 (rev 180) - changes for Weather to be used in Editor, too
+     - 2010-08-15 (rev 227) - changes to prevent memory access violation during
+                              singleton destruction
 
  ToDo list:
      - other effects, such as rain, maybe even wind

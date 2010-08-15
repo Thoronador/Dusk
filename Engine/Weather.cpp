@@ -93,8 +93,16 @@ void Weather::stopFog()
 
 bool Weather::isFoggy() const
 {
-  Ogre::SceneManager* scm = getAPI().getOgreSceneManager();
-  return (scm->getFogMode() != Ogre::FOG_NONE);
+  Ogre::SceneManager* scm = NULL;
+  if (Ogre::Root::getSingletonPtr()!=NULL)
+  {
+    scm = Ogre::Root::getSingleton().getSceneManagerIterator().getNext();
+  }
+  if (scm!=NULL)
+  {
+    return (scm->getFogMode() != Ogre::FOG_NONE);
+  }//if
+  return false;
 }
 
 bool Weather::isLinearFog() const
@@ -133,8 +141,12 @@ void Weather::stopSnow()
 
 bool Weather::isSnowing() const
 {
-  const Ogre::SceneManager* scm = getAPI().getOgreSceneManager();
-  return (scm->hasParticleSystem(cSnowParticleSystem));
+  Ogre::SceneManager* scm = NULL;
+  if (Ogre::Root::getSingletonPtr()!=NULL)
+  {
+    scm = Ogre::Root::getSingleton().getSceneManagerIterator().getNext();
+  }
+  return (scm!=NULL and scm->hasParticleSystem(cSnowParticleSystem));
 }
 
 void Weather::startRain()
@@ -167,8 +179,12 @@ void Weather::stopRain()
 
 bool Weather::isRaining() const
 {
-  const Ogre::SceneManager* scm = getAPI().getOgreSceneManager();
-  return (scm->hasParticleSystem(cRainParticleSystem));
+  Ogre::SceneManager* scm = NULL;
+  if (Ogre::Root::getSingletonPtr()!=NULL)
+  {
+    scm = Ogre::Root::getSingleton().getSceneManagerIterator().getNext();
+  }
+  return (scm!=NULL and scm->hasParticleSystem(cRainParticleSystem));
 }
 
 } //namespace
