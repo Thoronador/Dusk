@@ -67,18 +67,27 @@ namespace Dusk
         m_translationVector = Ogre::Vector3::ZERO;
         m_RotationPerSecond = 0.0f;
         //now detach and delete everything related to the camera
-        m_Secondary->detachObject(m_Camera);
-        m_Secondary->getCreator()->destroyCamera(m_Camera);
-        m_Camera = NULL;
-        m_Primary->removeChild(m_Secondary);
-        m_Secondary->getCreator()->destroySceneNode(m_Secondary->getName());
-        m_Secondary = NULL;
-        m_Primary->getParentSceneNode()->removeChild(m_Primary);
-        m_Primary->getCreator()->destroySceneNode(m_Primary->getName());
-        m_Primary = NULL;
+        if (Ogre::Root::getSingletonPtr()!=NULL)
+        {
+          m_Secondary->detachObject(m_Camera);
+          m_Secondary->getCreator()->destroyCamera(m_Camera);
+          m_Camera = NULL;
+          m_Primary->removeChild(m_Secondary);
+          m_Secondary->getCreator()->destroySceneNode(m_Secondary->getName());
+          m_Secondary = NULL;
+          m_Primary->getParentSceneNode()->removeChild(m_Primary);
+          m_Primary->getCreator()->destroySceneNode(m_Primary->getName());
+          m_Primary = NULL;
+        }
+        else
+        {
+          m_Camera = NULL;
+          m_Secondary = NULL;
+          m_Primary = NULL;
+        }
     }
 
-    Ogre::Camera* Camera::getOgreCamera()
+    Ogre::Camera* Camera::getOgreCamera() const
     {
         return m_Camera;
     }

@@ -20,6 +20,7 @@
      - 2010-05-06 (rev 197) - setupDone() added
      - 2010-05-21 (rev 206) - adjustments for player movement
      - 2010-05-27 (rev 208) - adjustments for player's animations
+     - 2010-08-16 (rev 229) - fix in destructor to prevent possible segfault
 
  ToDo list:
      - adjust value of const. gravity in move() and initial value of
@@ -65,7 +66,7 @@ namespace Dusk
 
             /* retrieves the pointer to the Ogre::Camera object which is
                internally used*/
-            Ogre::Camera* getOgreCamera();
+            Ogre::Camera* getOgreCamera() const;
 
             /* sets the position of the camera
 

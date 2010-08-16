@@ -24,6 +24,7 @@
      - 2010-05-08 (rev 200) - documentation updated
                             - SaveAllToStream() added
      - 2010-05-14 (rev 203) - possibility to render Landscape as wire frame
+     - 2010-08-16 (rev 229) - error in ChangeListSize() fixed
 
  ToDo list:
      - implement LoadRecordFromStream() for Landscape class

@@ -878,23 +878,27 @@ void Landscape::ChangeListSize(const unsigned int new_size)
   {
     copy_count = new_size;
     //delete unwanted records
-    for (i=new_size; i<m_numRec; i++)
+    for (i=new_size; i<m_numRec; ++i)
     {
       delete m_RecordList[i];
     }
   }//if
 
-  for (i=0; i<m_numRec; i++)
+  for (i=0; i<m_numRec; ++i)
   {
     new_list[i] = m_RecordList[i];
   }//for
   //nullify new pointers
-  for (i=m_numRec; i<new_size; i++)
+  for (i=m_numRec; i<new_size; ++i)
   {
     new_list[i] = NULL;
   }//for
   temp_list = m_RecordList;
   m_RecordList = new_list;
+  if (new_size<m_numRec)
+  {
+    m_numRec = new_size;
+  }//if
   delete [] temp_list;
   m_Capacity = new_size;
 }//ChangeListSize

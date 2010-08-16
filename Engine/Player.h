@@ -13,6 +13,7 @@
      - 2010-06-06 (rev 215) - changes in Enable()
      - 2010-07-31 (rev 219) - update to reflect changes of AnimatedObject
      - 2010-08-01 (rev 220) - GetObjectMesh() added, Enable() simplified
+     - 2010-08-16 (rev 229) - fix to prevent segfault in destructor
 
  ToDo list:
      - actually implement LoadFromStream() and SaveToStream()

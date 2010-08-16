@@ -35,7 +35,11 @@ Player::Player()
 
 Player::~Player()
 {
-  Disable();
+  if (Ogre::Root::getSingletonPtr()!=NULL)
+  {
+    Disable();
+  }//if
+  entity = NULL;
 }
 
 bool Player::pickUpNearest()
