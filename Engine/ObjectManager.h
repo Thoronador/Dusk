@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
  Date:    2010-05-15
- Purpose: ObjectData Singleton class
+ Purpose: ObjectManager Singleton class
           holds data of all static objects, containers, lights and items in
           the game.
 
@@ -33,6 +33,7 @@
      - 2010-05-15 (rev 204) - IsObjectPresent() added
      - 2010-06-02 (rev 213) - addWeaponReference() added; ObjectData can now
                               handle Weapons, too.
+     - 2010-08-18 (rev 230) - renamed from ObjectData to ObjectManager
 
  ToDo list:
      - extend class when further classes for non-animated objects are added
@@ -43,8 +44,8 @@
  --------------------------------------------------------------------------*/
 
 
-#ifndef OBJECTDATA_H
-#define OBJECTDATA_H
+#ifndef OBJECTMANAGER_H
+#define OBJECTMANAGER_H
 
 #include "DuskObject.h"
 #include "Item.h"
@@ -58,13 +59,13 @@
 namespace Dusk
 {
 
-  class ObjectData
+  class ObjectManager
   {
     public:
-      virtual ~ObjectData();
+      virtual ~ObjectManager();
 
       /* Singleton access function */
-      static ObjectData& GetSingleton();
+      static ObjectManager& GetSingleton();
 
       /* returns the number of objects currently loaded */
       unsigned int NumberOfReferences() const;
@@ -140,6 +141,7 @@ namespace Dusk
       /* Tries to disable all objects */
       void DisableAllObjects();
 
+      #ifdef DUSK_EDITOR
       /* Deletes all objects with the given ID and returns the number of deleted objects.
 
          remarks:
@@ -164,6 +166,7 @@ namespace Dusk
              was changed (by Editor application).
       */
       unsigned int updateReferencesAfterIDChange(const std::string& oldID, const std::string& newID, Ogre::SceneManager* scm);
+      #endif //DUSK_EDITOR
 
       /* deletes all objects
 
@@ -172,8 +175,10 @@ namespace Dusk
       */
       void ClearData();
     private:
-      ObjectData();
-      ObjectData(const ObjectData& op){}
+      /* private constructor (singleton pattern) */
+      ObjectManager();
+      /* empty copy constructor (singleton pattern) */
+      ObjectManager(const ObjectManager& op){}
       //std::vector<DuskObject*> m_ReferenceList;
       std::map<std::string, std::vector<DuskObject*> > m_ReferenceMap;
       unsigned int m_RefCount;
@@ -181,4 +186,4 @@ namespace Dusk
 
 }//namespace
 
-#endif // OBJECTDATA_H
+#endif // OBJECTMANAGER_H

@@ -1,6 +1,6 @@
 #include "LuaBindingsNPC.h"
 #include "NPC.h"
-#include "AnimationData.h"
+#include "InjectionManager.h"
 
 namespace Dusk
 {
@@ -11,7 +11,7 @@ int GetNPC(lua_State *L)
 {
   if (lua_gettop(L)==1)
   {
-    lua_pushlightuserdata(L, AnimationData::GetSingleton().GetNPCReference(lua_tostring(L, 1)));
+    lua_pushlightuserdata(L, InjectionManager::GetSingleton().GetNPCReference(lua_tostring(L, 1)));
     return 1;
   }
   lua_pushstring(L, "GetNPC expects exactly one argument!\n");

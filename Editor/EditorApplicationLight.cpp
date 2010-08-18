@@ -3,7 +3,7 @@
 #include <CEGUI/CEGUI.h>
 #include <OgreLight.h>
 #include "../Engine/DuskFunctions.h"
-#include "../Engine/ObjectData.h"
+#include "../Engine/ObjectManager.h"
 #include "../Engine/API.h"
 
 namespace Dusk
@@ -634,7 +634,7 @@ bool EditorApplicationLight::LightDeleteFrameYesClicked(const CEGUI::EventArgs &
     return true;
   }
   //kill references
-  unsigned int refs_deleted = ObjectData::GetSingleton().deleteReferencesOfObject(ID_of_light_to_delete);
+  unsigned int refs_deleted = ObjectManager::GetSingleton().deleteReferencesOfObject(ID_of_light_to_delete);
   if (refs_deleted == 0)
   {
     showHint("Light \""+ID_of_light_to_delete+"\" deleted! It had no references which had to be deleted.");
@@ -799,7 +799,7 @@ bool EditorApplicationLight::LightEditFrameSaveClicked(const CEGUI::EventArgs &e
   RefreshLightList();
   //reference update
   unsigned int ref_count =
-  ObjectData::GetSingleton().reenableReferencesOfObject(ID_of_light_to_edit, getAPI().getOgreSceneManager()/* mSceneMgr*/);
+  ObjectManager::GetSingleton().reenableReferencesOfObject(ID_of_light_to_edit, getAPI().getOgreSceneManager()/* mSceneMgr*/);
   showHint("The Light \""+ID_of_light_to_edit+"\" and "+IntToString(ref_count)
           +" references were updated!");
   //delete window
@@ -859,7 +859,7 @@ bool EditorApplicationLight::LightConfirmIDChangeRenameClicked(const CEGUI::Even
     LightBase::GetSingleton().addLight(LightID, lr);
     LightBase::GetSingleton().deleteLight(ID_of_light_to_edit);
     //update all lights with same ID
-    ObjectData::GetSingleton().updateReferencesAfterIDChange(ID_of_light_to_edit, LightID, getAPI().getOgreSceneManager()/*mSceneMgr*/);
+    ObjectManager::GetSingleton().updateReferencesAfterIDChange(ID_of_light_to_edit, LightID, getAPI().getOgreSceneManager()/*mSceneMgr*/);
     //add row for new light to catalogue
     addLightRecordToCatalogue(LightID, lr);
     //remove row of old ID

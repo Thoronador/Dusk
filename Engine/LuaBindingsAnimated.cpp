@@ -1,5 +1,5 @@
 #include "LuaBindingsAnimated.h"
-#include "AnimationData.h"
+#include "InjectionManager.h"
 #include "Player.h"
 
 namespace Dusk
@@ -25,7 +25,7 @@ int GetAnimated(lua_State *L)
 {
   if (lua_gettop(L)==1)
   {
-    lua_pushlightuserdata(L, AnimationData::GetSingleton().GetAnimatedObjectReference(lua_tostring(L, 1)));
+    lua_pushlightuserdata(L, InjectionManager::GetSingleton().GetAnimatedObjectReference(lua_tostring(L, 1)));
     return 1;
   }
   lua_pushstring(L, "GetAnimated expects exactly one argument!\n");

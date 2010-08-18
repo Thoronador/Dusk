@@ -1,6 +1,6 @@
 #include "LuaBindingsObject.h"
 #include "DuskObject.h"
-#include "ObjectData.h"
+#include "ObjectManager.h"
 #include "API.h"
 
 namespace Dusk
@@ -13,7 +13,7 @@ int GetObject(lua_State *L)
 {
   if (lua_gettop(L)==1)
   {
-    lua_pushlightuserdata(L, ObjectData::GetSingleton().GetObjectByID(lua_tostring(L, 1)));
+    lua_pushlightuserdata(L, ObjectManager::GetSingleton().GetObjectByID(lua_tostring(L, 1)));
     return 1;
   }
   lua_pushstring(L, "GetObject expects exactly one argument!\n");
@@ -48,7 +48,7 @@ int IsObjectAvailable(lua_State *L)
 {
   if (lua_gettop(L)==1)
   {
-    if (ObjectData::GetSingleton().IsObjectPresent(lua_tostring(L, 1)))
+    if (ObjectManager::GetSingleton().IsObjectPresent(lua_tostring(L, 1)))
       lua_pushboolean(L, 1);
     else lua_pushboolean(L, 0);
     return 1;

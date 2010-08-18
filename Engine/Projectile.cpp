@@ -1,6 +1,6 @@
 #include "Projectile.h"
 #include "ProjectileBase.h"
-#include "AnimationData.h"
+#include "InjectionManager.h"
 #include "DuskConstants.h"
 #include "Landscape.h"
 #include "DiceBox.h"
@@ -93,7 +93,7 @@ void Projectile::injectTime(const float SecondsPassed)
               {
                 //projectile will hit the landscape within this frame
                 // --> request deletetion of projectile
-                AnimationData::GetSingleton().requestDeletion(this);
+                InjectionManager::GetSingleton().requestDeletion(this);
                 return;
               }
             }//If hit by ray
@@ -117,7 +117,7 @@ void Projectile::injectTime(const float SecondsPassed)
                 {
                   //projectile will hit the static object within this frame
                   // --> request projectile deletetion
-                  AnimationData::GetSingleton().requestDeletion(this);
+                  InjectionManager::GetSingleton().requestDeletion(this);
                   return;
                 }//if distance shot enough
               }//hit?
@@ -157,7 +157,7 @@ void Projectile::injectTime(const float SecondsPassed)
                          break;
                   }//switch
                   // --> request projectile deletetion
-                  AnimationData::GetSingleton().requestDeletion(this);
+                  InjectionManager::GetSingleton().requestDeletion(this);
                   return;
                 }//if distance shot enough
               }//hit?
@@ -179,7 +179,7 @@ void Projectile::injectTime(const float SecondsPassed)
     if (m_TTL<=0.0f)
     {
       //we are done here, so delete this object
-      AnimationData::GetSingleton().requestDeletion(this);
+      InjectionManager::GetSingleton().requestDeletion(this);
       return;
     }
   }//if

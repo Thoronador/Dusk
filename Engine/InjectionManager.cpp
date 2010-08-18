@@ -1,34 +1,34 @@
-#include "AnimationData.h"
+#include "InjectionManager.h"
 #include "DuskConstants.h"
 
 namespace Dusk
 {
 
-AnimationData::AnimationData()
+InjectionManager::InjectionManager()
 {
   m_ReferenceMap.clear();
   m_RefCount = 0;
   m_DeletionObjects.clear();
 }
 
-AnimationData::~AnimationData()
+InjectionManager::~InjectionManager()
 {
   ClearData();
   m_RefCount = 0;
 }
 
-AnimationData& AnimationData::GetSingleton()
+InjectionManager& InjectionManager::GetSingleton()
 {
-  static AnimationData Instance;
+  static InjectionManager Instance;
   return Instance;
 }
 
-unsigned int AnimationData::NumberOfReferences() const
+unsigned int InjectionManager::NumberOfReferences() const
 {
   return m_RefCount;
 }
 
-AnimatedObject* AnimationData::addAnimatedReference(const std::string& ID,
+AnimatedObject* InjectionManager::addAnimatedReference(const std::string& ID,
     const Ogre::Vector3& position, const Ogre::Vector3& rotation, const float scale)
 {
   AnimatedObject * ObjectPointer = new AnimatedObject(ID, position, rotation, scale);
@@ -37,7 +37,7 @@ AnimatedObject* AnimationData::addAnimatedReference(const std::string& ID,
   return ObjectPointer;
 }
 
-NPC* AnimationData::addNPCReference(const std::string& ID,
+NPC* InjectionManager::addNPCReference(const std::string& ID,
      const Ogre::Vector3& position, const Ogre::Vector3& rot, const float Scale)
 {
   NPC* NPCPointer = new NPC(ID, position, rot, Scale);
@@ -46,7 +46,7 @@ NPC* AnimationData::addNPCReference(const std::string& ID,
   return NPCPointer;
 }
 
-WaypointObject* AnimationData::addWaypointReference(const std::string& ID, const Ogre::Vector3& position,
+WaypointObject* InjectionManager::addWaypointReference(const std::string& ID, const Ogre::Vector3& position,
                                            const Ogre::Vector3& rotation, const float scale)
 {
   WaypointObject* wpPointer = new WaypointObject(ID, position, rotation, scale);
@@ -55,7 +55,7 @@ WaypointObject* AnimationData::addWaypointReference(const std::string& ID, const
   return wpPointer;
 }
 
-Projectile* AnimationData::addProjectileReference(const std::string& ID, const Ogre::Vector3& position,
+Projectile* InjectionManager::addProjectileReference(const std::string& ID, const Ogre::Vector3& position,
                                    const Ogre::Vector3& rotation, const float scale)
 {
   Projectile* projPtr = new Projectile(ID, position, rotation, scale);
@@ -64,7 +64,7 @@ Projectile* AnimationData::addProjectileReference(const std::string& ID, const O
   return projPtr;
 }
 
-InjectionObject* AnimationData::GetInjectionObjectReference(const std::string& ID) const
+InjectionObject* InjectionManager::GetInjectionObjectReference(const std::string& ID) const
 {
   std::map<std::string, std::vector<InjectionObject*> >::const_iterator iter;
   iter = m_ReferenceMap.find(ID);
@@ -78,7 +78,7 @@ InjectionObject* AnimationData::GetInjectionObjectReference(const std::string& I
   return NULL;
 }
 
-AnimatedObject* AnimationData::GetAnimatedObjectReference(const std::string& ID) const
+AnimatedObject* InjectionManager::GetAnimatedObjectReference(const std::string& ID) const
 {
   std::map<std::string, std::vector<InjectionObject*> >::const_iterator iter;
   iter = m_ReferenceMap.find(ID);
@@ -96,7 +96,7 @@ AnimatedObject* AnimationData::GetAnimatedObjectReference(const std::string& ID)
   return NULL;
 }
 
-NPC* AnimationData::GetNPCReference(const std::string& ID) const
+NPC* InjectionManager::GetNPCReference(const std::string& ID) const
 {
   InjectionObject* ap = GetInjectionObjectReference(ID);
   if (ap!=NULL)
@@ -109,7 +109,7 @@ NPC* AnimationData::GetNPCReference(const std::string& ID) const
   return (dynamic_cast<NPC*>(ap));
 }
 
-unsigned int AnimationData::deleteReferencesOfAnimatedObject(const std::string& del_ID)
+unsigned int InjectionManager::deleteReferencesOfAnimatedObject(const std::string& del_ID)
 {
   std::map<std::string, std::vector<InjectionObject*> >::iterator iter;
   iter = m_ReferenceMap.find(del_ID);
@@ -133,7 +133,7 @@ unsigned int AnimationData::deleteReferencesOfAnimatedObject(const std::string& 
   return deletedReferences;
 }
 
-void AnimationData::InjectAnimationTime(const float TimePassed)
+void InjectionManager::InjectAnimationTime(const float TimePassed)
 {
   if (!m_DeletionObjects.empty())
   {
@@ -155,7 +155,7 @@ void AnimationData::InjectAnimationTime(const float TimePassed)
   }//while
 }
 
-void AnimationData::ClearData()
+void InjectionManager::ClearData()
 {
   InjectionObject * ObjPtr;
   std::map<std::string, std::vector<InjectionObject*> >::iterator iter;
@@ -176,11 +176,11 @@ void AnimationData::ClearData()
   m_RefCount = 0;
 }//clear data
 
-bool AnimationData::SaveAllToStream(std::ofstream& output) const
+bool InjectionManager::SaveAllToStream(std::ofstream& output) const
 {
   if (!(output.good()))
   {
-    std::cout << "AnimationData::SaveToStream: ERROR: Bad stream given.\n";
+    std::cout << "InjectionManager::SaveToStream: ERROR: Bad stream given.\n";
     return false;
   }
   unsigned int i;
@@ -195,7 +195,7 @@ bool AnimationData::SaveAllToStream(std::ofstream& output) const
       {
         if (!(iter->second.at(i)->SaveToStream(output)))
         {
-          std::cout << "AnimationData::SaveToStream: ERROR while saving reference.\n";
+          std::cout << "InjectionManager::SaveToStream: ERROR while saving reference.\n";
           return false;
         } //if
       }//if
@@ -205,7 +205,7 @@ bool AnimationData::SaveAllToStream(std::ofstream& output) const
   return output.good();
 }
 
-bool AnimationData::LoadNextFromStream(std::ifstream& Stream, const unsigned int PrefetchedHeader)
+bool InjectionManager::LoadNextFromStream(std::ifstream& Stream, const unsigned int PrefetchedHeader)
 {
   InjectionObject * animPtr = NULL;
   switch(PrefetchedHeader)
@@ -251,14 +251,14 @@ bool AnimationData::LoadNextFromStream(std::ifstream& Stream, const unsigned int
          delete animPtr;
          break;
     default:
-         std::cout << "AnimationData::LoadNextFromStream: ERROR: unexpected "
-                   << "header found.\n";
+         std::cout << "InjectionManager::LoadNextFromStream: ERROR: unexpected"
+                   << " header found.\n";
          break;
   }//swi
   return false;
 }
 
-void AnimationData::requestDeletion(InjectionObject* objPtr)
+void InjectionManager::requestDeletion(InjectionObject* objPtr)
 {
   //we don't want NULL pointers
   if (objPtr!=NULL)
@@ -275,7 +275,7 @@ void AnimationData::requestDeletion(InjectionObject* objPtr)
   }
 }
 
-void AnimationData::performRequestedDeletions()
+void InjectionManager::performRequestedDeletions()
 {
   std::map<std::string, std::vector<InjectionObject*> >::iterator iter;
   while (!m_DeletionObjects.empty())

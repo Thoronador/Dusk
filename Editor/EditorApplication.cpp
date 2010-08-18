@@ -6,11 +6,11 @@
 #include "../Engine/DataLoader.h"
 #include "../Engine/Journal.h"
 #include "../Engine/Landscape.h"
-#include "../Engine/ObjectData.h"
+#include "../Engine/ObjectManager.h"
 #include "../Engine/ObjectBase.h"
 #include "../Engine/ItemBase.h"
 #include "../Engine/Weather.h"
-#include "../Engine/AnimationData.h"
+#include "../Engine/InjectionManager.h"
 #include <OgreVector3.h>
 
 namespace Dusk
@@ -698,9 +698,9 @@ bool EditorApplication::StatsButtonClicked(const CEGUI::EventArgs &e)
            +"  Object records: "  + IntToString(ObjectBase::GetSingleton().NumberOfObjects())+"\n"
            +"  Items: " + IntToString(ItemBase::GetSingleton().NumberOfItems())+"\n"
            +"  Lights: " + IntToString(LightBase::GetSingleton().NumberOfLights())+"\n"
-           +"    Object, Light & Item references: "+ IntToString(ObjectData::GetSingleton().NumberOfReferences())
+           +"    Object, Light & Item references: "+ IntToString(ObjectManager::GetSingleton().NumberOfReferences())
            +"\n  NPCs: " + IntToString(NPCBase::GetSingleton().NumberOfNPCs())
-           +"\n    Animated Object & NPC references: "+ IntToString(AnimationData::GetSingleton().NumberOfReferences())
+           +"\n    Animated Object & NPC references: "+ IntToString(InjectionManager::GetSingleton().NumberOfReferences())
            +"\n  Journal:\n"
            +"    quests: "+ IntToString(Journal::GetSingleton().NumberOfDistinctQuests())
            +"\n    entries: "+ IntToString(Journal::GetSingleton().NumberOfEntries()), true);
@@ -783,7 +783,7 @@ bool EditorApplication::LoadFrameOKClicked(const CEGUI::EventArgs &e)
     std::cout << "DEBUG: SendToEngine...\n";
     Landscape::GetSingleton().SendToEngine(mSceneMgr, false);
     std::cout << "DEBUG: EnableAllObjects...\n";
-    ObjectData::GetSingleton().EnableAllObjects(mSceneMgr);
+    ObjectManager::GetSingleton().EnableAllObjects(mSceneMgr);
     EditorCamera::GetSingleton().resetToOrigin();
   }//else branch
   return true;
@@ -1154,20 +1154,20 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
         if (PlaceType==otStatic)
         {
           temp =
-          ObjectData::GetSingleton().addObjectReference( std::string(lbi->getText().c_str()),
+          ObjectManager::GetSingleton().addObjectReference(std::string(lbi->getText().c_str()),
                      EditorCamera::GetSingleton().getPosition() + quat*Ogre::Vector3(0.0f, 0.0f, -100.0f),
                      Ogre::Vector3::ZERO, 1.0f);
         }
         else if (PlaceType==otLight)
         {
           temp =
-          ObjectData::GetSingleton().addLightReference( std::string(lbi->getText().c_str()),
+          ObjectManager::GetSingleton().addLightReference(std::string(lbi->getText().c_str()),
                      EditorCamera::GetSingleton().getPosition() + quat*Ogre::Vector3(0.0f, 0.0f, -100.0f));
         }
         else
         {
           temp =
-          ObjectData::GetSingleton().addItemReference( std::string(lbi->getText().c_str()),
+          ObjectManager::GetSingleton().addItemReference( std::string(lbi->getText().c_str()),
                      EditorCamera::GetSingleton().getPosition() + quat*Ogre::Vector3(0.0f, 0.0f, -100.0f),
                      Ogre::Vector3::ZERO, 1.0f);
         }

@@ -3,7 +3,7 @@
 #include "InputSystem.h"
 #include "API.h"
 #include "Camera.h"
-#include "AnimationData.h"
+#include "InjectionManager.h"
 #include "LuaEngine.h"
 #include "Player.h"
 
@@ -27,7 +27,7 @@ bool FrameListener::frameStarted(const Ogre::FrameEvent& evt)
     Console::getInstance()->processScripts();
     LuaEngine::GetSingleton().processScripts();
     Camera::getSingleton().move(evt);
-    AnimationData::GetSingleton().InjectAnimationTime(evt.timeSinceLastFrame);
+    InjectionManager::GetSingleton().InjectAnimationTime(evt.timeSinceLastFrame);
     Player::GetSingleton().injectTime(evt.timeSinceLastFrame);
     return m_Continue;
 }

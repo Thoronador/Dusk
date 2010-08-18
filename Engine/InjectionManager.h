@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
  Date:    2010-05-06
- Purpose: AnimationData Singleton class
+ Purpose: InjectionManager Singleton class
           Holds all animated objects within the game and makes sure they all
           get their animations played properly by injecting the frame time.
 
@@ -25,6 +25,7 @@
                               addProjectileReference() added
                             - adjustments for Projectiles
      - 2010-06-02 (rev 213) - adjustments for weapons
+     - 2010-08-18 (rev 230) - renamed AnimationData to InjectionManager
 
  ToDo list:
      - ???
@@ -33,8 +34,8 @@
      - No known bugs. If you find one (or more), then tell me please.
  --------------------------------------------------------------------------*/
 
-#ifndef ANIMATIONDATA_H
-#define ANIMATIONDATA_H
+#ifndef INJECTIONMANAGER_H
+#define INJECTIONMANAGER_H
 
 #include "Projectile.h"
 #include "AnimatedObject.h"
@@ -45,14 +46,14 @@
 
 namespace Dusk
 {
-  class AnimationData
+  class InjectionManager
   {
     public:
       /* destructor */
-      virtual ~AnimationData();
+      virtual ~InjectionManager();
 
       /* singleton access function */
-      static AnimationData& GetSingleton();
+      static InjectionManager& GetSingleton();
 
       /* returns the number of object references the class holds */
       unsigned int NumberOfReferences() const;
@@ -122,7 +123,7 @@ namespace Dusk
       /* deletes all referenced objects */
       void ClearData();
 
-      /* notify AnimationData about an object that wants to be deleted
+      /* notify InjectionManager about an object that wants to be deleted
 
          parameters:
              objPtr - pointer to the InjectionObject that wants to be deleted
@@ -137,9 +138,9 @@ namespace Dusk
       void requestDeletion(InjectionObject* objPtr);
     private:
       /* private constructor (singleton pattern) */
-      AnimationData();
+      InjectionManager();
       /* empty, private copy constructor due to singleton pattern*/
-      AnimationData(const AnimationData& op) {}
+      InjectionManager(const InjectionManager& op) {}
 
       std::map<std::string, std::vector<InjectionObject*> > m_ReferenceMap;
       unsigned int m_RefCount;
@@ -154,4 +155,4 @@ namespace Dusk
   };//class
 }//namespace
 
-#endif // ANIMATIONDATA_H
+#endif // INJECTIONMANAGER_H

@@ -28,6 +28,7 @@
      - 2010-05-31 (rev 211) - update for Projectiles and ProjectileBase
      - 2010-05-31 (rev 212) - update for WeaponBase
      - 2010-06-02 (rev 213) - update for Weapons
+     - 2010-06-02 (rev 230) - update due to rename of AnimationData to InjectionManager
 
  ToDo list:
      - extend class when further classes for data management are added
@@ -46,9 +47,9 @@
 namespace Dusk
 {
   //Flags to indicate which portions to load/ save
-  const unsigned int ANIMATED_BIT = 1;
-  const unsigned int CONTAINER_BIT = 2;
-  const unsigned int DIALOGUE_BIT = 4;
+  const unsigned int CONTAINER_BIT = 1;
+  const unsigned int DIALOGUE_BIT = 2;
+  const unsigned int INJECTION_BIT = 4;
   const unsigned int ITEM_BIT = 8;
   const unsigned int JOURNAL_BIT = 16;
   const unsigned int LANDSCAPE_BIT = 32;
@@ -60,12 +61,12 @@ namespace Dusk
   const unsigned int REFERENCE_BIT = 2048;
   const unsigned int WEAPON_BIT = 4096;
 
-  const unsigned int ALL_BITS = ANIMATED_BIT | CONTAINER_BIT | DIALOGUE_BIT |
+  const unsigned int ALL_BITS = CONTAINER_BIT | DIALOGUE_BIT | INJECTION_BIT |
                                 ITEM_BIT | JOURNAL_BIT | LANDSCAPE_BIT |
                                 LIGHT_BIT | NPC_BIT | OBJECT_BIT | PROJECTILE_BIT
                                 | QUEST_LOG_BIT | REFERENCE_BIT | WEAPON_BIT;
 
-  const unsigned int SAVE_MEAN_BITS = ANIMATED_BIT | QUEST_LOG_BIT | REFERENCE_BIT;
+  const unsigned int SAVE_MEAN_BITS = INJECTION_BIT | QUEST_LOG_BIT | REFERENCE_BIT;
 
 /*class DataLoader:
         This class is (or will be) the main entry point for loading game data

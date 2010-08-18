@@ -102,8 +102,6 @@
 		<Unit filename="API.h" />
 		<Unit filename="AnimatedObject.cpp" />
 		<Unit filename="AnimatedObject.h" />
-		<Unit filename="AnimationData.cpp" />
-		<Unit filename="AnimationData.h" />
 		<Unit filename="Application.cpp" />
 		<Unit filename="Application.h" />
 		<Unit filename="Camera.cpp" />
@@ -157,6 +155,8 @@
 		<Unit filename="DuskTypes.h" />
 		<Unit filename="FrameListener.cpp" />
 		<Unit filename="FrameListener.h" />
+		<Unit filename="InjectionManager.cpp" />
+		<Unit filename="InjectionManager.h" />
 		<Unit filename="InjectionObject.cpp" />
 		<Unit filename="InjectionObject.h" />
 		<Unit filename="InputEvent.cpp" />
@@ -208,8 +208,8 @@
 		<Unit filename="NPCBase.h" />
 		<Unit filename="ObjectBase.cpp" />
 		<Unit filename="ObjectBase.h" />
-		<Unit filename="ObjectData.cpp" />
-		<Unit filename="ObjectData.h" />
+		<Unit filename="ObjectManager.cpp" />
+		<Unit filename="ObjectManager.h" />
 		<Unit filename="Player.cpp" />
 		<Unit filename="Player.h" />
 		<Unit filename="Projectile.cpp" />

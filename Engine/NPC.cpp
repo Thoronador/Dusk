@@ -5,8 +5,8 @@
 #include "WeaponBase.h"
 #include "Settings.h"
 #include "DuskConstants.h"
-#include "ObjectData.h"
-#include "AnimationData.h"
+#include "ObjectManager.h"
+#include "InjectionManager.h"
 #include "API.h"
 #include "DiceBox.h"
 
@@ -316,7 +316,7 @@ bool NPC::pickUp(Item* target)
   //we have to save item's ID now, because the pointer might be invalid after
   // the call of removeItemReference()
   const std::string ItemID = target->GetID();
-  if (ObjectData::GetSingleton().removeItemReference(target))
+  if (ObjectManager::GetSingleton().removeItemReference(target))
   {
     m_Inventory.AddItem(ItemID, 1);
     return true;
@@ -860,7 +860,7 @@ void NPC::performAttack(const SlotType attackSlot)
          - adjust position of projectile that way that it "spawns" a bit away
            from NPC in order to avoid hitting the NPC itself
     */
-    Projectile* projPtr = AnimationData::GetSingleton().addProjectileReference(
+    Projectile* projPtr = InjectionManager::GetSingleton().addProjectileReference(
       wRec.ProjectileID, //ID
       position,
       rotation,

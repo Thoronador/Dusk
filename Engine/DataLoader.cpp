@@ -1,6 +1,6 @@
 #include "DataLoader.h"
 #include <fstream>
-#include "AnimationData.h"
+#include "InjectionManager.h"
 #include "ContainerBase.h"
 #include "Dialogue.h"
 #include "ItemBase.h"
@@ -9,7 +9,7 @@
 #include "LightBase.h"
 #include "NPCBase.h"
 #include "ObjectBase.h"
-#include "ObjectData.h"
+#include "ObjectManager.h"
 #include "QuestLog.h"
 #include "ProjectileBase.h"
 #include "WeaponBase.h"
@@ -53,9 +53,9 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   data_records = 0;
 
 
-  if ((bits & ANIMATED_BIT) !=0)
+  if ((bits & INJECTION_BIT) !=0)
   {
-    data_records += AnimationData::GetSingleton().NumberOfReferences();
+    data_records += InjectionManager::GetSingleton().NumberOfReferences();
   }
   if ((bits & CONTAINER_BIT) !=0)
   {
@@ -99,7 +99,7 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   }
   if ((bits & REFERENCE_BIT) !=0)
   {
-    data_records += ObjectData::GetSingleton().NumberOfReferences();
+    data_records += ObjectManager::GetSingleton().NumberOfReferences();
   }
   if ((bits & WEAPON_BIT) !=0)
   {
@@ -241,12 +241,12 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
     }//if
   }//if objects
 
-  //save animated objects
-  if ((bits & ANIMATED_BIT)!=0)
+  //save animated objects/ injection objects
+  if ((bits & INJECTION_BIT)!=0)
   {
-    if (!AnimationData::GetSingleton().SaveAllToStream(output))
+    if (!InjectionManager::GetSingleton().SaveAllToStream(output))
     {
-      std::cout << "DataLoader::SaveToFile: ERROR: could not write Animation "
+      std::cout << "DataLoader::SaveToFile: ERROR: could not write Injection "
                 << "reference data to file \""<<FileName<<"\".\n";
       output.close();
       return false;
@@ -256,7 +256,7 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   //save object references
   if ((bits & REFERENCE_BIT) !=0)
   {
-    if (!ObjectData::GetSingleton().SaveAllToStream(output))
+    if (!ObjectManager::GetSingleton().SaveAllToStream(output))
     {
       std::cout << "DataLoader::SaveToFile: ERROR: could not write object "
                 << "reference data to file \""<<FileName<<"\".\n";
@@ -350,13 +350,13 @@ bool DataLoader::LoadFromFile(const std::string& FileName)
       case cHeaderRefL: //Light
       case cHeaderRefO: //DuskObject
       case cHeaderRfWe: //Weapon
-           success = ObjectData::GetSingleton().LoadNextFromStream(input, Header);
+           success = ObjectManager::GetSingleton().LoadNextFromStream(input, Header);
            break;
       case cHeaderRefA:  //AnimatedObject
       case cHeaderRefN:  //NPC
       case cHeaderRefP:  //Projectiles
       case cHeaderRfWP:  //WaypointObject
-           success = AnimationData::GetSingleton().LoadNextFromStream(input, Header);
+           success = InjectionManager::GetSingleton().LoadNextFromStream(input, Header);
            break;
       case cHeaderWeap:
            success = WeaponBase::GetSingleton().LoadNextWeaponFromStream(input);
@@ -394,7 +394,7 @@ void DataLoader::ClearData(const unsigned int bits)
   }
   if ((bits & REFERENCE_BIT) != 0)
   {
-    ObjectData::GetSingleton().ClearData();
+    ObjectManager::GetSingleton().ClearData();
   }//object references
 
   if ((bits & OBJECT_BIT) != 0)
@@ -402,9 +402,9 @@ void DataLoader::ClearData(const unsigned int bits)
     ObjectBase::GetSingleton().ClearAllObjects();
   }//Object information
 
-  if ((bits & ANIMATED_BIT) != 0)
+  if ((bits & INJECTION_BIT) != 0)
   {
-    AnimationData::GetSingleton().ClearData();
+    InjectionManager::GetSingleton().ClearData();
   }//animated object and NPC references
 
   if ((bits & CONTAINER_BIT)!=0)
@@ -607,14 +607,14 @@ bool DataLoader::LoadSaveGame(const std::string& FileName)
       case cHeaderRefN:  //NPC
       case cHeaderRefP:  //Projectiles
       case cHeaderRfWP:  //WaypointObject
-           success = AnimationData::GetSingleton().LoadNextFromStream(input, Header);
+           success = InjectionManager::GetSingleton().LoadNextFromStream(input, Header);
            break;
       case cHeaderRefC: //Container
       case cHeaderRefI: //Item
       case cHeaderRefL: //Light
       case cHeaderRefO: //DuskObject
       case cHeaderRfWe: //Weapon
-           success = ObjectData::GetSingleton().LoadNextFromStream(input, Header);
+           success = ObjectManager::GetSingleton().LoadNextFromStream(input, Header);
            break;
       case cHeaderQLog: //questlog
            success = QuestLog::GetSingleton().LoadFromStream(input);
@@ -655,8 +655,8 @@ bool DataLoader::SaveGame(const std::string& FileName) const
   //write header "Dusk"
   output.write((char*) &cHeaderDusk, sizeof(unsigned int));
   //determine and write number of records
-  unsigned int data_records = 1 /*QuestLog*/ + ObjectData::GetSingleton().NumberOfReferences()
-                              + AnimationData::GetSingleton().NumberOfReferences();
+  unsigned int data_records = 1 /*QuestLog*/ + ObjectManager::GetSingleton().NumberOfReferences()
+                              + InjectionManager::GetSingleton().NumberOfReferences();
   output.write((char*) &data_records, sizeof(unsigned int));
   //write headers to identify file as save game
   output.write((char*) &cHeaderSave, sizeof(unsigned int));
@@ -680,14 +680,14 @@ bool DataLoader::SaveGame(const std::string& FileName) const
     return false;
   }
   //write the data
-  if (!ObjectData::GetSingleton().SaveAllToStream(output))
+  if (!ObjectManager::GetSingleton().SaveAllToStream(output))
   {
     std::cout << "DataLoader::SaveGame: ERROR while writing object data to "
               << "file \""<<FileName<<"\".\n";
     output.close();
     return false;
   }
-  if (!AnimationData::GetSingleton().SaveAllToStream(output))
+  if (!InjectionManager::GetSingleton().SaveAllToStream(output))
   {
     std::cout << "DataLoader::SaveGame: ERROR while writing animation data to "
               << "file \""<<FileName<<"\".\n";

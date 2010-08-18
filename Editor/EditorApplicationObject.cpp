@@ -3,7 +3,7 @@
 #include <iostream>
 #include <CEGUI/CEGUI.h>
 #include "../Engine/ObjectBase.h"
-#include "../Engine/ObjectData.h"
+#include "../Engine/ObjectManager.h"
 #include "../Engine/DuskFunctions.h"
 #include "../Engine/API.h"
 
@@ -395,7 +395,7 @@ bool EditorApplicationObject::ObjectConfirmIDChangeRenameClicked(const CEGUI::Ev
     ObjectBase::GetSingleton().addObject(ObjectID, ObjectMesh);
     ObjectBase::GetSingleton().deleteObject(ID_of_object_to_edit);
     //update all objects
-    ObjectData::GetSingleton().updateReferencesAfterIDChange( ID_of_object_to_edit, ObjectID, getAPI().getOgreSceneManager()/*mSceneMgr*/);
+    ObjectManager::GetSingleton().updateReferencesAfterIDChange( ID_of_object_to_edit, ObjectID, getAPI().getOgreSceneManager()/*mSceneMgr*/);
     //add row for new object to catalogue
     addObjectRecordToCatalogue(ObjectID, ObjectMesh);
     //remove row of old ID
@@ -620,7 +620,7 @@ bool EditorApplicationObject::ObjectEditFrameSaveClicked(const CEGUI::EventArgs 
   //update list
   RefreshObjectList();
   //update shown objects
-  ObjectData::GetSingleton().reenableReferencesOfObject(ID_of_object_to_edit, getAPI().getOgreSceneManager()/*mSceneMgr*/);
+  ObjectManager::GetSingleton().reenableReferencesOfObject(ID_of_object_to_edit, getAPI().getOgreSceneManager()/*mSceneMgr*/);
   //delete window
   if (winmgr.isWindowPresent("Editor/ObjectEditFrame"))
   {
@@ -657,7 +657,7 @@ bool EditorApplicationObject::ObjectDeleteFrameYesClicked(const CEGUI::EventArgs
     CEGUI::WindowManager::getSingleton().destroyWindow("Editor/ObjectDeleteFrame");
     return true;
   }
-  unsigned int refs_deleted = ObjectData::GetSingleton().deleteReferencesOfObject(ID_of_object_to_delete);
+  unsigned int refs_deleted = ObjectManager::GetSingleton().deleteReferencesOfObject(ID_of_object_to_delete);
   if (refs_deleted == 0)
   {
     showHint("Object \""+ID_of_object_to_delete+"\" deleted! It had no references which had to be deleted.");

@@ -4,9 +4,9 @@
 #include "Landscape.h"
 #include "DuskConstants.h"
 #include "DataLoader.h"
-#include "ObjectData.h"
+#include "ObjectManager.h"
 #include "AnimatedObject.h"
-#include "AnimationData.h"
+#include "InjectionManager.h"
 #include "Weather.h"
 #include "Player.h"
 #include "NPCBase.h"
@@ -82,12 +82,12 @@ void Scene::createGrassMesh()
           {
             std::cout << "Landscape successfully added.\n";
           }
-          ObjectData::GetSingleton().EnableAllObjects(getAPI().getOgreSceneManager());
+          ObjectManager::GetSingleton().EnableAllObjects(getAPI().getOgreSceneManager());
         }
 
         //create waypoint object (for test purposes)
         WaypointObject* wpObj = NULL;
-        wpObj = AnimationData::GetSingleton().addWaypointReference("robot",
+        wpObj = InjectionManager::GetSingleton().addWaypointReference("robot",
                                     Ogre::Vector3(0.0f, 0.0f, 30.0f),
                                     Ogre::Vector3(0.0f, 0.0f, 0.0f), 0.55f);
         wpObj->Enable(m_SceneManager);

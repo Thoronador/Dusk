@@ -2,7 +2,7 @@
 #include <CEGUI/CEGUI.h>
 #include "EditorApplicationBase.h"
 #include "../Engine/DuskFunctions.h"
-#include "../Engine/AnimationData.h"
+#include "../Engine/InjectionManager.h"
 #include "../Engine/ItemBase.h"
 
 namespace Dusk
@@ -207,7 +207,7 @@ bool EditorApplicationNPC::NPCDeleteFrameYesClicked(const CEGUI::EventArgs &e)
     return true;
   }
   //kill references
-  const unsigned int refs_deleted = AnimationData::GetSingleton().deleteReferencesOfAnimatedObject(ID_of_NPC_to_delete);
+  const unsigned int refs_deleted = InjectionManager::GetSingleton().deleteReferencesOfAnimatedObject(ID_of_NPC_to_delete);
   if (refs_deleted == 0)
   {
     showHint("NPC \""+ID_of_NPC_to_delete+"\" deleted! It had no references which had to be deleted.");

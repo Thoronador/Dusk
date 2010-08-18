@@ -79,8 +79,6 @@
 		<Unit filename="../Engine/API.h" />
 		<Unit filename="../Engine/AnimatedObject.cpp" />
 		<Unit filename="../Engine/AnimatedObject.h" />
-		<Unit filename="../Engine/AnimationData.cpp" />
-		<Unit filename="../Engine/AnimationData.h" />
 		<Unit filename="../Engine/Container.cpp" />
 		<Unit filename="../Engine/Container.h" />
 		<Unit filename="../Engine/ContainerBase.cpp" />
@@ -97,6 +95,8 @@
 		<Unit filename="../Engine/DuskObject.cpp" />
 		<Unit filename="../Engine/DuskObject.h" />
 		<Unit filename="../Engine/DuskTypes.h" />
+		<Unit filename="../Engine/InjectionManager.cpp" />
+		<Unit filename="../Engine/InjectionManager.h" />
 		<Unit filename="../Engine/InjectionObject.cpp" />
 		<Unit filename="../Engine/InjectionObject.h" />
 		<Unit filename="../Engine/Inventory.cpp" />
@@ -136,8 +136,8 @@
 		<Unit filename="../Engine/NPCBase.h" />
 		<Unit filename="../Engine/ObjectBase.cpp" />
 		<Unit filename="../Engine/ObjectBase.h" />
-		<Unit filename="../Engine/ObjectData.cpp" />
-		<Unit filename="../Engine/ObjectData.h" />
+		<Unit filename="../Engine/ObjectManager.cpp" />
+		<Unit filename="../Engine/ObjectManager.h" />
 		<Unit filename="../Engine/Player.cpp" />
 		<Unit filename="../Engine/Player.h" />
 		<Unit filename="../Engine/Projectile.cpp" />

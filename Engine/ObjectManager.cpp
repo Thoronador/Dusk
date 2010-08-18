@@ -1,4 +1,4 @@
-#include "ObjectData.h"
+#include "ObjectManager.h"
 #include "DuskConstants.h"
 #include "ObjectBase.h"
 #include "LightBase.h"
@@ -8,30 +8,30 @@
 namespace Dusk
 {
 
-ObjectData::ObjectData()
+ObjectManager::ObjectManager()
 {
   m_ReferenceMap.clear();
   m_RefCount = 0;
 }
 
-ObjectData::~ObjectData()
+ObjectManager::~ObjectManager()
 {
   ClearData();
   m_RefCount = 0;
 }
 
-ObjectData& ObjectData::GetSingleton()
+ObjectManager& ObjectManager::GetSingleton()
 {
-  static ObjectData Instance;
+  static ObjectManager Instance;
   return Instance;
 }
 
-unsigned int ObjectData::NumberOfReferences() const
+unsigned int ObjectManager::NumberOfReferences() const
 {
   return m_RefCount;
 }
 
-DuskObject* ObjectData::addObjectReference(const std::string& ID,
+DuskObject* ObjectManager::addObjectReference(const std::string& ID,
     const Ogre::Vector3& position, const Ogre::Vector3& rotation, const float scale)
 {
   DuskObject * ObjectPointer = new DuskObject(ID, position, rotation, scale);
@@ -40,7 +40,7 @@ DuskObject* ObjectData::addObjectReference(const std::string& ID,
   return ObjectPointer;
 }
 
-Light* ObjectData::addLightReference(const std::string& ID, const Ogre::Vector3& position)
+Light* ObjectManager::addLightReference(const std::string& ID, const Ogre::Vector3& position)
 {
   Light * LightPointer = new Light(ID, position);
   m_ReferenceMap[ID].push_back(LightPointer);
@@ -48,7 +48,7 @@ Light* ObjectData::addLightReference(const std::string& ID, const Ogre::Vector3&
   return LightPointer;
 }
 
-Container* ObjectData::addContainerReference(const std::string& ID,
+Container* ObjectManager::addContainerReference(const std::string& ID,
     const Ogre::Vector3& position, const Ogre::Vector3& rotation, const float scale)
 {
   Container* ContainerPointer = new Container(ID, position, rotation, scale);
@@ -57,7 +57,7 @@ Container* ObjectData::addContainerReference(const std::string& ID,
   return ContainerPointer;
 }
 
-Item* ObjectData::addItemReference(const std::string& ID,
+Item* ObjectManager::addItemReference(const std::string& ID,
     const Ogre::Vector3& position, const Ogre::Vector3& rotation, const float scale)
 {
   Item* ItemPointer = new Item(ID, position, rotation, scale);
@@ -66,7 +66,7 @@ Item* ObjectData::addItemReference(const std::string& ID,
   return ItemPointer;
 }
 
-Weapon* ObjectData::addWeaponReference(const std::string& ID,
+Weapon* ObjectManager::addWeaponReference(const std::string& ID,
     const Ogre::Vector3& position, const Ogre::Vector3& rotation, const float scale)
 {
   Weapon* WeaponPointer = new Weapon(ID, position, rotation, scale);
@@ -75,7 +75,7 @@ Weapon* ObjectData::addWeaponReference(const std::string& ID,
   return WeaponPointer;
 }
 
-DuskObject* ObjectData::GetObjectByID(const std::string& ID) const
+DuskObject* ObjectManager::GetObjectByID(const std::string& ID) const
 {
   std::map<std::string, std::vector<DuskObject*> >::const_iterator iter;
   iter = m_ReferenceMap.find(ID);
@@ -89,7 +89,7 @@ DuskObject* ObjectData::GetObjectByID(const std::string& ID) const
   return NULL;
 }
 
-bool ObjectData::IsObjectPresent(const std::string& ID) const
+bool ObjectManager::IsObjectPresent(const std::string& ID) const
 {
   std::map<std::string, std::vector<DuskObject*> >::const_iterator iter;
   iter = m_ReferenceMap.find(ID);
@@ -100,7 +100,7 @@ bool ObjectData::IsObjectPresent(const std::string& ID) const
   return false;
 }
 
-bool ObjectData::removeItemReference(Item* pItem)
+bool ObjectManager::removeItemReference(Item* pItem)
 {
   if (pItem==NULL) return false;
   std::map<std::string, std::vector<DuskObject*> >::iterator iter;
@@ -127,7 +127,7 @@ bool ObjectData::removeItemReference(Item* pItem)
   return false;
 }
 
-bool ObjectData::SaveAllToStream(std::ofstream& Stream) const
+bool ObjectManager::SaveAllToStream(std::ofstream& Stream) const
 {
   unsigned int i;
   std::map<std::string, std::vector<DuskObject*> >::const_iterator iter;
@@ -140,7 +140,7 @@ bool ObjectData::SaveAllToStream(std::ofstream& Stream) const
       {
         if (!(iter->second.at(i)->SaveToStream(Stream)) or (!Stream.good()))
         {
-          std::cout << "ObjectData::SaveAllToStream: ERROR while writing reference data.\n";
+          std::cout << "ObjectManager::SaveAllToStream: ERROR while writing reference data.\n";
           return false;
         }
       }//if
@@ -150,7 +150,7 @@ bool ObjectData::SaveAllToStream(std::ofstream& Stream) const
   return true;
 }
 
-bool ObjectData::LoadNextFromStream(std::ifstream& Stream, const unsigned int PrefetchedHeader)
+bool ObjectManager::LoadNextFromStream(std::ifstream& Stream, const unsigned int PrefetchedHeader)
 {
   DuskObject * objPtr = NULL;
   switch(PrefetchedHeader)
@@ -206,18 +206,18 @@ bool ObjectData::LoadNextFromStream(std::ifstream& Stream, const unsigned int Pr
          delete objPtr;
          break;
     default:
-         std::cout << "ObjectData::LoadNextFromStream: ERROR: unexpected header.\n";
+         std::cout << "ObjectManager::LoadNextFromStream: ERROR: unexpected header.\n";
          break;
   }//swi
   return false;
 }
 
-void ObjectData::EnableAllObjects(Ogre::SceneManager * scm)
+void ObjectManager::EnableAllObjects(Ogre::SceneManager * scm)
 {
   unsigned int i;
   if (scm==NULL)
   {
-    std::cout << "ObjectData::EnableAllObjects: ERROR: Scene Manager is NULL!\n";
+    std::cout << "ObjectManager::EnableAllObjects: ERROR: Scene Manager is NULL!\n";
     return;
   }
 
@@ -236,7 +236,7 @@ void ObjectData::EnableAllObjects(Ogre::SceneManager * scm)
   }//while
 }
 
-void ObjectData::DisableAllObjects()
+void ObjectManager::DisableAllObjects()
 {
   unsigned int i;
   std::map<std::string, std::vector<DuskObject*> >::const_iterator iter;
@@ -254,7 +254,8 @@ void ObjectData::DisableAllObjects()
   }//while
 }
 
-unsigned int ObjectData::deleteReferencesOfObject(const std::string& ID)
+#ifdef DUSK_EDITOR
+unsigned int ObjectManager::deleteReferencesOfObject(const std::string& ID)
 {
   std::map<std::string, std::vector<DuskObject*> >::iterator iter;
   iter = m_ReferenceMap.find(ID);
@@ -280,14 +281,14 @@ unsigned int ObjectData::deleteReferencesOfObject(const std::string& ID)
 
 ///method to update all enabled objects of one ID after the mesh path has changed
 /// currently only used by Editor
-unsigned int ObjectData::reenableReferencesOfObject(const std::string& ID, Ogre::SceneManager * scm)
+unsigned int ObjectManager::reenableReferencesOfObject(const std::string& ID, Ogre::SceneManager * scm)
 {
   unsigned int re_enabled = 0;
   unsigned int position;
 
   if (scm==NULL)
   {
-    std::cout << "ObjectData::reenableReferencesOfObject: ERROR: Scene Manager is NULL pointer!";
+    std::cout << "ObjectManager::reenableReferencesOfObject: ERROR: Scene Manager is NULL pointer!";
     return 0;
   }
   if (!ObjectBase::GetSingleton().hasObject(ID) and
@@ -295,8 +296,8 @@ unsigned int ObjectData::reenableReferencesOfObject(const std::string& ID, Ogre:
       !ContainerBase::GetSingleton().HasContainer(ID) and
       !ItemBase::GetSingleton().hasItem(ID))
   {
-    std::cout << "ObjectData::reenableReferencesOfObject: ERROR: there is no "
-              << "record about object with the new ID \""+ID+"\" within the"
+    std::cout << "ObjectManager::reenableReferencesOfObject: ERROR: there is no"
+              << " record about object with the new ID \""+ID+"\" within the"
               << "ObjectBase, LightBase, ContainerBase or ItemBase classes. "
               << "Aborting.\n";
     return 0;
@@ -323,20 +324,20 @@ unsigned int ObjectData::reenableReferencesOfObject(const std::string& ID, Ogre:
 }
 
 /// method to update all references of an object after the ID was changed (by Editor application)
-unsigned int ObjectData::updateReferencesAfterIDChange(const std::string& oldID, const std::string& newID, Ogre::SceneManager* scm)
+unsigned int ObjectManager::updateReferencesAfterIDChange(const std::string& oldID, const std::string& newID, Ogre::SceneManager* scm)
 {
   unsigned int updated_references = 0;
 
   if (oldID=="" or newID=="")
   {
-    std::cout << "ObjectData::updateReferencesAfterIDChange: ERROR: old ID or "
-              << "new ID is empty string. We don't want empty ID strings!\n";
+    std::cout << "ObjectManager::updateReferencesAfterIDChange: ERROR: old ID "
+              << "or new ID is empty string. We don't want empty ID strings!\n";
     return 0;
   }
   if (oldID==newID)
   {
-    std::cout << "ObjectData::updateReferencesAfterIDChange: Hint: old ID is "
-              << " the same as new ID. No need to change anything here.\n";
+    std::cout << "ObjectManager::updateReferencesAfterIDChange: Hint: old ID "
+              << "is the same as new ID. No need to change anything here.\n";
     return 0;
   }
   if (!ObjectBase::GetSingleton().hasObject(newID) and
@@ -344,7 +345,7 @@ unsigned int ObjectData::updateReferencesAfterIDChange(const std::string& oldID,
       !ContainerBase::GetSingleton().HasContainer(newID) and
       !ItemBase::GetSingleton().hasItem(newID))
   {
-    std::cout << "ObjectData::updateReferencesAfterIDChange: ERROR: there is "
+    std::cout << "ObjectManager::updateReferencesAfterIDChange: ERROR: there is "
               << "no record about object with the new ID \""+newID+"\" within "
               << "the ObjectBase, LightBase, ContainerBase or ItemBase classes."
               << " Aborting.\n";
@@ -352,7 +353,7 @@ unsigned int ObjectData::updateReferencesAfterIDChange(const std::string& oldID,
   }
   if (scm==NULL)
   {
-    std::cout << "ObjectData::updateReferencesAfterIDChange: ERROR: got NULL "
+    std::cout << "ObjectManager::updateReferencesAfterIDChange: ERROR: got NULL "
               << "pointer for scene manager. Unable to update enabled objects.\n";
     return 0;
   }
@@ -387,8 +388,9 @@ unsigned int ObjectData::updateReferencesAfterIDChange(const std::string& oldID,
   }//while
   return updated_references;
 }
+#endif //DUSK_EDITOR
 
-void ObjectData::ClearData()
+void ObjectManager::ClearData()
 {
   DuskObject * ObjPtr;
   std::map<std::string, std::vector<DuskObject*> >::iterator iter;
