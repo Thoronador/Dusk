@@ -32,6 +32,7 @@
      - 2010-03-27 (rev 188) - adjustments for CommandPickUp
      - 2010-06-06 (rev 215) - adjustments for CommandAttack
      - 2010-06-06 (rev 216) - fixed a bug
+     - 2010-08-20 (rev 231) - adjustments for CommandQuestLog
 
  ToDo list:
      - update Console as soon as new commands are available

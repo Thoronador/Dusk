@@ -124,6 +124,8 @@
 		<Unit filename="CommandPickUp.h" />
 		<Unit filename="CommandPlaySound.cpp" />
 		<Unit filename="CommandPlaySound.h" />
+		<Unit filename="CommandQuestLog.cpp" />
+		<Unit filename="CommandQuestLog.h" />
 		<Unit filename="CommandQuit.cpp" />
 		<Unit filename="CommandQuit.h" />
 		<Unit filename="CommandSoundVolume.cpp" />

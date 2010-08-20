@@ -11,6 +11,7 @@
      - 2010-03-03 (rev 176) - processing of result scripts added
      - 2010-08-15 (rev 225) - fixed two bugs that could cause a crash/ error on
                               program termination
+     - 2010-08-20 (rev 231) - visualisation of quest log implemented (partially)
 
  ToDo list:
      - get a better material or texture for dialogue menu background
@@ -70,6 +71,22 @@ namespace Dusk
 
       /* maximum number of dialogue choices to display at one time */
       static const unsigned int cMaxDialogueOptions;
+
+      /* sets visibility of the QuestLog entries
+
+         parameters:
+             visible - true, if entries shall be shown, false otherwise
+      */
+      void showQuestLog(const bool visible);
+
+      /* returns true, if the quest log is currently visible */
+      bool isQuestLogVisible() const;
+
+      /* switches to next page in QuestLog */
+      void nextQuestLogPage();
+
+      /* switches to previous page in QuestLog */
+      void previousQuestLogPage();
     private:
       Menu();
       Menu(const Menu& op) {}
@@ -103,6 +120,13 @@ namespace Dusk
              Don't change this, or you will have to edit the overlay script, too.
       */
       static const std::string cDialogueOverlay;
+
+      /* shows all questlog entries */
+      void showQuestLogEntries();
+      //saves how many quest log entries are shown at the moment
+      unsigned int m_QuestLogEntryCount;
+      //saves quest log offset (i.e. page, somehow)
+      unsigned int m_QuestLogOffset;
   };
 
 } //namespace

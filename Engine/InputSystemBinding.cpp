@@ -1,5 +1,4 @@
 #include "InputSystemBinding.h"
-
 #include <fstream>
 #include "Console.h"
 #include "Menu.h"
@@ -45,6 +44,10 @@ InputSystemBinding::InputSystemBinding()
     myBindListPress[OIS::KC_E] = Script("turn_right");
     myBindListPress[OIS::KC_SPACE] = Script("jump");
     myBindListPress[OIS::KC_P] = Script("pick_up");
+    // --- Questlog ---
+    myBindListPress[OIS::KC_L] = Script("toggle_questlog");
+    myBindListPress[OIS::KC_ADD] = Script("questlog_increase");
+    myBindListPress[OIS::KC_SUBTRACT] = Script("questlog_decrease");
 
     myBindListRelease.clear();
     myBindListRelease[OIS::KC_W] = Script("move_backward");
@@ -196,6 +199,9 @@ std::string InputSystemBinding::getKeyStringFromScript(const Script& scr)
   if (str_rep=="toggle_fog") return "debug_fog_key";
   if (str_rep=="toggle_rain") return "debug_rain_key";
   if (str_rep=="toggle_snow") return "debug_snow_key";
+  if (str_rep=="toggle_questlog") return "questlog_key";
+  if (str_rep=="questlog_increase") return "questlog_increase_key";
+  if (str_rep=="questlog_decrease") return "questlog_decrease_key";
 
   return ""; //no valid or known key script
 }
@@ -211,6 +217,9 @@ Script InputSystemBinding::getPressScriptFromKeyString(const std::string& ks)
   if (ks=="turn_right_key") return Script("turn_right");
   if (ks=="jump_key") return Script("jump");
   if (ks=="pick_up_key") return Script("pick_up");
+  if (ks=="questlog_key") return Script("toggle_questlog");
+  if (ks=="questlog_increase_key") return Script("questlog_increase");
+  if (ks=="questlog_decrease_key") return Script("questlog_decrease");
 
   if (ks=="debug_fog_key") return Script("toggle_fog");
   if (ks=="debug_rain_key") return Script("toggle_rain");
@@ -230,6 +239,8 @@ Script InputSystemBinding::getReleaseScriptFromKeyString(const std::string& ks)
   if (ks=="turn_right_key") return Script("turn_left");
   if (ks=="jump_key") return Script("");
   if (ks=="pick_up_key") return Script("");
+  if (ks=="questlog_key") return Script("");
+  if (ks=="questlog_increase_key" or ks=="questlog_decrease_key") return Script("");
 
   if (ks=="debug_fog_key") return Script("");
   if (ks=="debug_rain_key") return Script("");

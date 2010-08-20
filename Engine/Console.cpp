@@ -14,6 +14,7 @@
 #include "CommandAssociateSound.h"
 #include "CommandWeather.h"
 #include "CommandZoom.h"
+#include "CommandQuestLog.h"
 #include "DuskFunctions.h"
 #include "DuskTypes.h"
 #include <iostream>
@@ -402,6 +403,28 @@ int Console::executeCommand(const std::string& p_string)
             com = new CommandWeather(CommandWeather::wtSnow, true);
             m_Dispatcher->executeCommand(com);
             std::cout << "Snow toggled." << std::endl;
+        }
+        // --- QuestLog commands ---
+        //toggle visibility
+        else if (command[0] == "toggle_questlog")
+        {
+            com = new CommandQuestLog(CommandQuestLog::qloToggle);
+            m_Dispatcher->executeCommand(com);
+            std::cout << "QuestLog's visibility toggled." << std::endl;
+        }
+        //next page
+        else if (command[0] == "questlog_increase")
+        {
+            com = new CommandQuestLog(CommandQuestLog::qloNext);
+            m_Dispatcher->executeCommand(com);
+            std::cout << "Next QuestLog page." << std::endl;
+        }
+        //previous page
+        else if (command[0] == "questlog_decrease")
+        {
+            com = new CommandQuestLog(CommandQuestLog::qloPrev);
+            m_Dispatcher->executeCommand(com);
+            std::cout << "Previous QuestLog page." << std::endl;
         }
         // --- no command recognised ---
         else

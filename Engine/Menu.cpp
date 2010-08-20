@@ -1,14 +1,27 @@
 #include "Menu.h"
 #include <OgreOverlayManager.h>
 #include <OgreOverlayContainer.h>
+#include <OgreTextAreaOverlayElement.h>
 #include "DuskFunctions.h"
 #include "Dialogue.h"
+#include "QuestLog.h"
+#include "Journal.h"
 
 namespace Dusk
 {
   const unsigned int Menu::cMaxDialogueOptions = 5;
   /* Don't change this, or you'll have to edit the overlay script, too. */
   const std::string Menu::cDialogueOverlay = "Dusk/DialogueOverlay";
+
+  //name of overlay for quest log
+  const std::string cQuestLogOverlay = "Dusk/QuestLogOL";
+
+  //number of quest log entries that are shown on one page
+  const unsigned int cQuestLogEntriesPerPage = 9;
+  //height of a quest log entrie
+  const float cQuestLogEntryHeight = 0.1f;
+  //height of characters
+  const float cQuestLogCharHeight = 0.029f;
 
 Menu& Menu::GetSingleton()
 {
@@ -19,6 +32,8 @@ Menu& Menu::GetSingleton()
 Menu::Menu()
 {
   m_DialogueLineCount = 0;
+  m_QuestLogEntryCount = 0;
+  m_QuestLogOffset = 0;
   m_OptionIDs.clear();
   m_DialoguePartner = NULL;
 }
@@ -226,6 +241,191 @@ bool Menu::nextDialogueChoice(const unsigned int chosenOption)
   showDialogue(tempHandle.Text, sv);
   Dialogue::GetSingleton().ProcessResultScript(tempHandle.LineID);
   return true;
+}
+
+void Menu::showQuestLog(const bool visible)
+{
+  Ogre::OverlayManager* om = Ogre::OverlayManager::getSingletonPtr();
+  if (om==NULL) return;
+  //Do we actually need to do something?
+  if (visible==isQuestLogVisible()) return;
+
+  if (visible)
+  {
+    //show it
+    // -- create basic overlay
+    Ogre::Overlay* ol = om->create(cQuestLogOverlay);
+    // -- create container - panel
+    Ogre::OverlayContainer* panel = static_cast<Ogre::OverlayContainer*>(
+                 om->createOverlayElement("Panel", cQuestLogOverlay+"/Panel"));
+    panel->setMetricsMode(Ogre::GMM_RELATIVE);
+    panel->setPosition(0.0, 0.0);
+    panel->setDimensions(1.0, 1.0);
+    /*set material via panel->setMaterialName(...)?*/
+    panel->setMaterialName("QuestLog/Transparency");
+    //add panel to overlay
+    ol->add2D(panel);
+
+    //create elements
+    // -- "vorwärts blättern"
+    Ogre::TextAreaOverlayElement* text_elem = static_cast<Ogre::TextAreaOverlayElement*>(
+                         om->createOverlayElement("TextArea", cQuestLogOverlay+"/Plus"));
+    text_elem->setMetricsMode(Ogre::GMM_RELATIVE);
+    text_elem->setPosition(0.125, 0.9);
+    text_elem->setDimensions(0.25, 0.1);
+    text_elem->setCaption("+ (Next)");
+    text_elem->setAlignment(Ogre::TextAreaOverlayElement::Center);
+    text_elem->setFontName("Console");
+    text_elem->setColour(Ogre::ColourValue(1.0, 0.5, 0.0));
+    text_elem->setCharHeight(cQuestLogCharHeight);
+    panel->addChild(text_elem);
+    //-- "rückwärts blättern"
+    text_elem = static_cast<Ogre::TextAreaOverlayElement*>(
+              om->createOverlayElement("TextArea", cQuestLogOverlay+"/Minus"));
+    text_elem->setMetricsMode(Ogre::GMM_RELATIVE);
+    text_elem->setPosition(0.425, 0.9);
+    text_elem->setDimensions(0.25, 0.1);
+    text_elem->setCaption("- (Previous)");
+    text_elem->setAlignment(Ogre::TextAreaOverlayElement::Center);
+    text_elem->setFontName("Console");
+    text_elem->setColour(Ogre::ColourValue(1.0, 0.5, 0.0));
+    text_elem->setCharHeight(cQuestLogCharHeight);
+    panel->addChild(text_elem);
+
+    //lists all entries that fit onto the page
+    showQuestLogEntries();
+
+    // -- page number
+    text_elem = static_cast<Ogre::TextAreaOverlayElement*>(
+              om->createOverlayElement("TextArea", cQuestLogOverlay+"/Page"));
+    text_elem->setMetricsMode(Ogre::GMM_RELATIVE);
+    text_elem->setPosition(0.725, 0.9);
+    text_elem->setDimensions(0.25, 0.1);
+    text_elem->setCaption("Page "+IntToString(m_QuestLogOffset/cQuestLogEntriesPerPage+1));
+    text_elem->setAlignment(Ogre::TextAreaOverlayElement::Center);
+    text_elem->setFontName("Console");
+    text_elem->setColour(Ogre::ColourValue(1.0, 0.5, 0.0));
+    text_elem->setCharHeight(cQuestLogCharHeight);
+    panel->addChild(text_elem);
+
+    //show the overlay
+    ol->show();
+  }//if visible
+  else
+  {
+    //destroy all elements
+    unsigned int i;
+    // destroy entries
+    for (i=0; i<m_QuestLogEntryCount; ++i)
+    {
+      om->destroyOverlayElement(cQuestLogOverlay+"/"+IntToString(i));
+    }//for
+    m_QuestLogEntryCount = 0;
+    //destroy navigation elements
+    om->destroyOverlayElement(cQuestLogOverlay+"/Plus");
+    om->destroyOverlayElement(cQuestLogOverlay+"/Minus");
+    om->destroyOverlayElement(cQuestLogOverlay+"/Page");
+    //destroy panel
+    om->destroyOverlayElement(cQuestLogOverlay+"/Panel");
+    //destroy overlay
+    om->destroy(cQuestLogOverlay);
+  }//else
+}//function
+
+void Menu::showQuestLogEntries()
+{
+  Ogre::OverlayManager* om = Ogre::OverlayManager::getSingletonPtr();
+  if (om==NULL) return;
+  Ogre::OverlayContainer* panel = static_cast<Ogre::OverlayContainer*>(
+                            om->getOverlayElement(cQuestLogOverlay+"/Panel"));
+  if (panel==NULL)
+  {
+    std::cout << "Menu::showQuestLogEntries: ERROR: Panel not found!\n";
+    return;
+  }//if
+  std::vector<QLogEntry> entries = QuestLog::GetSingleton().listQuestEntries(m_QuestLogOffset, cQuestLogEntriesPerPage);
+  if (m_QuestLogOffset>0 and entries.size()==0)
+  { //reset offset, because we've gone too far, and fetch entries again
+    m_QuestLogOffset = 0;
+    entries = QuestLog::GetSingleton().listQuestEntries(m_QuestLogOffset, cQuestLogEntriesPerPage);
+  }
+  Ogre::TextAreaOverlayElement* text_elem = NULL;
+  unsigned int i;
+  //create text areas for entries
+  for (i=0; i<entries.size(); ++i)
+  {
+    text_elem = static_cast<Ogre::TextAreaOverlayElement*>(
+        om->createOverlayElement("TextArea", cQuestLogOverlay+"/"+IntToString(i)));
+    text_elem->setMetricsMode(Ogre::GMM_RELATIVE);
+    text_elem->setPosition(0.375, cQuestLogEntryHeight*i+0.5*cQuestLogEntryHeight);
+    text_elem->setDimensions(0.75, cQuestLogEntryHeight);
+    text_elem->setAlignment(Ogre::TextAreaOverlayElement::Left);
+    text_elem->setCaption(Journal::GetSingleton().getText(entries[i].questID, entries[i].index));
+    text_elem->setFontName("Console");
+    text_elem->setColour(Ogre::ColourValue(1.0, 0.5, 0.0));
+    text_elem->setCharHeight(cQuestLogCharHeight);
+    panel->addChild(text_elem);
+  }//for
+  //delete unneccessary textareas, if present
+  for (i=entries.size(); i<m_QuestLogEntryCount; ++i)
+  {
+    om->destroyOverlayElement(cQuestLogOverlay+"/"+IntToString(i));
+  }//for
+  m_QuestLogEntryCount = entries.size();
+  //show notification, if no elements are present yet
+  if (entries.size()==0)
+  {
+    text_elem = static_cast<Ogre::TextAreaOverlayElement*>(
+                    om->createOverlayElement("TextArea", cQuestLogOverlay+"/0"));
+    text_elem->setMetricsMode(Ogre::GMM_RELATIVE);
+    text_elem->setPosition(0.375, 0.0+0.5*cQuestLogEntryHeight);
+    text_elem->setDimensions(0.75, cQuestLogEntryHeight);
+    text_elem->setAlignment(Ogre::TextAreaOverlayElement::Center);
+    text_elem->setCaption("You don't have any journal entries yet!");
+    text_elem->setFontName("Console");
+    text_elem->setColour(Ogre::ColourValue(1.0, 0.5, 0.0));
+    text_elem->setCharHeight(cQuestLogCharHeight);
+    panel->addChild(text_elem);
+    m_QuestLogEntryCount = 1;
+  }//if
+}//func
+
+bool Menu::isQuestLogVisible() const
+{
+  Ogre::OverlayManager* om = Ogre::OverlayManager::getSingletonPtr();
+  if (om==NULL) return false;
+  const Ogre::Overlay* o_lay = om->getByName(cQuestLogOverlay);
+  if (o_lay!=NULL) return o_lay->isVisible();
+  return false;
+}
+
+void Menu::nextQuestLogPage()
+{
+  if (isQuestLogVisible())
+  {
+    m_QuestLogOffset = m_QuestLogOffset + cQuestLogEntriesPerPage;
+    //update quest log
+    showQuestLog(false);
+    showQuestLog(true);
+  }//if
+}
+
+void Menu::previousQuestLogPage()
+{
+  if (isQuestLogVisible())
+  {
+    if (m_QuestLogOffset>cQuestLogEntriesPerPage)
+    {
+      m_QuestLogOffset = m_QuestLogOffset - cQuestLogEntriesPerPage;
+    }
+    else
+    {
+      m_QuestLogOffset = 0;
+    }
+    //update quest log
+    showQuestLog(false);
+    showQuestLog(true);
+  }//if
 }
 
 } //namespace

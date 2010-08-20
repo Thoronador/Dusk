@@ -28,6 +28,7 @@
      - 2010-03-24 (rev 186) - binding for jumping
      - 2010-03-27 (rev 188) - binding for picking up items
      - 2010-06-06 (rev 215) - binding for attacking
+     - 2010-08-20 (rev 231) - binding for QuestLog
 
  ToDo list:
      - method to load bind list from an external resource

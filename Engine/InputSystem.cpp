@@ -150,6 +150,8 @@ OIS::KeyCode InputSystem::stringToKeyCode(const std::string& key)
     if (key=="end") return OIS::KC_END;
     //tab
     if (key=="tab") return OIS::KC_TAB;
+    //+ on numpad
+    if (key=="add") return OIS::KC_ADD;
   } //if length==3
 
   if (key.length()==4)
@@ -175,6 +177,8 @@ OIS::KeyCode InputSystem::stringToKeyCode(const std::string& key)
 
   if (key=="page_up") return OIS::KC_PGUP;
   if (key=="page_down") return OIS::KC_PGDOWN;
+  // - on numpad
+  if (key=="subtract") return OIS::KC_SUBTRACT;
 
   return OIS::KC_UNASSIGNED; //no matching string
 }
