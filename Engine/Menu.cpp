@@ -2,6 +2,7 @@
 #include <OgreOverlayManager.h>
 #include <OgreOverlayContainer.h>
 #include <OgreTextAreaOverlayElement.h>
+#include <OgreFontManager.h>
 #include "DuskFunctions.h"
 #include "Dialogue.h"
 #include "QuestLog.h"
@@ -350,6 +351,8 @@ void Menu::showQuestLogEntries()
     entries = QuestLog::GetSingleton().listQuestEntries(m_QuestLogOffset, cQuestLogEntriesPerPage);
   }
   Ogre::TextAreaOverlayElement* text_elem = NULL;
+
+  const Ogre::FontPtr glyphs = Ogre::FontManager::getSingleton().getByName("Console");
   unsigned int i;
   //create text areas for entries
   for (i=0; i<entries.size(); ++i)
@@ -357,10 +360,11 @@ void Menu::showQuestLogEntries()
     text_elem = static_cast<Ogre::TextAreaOverlayElement*>(
         om->createOverlayElement("TextArea", cQuestLogOverlay+"/"+IntToString(i)));
     text_elem->setMetricsMode(Ogre::GMM_RELATIVE);
-    text_elem->setPosition(0.375, cQuestLogEntryHeight*i+0.5*cQuestLogEntryHeight);
-    text_elem->setDimensions(0.75, cQuestLogEntryHeight);
+    text_elem->setPosition(0.025, cQuestLogEntryHeight*i+0.5*cQuestLogEntryHeight);
+    text_elem->setDimensions(0.725, cQuestLogEntryHeight);
     text_elem->setAlignment(Ogre::TextAreaOverlayElement::Left);
-    text_elem->setCaption(Journal::GetSingleton().getText(entries[i].questID, entries[i].index));
+    text_elem->setCaption(chopString(Journal::GetSingleton().getText(entries[i].questID, entries[i].index),
+                cQuestLogCharHeight, glyphs));
     text_elem->setFontName("Console");
     text_elem->setColour(Ogre::ColourValue(1.0, 0.5, 0.0));
     text_elem->setCharHeight(cQuestLogCharHeight);
@@ -378,8 +382,8 @@ void Menu::showQuestLogEntries()
     text_elem = static_cast<Ogre::TextAreaOverlayElement*>(
                     om->createOverlayElement("TextArea", cQuestLogOverlay+"/0"));
     text_elem->setMetricsMode(Ogre::GMM_RELATIVE);
-    text_elem->setPosition(0.375, 0.0+0.5*cQuestLogEntryHeight);
-    text_elem->setDimensions(0.75, cQuestLogEntryHeight);
+    text_elem->setPosition(0.025, 0.0+0.5*cQuestLogEntryHeight);
+    text_elem->setDimensions(0.725, cQuestLogEntryHeight);
     text_elem->setAlignment(Ogre::TextAreaOverlayElement::Center);
     text_elem->setCaption("You don't have any journal entries yet!");
     text_elem->setFontName("Console");
@@ -426,6 +430,38 @@ void Menu::previousQuestLogPage()
     showQuestLog(false);
     showQuestLog(true);
   }//if
+}
+
+std::string Menu::chopString(const std::string& src, const float h, const Ogre::FontPtr& glyphs)
+{
+  if (h<=0.0f or glyphs.isNull()) return src;
+  const float maxWidth = 1.05;
+  unsigned int i;
+  std::string result = "";
+  float currentWidth = 0.0f;
+  for (i=0; i<src.size(); ++i)
+  {
+    if (src.at(i)=='\n')
+    {
+      currentWidth = 0.0f;
+      result.append(1, '\n');
+    }
+    else
+    {
+      const float add_w = glyphs->getGlyphAspectRatio(src.at(i))*h;
+      if (currentWidth+add_w>maxWidth)
+      {
+        result = result+"\n"+src.at(i);
+        currentWidth = add_w;
+      }//if
+      else
+      {
+        result = result + src.at(i);
+        currentWidth = currentWidth + add_w;
+      }//else
+    }//else
+  }//for
+  return result;
 }
 
 } //namespace

@@ -14,6 +14,7 @@
      - 2010-02-25 (rev 175) - getMaximumAvailabeIndex() added
      - 2010-03-13 (rev 183) - FlagsToString() added to JournalRecord
      - 2010-03-18 (rev 185) - changeQuestID() added
+     - 2010-08-20 (rev 232) - minor optimizations for engine
 
  ToDo list:
      - ???
@@ -142,6 +143,7 @@ class Journal
     /* returns true, if a quest with the given quest ID exists */
     bool hasQuest(const std::string& questID) const;
 
+    #ifdef DUSK_EDITOR
     /* changes the quest ID of quest oldID to newID and returns true on success
 
        Remarks:
@@ -149,6 +151,7 @@ class Journal
          quest oldID does not exist or if the quest newID already exists.
     */
     bool changeQuestID(const std::string& oldID, const std::string& newID);
+    #endif
 
     /* returns the text of the given entry, or an empty string if no such entry
        is present
@@ -164,6 +167,7 @@ class Journal
     */
     std::string getQuestName(const std::string& questID) const;
 
+    #ifdef DUSK_EDITOR
     /* tries to delete the quest with the given quest ID and returns true, if
        such a quest was deleted. Otherwise, false is returned.
     */
@@ -173,6 +177,7 @@ class Journal
        such an entry was deleted. Otherwise, false is returned.
     */
     bool deleteEntry(const std::string& questID, const unsigned int jIndex);
+    #endif
 
     /* returns the number of present journal entries (for statistics only) */
     unsigned int NumberOfEntries() const;

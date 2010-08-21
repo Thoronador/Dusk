@@ -12,6 +12,7 @@
 #include "NPCBase.h"
 #include "WeaponBase.h"
 #include "ProjectileBase.h"
+#include "QuestLog.h"
 
 namespace Dusk
 {
@@ -221,6 +222,11 @@ void Scene::createGrassMesh()
         {
           std::cout << "Player::equip() failed.\n";
         }
+        // ---- begin questlog test
+        QuestLog::GetSingleton().addQuestEntry("test_quest", 1);
+        QuestLog::GetSingleton().addQuestEntry("test_quest", 2);
+        QuestLog::GetSingleton().addQuestEntry("test_quest", 3);
+        // ---- end of questlog test
     }
 
     void Scene::destroyScene()

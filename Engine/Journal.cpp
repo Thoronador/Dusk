@@ -133,6 +133,7 @@ bool Journal::hasQuest(const std::string& questID) const
   return (m_Entries.find(questID)!=m_Entries.end());
 }
 
+#ifdef DUSK_EDITOR
 bool Journal::changeQuestID(const std::string& oldID, const std::string& newID)
 {
   if (oldID=="" or newID=="" or hasQuest(newID))
@@ -162,6 +163,7 @@ bool Journal::changeQuestID(const std::string& oldID, const std::string& newID)
   m_Entries.erase(old_iter);
   return true;
 }
+#endif
 
 std::string Journal::getText(const std::string& JID, const unsigned int jIndex) const
 {
@@ -220,6 +222,7 @@ std::string Journal::getQuestName(const std::string& questID) const
   return iter->second.QuestName;
 }
 
+#ifdef DUSK_EDITOR
 bool Journal::deleteQuest(const std::string& questID)
 {
   std::map<const std::string, QuestRecord>::iterator iter;
@@ -254,6 +257,7 @@ bool Journal::deleteEntry(const std::string& questID, const unsigned int jIndex)
   --m_TotalEntries;
   return true;
 }
+#endif
 
 unsigned int Journal::NumberOfEntries() const
 {

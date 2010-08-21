@@ -6,6 +6,9 @@
 #include <OgreQuaternion.h>
 #include <OgreEntity.h>
 
+namespace Dusk
+{
+
 // Get the mesh information for the given mesh.
 // Code found in Wiki: www.ogre3d.org/wiki/index.php/RetrieveVertexData
 void GetMeshInformation(const Ogre::MeshPtr mesh,
@@ -22,5 +25,6 @@ void GetMeshInformationAnimated(const Ogre::Entity *entity,
                                 const Ogre::Vector3 &position,
                                 const Ogre::Quaternion &orient,
                                 const Ogre::Vector3 &scale);
+} //namespace
 
 #endif

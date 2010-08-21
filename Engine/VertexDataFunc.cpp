@@ -2,6 +2,9 @@
 #include <OgreSubMesh.h>
 #include <OgreSubEntity.h>
 
+namespace Dusk
+{
+
 // Get the mesh information for the given mesh.
 // Code found in Wiki: www.ogre3d.org/wiki/index.php/RetrieveVertexData
 //   or www.ogre3d.org/tikiwiki/Raycasting+to+the+polygon+level repectively.
@@ -280,3 +283,5 @@ void GetMeshInformationAnimated(const Ogre::Entity *entity,
         current_offset = next_offset;
     }
 }
+
+} //namespace

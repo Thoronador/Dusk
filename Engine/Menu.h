@@ -127,6 +127,16 @@ namespace Dusk
       unsigned int m_QuestLogEntryCount;
       //saves quest log offset (i.e. page, somehow)
       unsigned int m_QuestLogOffset;
+
+      /* divides a string into multiple lines by adding newline characters into
+         it after a certain width
+
+         parameters:
+             src    - the original string
+             h      - height of the font
+             glyphs - the font used
+      */
+      std::string chopString(const std::string& src, const float h, const Ogre::FontPtr& glyphs);
   };
 
 } //namespace
