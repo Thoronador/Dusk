@@ -6,6 +6,7 @@
 #include "InjectionManager.h"
 #include "LuaEngine.h"
 #include "Player.h"
+#include "Weather.h"
 
 namespace Dusk
 {
@@ -29,6 +30,9 @@ bool FrameListener::frameStarted(const Ogre::FrameEvent& evt)
     Camera::getSingleton().move(evt);
     InjectionManager::GetSingleton().InjectAnimationTime(evt.timeSinceLastFrame);
     Player::GetSingleton().injectTime(evt.timeSinceLastFrame);
+    //sun and so on
+    const float cSunSpeedFactor = 1200.0f;
+    Weather::getSingelton().addDaytime(evt.timeSinceLastFrame*cSunSpeedFactor);
     return m_Continue;
 }
 //-----------------------------------------------------------------------------------

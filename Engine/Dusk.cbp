@@ -106,6 +106,8 @@
 		<Unit filename="Application.h" />
 		<Unit filename="Camera.cpp" />
 		<Unit filename="Camera.h" />
+		<Unit filename="Celestial.cpp" />
+		<Unit filename="Celestial.h" />
 		<Unit filename="Command.cpp" />
 		<Unit filename="Command.h" />
 		<Unit filename="CommandAssociateSound.cpp" />
@@ -228,6 +230,8 @@
 		<Unit filename="Settings.h" />
 		<Unit filename="Sound.cpp" />
 		<Unit filename="Sound.h" />
+		<Unit filename="Sun.cpp" />
+		<Unit filename="Sun.h" />
 		<Unit filename="UniformMotionObject.cpp" />
 		<Unit filename="UniformMotionObject.h" />
 		<Unit filename="VertexDataFunc.cpp" />

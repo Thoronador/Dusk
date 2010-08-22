@@ -147,8 +147,9 @@ void Scene::createGrassMesh()
 
         //weather effects
         Weather& w_singleton = Weather::getSingelton();
+        /* //fog does not look good with sun yet, so don't enable it here
         w_singleton.setFogColour(0.9, 0.9, 0.9);
-        w_singleton.startLinearFog(50.0, 500.0);
+        w_singleton.startLinearFog(50.0, 500.0);*/
         w_singleton.startSnow();
         //add sword item to weapon base
         WeaponRecord wrec;
@@ -239,6 +240,7 @@ void Scene::createGrassMesh()
       if (w_singleton.isFoggy()) w_singleton.stopFog();
       if (w_singleton.isRaining()) w_singleton.stopRain();
       if (w_singleton.isSnowing()) w_singleton.stopSnow();
+      w_singleton.deleteAllCelestials();
       std::cout << "  Delete Landscape...\n";
       Landscape::GetSingleton().RemoveFromEngine(getAPI().getOgreSceneManager());
       Landscape::GetSingleton().ClearAllRecords();

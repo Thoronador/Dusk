@@ -8,6 +8,7 @@
 #else
   #include "Camera.h"
 #endif
+#include "Sun.h"
 
 namespace Dusk
 {
@@ -19,6 +20,12 @@ Weather::Weather()
 {
   m_Fog_r = m_Fog_g = m_Fog_b = 1.0f;
   m_orig_bgcolour = getAPI().getOgreRenderWindow()->getViewport(0)->getBackgroundColour();
+  m_Daytime = 12.0f;
+  m_CelestialList.clear();
+  Celestial* sun = new Sun();
+  m_CelestialList.push_back(sun);
+  sun->show();
+  sun->updateTime(m_Daytime);
 }
 
 Weather::~Weather()
@@ -29,6 +36,7 @@ Weather::~Weather()
   }
   stopSnow();
   stopRain();
+  deleteAllCelestials();
 }
 
 Weather& Weather::getSingelton()
@@ -185,6 +193,37 @@ bool Weather::isRaining() const
     scm = Ogre::Root::getSingleton().getSceneManagerIterator().getNext();
   }
   return (scm!=NULL and scm->hasParticleSystem(cRainParticleSystem));
+}
+
+float Weather::getDaytime() const
+{
+  return m_Daytime;
+}
+
+void Weather::addDaytime(const float seconds_passed)
+{
+  m_Daytime = m_Daytime +(seconds_passed/3600.0f);
+  if (m_Daytime>=24.0f) m_Daytime-= 24.0f;
+  else if (m_Daytime<0.0f) m_Daytime+= 24.0f;
+  //update objects
+  size_t i;
+  for (i=0; i<m_CelestialList.size(); ++i)
+  {
+    if (m_CelestialList.at(i)!=NULL)
+      m_CelestialList[i]->updateTime(m_Daytime);
+  } //for
+}
+
+void Weather::deleteAllCelestials()
+{
+  //delete sun, moon, star,...
+  Celestial* Nerevar_MoonAndStar;
+  while (!m_CelestialList.empty())
+  {
+    Nerevar_MoonAndStar = m_CelestialList.back();
+    m_CelestialList.pop_back();
+    delete Nerevar_MoonAndStar;
+  }//while
 }
 
 } //namespace

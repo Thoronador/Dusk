@@ -14,6 +14,7 @@
      - 2010-03-12 (rev 180) - changes for Weather to be used in Editor, too
      - 2010-08-15 (rev 227) - changes to prevent memory access violation during
                               singleton destruction
+     - 2010-08-22 (rev 233) - sun added
 
  ToDo list:
      - other effects, such as rain, maybe even wind
@@ -31,6 +32,7 @@
 #define WEATHER_H
 
 #include <OgreColourValue.h>
+#include "Celestial.h"
 
 namespace Dusk
 {
@@ -104,6 +106,29 @@ namespace Dusk
       /* returns true, if it's currently raining */
       bool isRaining() const;
 
+      /* returns the current time used in calculations for sun position
+
+         remarks:
+             The value has to be interpreted as hour of the day, where 6.0 means
+             6:00 in the morning, and 17.0 means 5:00 in the evening.
+       */
+      float getDaytime() const;
+
+      /* updates the time by adding the seconds that have passed since last
+         call
+
+         parameters:
+             seconds_passed - the amount of seconds(!) passed since last call
+
+         remarks:
+             If you do not want the sun to move in real time, multiply the given
+             value by an appropriate factor to speed things up.
+      */
+      void addDaytime(const float seconds_passed);
+
+      /* deletes all currently managed, celestial objects */
+      void deleteAllCelestials();
+
     private:
       Weather();
       Weather(Weather& op) {}
@@ -111,6 +136,11 @@ namespace Dusk
       float m_Fog_r, m_Fog_g, m_Fog_b;
       //render window's background colour before fog was applied
       Ogre::ColourValue m_orig_bgcolour;
+
+      //current time
+      float m_Daytime;
+      //list of managed, celestial objects
+      std::vector<Celestial*> m_CelestialList;
 
       //name of the particle system for snow
       static const std::string cSnowParticleSystem;

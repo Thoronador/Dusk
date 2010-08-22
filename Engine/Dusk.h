@@ -68,6 +68,18 @@ status:
 
 
 /*
+This Header defines the abstract Celestial class.
+
+description:
+    This class serves as an interface which all celestial objects will
+    have to implement.
+status:
+    Works, I guess. :D
+*/
+#include "Celestial.h"
+
+
+/*
 This Header defines the abstract Command class
 
 description:
@@ -620,6 +632,17 @@ status:
     Seems to work fine (until proven otherwise)
 */
 #include "Sound.h"
+
+
+/*
+This Header defines the Sun class.
+
+description:
+    This class implements the behaviour of the sun in-game.
+status:
+    Works, but far from perfect. (It's just white during foggy weather.)
+*/
+#include "Celestial.h"
 
 
 /*

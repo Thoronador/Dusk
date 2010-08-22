@@ -28,6 +28,7 @@
      - 2010-08-07 (rev 222) - adjustments for weapon records in WeaponBase and
                               player's equipment
      - 2010-08-15 (rev 228) - destroyScene() does now destroy a bit more :P
+     - 2010-08-22 (rev 233) - adjustments for Sun
 
  ToDo list:
      - ???
