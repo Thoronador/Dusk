@@ -49,15 +49,17 @@ float Celestial::getSpan() const
 
 bool Celestial::isInSpan(const float currentTime) const
 {
-  return (m_End>m_Start and currentTime>=m_Start and currentTime<=m_End)
-         or (currentTime>=m_Start or currentTime<=m_End);
+  if (m_End>m_Start)
+  {
+    return (currentTime>=m_Start) and (currentTime<=m_End);
+  }//if
+  return (currentTime>=m_Start) or (currentTime<=m_End);
 }
 
 float Celestial::getSpanRatio(const float currentTime) const
 {
-  if (m_End>m_Start) return currentTime/(m_End-m_Start);
   if (m_End==m_Start) return 0.0f; //prevent divide by zero error
-  return currentTime/(24.0f+m_End-m_Start);
+  return (currentTime-m_Start)/getSpan();
 }
 
 } //namespace

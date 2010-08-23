@@ -6,6 +6,7 @@
 
  History:
      - 2010-08-22 (rev 233) - initial version (by thoronador)
+     - 2010-08-23 (rev 234) - fixed an error in calculations
 
  ToDo list:
      - ???

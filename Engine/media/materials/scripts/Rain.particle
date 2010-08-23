@@ -2,7 +2,7 @@ Dusk/Rain
 {
     material        Dusk/Droplet
     particle_width  2
-    particle_height 7
+    particle_height 4
     cull_each       true
     quota           10000
     billboard_type  oriented_common

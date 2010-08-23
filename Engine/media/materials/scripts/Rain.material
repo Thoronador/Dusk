@@ -4,7 +4,7 @@ material Dusk/Droplet
     {
         pass
 	{
-	    scene_blend colour_blend
+	    scene_blend alpha_blend
 	    depth_write off
 
 	    texture_unit

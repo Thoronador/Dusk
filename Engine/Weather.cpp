@@ -20,7 +20,7 @@ Weather::Weather()
 {
   m_Fog_r = m_Fog_g = m_Fog_b = 1.0f;
   m_orig_bgcolour = getAPI().getOgreRenderWindow()->getViewport(0)->getBackgroundColour();
-  m_Daytime = 12.0f;
+  m_Daytime = 7.98f;
   m_CelestialList.clear();
   Celestial* sun = new Sun();
   m_CelestialList.push_back(sun);

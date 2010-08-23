@@ -4,6 +4,7 @@
 #include <string>
 #include <OgreParticle.h>
 #include <OgreVector3.h>
+#include <OgreMath.h>
 
 namespace Dusk
 {
@@ -91,9 +92,12 @@ void Sun::updateTime(const float currentTime)
       hide();
       return;
     }
-    m_BBSet->getParentSceneNode()->resetOrientation();
-    m_BBSet->getParentSceneNode()->rotate(Ogre::Vector3::NEGATIVE_UNIT_Z,
-                               Ogre::Degree(180.0f*getSpanRatio(currentTime)));
+    const float spr = getSpanRatio(currentTime);
+    const Ogre::Vector3 vec3 = Ogre::Vector3(cSunDistance*Ogre::Math::Cos(Ogre::Math::PI*spr),
+                               cSunDistance*Ogre::Math::Sin(Ogre::Math::PI*spr),
+                               0.0f);
+    m_BBSet->getBillboard(0)->setPosition(vec3);
+    m_Light->setPosition(vec3);
   }//if
   else
   {

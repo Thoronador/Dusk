@@ -6,6 +6,7 @@
 
  History:
      - 2010-08-22 (rev 233) - initial version (by thoronador)
+     - 2010-08-23 (rev 234) - changed implementation of movement
 
  ToDo list:
      - Find a better material for the sun - the current one displays the sun as
@@ -48,16 +49,16 @@ class Sun: public Celestial
            For example, 12.0 means noon, 6.5 is half past six in the morning,
            and 20.25 is quarter past eight in the evening.
     */
-    void updateTime(const float currentTime);
+    virtual void updateTime(const float currentTime);
 
     /* shows object */
-    void show();
+    virtual void show();
 
     /* hides object */
-    void hide();
+    virtual void hide();
 
     /* returns true, if sun is currently visible */
-    bool isVisible() const;
+    virtual bool isVisible() const;
   protected:
     Ogre::BillboardSet* m_BBSet;
     Ogre::Light* m_Light;
