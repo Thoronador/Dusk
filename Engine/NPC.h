@@ -35,6 +35,8 @@
      - 2010-08-01 (rev 220) - GetObjectMesh() added, Enable() simplified
      - 2010-08-07 (rev 222) - projectile creation during gun attacks improved
      - 2010-08-15 (rev 224) - isHitByRay() added
+     - 2010-08-26 (rev 235) - jump() added, functions for starting/ stopping the
+                              walk, jump and idle animations added
 
  ToDo list:
      - add possibility to equip weapons, clothes, armour, etc.
@@ -93,6 +95,10 @@ namespace Dusk
 
       /* animated and move the NPC according to the passed time
 
+         parameters:
+             SecondsPassed - the amount of seconds that passed since the last
+                             call of this function/ since the last frame
+
          remarks:
              This function is intended to be called regularly, i.e. every
              frame, to accomplish the desired animation of the object. If you
@@ -100,6 +106,19 @@ namespace Dusk
              processed improperly and/or will not be fluent.
       */
       virtual void injectTime(const float SecondsPassed);
+
+      /* sets the movement speed
+
+         parameters:
+             v - the new speed value
+
+         remarks:
+             Smallest possible value is zero. Values less than zero will be set
+             to zero instead.
+             If you want the object to move backwards, use SetDirection() to
+             change its direction to the opposite.
+      */
+      virtual void SetSpeed(const float v);
 
       /* returns the current amount of health/ hitpoints of that NPC */
       float getHealth() const;
@@ -198,6 +217,13 @@ namespace Dusk
       */
       bool criticalHit() const;
 
+      /* makes the NPC to "jump" upwards
+
+         remarks:
+            Has no effect, if the NPC already performs a jump.
+      */
+      virtual void jump(void);
+
       /* Enables the NPC, i.e. tells the SceneManager to display it.
          Returns true on success, false on error.
       */
@@ -232,6 +258,24 @@ namespace Dusk
 
       /* plays animation to signal NPC's death */
       void playDeathAnimation();
+
+      /* starts the walking animation of the NPC */
+      void startWalkAnimation();
+
+      /* stops the walking animation of the NPC */
+      void stopWalkAnimation();
+
+      /* starts the jump animation of the NPC */
+      void startJumpAnimation();
+
+      /* stops the jump animation of the NPC */
+      void stopJumpAnimation();
+
+      /* starts the idle animation of the NPC */
+      void startIdleAnimation();
+
+      /* stops the idle animation of the NPC */
+      void stopIdleAnimation();
 
       /* starts animation to signal NPC's attacking */
       void startAttackAnimation();
@@ -280,6 +324,24 @@ namespace Dusk
       static const unsigned char Flag_CanRightAttack;
       /*flag to indicate that NPC is holding a weapon in the left hand */
       static const unsigned char Flag_CanLeftAttack;
+
+      //data for jumping
+      float m_JumpVelocity;
+      bool m_Jump;
+
+      /* performs the NPCs movement according to direction, speed, jumping
+
+         parameters:
+             SecondsPassed - the amount of seconds that passed since the last
+                             call of this function/ last frame
+
+         remarks:
+             Although we have a function in WaypointObject that already handles
+             movement, this function does not allow the objects to jump, but
+             only to move straight into a certain direction. That's why we need
+             a new function here.
+      */
+      virtual void move(const float SecondsPassed);
 
       /* utility function to check for attack flag */
       bool doesAttack() const;

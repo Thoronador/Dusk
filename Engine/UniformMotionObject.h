@@ -8,6 +8,7 @@
      - 2010-05-20 (rev 205) - initial version (by thoronador)
      - 2010-05-21 (rev 207) - small improvement in SetSpeed()
      - 2010-05-31 (rev 211) - small fix
+     - 2010-08-26 (rev 235) - isMoving() added
 
  ToDo list:
      - implement possibility to make object "look" into the direction it is
@@ -65,7 +66,10 @@ class UniformMotionObject: virtual public InjectionObject
            If you want the object to move backwards, use SetDirection() to
            change its direction to the opposite.
     */
-    void SetSpeed(const float v);
+    virtual void SetSpeed(const float v);
+
+    /* returns true, if the object is currently moving somehow */
+    virtual bool isMoving() const;
 
     /* Sets a point in space to which the object will start moving, as long
        as the movement speed was previously set to something greater than 0.

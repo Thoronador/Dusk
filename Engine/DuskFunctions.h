@@ -15,6 +15,7 @@
      - 2010-04-21 (rev 190) - BoolToString() added
      - 2010-05-05 (rev 196) - documentation updated
      - 2010-06-03 (rev 214) - CountBitsSet() added
+     - 2010-08-26 (rev 235) - CSVToVector() added
 
  ToDo list:
      - ???
@@ -65,6 +66,15 @@ std::string BoolToString(const bool value);
  * @return the trimmed string.
  */
 std::string trim(std::string p_string);
+
+/* splits a line of comma-separated values into separate strings and puts each
+   string into the returned vector, i.e. "abc;foo;bar" becomes the vector
+   consisting of the elements "abc", "foo" and "bar".
+
+   parameters:
+       csv_data - the string containing the character-separated values
+*/
+std::vector<std::string> CSVToVector(const std::string& csv_data);
 
 /* structure for file list entries */
 struct FileEntry {

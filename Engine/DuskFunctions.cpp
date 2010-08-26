@@ -115,6 +115,32 @@ std::string trim(std::string p_string)
   return p_string;
 }
 
+std::vector<std::string> CSVToVector(const std::string& csv_data)
+{
+  std::vector<std::string> result;
+  result.clear(); //just to be safe
+  if (csv_data.empty()) return result;
+  size_t next_character_index = 0;
+  while (next_character_index < csv_data.size())
+  {
+    const size_t next_comma = csv_data.find(',', next_character_index);
+    if (next_comma==std::string::npos)
+    {
+      //no comma left in string, the rest is all one string
+      result.push_back( csv_data.substr(next_character_index));
+      next_character_index = csv_data.size();
+      break;
+    }
+    else
+    {
+      //comma found
+      result.push_back(csv_data.substr(next_character_index, next_comma-next_character_index));
+      next_character_index = next_comma+1;
+    }
+  }//while
+  return result;
+}
+
 std::vector<FileEntry> get_DirectoryFileList(const std::string& Directory)
 {
   std::vector<FileEntry> result;

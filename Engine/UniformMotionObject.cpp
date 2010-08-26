@@ -64,6 +64,11 @@ void UniformMotionObject::SetSpeed(const float v)
   if (v<0.0f) m_Speed = 0.0f;
 }
 
+bool UniformMotionObject::isMoving() const
+{
+  return (m_Speed*m_Direction).squaredLength()>=0.0001;
+}
+
 void UniformMotionObject::TravelToDestination(const Ogre::Vector3& dest)
 {
   m_Destination = dest;

@@ -5,10 +5,12 @@
 #include "WeaponBase.h"
 #include "Settings.h"
 #include "DuskConstants.h"
+#include "DuskFunctions.h"
 #include "ObjectManager.h"
 #include "InjectionManager.h"
 #include "API.h"
 #include "DiceBox.h"
+#include "Landscape.h"
 
 namespace Dusk
 {
@@ -31,6 +33,8 @@ NPC::NPC()
   m_EquippedRight = NULL;
   m_TimeToNextAttackLeft = m_TimeToNextAttackRight = 0.0f;
   m_AttackFlags = 0;
+  m_JumpVelocity = 0.0f;
+  m_Jump = false;
 }
 
 NPC::NPC(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale)
@@ -64,6 +68,8 @@ NPC::NPC(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& 
   m_EquippedRight = NULL;
   m_TimeToNextAttackLeft = m_TimeToNextAttackRight = 0.0f;
   m_AttackFlags = 0;
+  m_JumpVelocity = 0.0f;
+  m_Jump = false;
 }
 
 NPC::~NPC()
@@ -83,10 +89,62 @@ bool NPC::isHitByRay(const Ogre::Ray& ray, Ogre::Vector3& impact) const
   return AnimatedObject::isHitByRay(ray, impact);
 }
 
+void NPC::jump(void)
+{
+  //only set values if we don't jump yet
+  if (!m_Jump)
+  {
+    m_Jump = true;
+    m_JumpVelocity = 30.0f; //only a guess; maybe we should adjust that
+                            //  value later
+    startJumpAnimation();
+  }//if
+}
+
+void NPC::move(const float SecondsPassed)
+{
+  /*basically we use the movement function of WaypointObject (i.e.
+    WaypointObject::injectTime()) here, with some modifications for jumoing */
+  if (SecondsPassed<=0.0f)
+  {
+    return;
+  }
+  WaypointObject::injectTime(SecondsPassed);
+  //now check for height
+  const float land_height = Landscape::GetSingleton().GetHeightAtPosition(position.x, position.z)
+                                    /*+cAboveGroundLevel*/;
+  if (m_Jump)
+  {
+    const float jump_height = position.y+m_JumpVelocity*SecondsPassed;
+    if (jump_height>=land_height)
+    {
+      const float gravity = -9.81*2.25; //maybe we need to adjust this later
+      position = Ogre::Vector3(position.x, jump_height, position.z);
+      m_JumpVelocity = m_JumpVelocity + gravity*SecondsPassed;
+    }
+    else
+    {
+      m_Jump = false;
+      position = Ogre::Vector3(position.x, land_height, position.z);
+      stopJumpAnimation();
+    }
+  }//if jumping
+  else
+  {
+    position = Ogre::Vector3(position.x, land_height, position.z);
+  }
+  //adjust position of scene node/ entity in Ogre
+  if (IsEnabled())
+  {
+    SetPosition(position);
+  }
+}
+
 void NPC::injectTime(const float SecondsPassed)
 {
   AnimatedObject::injectTime(SecondsPassed);
-  WaypointObject::injectTime(SecondsPassed);
+  //WaypointObject::injectTime(SecondsPassed);
+  NPC::move(SecondsPassed);
   if (doesAttack())
   {
     if (canAttackLeft())
@@ -126,6 +184,21 @@ void NPC::injectTime(const float SecondsPassed)
       }//time less/equal zero
     }// can attack right hand
   }//if NPC does attack
+}
+
+void NPC::SetSpeed(const float v)
+{
+  UniformMotionObject::SetSpeed(v);
+  if (isMoving())
+  {
+    stopIdleAnimation();
+    startWalkAnimation();
+  }
+  else
+  {
+    stopWalkAnimation();
+    startIdleAnimation();
+  }
 }
 
 float NPC::getHealth() const
@@ -635,9 +708,13 @@ bool NPC::SaveToStream(std::ofstream& OutStream) const
     OutStream.write((char*) &equipCount, sizeof(unsigned int));
     OutStream.write(m_EquippedLeft->GetID().c_str(), equipCount);
   }
+  //jumping info
+  OutStream.write((char*) &m_Jump, sizeof(bool));
+  OutStream.write((char*) &m_JumpVelocity, sizeof(float));
   if (!OutStream.good())
   {
-    std::cout << "NPC::SaveToStream: ERROR while writing equipped items.\n";
+    std::cout << "NPC::SaveToStream: ERROR while writing equipped items or "
+              << "jump data.\n";
     return false;
   }
   return OutStream.good();
@@ -781,6 +858,9 @@ bool NPC::LoadFromStream(std::ifstream& InStream)
       }
     }//second item
   }//have something equipped
+  //jumping info
+  InStream.read((char*) &m_Jump, sizeof(bool));
+  InStream.read((char*) &m_JumpVelocity, sizeof(float));
   return InStream.good();
 }
 
@@ -792,6 +872,90 @@ void NPC::playDeathAnimation()
   {
     StartAnimation(anim, false);
   }
+}
+
+void NPC::startWalkAnimation()
+{
+  const std::string anim = NPCBase::GetSingleton().getNPCAnimations(ID).Walk;
+  if (anim!="")
+  {
+    const std::vector<std::string> walk_list = CSVToVector(anim);
+    unsigned int i;
+    for (i=0; i<walk_list.size(); ++i)
+    {
+      StartAnimation(walk_list[i], true);
+    }//for
+  }//if
+}
+
+void NPC::stopWalkAnimation()
+{
+  const std::string anim = NPCBase::GetSingleton().getNPCAnimations(ID).Walk;
+  if (anim!="")
+  {
+    const std::vector<std::string> walk_list = CSVToVector(anim);
+    unsigned int i;
+    for (i=0; i<walk_list.size(); ++i)
+    {
+      StopAnimation(walk_list[i]);
+    }//for
+  }//if
+}
+
+void NPC::startJumpAnimation()
+{
+  const std::string anim = NPCBase::GetSingleton().getNPCAnimations(ID).Jump;
+  if (anim!="")
+  {
+    const std::vector<std::string> walk_list = CSVToVector(anim);
+    unsigned int i;
+    for (i=0; i<walk_list.size(); ++i)
+    {
+      StartAnimation(walk_list[i], true);
+    }//for
+  }//if
+}
+
+void NPC::stopJumpAnimation()
+{
+  const std::string anim = NPCBase::GetSingleton().getNPCAnimations(ID).Jump;
+  if (anim!="")
+  {
+    const std::vector<std::string> walk_list = CSVToVector(anim);
+    unsigned int i;
+    for (i=0; i<walk_list.size(); ++i)
+    {
+      StopAnimation(walk_list[i]);
+    }//for
+  }//if
+}
+
+void NPC::startIdleAnimation()
+{
+  const std::string anim = NPCBase::GetSingleton().getNPCAnimations(ID).Walk;
+  if (anim!="")
+  {
+    const std::vector<std::string> walk_list = CSVToVector(anim);
+    unsigned int i;
+    for (i=0; i<walk_list.size(); ++i)
+    {
+      StartAnimation(walk_list[i], true);
+    }//for
+  }//if
+}
+
+void NPC::stopIdleAnimation()
+{
+  const std::string anim = NPCBase::GetSingleton().getNPCAnimations(ID).Idle;
+  if (anim!="")
+  {
+    const std::vector<std::string> walk_list = CSVToVector(anim);
+    unsigned int i;
+    for (i=0; i<walk_list.size(); ++i)
+    {
+      StopAnimation(walk_list[i]);
+    }//for
+  }//if
 }
 
 void NPC::startAttackAnimation()
