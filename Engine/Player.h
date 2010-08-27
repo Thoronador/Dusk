@@ -14,6 +14,7 @@
      - 2010-07-31 (rev 219) - update to reflect changes of AnimatedObject
      - 2010-08-01 (rev 220) - GetObjectMesh() added, Enable() simplified
      - 2010-08-16 (rev 229) - fix to prevent segfault in destructor
+     - 2010-08-27 (rev 236) - translate() added
 
  ToDo list:
      - actually implement LoadFromStream() and SaveToStream()
@@ -54,6 +55,23 @@ namespace Dusk
              this function, because pickUp method is already a member of NPC.
       */
       bool pickUpNearest();
+
+      /* adds to the direction/speed of player */
+      void translate(const Ogre::Vector3& translationVector);
+
+      /* animates and move the player according to the passed time
+
+         parameters:
+             SecondsPassed - the amount of seconds that passed since the last
+                             call of this function/ since the last frame
+
+         remarks:
+             This function is intended to be called regularly, i.e. every
+             frame, to accomplish the desired animation of the object. If you
+             don't call this function in such a manner, the animation will be
+             processed improperly and/or will not be fluent.
+      */
+      virtual void injectTime(const float SecondsPassed);
 
       /* displays NPC mesh */
       virtual bool Enable(Ogre::SceneManager* scm);

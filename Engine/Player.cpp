@@ -1,5 +1,6 @@
 #include "Player.h"
 #include "API.h"
+#include "Camera.h"
 #include <OgreSkeleton.h>
 
 namespace Dusk
@@ -79,6 +80,22 @@ bool Player::pickUpNearest()
     return this->pickUp(item_ptr);
   }
   return false;
+}
+
+void Player::translate(const Ogre::Vector3& translationVector)
+{
+  m_Direction = m_Speed*m_Direction+translationVector;
+  NPC::SetSpeed(m_Direction.normalise());
+}
+
+void Player::injectTime(const float SecondsPassed)
+{
+  //call inherited method
+  NPC::injectTime(SecondsPassed);
+  //adjust camera position, because camera follows player
+  Camera::getSingleton().setPosition(Ogre::Vector3(position.x,
+                            position.y+Camera::cAboveGroundLevel,
+                            position.z));
 }
 
 std::string Player::GetObjectMesh() const

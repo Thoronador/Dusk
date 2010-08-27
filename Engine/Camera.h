@@ -21,6 +21,9 @@
      - 2010-05-21 (rev 206) - adjustments for player movement
      - 2010-05-27 (rev 208) - adjustments for player's animations
      - 2010-08-16 (rev 229) - fix in destructor to prevent possible segfault
+     - 2010-08-27 (rev 236) - cAboveGroundLevel made public
+                            - jump() and translate()removed, because Player class
+                              will set the camera position instead
 
  ToDo list:
      - adjust value of const. gravity in move() and initial value of
@@ -85,7 +88,7 @@ namespace Dusk
             void move(const Ogre::FrameEvent& evt);
 
             /* Adds(!) to the internally used translation vector. */
-            void translate(const Ogre::Vector3& translationVector);
+            //void translate(const Ogre::Vector3& translationVector);
 
             /* Adds(!) to the internally used rotation value.
 
@@ -93,13 +96,6 @@ namespace Dusk
                    The value is interpreted as degrees, not as radians.
             */
             void rotate(const float rotation);
-
-            /* tells the Camera to "jump" upwards
-
-               remarks:
-                  Has no effect, if the camera already performs a jump.
-            */
-            void jump(void);
 
             /* Sets the zoom distance.
 
@@ -124,6 +120,9 @@ namespace Dusk
             /* constant to indicate change in zoom for one keystroke/ one turn
                of mouse wheel (recommended)*/
             static const float cRecommendedZoomStep;
+
+            /* default distance between camera and ground/ landscape */
+            static const float cAboveGroundLevel;
         protected:
         private:
             /* constructor
@@ -141,16 +140,8 @@ namespace Dusk
             Ogre::Camera* m_Camera;
             Ogre::SceneNode* m_Primary;
             Ogre::SceneNode* m_Secondary;
-            Ogre::Vector3 m_translationVector;
+            //Ogre::Vector3 m_translationVector;
             float m_RotationPerSecond;
-
-            //data for jumping (I know, not the Camera but the player should
-            // jump, but we don't have a player object yet.)
-            float m_JumpVelocity;
-            bool m_Jump;
-
-            /* default distance between camera and ground/ landscape */
-            static const float cAboveGroundLevel;
     };
 }
 

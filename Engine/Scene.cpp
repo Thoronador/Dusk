@@ -175,11 +175,11 @@ void Scene::createGrassMesh()
         //add player information to NPCBase
         NPCAnimations anims;
         anims.Death = "Dance";
-        anims.Idle = "IdleBase;IdleTop";
+        anims.Idle = "IdleBase,IdleTop";
         anims.Jump = "JumpLoop";
         anims.MeleeAttack = "SliceHorizontal";
         anims.ProjectileAttack = "SliceVertical";
-        anims.Walk = "RunBase;RunTop";
+        anims.Walk = "RunBase,RunTop";
         NPCTagPoints tps;
         tps.HandLeft = "Handle.L";
         tps.HandRight = "Handle.R";
@@ -223,6 +223,7 @@ void Scene::createGrassMesh()
         {
           std::cout << "Player::equip() failed.\n";
         }
+        Camera::getSingleton().setZoom(125.0f);
         // ---- begin questlog test
         QuestLog::GetSingleton().addQuestEntry("test_quest", 1);
         QuestLog::GetSingleton().addQuestEntry("test_quest", 2);

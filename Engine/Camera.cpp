@@ -1,7 +1,7 @@
 #include "Camera.h"
 #include "API.h"
 #include "Landscape.h"
-#include "Player.h"
+//#include "Player.h"
 
 namespace Dusk
 {
@@ -38,7 +38,7 @@ namespace Dusk
           m_Secondary->attachObject(m_Camera);
           m_Camera->setNearClipDistance(5);
         }
-        m_translationVector = Ogre::Vector3::ZERO;
+        //m_translationVector = Ogre::Vector3::ZERO;
         m_RotationPerSecond = 0.0f;
     }
 
@@ -53,8 +53,6 @@ namespace Dusk
         m_Primary = NULL;
         m_Secondary = NULL;
         m_Camera = NULL;
-        m_JumpVelocity = 0.0f;
-        m_Jump = false;
         if (scn!=NULL)
         {
           setupCamera(scn);
@@ -64,7 +62,7 @@ namespace Dusk
     Camera::~Camera()
     {
         //destructor
-        m_translationVector = Ogre::Vector3::ZERO;
+        //m_translationVector = Ogre::Vector3::ZERO;
         m_RotationPerSecond = 0.0f;
         //now detach and delete everything related to the camera
         if (Ogre::Root::getSingletonPtr()!=NULL)
@@ -95,7 +93,7 @@ namespace Dusk
     void Camera::setPosition(const Ogre::Vector3& position)
     {
         m_Primary->setPosition(position);
-        Player::GetSingleton().SetPosition(position);
+        //Player::GetSingleton().SetPosition(position);
     }
 
     void Camera::lookAt(const Ogre::Vector3& direction)
@@ -105,36 +103,10 @@ namespace Dusk
 
     void Camera::move(const Ogre::FrameEvent& evt)
     {
-        if (m_translationVector != Ogre::Vector3::ZERO or m_Jump)
+        /*if (m_translationVector != Ogre::Vector3::ZERO)
         {
           m_Primary->translate(m_translationVector * evt.timeSinceLastFrame, Ogre::Node::TS_LOCAL);
-
-          //new height
-          Ogre::Vector3 camPos = m_Primary->getPosition();
-          const float new_height = Landscape::GetSingleton().GetHeightAtPosition(camPos.x, camPos.z)
-                                    +cAboveGroundLevel;
-          if (m_Jump)
-          {
-            const float jump_height = camPos.y+ m_JumpVelocity*evt.timeSinceLastFrame;
-            if (jump_height>=new_height)
-            {
-              const float gravity = -9.81*2.25; //maybe we need to adjust this later
-              m_Primary->setPosition(camPos.x, jump_height, camPos.z);
-              m_JumpVelocity = m_JumpVelocity + gravity*evt.timeSinceLastFrame;
-            }
-            else
-            {
-              m_Jump = false;
-              m_Primary->setPosition(camPos.x, new_height, camPos.z);
-            }
-          }
-          else
-          {
-            m_Primary->setPosition(camPos.x, new_height, camPos.z);
-          }
-          //adjust player's position
-          Player::GetSingleton().SetPosition(m_Primary->getPosition());
-        }
+        }*/
         //handle rotation
         if (m_RotationPerSecond != 0.0)
         {
@@ -142,41 +114,14 @@ namespace Dusk
         }
     }
 
-    void Camera::translate(const Ogre::Vector3& translationVector)
+    /*void Camera::translate(const Ogre::Vector3& translationVector)
     {
         m_translationVector += translationVector;
-        //check for player class
-        if (m_translationVector!= Ogre::Vector3::ZERO)
-        { //player/camera started moving/ moves on, so play run animation...
-          Player::GetSingleton().StartAnimation("RunBase", true);
-          Player::GetSingleton().StartAnimation("RunTop", true);
-          //... and stop idle animations
-          Player::GetSingleton().StopAnimation("IdleBase");
-          Player::GetSingleton().StopAnimation("IdleTop");
-        }
-        else
-        { //player has stopped moving, stop run animation...
-          Player::GetSingleton().StopAnimation("RunBase");
-          Player::GetSingleton().StopAnimation("RunTop");
-          //... and play idle animations
-          Player::GetSingleton().StartAnimation("IdleBase", true);
-          Player::GetSingleton().StartAnimation("IdleTop", true);
-        }
-    }
+    }*/
 
     void Camera::rotate(const float rotation)
     {
         m_RotationPerSecond += rotation;
-    }
-
-    void Camera::jump(void)
-    {
-      if (!m_Jump)
-      {
-        m_Jump = true;
-        m_JumpVelocity = 30.0f; //only a guess; maybe we should adjust that
-                                //  value later
-      }
     }
 
     void Camera::setZoom(const float distance)

@@ -1,6 +1,7 @@
 #include "CommandMove.h"
-#include "Camera.h"
 #include <OgreVector3.h>
+#include "Camera.h"
+#include "Player.h"
 
 namespace Dusk
 {
@@ -18,29 +19,28 @@ namespace Dusk
     }
     bool CommandMove::execute(Dusk::Scene* scene, int count)
     {
-        Dusk::Camera& m_Camera = Camera::getSingleton();
         switch(m_Direction)
         {
             case FORWARD:
-                m_Camera.translate(Ogre::Vector3(0,0,-moveConstant));
+                Player::GetSingleton().translate(Ogre::Vector3(0,0,-moveConstant));
                 break;
             case BACKWARD:
-                m_Camera.translate(Ogre::Vector3(0,0,moveConstant));
+                Player::GetSingleton().translate(Ogre::Vector3(0,0,moveConstant));
                 break;
             case LEFT:
-                m_Camera.translate(Ogre::Vector3(-moveConstant,0,0));
+                Player::GetSingleton().translate(Ogre::Vector3(-moveConstant,0,0));
                 break;
             case RIGHT:
-                m_Camera.translate(Ogre::Vector3(moveConstant,0,0));
+                Player::GetSingleton().translate(Ogre::Vector3(moveConstant,0,0));
                 break;
             case TURN_LEFT:
-                m_Camera.rotate(rotateDPS);
+                Camera::getSingleton().rotate(rotateDPS);
                 break;
             case TURN_RIGHT:
-                m_Camera.rotate(-rotateDPS);
+                Camera::getSingleton().rotate(-rotateDPS);
                 break;
             case JUMP_UP:
-                m_Camera.jump();
+                Player::GetSingleton().jump();
                 break;
             default:
             break;

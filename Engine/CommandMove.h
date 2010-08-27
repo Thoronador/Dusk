@@ -15,6 +15,7 @@
                               Camera class
                             - jump added
      - 2010-05-06 (rev 197) - documentation update
+     - 2010-08-27 (rev 236) - implementation of movement changed
 
  ToDo list:
      - ???
