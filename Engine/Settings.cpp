@@ -8,11 +8,49 @@ namespace Dusk
   const std::string Settings::CharacterConfigurationFile = "settings.conf";
   const char Settings::cCommentCharacter = '#';
 
+Settings::SettingRecord::SettingRecord()
+{
+  float_value = 0.0f;
+  str_value = "";
+  uint_value = 0;
+  s_type = stNone;
+}
+
+Settings::SettingRecord::SettingRecord(const float f)
+{
+  float_value = f;
+  str_value = "";
+  uint_value = 0;
+  s_type = stFloat;
+}
+
+Settings::SettingRecord::SettingRecord(const unsigned int i)
+{
+  float_value = 0.0f;
+  str_value = "";
+  uint_value = i;
+  s_type = stInt;
+}
+
+Settings::SettingRecord::SettingRecord(const std::string& s)
+{
+  float_value = 0.0f;
+  str_value = s;
+  uint_value = 0;
+  s_type = stString;
+}
+
+Settings::SettingRecord::SettingRecord(const SettingRecord& op)
+{
+  float_value = op.float_value;
+  str_value = op.str_value;
+  uint_value = op.uint_value;
+  s_type = op.s_type;
+}
+
 Settings::Settings()
 {
-  m_StringSettings.clear();
-  m_FloatSettings.clear();
-  m_uintSettings.clear();
+  m_AllSettings.clear();
   InitialSettings();
   std::cout << "Dusk::Settings: Loading configuration file... ";
   if (FileExists(CharacterConfigurationFile))
@@ -55,43 +93,39 @@ Settings& Settings::GetSingleton()
 
 void Settings::addSetting_string(const std::string& setting_name, const std::string& str_value)
 {
-  m_StringSettings[setting_name] = str_value;
+  m_AllSettings[setting_name] = SettingRecord(str_value);
 }
 
 void Settings::addSetting_float(const std::string& setting_name, const float float_value)
 {
-  m_FloatSettings[setting_name] = float_value;
+  m_AllSettings[setting_name] = SettingRecord(float_value);
 }
 
 void Settings::addSetting_uint(const std::string& setting_name, const unsigned int uint_value)
 {
-  m_uintSettings[setting_name] = uint_value;
+  m_AllSettings[setting_name] = SettingRecord(uint_value);
 }
 
 Settings::SettingType Settings::hasSetting(const std::string& setting_name) const
 {
-  if (m_uintSettings.find(setting_name) != m_uintSettings.end())
+  const std::map<std::string, SettingRecord>::const_iterator iter = m_AllSettings.find(setting_name);
+  if (iter != m_AllSettings.end())
   {
-    return stInt;
-  }
-  if (m_FloatSettings.find(setting_name) != m_FloatSettings.end())
-  {
-    return stFloat;
-  }
-  if (m_StringSettings.find(setting_name) != m_StringSettings.end())
-  {
-    return stString;
+    return iter->second.s_type;
   }
   return stNone;
 }
 
 unsigned int Settings::getSetting_uint(const std::string& setting_name) const
 {
-  std::map<std::string, unsigned int>::const_iterator iter;
-  iter = m_uintSettings.find(setting_name);
-  if (iter != m_uintSettings.end())
+  const std::map<std::string, SettingRecord>::const_iterator iter
+           = m_AllSettings.find(setting_name);
+  if (iter != m_AllSettings.end())
   {
-    return iter->second;
+    if (iter->second.s_type==stInt)
+    {
+      return iter->second.uint_value;
+    }//if type matches
   }
   //nothing found
   return 0;
@@ -99,11 +133,14 @@ unsigned int Settings::getSetting_uint(const std::string& setting_name) const
 
 float Settings::getSetting_float(const std::string& setting_name) const
 {
-  std::map<std::string, float>::const_iterator iter;
-  iter = m_FloatSettings.find(setting_name);
-  if (iter != m_FloatSettings.end())
+  const std::map<std::string, SettingRecord>::const_iterator iter =
+     m_AllSettings.find(setting_name);
+  if (iter != m_AllSettings.end())
   {
-    return iter->second;
+    if (iter->second.s_type==stFloat)
+    {
+      return iter->second.float_value;
+    }//if type matches
   }
   //nothing found
   return 0.0f;
@@ -111,11 +148,14 @@ float Settings::getSetting_float(const std::string& setting_name) const
 
 std::string Settings::getSetting_string(const std::string& setting_name) const
 {
-  std::map<std::string, std::string>::const_iterator iter;
-  iter = m_StringSettings.find(setting_name);
-  if (iter != m_StringSettings.end())
+  const std::map<std::string, SettingRecord>::const_iterator iter =
+          m_AllSettings.find(setting_name);
+  if (iter != m_AllSettings.end())
   {
-    return iter->second;
+    if (iter->second.s_type==stString)
+    {
+      return iter->second.str_value;
+    }//it type matches
   }
   //nothing found
   return "";
@@ -212,30 +252,48 @@ bool Settings::SaveToFile(const std::string& FileName) const
          << cc <<" maximum length of a line is limited to 255 characters.\n"
          << cc <<" Lines starting with "<<cc<<" are comments.\n\n";
 
-  output << "[uint]\n";
-  std::map<std::string, unsigned int>::const_iterator iter_i;
-  iter_i = m_uintSettings.begin();
-  while (iter_i != m_uintSettings.end())
+  SettingType lastType = stNone;
+  std::map<std::string, SettingRecord>::const_iterator iter;
+  iter = m_AllSettings.begin();
+  while (iter != m_AllSettings.end())
   {
-    output<<iter_i->first<<"="<<iter_i->second<<"\n";
-    iter_i++;
-  }
-  output << "[float]\n";
-  std::map<std::string, float>::const_iterator iter_f;
-  iter_f = m_FloatSettings.begin();
-  while (iter_f != m_FloatSettings.end())
-  {
-    output<<iter_f->first<<"="<<iter_f->second<<"\n";
-    iter_f++;
-  }
-  output << "[string]\n";
-  std::map<std::string, std::string>::const_iterator iter_s;
-  iter_s = m_StringSettings.begin();
-  while (iter_s != m_StringSettings.end())
-  {
-    output<<iter_s->first<<"="<<iter_s->second<<"\n";
-    iter_s++;
-  }
+    if (iter->second.s_type!=stNone)
+    {
+      if (iter->second.s_type!=lastType)
+      {
+        switch (iter->second.s_type)
+        {
+          case stInt:
+               output << "[uint]\n"; break;
+          case stFloat:
+               output << "[float]\n"; break;
+          case stString:
+               output << "[string]\n"; break;
+          default:
+               //unexpected type
+               output.close();
+               return false;
+        }//swi
+        lastType = iter->second.s_type;
+      }//if type changed
+      output<<iter->first<<"=";
+      switch (iter->second.s_type)
+      {
+        case stInt:
+             output <<iter->second.uint_value; break;
+        case stFloat:
+             output <<iter->second.float_value; break;
+        case stString:
+             output <<iter->second.str_value; break;
+        default:
+             //unexpected type
+             output.close();
+             return false;
+      }//swi
+      output<<"\n";
+    }//if type != stNone
+    ++iter;
+  }//while
   output.close();
   return output.good();
 }

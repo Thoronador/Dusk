@@ -3,10 +3,12 @@
 #include "Console.h"
 #include "Menu.h"
 #include "DuskFunctions.h"
+#include "Camera.h"
 
 namespace Dusk{
 
 const std::string InputSystemBinding::cKeyConfigurationFile = "keys.conf";
+const float cCameraRotationFactor = 0.5f;
 
 InputSystemBinding::InputSystemBinding()
 {
@@ -161,6 +163,16 @@ bool InputSystemBinding::mouseMoved( const OIS::MouseEvent &arg )
     else if (arg.state.Z.rel<0)
     {
       Console::getInstance()->addScript(Script("ZoomOut"));
+    }
+    //check left/right movement
+    if (arg.state.X.rel!=0)
+    {
+      Camera::getSingleton().rotateOnceX(-cCameraRotationFactor* arg.state.X.rel);
+    }
+    //check up/down movement
+    if (arg.state.Y.rel!=0)
+    {
+      Camera::getSingleton().rotateOnceY(-cCameraRotationFactor* arg.state.Y.rel);
     }
     return true;
 }

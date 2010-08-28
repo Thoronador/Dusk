@@ -24,6 +24,7 @@
      - 2010-08-27 (rev 236) - cAboveGroundLevel made public
                             - jump() and translate()removed, because Player class
                               will set the camera position instead
+     - 2010-08-28 (rev 237) - rotateOnceX() and rotateOnceY() added
 
  ToDo list:
      - adjust value of const. gravity in move() and initial value of
@@ -87,15 +88,31 @@ namespace Dusk
                based on the time given in evt.timeSinceLastFrame. */
             void move(const Ogre::FrameEvent& evt);
 
-            /* Adds(!) to the internally used translation vector. */
-            //void translate(const Ogre::Vector3& translationVector);
-
             /* Adds(!) to the internally used rotation value.
 
                remarks:
                    The value is interpreted as degrees, not as radians.
             */
             void rotate(const float rotation);
+
+            /* rotates the camera left/right immediately
+
+                parameters:
+                   delta - amount of degrees the camera will be turned up/down
+            */
+            void rotateOnceX(const float delta);
+
+            /* rotates the camera up/down immediately
+
+               parameters:
+                   delta - amount of degrees the camera will be turned up/down
+
+               remarks:
+                   If the camera's total rotation exceeds 90° in either
+                   directions, the rotation will be reset to 90° or -90°
+                   respectively.
+            */
+            void rotateOnceY(const float delta);
 
             /* Sets the zoom distance.
 
@@ -140,7 +157,6 @@ namespace Dusk
             Ogre::Camera* m_Camera;
             Ogre::SceneNode* m_Primary;
             Ogre::SceneNode* m_Secondary;
-            //Ogre::Vector3 m_translationVector;
             float m_RotationPerSecond;
     };
 }

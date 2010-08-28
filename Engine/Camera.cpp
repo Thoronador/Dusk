@@ -62,7 +62,6 @@ namespace Dusk
     Camera::~Camera()
     {
         //destructor
-        //m_translationVector = Ogre::Vector3::ZERO;
         m_RotationPerSecond = 0.0f;
         //now detach and delete everything related to the camera
         if (Ogre::Root::getSingletonPtr()!=NULL)
@@ -93,7 +92,6 @@ namespace Dusk
     void Camera::setPosition(const Ogre::Vector3& position)
     {
         m_Primary->setPosition(position);
-        //Player::GetSingleton().SetPosition(position);
     }
 
     void Camera::lookAt(const Ogre::Vector3& direction)
@@ -103,25 +101,41 @@ namespace Dusk
 
     void Camera::move(const Ogre::FrameEvent& evt)
     {
-        /*if (m_translationVector != Ogre::Vector3::ZERO)
-        {
-          m_Primary->translate(m_translationVector * evt.timeSinceLastFrame, Ogre::Node::TS_LOCAL);
-        }*/
-        //handle rotation
         if (m_RotationPerSecond != 0.0)
         {
-          m_Primary->yaw(Ogre::Degree(m_RotationPerSecond * evt.timeSinceLastFrame), Ogre::Node::TS_LOCAL);
+          m_Primary->yaw(Ogre::Degree(m_RotationPerSecond * evt.timeSinceLastFrame), Ogre::Node::TS_WORLD);
         }
     }
-
-    /*void Camera::translate(const Ogre::Vector3& translationVector)
-    {
-        m_translationVector += translationVector;
-    }*/
 
     void Camera::rotate(const float rotation)
     {
         m_RotationPerSecond += rotation;
+    }
+
+    void Camera::rotateOnceX(const float delta)
+    {
+      if (m_Primary!=NULL)
+      {
+        m_Primary->yaw(Ogre::Degree(delta), Ogre::Node::TS_WORLD);
+      }
+    }
+
+    void Camera::rotateOnceY(const float delta)
+    {
+      if (m_Primary!=NULL)
+      {
+        m_Primary->pitch(Ogre::Degree(delta), Ogre::Node::TS_LOCAL);
+        const Ogre::Degree deg = m_Primary->getOrientation().getPitch();
+        //adjust values, if larger than 90° or smaller than -90°
+        if (deg>Ogre::Degree(90.0f))
+        {
+          m_Primary->pitch(Ogre::Degree(90.0f)-deg);
+        }//if >90°
+        else if (deg<Ogre::Degree(-90.0f))
+        {
+          m_Primary->pitch(Ogre::Degree(-90.0f)-deg);
+        }//if <-90°
+      }//if primary camera node present
     }
 
     void Camera::setZoom(const float distance)

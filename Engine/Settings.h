@@ -17,6 +17,8 @@
                               read them from a file
      - 2010-01-07 (rev 150) - settings file can now have line comments
      - 2010-06-06 (rev 215) - factor for critical damage added to initial values
+     - 2010-08-28 (rev 237) - internal structure changed: one map for all types
+                              of settings instead one map for each type
 
  ToDo list:
      - ???
@@ -90,16 +92,39 @@ namespace Dusk
 
       /* name of the file where Settings looks for predefined settings */
       static const std::string CharacterConfigurationFile;
+
+      /* character that indicates comment lines*/
       static const char cCommentCharacter;
+    protected:
+      //internal structure to store a setting
+      struct SettingRecord
+      {
+        SettingType s_type;
+        float float_value;
+        unsigned int uint_value;
+        std::string str_value;
+        //constructor
+        SettingRecord();
+        //float setting constructor
+        SettingRecord(const float f);
+        //integer setting constructor
+        SettingRecord(const unsigned int i);
+        //string setting constructor
+        SettingRecord(const std::string& s);
+        //copy constructor
+        SettingRecord(const SettingRecord& op);
+      };//struct
     private:
+      /* constructor */
       Settings();
+
+      /* copy constructor - empty due to singleton pattern */
       Settings(const Settings& op) {}
 
       /* Sets some initial settings */
       void InitialSettings();
-      std::map<std::string, std::string> m_StringSettings;
-      std::map<std::string, float> m_FloatSettings;
-      std::map<std::string, unsigned int> m_uintSettings;
+
+      std::map<std::string, SettingRecord> m_AllSettings;
   }; //class
 
 }//namespace

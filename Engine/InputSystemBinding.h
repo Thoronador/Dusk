@@ -29,6 +29,7 @@
      - 2010-03-27 (rev 188) - binding for picking up items
      - 2010-06-06 (rev 215) - binding for attacking
      - 2010-08-20 (rev 231) - binding for QuestLog
+     - 2010-08-28 (rev 237) - camera will now react on mouse movement
 
  ToDo list:
      - method to load bind list from an external resource
@@ -56,6 +57,7 @@ namespace Dusk
      */
     class InputSystemBinding : public InputSystem {
     public:
+        /* singleton access method */
         static InputSystemBinding& get();
 
         /**
@@ -65,32 +67,90 @@ namespace Dusk
         virtual ~InputSystemBinding();
 
         /**
-         * Implements the keyPressed event to receive notifications if an key has been pressed.
+         * Implements the keyPressed event to receive notifications if a key has been pressed.
          *
-         * @param arg           The KeyEvent that holds the information which button has been pressed.
+         * @param arg       The KeyEvent that holds the information which key has been pressed.
          */
         virtual bool keyPressed (const OIS::KeyEvent &arg);
 
         /**
-         * Implements the keyReleased event to receive notifications if an key has been released.
+         * Implements the keyReleased event to receive notifications if a key has been released.
          *
-         * @param arg           The KeyEvent that holds the information which button has been released.
+         * @param arg       The KeyEvent that holds the information which key has been released.
          */
         virtual bool keyReleased (const OIS::KeyEvent &arg);
 
-
+        /**
+         * Implements the mousePressed event to receive notifications if the mouse has been moved.
+         *
+         * @param arg   The MouseEvent that holds the information about the mouse movement.
+         */
         virtual bool mouseMoved( const OIS::MouseEvent &arg );
-		virtual bool mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
-		virtual bool mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
 
-		static const std::string cKeyConfigurationFile;
+        /**
+         * Implements the mousePressed event to receive notifications if a mouse button has been pressed.
+         *
+         * @param arg   The MouseEvent that holds the information about the mouse.
+         * @param id    The MouseButton that has been pressed.
+         */
+        virtual bool mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
+
+        /**
+         * Implements the mouseReleased event to receive notifications if a mouse button has been released.
+         *
+         * @param arg   The MouseEvent that holds the information about the mouse.
+         * @param id    The MouseButton that has been released.
+         */
+        virtual bool mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
+
+        /* constant that names the configuration file which holds the key
+           bindings
+        */
+        static const std::string cKeyConfigurationFile;
 
     protected:
+        /* tries to guess the key string by looking at the Script scr.
+           If scr is not an acceptable script, this function will return an
+           empty string.
+
+           parameters:
+               scr - the Script
+        */
         static std::string getKeyStringFromScript(const Script& scr);
+
+        /* utility function that returns the Script that should be executed when
+           the specified key is pressed. If no Script shall be processed, or if
+           ks is not an acceptable value, an empty Script will be returned.
+
+           parameters:
+               ks - string that identifies the key
+        */
         static Script getPressScriptFromKeyString(const std::string& ks);
+
+        /* utility function that returns the Script that should be executed when
+           the specified key is released. If no Script shall be processed, or if
+           ks is not an acceptable value, an empty Script will be returned.
+
+           parameters:
+               ks - string that identifies the key
+        */
         static Script getReleaseScriptFromKeyString(const std::string& ks);
 
+        /* tries to load the key bindings from the file fileName and returns
+           true in case of success, false on error
+
+           parameters:
+               fileName - name of the file where the key bindings are located
+        */
         bool LoadKeyConfiguration(const std::string& fileName);
+
+        /* tries to save the key bindings to the file fileName and returns true
+           in case of success
+
+           parameters:
+               fileName - name of the file that shall be used/created to save
+                          the key bindings
+        */
         bool SaveKeyConfiguration(const std::string& fileName) const;
 
     private:
@@ -98,6 +158,10 @@ namespace Dusk
          * Standard constructor
          */
         InputSystemBinding();
+
+        /**
+         * Copy constructor
+         */
         InputSystemBinding(const InputSystemBinding& op){}
 
         /**
@@ -117,7 +181,7 @@ namespace Dusk
          * This list holds all scripts that should be executed when the coressponding button is pressed
          */
         std::map<OIS::KeyCode, Dusk::Script> myBindListRelease;
+    }; //class
 
-    };
-}
+}//namespace
 #endif // INPUTSYSTEMBINDING_H_INCLUDED
