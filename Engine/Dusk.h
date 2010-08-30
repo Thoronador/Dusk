@@ -642,7 +642,25 @@ description:
 status:
     Works, but far from perfect. (It's just white during foggy weather.)
 */
-#include "Celestial.h"
+#include "Sun.h"
+
+
+/*
+This Header defines the Trigger interface class, the AABoxTrigger class
+and the SphereTrigger class.
+
+description:
+    The Trigger class provides a basic interface for triggers.
+
+    The AABoxTrigger class is derived from trigger and implements some
+    methods for a trigger with an axis aligned box as trigger area.
+
+    The SphereTrigger class is derived from trigger and implements some
+    methods for a trigger with spheric area.
+status:
+    not tested
+*/
+#include "Trigger.h"
 
 
 /*
