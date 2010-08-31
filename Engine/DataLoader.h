@@ -29,6 +29,7 @@
      - 2010-05-31 (rev 212) - update for WeaponBase
      - 2010-06-02 (rev 213) - update for Weapons
      - 2010-06-02 (rev 230) - update due to rename of AnimationData to InjectionManager
+     - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
 
  ToDo list:
      - extend class when further classes for data management are added
@@ -82,30 +83,30 @@ class DataLoader
     virtual ~DataLoader();
 
     /* Singleton retrieval method */
-    static DataLoader& GetSingleton();
+    static DataLoader& getSingleton();
 
     /* Tries to save all data to the file FileName. The parameter bits is a
        bitmask that indicates, what should be saved. Returns true on success,
        false on failure.
     */
-    bool SaveToFile(const std::string& FileName, const unsigned int bits = ALL_BITS) const;
+    bool saveToFile(const std::string& FileName, const unsigned int bits = ALL_BITS) const;
 
     /* Tries to load all data from file FileName. Returns true on success, false
        on failure.
     */
-    bool LoadFromFile(const std::string& FileName);
+    bool loadFromFile(const std::string& FileName);
 
     /* Clears all loaded data, or, if bitmask bits is not set to ALL_BITS, the
        data specified through that bitmask. Only call this, if you know what you
        are doing.
     */
-    void ClearData(const unsigned int bits = ALL_BITS);
+    void clearData(const unsigned int bits = ALL_BITS);
 
     /* tries to load a saved game from file FileName and returns true on success */
-    bool LoadSaveGame(const std::string& FileName);
+    bool loadSaveGame(const std::string& FileName);
 
     /* tries to save a game to the file FileName and returns true on success */
-    bool SaveGame(const std::string& FileName) const;
+    bool saveGame(const std::string& FileName) const;
   private:
     /* private constructor (singleton pattern) */
     DataLoader();

@@ -21,7 +21,7 @@ int AddQuestEntry(lua_State *L)
     {
       int_index = static_cast<unsigned int>(index);
     }
-    if (QuestLog::GetSingleton().addQuestEntry(lua_tostring(L, 1), int_index))
+    if (QuestLog::getSingleton().addQuestEntry(lua_tostring(L, 1), int_index))
     {
       lua_pushboolean(L, 1);
     }
@@ -40,7 +40,7 @@ int HasQuest(lua_State *L)
 {
   if (lua_gettop(L)==1)
   {
-    if (QuestLog::GetSingleton().hasQuest(lua_tostring(L, 1)))
+    if (QuestLog::getSingleton().hasQuest(lua_tostring(L, 1)))
     {
       lua_pushboolean(L, 1);
     }
@@ -59,7 +59,7 @@ int IsQuestFinished(lua_State *L)
 {
   if (lua_gettop(L)==1)
   {
-    if (QuestLog::GetSingleton().isQuestFinished(lua_tostring(L, 1)))
+    if (QuestLog::getSingleton().isQuestFinished(lua_tostring(L, 1)))
     {
       lua_pushboolean(L, 1);
     }
@@ -88,7 +88,7 @@ int HasQuestEntry(lua_State *L)
     {
       int_index = static_cast<unsigned int>(index);
     }
-    if (QuestLog::GetSingleton().hasQuestEntry(lua_tostring(L, 1), int_index))
+    if (QuestLog::getSingleton().hasQuestEntry(lua_tostring(L, 1), int_index))
     {
       lua_pushboolean(L, 1);
     }
@@ -107,7 +107,7 @@ int GetMaximumPresentIndex(lua_State *L)
 {
   if (lua_gettop(L)==1)
   {
-    lua_pushnumber(L, QuestLog::GetSingleton().getMaximumPresentIndex(lua_tostring(L, 1)));
+    lua_pushnumber(L, QuestLog::getSingleton().getMaximumPresentIndex(lua_tostring(L, 1)));
     return 1;
   }
   lua_pushstring(L, "GetMaximumPresentIndex expects exactly one argument!\n");

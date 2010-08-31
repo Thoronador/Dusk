@@ -15,7 +15,7 @@ WeaponBase::~WeaponBase()
   m_Weapons.clear();
 }
 
-WeaponBase& WeaponBase::GetSingleton()
+WeaponBase& WeaponBase::getSingleton()
 {
   static WeaponBase Instance;
   return Instance;
@@ -113,17 +113,17 @@ bool WeaponBase::deleteWeapon(const std::string& ID)
   return true;
 }
 
-void WeaponBase::ClearAll()
+void WeaponBase::clearAll()
 {
   m_Weapons.clear();
 }
 
-unsigned int WeaponBase::NumberOfWeapons() const
+unsigned int WeaponBase::numberOfWeapons() const
 {
   return m_Weapons.size();
 }
 
-bool WeaponBase::SaveAllToStream(std::ofstream& OutStream) const
+bool WeaponBase::saveAllToStream(std::ofstream& OutStream) const
 {
   if (!OutStream.good())
   {
@@ -171,7 +171,7 @@ bool WeaponBase::SaveAllToStream(std::ofstream& OutStream) const
   return OutStream.good();
 }
 
-bool WeaponBase::LoadNextWeaponFromStream(std::ifstream& InStream)
+bool WeaponBase::loadNextWeaponFromStream(std::ifstream& InStream)
 {
   if (!InStream.good())
   {

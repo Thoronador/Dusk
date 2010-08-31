@@ -27,7 +27,7 @@ NPC::NPC()
   //all attributes to one
   m_Strength=m_Agility=m_Vitality=m_Intelligence=m_Willpower=m_Charisma=m_Luck=1;
   m_Level = 1; //assume level 1
-  m_Inventory.MakeEmpty(); //empty inventory
+  m_Inventory.makeEmpty(); //empty inventory
   m_Health = getMaxHealth();
   m_EquippedLeft = NULL;
   m_EquippedRight = NULL;
@@ -40,11 +40,11 @@ NPC::NPC()
 NPC::NPC(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale)
  : AnimatedObject(_ID, pos, rot, Scale)
 {
-  if (NPCBase::GetSingleton().hasNPC(ID))
+  if (NPCBase::getSingleton().hasNPC(ID))
   {
     //feed the data from NPCBase
     //-- attributes
-    const NPCAttributes temp_attr = NPCBase::GetSingleton().getAttributes(ID);
+    const NPCAttributes temp_attr = NPCBase::getSingleton().getAttributes(ID);
     m_Strength = temp_attr.Str;
     m_Agility = temp_attr.Agi;
     m_Vitality = temp_attr.Vit;
@@ -53,15 +53,15 @@ NPC::NPC(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& 
     m_Charisma = temp_attr.Cha;
     m_Luck = temp_attr.Luck;
     //-- level
-    m_Level = NPCBase::GetSingleton().getLevel(ID);
-    m_Inventory = NPCBase::GetSingleton().getNPCInventory(ID);
+    m_Level = NPCBase::getSingleton().getLevel(ID);
+    m_Inventory = NPCBase::getSingleton().getNPCInventory(ID);
   }
   else
   { //assume some random data
     //all attributes to one
     m_Strength=m_Agility=m_Vitality=m_Intelligence=m_Willpower=m_Charisma=m_Luck=1;
     m_Level = 1; //assume level 1
-    m_Inventory.MakeEmpty(); //empty inventory
+    m_Inventory.makeEmpty(); //empty inventory
   }
   m_Health = getMaxHealth();
   m_EquippedLeft = NULL;
@@ -75,10 +75,10 @@ NPC::NPC(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& 
 NPC::~NPC()
 {
   //empty
-  this->Disable();
+  this->disable();
 }
 
-ObjectTypes NPC::GetType() const
+ObjectTypes NPC::getDuskType() const
 {
   return otNPC;
 }
@@ -134,9 +134,9 @@ void NPC::move(const float SecondsPassed)
     position = Ogre::Vector3(position.x, land_height, position.z);
   }
   //adjust position of scene node/ entity in Ogre
-  if (IsEnabled())
+  if (isEnabled())
   {
-    SetPosition(position);
+    setPosition(position);
   }
 }
 
@@ -155,12 +155,12 @@ void NPC::injectTime(const float SecondsPassed)
         //time for next attack has come
         if (m_EquippedLeft!=NULL)
         {
-          if (m_EquippedLeft->GetType()==otWeapon)
+          if (m_EquippedLeft->getDuskType()==otWeapon)
           {
             performAttack(stLeftHand);
             //update time
             m_TimeToNextAttackLeft = m_TimeToNextAttackLeft
-                +WeaponBase::GetSingleton().getWeaponData(m_EquippedLeft->GetID()).TimeBetweenAttacks;
+                +WeaponBase::getSingleton().getWeaponData(m_EquippedLeft->getID()).TimeBetweenAttacks;
           }
         }//if
       }//time less/equal zero
@@ -173,12 +173,12 @@ void NPC::injectTime(const float SecondsPassed)
         //time for next attack has come
         if (m_EquippedRight!=NULL)
         {
-          if (m_EquippedRight->GetType()==otWeapon)
+          if (m_EquippedRight->getDuskType()==otWeapon)
           {
             performAttack(stRightHand);
             //update time
             m_TimeToNextAttackRight = m_TimeToNextAttackRight
-                +WeaponBase::GetSingleton().getWeaponData(m_EquippedRight->GetID()).TimeBetweenAttacks;
+                +WeaponBase::getSingleton().getWeaponData(m_EquippedRight->getID()).TimeBetweenAttacks;
           }
         }//if
       }//time less/equal zero
@@ -186,9 +186,9 @@ void NPC::injectTime(const float SecondsPassed)
   }//if NPC does attack
 }
 
-void NPC::SetSpeed(const float v)
+void NPC::setSpeed(const float v)
 {
-  UniformMotionObject::SetSpeed(v);
+  UniformMotionObject::setSpeed(v);
   if (isMoving())
   {
     stopIdleAnimation();
@@ -329,7 +329,7 @@ void NPC::setLuck(const uint8 luck)
 
 bool NPC::isFemale() const
 {
-  return NPCBase::GetSingleton().isNPCFemale(ID);
+  return NPCBase::getSingleton().isNPCFemale(ID);
 }
 
 Inventory& NPC::getInventory()
@@ -344,7 +344,7 @@ const Inventory& NPC::getConstInventory() const
 
 unsigned int NPC::getCurrentEncumbrance() const
 {
-  const float w = m_Inventory.GetTotalWeight();
+  const float w = m_Inventory.getTotalWeight();
   if (w<=0.0f)
   {
     return 0;
@@ -354,7 +354,7 @@ unsigned int NPC::getCurrentEncumbrance() const
 
 unsigned int NPC::getMaxEncumbrance() const
 {
-  const Settings& set = Settings::GetSingleton();
+  const Settings& set = Settings::getSingleton();
   return set.getSetting_uint("BaseEncumbrance") +
          set.getSetting_uint("EncumbranceStrengthCoefficient")*m_Strength;
   //cBaseEncumbrance + cEncumbranceStrengthCoefficient*m_Strength
@@ -367,7 +367,7 @@ bool NPC::isEncumbered() const
 
 unsigned int NPC::getMaxHealth() const
 {
-  const Settings& set = Settings::GetSingleton();
+  const Settings& set = Settings::getSingleton();
   return set.getSetting_uint("HealthBase")
          + set.getSetting_uint("HealthVitalityFactor")*m_Vitality
          + set.getSetting_uint("HealthLevelFactor")*m_Level;
@@ -381,17 +381,17 @@ bool NPC::pickUp(Item* target)
   {
     return false;
   }
-  if (position.squaredDistance(target->GetPosition())
+  if (position.squaredDistance(target->getPosition())
        > cMaximumPickUpDistance * cMaximumPickUpDistance)
   {
     return false;
   }
   //we have to save item's ID now, because the pointer might be invalid after
   // the call of removeItemReference()
-  const std::string ItemID = target->GetID();
-  if (ObjectManager::GetSingleton().removeItemReference(target))
+  const std::string ItemID = target->getID();
+  if (ObjectManager::getSingleton().removeItemReference(target))
   {
-    m_Inventory.AddItem(ItemID, 1);
+    m_Inventory.addItem(ItemID, 1);
     return true;
   }
   return false;
@@ -399,7 +399,7 @@ bool NPC::pickUp(Item* target)
 
 bool NPC::equip(const std::string& ItemID)
 {
-  if (m_Inventory.GetItemCount(ItemID)==0)
+  if (m_Inventory.getItemCount(ItemID)==0)
   {
     std::cout << "NPC::equip: ERROR: NPC has no item with ID \""<<ItemID
               << "\" in inventory.\n";
@@ -426,11 +426,11 @@ bool NPC::equip(const std::string& ItemID, const SlotType slot)
 {
   //protected version of equip()
   Item* pItem = NULL;
-  if (ItemBase::GetSingleton().hasItem(ItemID))
+  if (ItemBase::getSingleton().hasItem(ItemID))
   {
     pItem = new Item(ItemID, Ogre::Vector3::ZERO, Ogre::Vector3::ZERO, 1.0f);
   }
-  else if (WeaponBase::GetSingleton().hasWeapon(ItemID))
+  else if (WeaponBase::getSingleton().hasWeapon(ItemID))
   {
     pItem = new Weapon(ItemID, Ogre::Vector3::ZERO, Ogre::Vector3::ZERO, 1.0f);
   }
@@ -445,10 +445,10 @@ bool NPC::equip(const std::string& ItemID, const SlotType slot)
   switch (slot)
   {
     case stRightHand:
-         bone_name = NPCBase::GetSingleton().getNPCTagPoints(ID).HandRight;
+         bone_name = NPCBase::getSingleton().getNPCTagPoints(ID).HandRight;
          break;
     case stLeftHand:
-         bone_name = NPCBase::GetSingleton().getNPCTagPoints(ID).HandLeft;
+         bone_name = NPCBase::getSingleton().getNPCTagPoints(ID).HandLeft;
          break;
     default:
          std::cout << "NPC::equip: ERROR: unknown slot type!\n";
@@ -462,13 +462,13 @@ bool NPC::equip(const std::string& ItemID, const SlotType slot)
     delete pItem;
     return false; //no bone name, no equip()
   }
-  pItem->EnableWithoutSceneNode(entity->getParentSceneNode()->getCreator());
+  pItem->enableWithoutSceneNode(entity->getParentSceneNode()->getCreator());
   entity->attachObjectToBone(bone_name, pItem->exposeEntity());
   pItem->setEquipped(true);
   if (slot==stLeftHand)
   {
     m_EquippedLeft = pItem;
-    if (pItem->GetType()==otWeapon)
+    if (pItem->getDuskType()==otWeapon)
     {
       //set attack flag for left hand
       m_AttackFlags |= Flag_CanLeftAttack;
@@ -478,7 +478,7 @@ bool NPC::equip(const std::string& ItemID, const SlotType slot)
   else
   {
     m_EquippedRight = pItem;
-    if (pItem->GetType()==otWeapon)
+    if (pItem->getDuskType()==otWeapon)
     {
       //set attack flag for right hand
       m_AttackFlags |= Flag_CanRightAttack;
@@ -492,10 +492,10 @@ bool NPC::hasEquipped(const std::string& ItemID) const
 {
   if (m_EquippedRight!=NULL)
   {
-    if (m_EquippedRight->GetID()==ItemID) return true;
+    if (m_EquippedRight->getID()==ItemID) return true;
     if (m_EquippedLeft!=NULL)
     {
-      if (m_EquippedLeft->GetID()==ItemID) return true;
+      if (m_EquippedLeft->getID()==ItemID) return true;
     }
   }
   return false;
@@ -509,12 +509,12 @@ bool NPC::unequip(const std::string& ItemID)
   }
   if (m_EquippedLeft!=NULL)
   {
-    if (m_EquippedLeft->GetID()==ItemID)
+    if (m_EquippedLeft->getID()==ItemID)
       return unequip(stLeftHand);
   }
   if (m_EquippedRight!=NULL)
   {
-    if (m_EquippedRight->GetID()==ItemID)
+    if (m_EquippedRight->getID()==ItemID)
       return unequip(stRightHand);
   }
   return false;
@@ -608,21 +608,21 @@ bool NPC::stopAttack()
   return true;
 }
 
-std::string NPC::GetObjectMesh() const
+std::string NPC::getObjectMesh() const
 {
-  return NPCBase::GetSingleton().getNPCMesh(ID);
+  return NPCBase::getSingleton().getNPCMesh(ID);
 }
 
-bool NPC::Enable(Ogre::SceneManager* scm)
+bool NPC::enable(Ogre::SceneManager* scm)
 {
   if (entity!=NULL)
   {
     return true;
   }
-  return AnimatedObject::Enable(scm);
+  return AnimatedObject::enable(scm);
 }
 
-bool NPC::SaveToStream(std::ofstream& OutStream) const
+bool NPC::saveToStream(std::ofstream& OutStream) const
 {
   if (!OutStream.good())
   {
@@ -632,25 +632,25 @@ bool NPC::SaveToStream(std::ofstream& OutStream) const
   //write header "RefN" (reference of NPC)
   OutStream.write((char*) &cHeaderRefN, sizeof(unsigned int));
   //save stuff inherited from DuskObject
-  if (!SaveDuskObjectPart(OutStream))
+  if (!saveDuskObjectPart(OutStream))
   {
     std::cout << "NPC::SaveToStream: ERROR while saving basic data!\n";
     return false;
   }
   // go on with new data members from AnimatedObject
-  if (!SaveAnimatedObjectPart(OutStream))
+  if (!saveAnimatedObjectPart(OutStream))
   {
     std::cout << "NPC::SaveToStream: ERROR while saving animation data!\n";
     return false;
   }
   // go on with new data members from UniformMotionObject
-  if (!SaveUniformMotionObjectPart(OutStream))
+  if (!saveUniformMotionObjectPart(OutStream))
   {
     std::cout << "NPC::SaveToStream: ERROR while saving basic motion data!\n";
     return false;
   }
   // go on with new data members from WaypointObject
-  if (!SaveWaypointObjectPart(OutStream))
+  if (!saveWaypointObjectPart(OutStream))
   {
     std::cout << "NPC::SaveToStream: ERROR while saving waypoint data!\n";
     return false;
@@ -674,7 +674,7 @@ bool NPC::SaveToStream(std::ofstream& OutStream) const
     std::cout << "NPC::SaveToStream: ERROR while writing character data.\n";
     return false;
   }
-  if (!(m_Inventory.SaveToStream(OutStream)))
+  if (!(m_Inventory.saveToStream(OutStream)))
   {
     std::cout << "NPC::SaveToStream: ERROR while writing inventory data.\n";
     return false;
@@ -697,16 +697,16 @@ bool NPC::SaveToStream(std::ofstream& OutStream) const
   if (m_EquippedRight!=NULL)
   {
     //write ID of right hand item
-    equipCount = m_EquippedRight->GetID().length();
+    equipCount = m_EquippedRight->getID().length();
     OutStream.write((char*) &equipCount, sizeof(unsigned int));
-    OutStream.write(m_EquippedRight->GetID().c_str(), equipCount);
+    OutStream.write(m_EquippedRight->getID().c_str(), equipCount);
   }
   if (m_EquippedLeft!=NULL)
   {
     //write ID of left hand item
-    equipCount = m_EquippedLeft->GetID().length();
+    equipCount = m_EquippedLeft->getID().length();
     OutStream.write((char*) &equipCount, sizeof(unsigned int));
-    OutStream.write(m_EquippedLeft->GetID().c_str(), equipCount);
+    OutStream.write(m_EquippedLeft->getID().c_str(), equipCount);
   }
   //jumping info
   OutStream.write((char*) &m_Jump, sizeof(bool));
@@ -720,7 +720,7 @@ bool NPC::SaveToStream(std::ofstream& OutStream) const
   return OutStream.good();
 }
 
-bool NPC::LoadFromStream(std::ifstream& InStream)
+bool NPC::loadFromStream(std::ifstream& InStream)
 {
   if (entity!=NULL)
   {
@@ -743,25 +743,25 @@ bool NPC::LoadFromStream(std::ifstream& InStream)
     return false;
   }
   //read DuskObject stuff
-  if (!LoadDuskObjectPart(InStream))
+  if (!loadDuskObjectPart(InStream))
   {
     std::cout << "NPC::LoadFromStream: ERROR while reading basic data.\n";
     return false;
   }
   // go on with data members from AnimatedObject
-  if (!LoadAnimatedObjectPart(InStream))
+  if (!loadAnimatedObjectPart(InStream))
   {
     std::cout << "NPC::LoadFromStream: ERROR while loading animation data.\n";
     return false;
   }
   // go on with data members from UniformMotionObject
-  if (!LoadUniformMotionObjectPart(InStream))
+  if (!loadUniformMotionObjectPart(InStream))
   {
     std::cout << "NPC::LoadFromStream: ERROR while loading motion data.\n";
     return false;
   }
   // go on with data members from WaypointObject
-  if (!LoadWaypointObjectPart(InStream))
+  if (!loadWaypointObjectPart(InStream))
   {
     std::cout << "NPC::LoadFromStream: ERROR while loading waypoint data.\n";
     return false;
@@ -786,7 +786,7 @@ bool NPC::LoadFromStream(std::ifstream& InStream)
     std::cout << "NPC::LoadFromStream: ERROR while reading character data.\n";
     return false;
   }
-  if (!(m_Inventory.LoadFromStream(InStream)))
+  if (!(m_Inventory.loadFromStream(InStream)))
   {
     std::cout << "NPC::LoadFromStream: ERROR while reading inventory data.\n";
     return false;
@@ -866,131 +866,131 @@ bool NPC::LoadFromStream(std::ifstream& InStream)
 
 void NPC::playDeathAnimation()
 {
-  StopAllAnimations();
-  const std::string anim = NPCBase::GetSingleton().getNPCAnimations(ID).Death;
+  stopAllAnimations();
+  const std::string anim = NPCBase::getSingleton().getNPCAnimations(ID).Death;
   if (anim!="")
   {
-    StartAnimation(anim, false);
+    startAnimation(anim, false);
   }
 }
 
 void NPC::startWalkAnimation()
 {
-  const std::string anim = NPCBase::GetSingleton().getNPCAnimations(ID).Walk;
+  const std::string anim = NPCBase::getSingleton().getNPCAnimations(ID).Walk;
   if (anim!="")
   {
     const std::vector<std::string> walk_list = CSVToVector(anim);
     unsigned int i;
     for (i=0; i<walk_list.size(); ++i)
     {
-      StartAnimation(walk_list[i], true);
+      startAnimation(walk_list[i], true);
     }//for
   }//if
 }
 
 void NPC::stopWalkAnimation()
 {
-  const std::string anim = NPCBase::GetSingleton().getNPCAnimations(ID).Walk;
+  const std::string anim = NPCBase::getSingleton().getNPCAnimations(ID).Walk;
   if (anim!="")
   {
     const std::vector<std::string> walk_list = CSVToVector(anim);
     unsigned int i;
     for (i=0; i<walk_list.size(); ++i)
     {
-      StopAnimation(walk_list[i]);
+      stopAnimation(walk_list[i]);
     }//for
   }//if
 }
 
 void NPC::startJumpAnimation()
 {
-  const std::string anim = NPCBase::GetSingleton().getNPCAnimations(ID).Jump;
+  const std::string anim = NPCBase::getSingleton().getNPCAnimations(ID).Jump;
   if (anim!="")
   {
-    const std::vector<std::string> walk_list = CSVToVector(anim);
+    const std::vector<std::string> jump_list = CSVToVector(anim);
     unsigned int i;
-    for (i=0; i<walk_list.size(); ++i)
+    for (i=0; i<jump_list.size(); ++i)
     {
-      StartAnimation(walk_list[i], true);
+      startAnimation(jump_list[i], true);
     }//for
   }//if
 }
 
 void NPC::stopJumpAnimation()
 {
-  const std::string anim = NPCBase::GetSingleton().getNPCAnimations(ID).Jump;
+  const std::string anim = NPCBase::getSingleton().getNPCAnimations(ID).Jump;
   if (anim!="")
   {
-    const std::vector<std::string> walk_list = CSVToVector(anim);
+    const std::vector<std::string> jump_list = CSVToVector(anim);
     unsigned int i;
-    for (i=0; i<walk_list.size(); ++i)
+    for (i=0; i<jump_list.size(); ++i)
     {
-      StopAnimation(walk_list[i]);
+      stopAnimation(jump_list[i]);
     }//for
   }//if
 }
 
 void NPC::startIdleAnimation()
 {
-  const std::string anim = NPCBase::GetSingleton().getNPCAnimations(ID).Walk;
+  const std::string anim = NPCBase::getSingleton().getNPCAnimations(ID).Idle;
   if (anim!="")
   {
-    const std::vector<std::string> walk_list = CSVToVector(anim);
+    const std::vector<std::string> idle_list = CSVToVector(anim);
     unsigned int i;
-    for (i=0; i<walk_list.size(); ++i)
+    for (i=0; i<idle_list.size(); ++i)
     {
-      StartAnimation(walk_list[i], true);
+      startAnimation(idle_list[i], true);
     }//for
   }//if
 }
 
 void NPC::stopIdleAnimation()
 {
-  const std::string anim = NPCBase::GetSingleton().getNPCAnimations(ID).Idle;
+  const std::string anim = NPCBase::getSingleton().getNPCAnimations(ID).Idle;
   if (anim!="")
   {
-    const std::vector<std::string> walk_list = CSVToVector(anim);
+    const std::vector<std::string> idle_list = CSVToVector(anim);
     unsigned int i;
-    for (i=0; i<walk_list.size(); ++i)
+    for (i=0; i<idle_list.size(); ++i)
     {
-      StopAnimation(walk_list[i]);
+      stopAnimation(idle_list[i]);
     }//for
   }//if
 }
 
 void NPC::startAttackAnimation()
 {
-  const NPCAnimations& anim = NPCBase::GetSingleton().getNPCAnimations(ID);
+  const NPCAnimations& anim = NPCBase::getSingleton().getNPCAnimations(ID);
   bool melee = false;
   if (m_EquippedRight!=NULL)
   {
-    if (m_EquippedRight->GetType()==otWeapon)
+    if (m_EquippedRight->getDuskType()==otWeapon)
     {
-      melee = WeaponBase::GetSingleton().getWeaponData(m_EquippedRight->GetID()).Type==wtMelee;
+      melee = WeaponBase::getSingleton().getWeaponData(m_EquippedRight->getID()).Type==wtMelee;
     }
   }
   else if (m_EquippedLeft!=NULL)
   {
-    if (m_EquippedLeft->GetType()==otWeapon)
+    if (m_EquippedLeft->getDuskType()==otWeapon)
     {
-      melee = WeaponBase::GetSingleton().getWeaponData(m_EquippedLeft->GetID()).Type==wtMelee;
+      melee = WeaponBase::getSingleton().getWeaponData(m_EquippedLeft->getID()).Type==wtMelee;
     }
   }
   if (melee and (anim.MeleeAttack!=""))
   {
-    StartAnimation(anim.MeleeAttack, true);
+    startAnimation(anim.MeleeAttack, true);
   }
   if (!melee and (anim.ProjectileAttack!=""))
   {
-    StartAnimation(anim.ProjectileAttack, true);
+    startAnimation(anim.ProjectileAttack, true);
   }
 }
 
 void NPC::stopAttackAnimation()
 {
-  const NPCAnimations& anim_rec = NPCBase::GetSingleton().getNPCAnimations(ID);
-  StopAnimation(anim_rec.MeleeAttack);
-  StopAnimation(anim_rec.ProjectileAttack);
+  const NPCAnimations& anim_rec = NPCBase::getSingleton().getNPCAnimations(ID);
+  stopAnimation(anim_rec.MeleeAttack);
+  stopAnimation(anim_rec.ProjectileAttack);
 }
 
 void NPC::performAttack(const SlotType attackSlot)
@@ -1001,15 +1001,15 @@ void NPC::performAttack(const SlotType attackSlot)
     return;
   }
   //only enabled NPC can perform an attack
-  if (!IsEnabled()) return;
+  if (!isEnabled()) return;
   WeaponRecord wRec;
   if (attackSlot==stRightHand)
   {
-    wRec = WeaponBase::GetSingleton().getWeaponData(m_EquippedRight->GetID());
+    wRec = WeaponBase::getSingleton().getWeaponData(m_EquippedRight->getID());
   }
   else
   {
-    wRec = WeaponBase::GetSingleton().getWeaponData(m_EquippedLeft->GetID());
+    wRec = WeaponBase::getSingleton().getWeaponData(m_EquippedLeft->getID());
   }
   if (wRec.Range<0.0f)
   {
@@ -1024,16 +1024,16 @@ void NPC::performAttack(const SlotType attackSlot)
          - adjust position of projectile that way that it "spawns" a bit away
            from NPC in order to avoid hitting the NPC itself
     */
-    Projectile* projPtr = InjectionManager::GetSingleton().addProjectileReference(
+    Projectile* projPtr = InjectionManager::getSingleton().addProjectileReference(
       wRec.ProjectileID, //ID
       position,
       rotation,
       1.0f);
     //not sure whether this is the best choice
-    projPtr->SetDirection(entity->getParentSceneNode()->getOrientation()*Ogre::Vector3(0.0, 0.0, 1.0));
-    projPtr->SetEmitter(this);
+    projPtr->setDirection(entity->getParentSceneNode()->getOrientation()*Ogre::Vector3(0.0, 0.0, 1.0));
+    projPtr->setEmitter(this);
     //enable it
-    projPtr->Enable(getAPI().getOgreSceneManager());
+    projPtr->enable(getAPI().getOgreSceneManager());
     std::cout << "NPC::performAttack: projectile \""<< wRec.ProjectileID << "\" emitted.\n";
     //we are done here
     return;
@@ -1059,7 +1059,7 @@ void NPC::performAttack(const SlotType attackSlot)
     if ((*iter)->getUserObject()!=NULL)
     {
       obj_ptr = static_cast<DuskObject*>((*iter)->getUserObject());
-      if (obj_ptr->GetType()==otNPC)
+      if (obj_ptr->getDuskType()==otNPC)
       {
         //We've found an NPC!
         NPC* NPC_Ptr = dynamic_cast<NPC*>(obj_ptr);
@@ -1070,7 +1070,7 @@ void NPC::performAttack(const SlotType attackSlot)
           if (criticalHit())
           {
             times = wRec.DamageTimes
-                    * Settings::GetSingleton().getSetting_uint("CriticalDamageFactor");
+                    * Settings::getSingleton().getSetting_uint("CriticalDamageFactor");
           }
           else
           {
@@ -1082,19 +1082,19 @@ void NPC::performAttack(const SlotType attackSlot)
                  //no damage at all
                  break;
             case 4:
-                 NPC_Ptr->inflictDamage(DiceBox::GetSingleton().d4(times));
+                 NPC_Ptr->inflictDamage(DiceBox::getSingleton().d4(times));
                  break;
             case 6:
-                 NPC_Ptr->inflictDamage(DiceBox::GetSingleton().d6(times));
+                 NPC_Ptr->inflictDamage(DiceBox::getSingleton().d6(times));
                  break;
             case 8:
-                 NPC_Ptr->inflictDamage(DiceBox::GetSingleton().d8(times));
+                 NPC_Ptr->inflictDamage(DiceBox::getSingleton().d8(times));
                  break;
             case 10:
-                 NPC_Ptr->inflictDamage(DiceBox::GetSingleton().d10(times));
+                 NPC_Ptr->inflictDamage(DiceBox::getSingleton().d10(times));
                  break;
             case 20:
-                 NPC_Ptr->inflictDamage(DiceBox::GetSingleton().d20(times));
+                 NPC_Ptr->inflictDamage(DiceBox::getSingleton().d20(times));
                  break;
             default:
                  std::cout << "NPC::performAttack: ERROR: weapon has unsupported"
@@ -1115,7 +1115,7 @@ void NPC::performAttack(const SlotType attackSlot)
 bool NPC::criticalHit() const
 {
   /* NPC does a critical hit, if his/her luck is greater or equal to a d20. */
-  return getLuck()>=DiceBox::GetSingleton().d20();
+  return getLuck()>=DiceBox::getSingleton().d20();
 }
 
 bool NPC::doesAttack() const

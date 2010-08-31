@@ -15,7 +15,7 @@ ObjectBase::~ObjectBase()
   m_ObjectList.clear();
 }
 
-ObjectBase& ObjectBase::GetSingleton()
+ObjectBase& ObjectBase::getSingleton()
 {
   static ObjectBase Instance;
   return Instance;
@@ -48,17 +48,17 @@ bool ObjectBase::deleteObject(const std::string& ID_of_Object)
   return true;
 }
 
-void ObjectBase::ClearAllObjects()
+void ObjectBase::clearAllObjects()
 {
   m_ObjectList.clear();
 }
 
-unsigned int ObjectBase::NumberOfObjects() const
+unsigned int ObjectBase::numberOfObjects() const
 {
   return m_ObjectList.size();
 }
 
-std::string ObjectBase::GetMeshName(const std::string& ID, const bool UseMarkerOnError) const
+std::string ObjectBase::getMeshName(const std::string& ID, const bool UseMarkerOnError) const
 {
   std::map<std::string, std::string>::const_iterator iter = m_ObjectList.find(ID);
   if (iter!=m_ObjectList.end())
@@ -73,7 +73,7 @@ std::string ObjectBase::GetMeshName(const std::string& ID, const bool UseMarkerO
   return "";
 }
 
-bool ObjectBase::SaveToStream(std::ofstream& Stream) const
+bool ObjectBase::saveToStream(std::ofstream& Stream) const
 {
   std::map<std::string, std::string>::const_iterator iter;
   unsigned int len;
@@ -97,7 +97,7 @@ bool ObjectBase::SaveToStream(std::ofstream& Stream) const
   return Stream.good();
 }
 
-bool ObjectBase::LoadFromStream(std::ifstream& Stream)
+bool ObjectBase::loadFromStream(std::ifstream& Stream)
 {
   unsigned int len;
   unsigned int Header = 0;
@@ -148,12 +148,12 @@ bool ObjectBase::LoadFromStream(std::ifstream& Stream)
   return true;
 }
 
-std::map<std::string, std::string>::const_iterator ObjectBase::GetFirst() const
+std::map<std::string, std::string>::const_iterator ObjectBase::getFirst() const
 {
   return m_ObjectList.begin();
 }
 
-std::map<std::string, std::string>::const_iterator ObjectBase::GetEnd() const
+std::map<std::string, std::string>::const_iterator ObjectBase::getEnd() const
 {
   return m_ObjectList.end();
 }

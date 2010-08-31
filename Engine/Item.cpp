@@ -20,15 +20,15 @@ Item::Item(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3
 
 Item::~Item()
 {
-  Disable();
+  disable();
 }
 
-std::string Item::GetObjectMesh() const
+std::string Item::getObjectMesh() const
 {
-  return ItemBase::GetSingleton().GetMeshName(ID);
+  return ItemBase::getSingleton().getMeshName(ID);
 }
 
-bool Item::EnableWithoutSceneNode(Ogre::SceneManager* scm)
+bool Item::enableWithoutSceneNode(Ogre::SceneManager* scm)
 {
   //We basically use the exact code from the DuskObject Enable() function here,
   // just with the difference of not creating a scene node for it.
@@ -45,7 +45,7 @@ bool Item::EnableWithoutSceneNode(Ogre::SceneManager* scm)
   std::stringstream entity_name;
   entity_name << ID << GenerateUniqueObjectID();
   //create entity + node and attach entity to node
-  entity = scm->createEntity(entity_name.str(), GetObjectMesh());
+  entity = scm->createEntity(entity_name.str(), getObjectMesh());
   /*Ogre::SceneNode* ent_node = scm->getRootSceneNode()->createChildSceneNode(entity_name.str(), position);
   ent_node->attachObject(entity);
   ent_node->scale(m_Scale, m_Scale, m_Scale);
@@ -58,7 +58,7 @@ bool Item::EnableWithoutSceneNode(Ogre::SceneManager* scm)
   return (entity!=NULL);
 }
 
-bool Item::Disable()
+bool Item::disable()
 {
   if (entity == NULL)
   {
@@ -89,7 +89,7 @@ bool Item::Disable()
   return true;
 }
 
-ObjectTypes Item::GetType() const
+ObjectTypes Item::getDuskType() const
 {
   return otItem;
 }
@@ -99,7 +99,7 @@ bool Item::canPickUp() const
   return !m_Equipped;
 }
 
-bool Item::SaveToStream(std::ofstream& OutStream) const
+bool Item::saveToStream(std::ofstream& OutStream) const
 {
   if (!OutStream.good())
   {
@@ -109,14 +109,14 @@ bool Item::SaveToStream(std::ofstream& OutStream) const
   //write header "RefI" (reference of Item)
   OutStream.write((char*) &cHeaderRefI, sizeof(unsigned int));
   //write all data inherited from DuskObject
-  if (!SaveDuskObjectPart(OutStream))
+  if (!saveDuskObjectPart(OutStream))
   {
     std::cout << "Item::SaveToStream: ERROR while writing basic "
               << "data!\n";
     return false;
   }
   //write all data from Item
-  if (!SaveItemPart(OutStream))
+  if (!saveItemPart(OutStream))
   {
     std::cout << "Item::SaveToStream: ERROR while writing item data!\n";
     return false;
@@ -124,7 +124,7 @@ bool Item::SaveToStream(std::ofstream& OutStream) const
   return true;
 }
 
-bool Item::LoadFromStream(std::ifstream& InStream)
+bool Item::loadFromStream(std::ifstream& InStream)
 {
   if (entity!=NULL)
   {
@@ -147,14 +147,14 @@ bool Item::LoadFromStream(std::ifstream& InStream)
     return false;
   }
   //read all stuff inherited from DuskObject
-  if (!LoadDuskObjectPart(InStream))
+  if (!loadDuskObjectPart(InStream))
   {
     std::cout << "Item::LoadFromStream: ERROR while reading basic object "
               << "data.\n";
     return false;
   }//if
   //read all stuff from Item
-  if (!LoadItemPart(InStream))
+  if (!loadItemPart(InStream))
   {
     std::cout << "Item::LoadFromStream: ERROR while reading item data.\n";
     return false;
@@ -162,14 +162,14 @@ bool Item::LoadFromStream(std::ifstream& InStream)
   return true;
 }
 
-bool Item::SaveItemPart(std::ofstream& output) const
+bool Item::saveItemPart(std::ofstream& output) const
 {
   // -- equipped
   output.write((char*) &m_Equipped, sizeof(bool));
   return output.good();
 }
 
-bool Item::LoadItemPart(std::ifstream& input)
+bool Item::loadItemPart(std::ifstream& input)
 {
   // -- equipped
   input.read((char*) &m_Equipped, sizeof(bool));

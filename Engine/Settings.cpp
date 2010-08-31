@@ -51,11 +51,11 @@ Settings::SettingRecord::SettingRecord(const SettingRecord& op)
 Settings::Settings()
 {
   m_AllSettings.clear();
-  InitialSettings();
+  initialSettings();
   std::cout << "Dusk::Settings: Loading configuration file... ";
   if (FileExists(CharacterConfigurationFile))
   {
-    if (LoadFromFile(CharacterConfigurationFile))
+    if (loadFromFile(CharacterConfigurationFile))
     {
       std::cout << "done.\n";
     }
@@ -70,7 +70,7 @@ Settings::Settings()
   }
 }
 
-void Settings::InitialSettings()
+void Settings::initialSettings()
 {
   addSetting_uint("BaseEncumbrance", 40);
   addSetting_uint("EncumbranceStrengthCoefficient", 8);
@@ -85,7 +85,7 @@ Settings::~Settings()
   //empty
 }
 
-Settings& Settings::GetSingleton()
+Settings& Settings::getSingleton()
 {
    static Settings Instance;
    return Instance;
@@ -161,7 +161,7 @@ std::string Settings::getSetting_string(const std::string& setting_name) const
   return "";
 }
 
-bool Settings::LoadFromFile(const std::string& FileName)
+bool Settings::loadFromFile(const std::string& FileName)
 {
   std::ifstream input;
   input.open(FileName.c_str(), std::ios::in | std::ios::binary);
@@ -229,7 +229,7 @@ bool Settings::LoadFromFile(const std::string& FileName)
   return true;
 }
 
-bool Settings::SaveToFile(const std::string& FileName) const
+bool Settings::saveToFile(const std::string& FileName) const
 {
   std::ofstream output;
   output.open(FileName.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);

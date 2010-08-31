@@ -13,7 +13,7 @@ int GetObject(lua_State *L)
 {
   if (lua_gettop(L)==1)
   {
-    lua_pushlightuserdata(L, ObjectManager::GetSingleton().GetObjectByID(lua_tostring(L, 1)));
+    lua_pushlightuserdata(L, ObjectManager::getSingleton().getObjectByID(lua_tostring(L, 1)));
     return 1;
   }
   lua_pushstring(L, "GetObject expects exactly one argument!\n");
@@ -48,7 +48,7 @@ int IsObjectAvailable(lua_State *L)
 {
   if (lua_gettop(L)==1)
   {
-    if (ObjectManager::GetSingleton().IsObjectPresent(lua_tostring(L, 1)))
+    if (ObjectManager::getSingleton().isObjectPresent(lua_tostring(L, 1)))
       lua_pushboolean(L, 1);
     else lua_pushboolean(L, 0);
     return 1;
@@ -65,7 +65,7 @@ int Enable(lua_State *L)
     DuskObject* objPtr = static_cast<DuskObject*> (lua_touserdata(L, 1));
     if (objPtr!=NULL)
     {
-      if (objPtr->Enable(getAPI().getOgreSceneManager()))
+      if (objPtr->enable(getAPI().getOgreSceneManager()))
         lua_pushboolean(L, 1);
       else
         lua_pushboolean(L, 0);
@@ -87,7 +87,7 @@ int Disable(lua_State *L)
     DuskObject* objPtr = static_cast<DuskObject*> (lua_touserdata(L, 1));
     if (objPtr!=NULL)
     {
-      if (objPtr->Disable())
+      if (objPtr->disable())
         lua_pushboolean(L, 1);
       else
         lua_pushboolean(L, 0);
@@ -109,7 +109,7 @@ int IsEnabled(lua_State *L)
     const DuskObject* objPtr = static_cast<DuskObject*> (lua_touserdata(L, 1));
     if (objPtr!=NULL)
     {
-      if (objPtr->IsEnabled())
+      if (objPtr->isEnabled())
         lua_pushboolean(L, 1);
       else
         lua_pushboolean(L, 0);
@@ -131,7 +131,7 @@ int GetObjectPosition(lua_State *L)
     const DuskObject* objPtr = static_cast<DuskObject*> (lua_touserdata(L, 1));
     if (objPtr!=NULL)
     {
-      const Ogre::Vector3 vec = objPtr->GetPosition();
+      const Ogre::Vector3 vec = objPtr->getPosition();
       lua_pushnumber(L, vec.x);
       lua_pushnumber(L, vec.y);
       lua_pushnumber(L, vec.z);
@@ -153,7 +153,7 @@ int SetObjectPosition(lua_State *L)
     DuskObject* objPtr = static_cast<DuskObject*> (lua_touserdata(L, 1));
     if (objPtr!=NULL)
     {
-      objPtr->SetPosition(Ogre::Vector3(lua_tonumber(L, 2), lua_tonumber(L, 3),
+      objPtr->setPosition(Ogre::Vector3(lua_tonumber(L, 2), lua_tonumber(L, 3),
                                         lua_tonumber(L, 4)));
     }
     else
@@ -175,7 +175,7 @@ int GetObjectRotation(lua_State *L)
     const DuskObject* objPtr = static_cast<DuskObject*> (lua_touserdata(L, 1));
     if (objPtr!=NULL)
     {
-      const Ogre::Vector3 vec = objPtr->GetRotation();
+      const Ogre::Vector3 vec = objPtr->getRotation();
       lua_pushnumber(L, vec.x);
       lua_pushnumber(L, vec.y);
       lua_pushnumber(L, vec.z);
@@ -197,7 +197,7 @@ int SetObjectRotation(lua_State *L)
     DuskObject* objPtr = static_cast<DuskObject*> (lua_touserdata(L, 1));
     if (objPtr!=NULL)
     {
-      objPtr->SetRotation(Ogre::Vector3(lua_tonumber(L, 2), lua_tonumber(L, 3),
+      objPtr->setRotation(Ogre::Vector3(lua_tonumber(L, 2), lua_tonumber(L, 3),
                                         lua_tonumber(L, 4)));
     }
     else
@@ -219,7 +219,7 @@ int GetScale(lua_State *L)
     const DuskObject* objPtr = static_cast<DuskObject*> (lua_touserdata(L, 1));
     if (objPtr!=NULL)
     {
-      lua_pushnumber(L, objPtr->GetScale());
+      lua_pushnumber(L, objPtr->getScale());
       return 1;
     }
     lua_pushstring(L, "GetScale() got NULL for object pointer!\n");
@@ -238,7 +238,7 @@ int SetScale(lua_State *L)
     DuskObject* objPtr = static_cast<DuskObject*> (lua_touserdata(L, 1));
     if (objPtr!=NULL)
     {
-      if (objPtr->SetScale(lua_tonumber(L, 2)))
+      if (objPtr->setScale(lua_tonumber(L, 2)))
         lua_pushboolean(L, 1);
       else
         lua_pushboolean(L, 0);

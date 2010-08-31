@@ -9,6 +9,7 @@
      - 2010-06-02 (rev 213) - changed header in load/save functions
      - 2010-08-01 (rev 220) - GetObjectMesh() added,
                             - Enable() removed (inherited method is used instead)
+     - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
 
  ToDo list:
      - implement possibility to make object "look" into the direction it is
@@ -43,8 +44,11 @@ class WaypointObject: public UniformMotionObject
 
     /* Adds a new destination point to the list of points to travel to and
        returns the number of waypoints present after the waypoint is added.
+
+       parameters:
+           waypoint - the new waypoint that will be added to the end of the list
     */
-    unsigned int AddWaypoint(const Ogre::Vector3& waypoint);
+    unsigned int addWaypoint(const Ogre::Vector3& waypoint);
 
     /* Tells the object whether to use waypoints or not.
 
@@ -79,22 +83,32 @@ class WaypointObject: public UniformMotionObject
     bool getPatrolMode() const;
 
     /* returns object's type as enumeration */
-    virtual ObjectTypes GetType() const;
+    virtual ObjectTypes getDuskType() const;
 
-    /* function to inject time for movement and perform movement */
+    /* function to inject time for movement and perform movement
+
+       parameters:
+           SecondsPassed - the time (in seconds) that passed since last frame
+    */
     virtual void injectTime(const float SecondsPassed);
 
     /* Saves the object to the given stream. Returns true on success, false
        otherwise.
 
-       remark:
+       parameters:
+           OutStream - the output stream that is used to save that object
+
+       remarks:
            Every derived class has to have its own implementation of this
            function to ensure the object is saved properly.
     */
-    virtual bool SaveToStream(std::ofstream& OutStream) const;
+    virtual bool saveToStream(std::ofstream& OutStream) const;
 
     /* Tries to load an object from the given stream. Returns true on
        success, false otherwise.
+
+       parameters:
+           InStream - the input stream that is used to load the object
 
        remarks:
            Every derived class has to have its own implementation of this
@@ -102,7 +116,7 @@ class WaypointObject: public UniformMotionObject
            If the function returns false, the data within the object may be
            corrupted. It's advised not to use the object in this case.
     */
-    virtual bool LoadFromStream(std::ifstream& InStream);
+    virtual bool loadFromStream(std::ifstream& InStream);
   protected:
     /* returns the name/path of the mesh that is used during enabling this
        object
@@ -111,25 +125,31 @@ class WaypointObject: public UniformMotionObject
            Every(!) derived, non-abstract class has to implement their own
            version of that function to ensure the use of the right meshes.
     */
-    virtual std::string GetObjectMesh() const;
+    virtual std::string getObjectMesh() const;
 
     /* Utility function which saves all data that is specific to an
        WaypointObject to the given stream. Returns true on success.
+
+       parameters:
+           OutStream - the output stream that is used to save that object
 
        remarks:
          Derived classes will (most likely) call this function as part of
          their implementation of SaveToStream().
     */
-    bool SaveWaypointObjectPart(std::ofstream& OutStream) const;
+    bool saveWaypointObjectPart(std::ofstream& OutStream) const;
 
     /* Utility function which loads all data that is specific to an
        WaypointObject from the given stream. Returns true on success.
 
+       parameters:
+           InStream - the input stream that is used to load the object from
+
        remarks:
          Derived classes will (most likely) call this function as part of
-         their implementation of LoadFromStream().
+         their implementation of loadFromStream().
     */
-    bool LoadWaypointObjectPart(std::ifstream& InStream);
+    bool loadWaypointObjectPart(std::ifstream& InStream);
 
     bool m_WaypointTravel;
     bool m_Patrol;

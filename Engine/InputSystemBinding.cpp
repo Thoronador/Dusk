@@ -15,7 +15,7 @@ InputSystemBinding::InputSystemBinding()
   bool loadPredefined = false;
   if (FileExists(cKeyConfigurationFile))
   {
-    if (LoadKeyConfiguration(cKeyConfigurationFile))
+    if (loadKeyConfiguration(cKeyConfigurationFile))
     {
       std::cout << "Info: Key bindings successfully loaded from file \""
                 <<cKeyConfigurationFile<<"\".\n";
@@ -66,7 +66,7 @@ InputSystemBinding::~InputSystemBinding()
   //empty
   // We don't need to save key configuration yet, because the player cannot
   // change it yet ingame.
-  //SaveKeyConfiguration(cKeyConfigurationFile);
+  //saveKeyConfiguration(cKeyConfigurationFile);
 }
 
 bool InputSystemBinding::keyPressed (const OIS::KeyEvent &arg)
@@ -76,12 +76,12 @@ bool InputSystemBinding::keyPressed (const OIS::KeyEvent &arg)
     else
     {
         //are we in dialogue menu?
-        if (Menu::GetSingleton().isDialogueActive())
+        if (Menu::getSingleton().isDialogueActive())
         {
           switch (arg.key)
           {
             case OIS::KC_ESCAPE:
-                 Menu::GetSingleton().nextDialogueChoice(0);
+                 Menu::getSingleton().nextDialogueChoice(0);
                  return true; break;
             case OIS::KC_1:  //We can handle all numeric keys from 1 to 9 this
             case OIS::KC_2:  // way, because OIS::KC_1 +1 == OIS::KC_2 (and so
@@ -92,10 +92,10 @@ bool InputSystemBinding::keyPressed (const OIS::KeyEvent &arg)
             case OIS::KC_7:
             case OIS::KC_8:
             case OIS::KC_9:
-                 Menu::GetSingleton().nextDialogueChoice(arg.key+1-OIS::KC_1);
+                 Menu::getSingleton().nextDialogueChoice(arg.key+1-OIS::KC_1);
                  return true; break;
             case OIS::KC_0:
-                 Menu::GetSingleton().nextDialogueChoice(10);
+                 Menu::getSingleton().nextDialogueChoice(10);
                  return true; break;
             default: //We have no work here, but include default to avoid the
                      // compiler warning about not handling all enumeration
@@ -261,7 +261,7 @@ Script InputSystemBinding::getReleaseScriptFromKeyString(const std::string& ks)
   return Script(""); //no known key -> empty script
 }
 
-bool InputSystemBinding::LoadKeyConfiguration(const std::string& fileName)
+bool InputSystemBinding::loadKeyConfiguration(const std::string& fileName)
 {
   std::ifstream inFile;
   inFile.open(fileName.c_str(), std::ios_base::in | std::ios_base::binary);
@@ -343,7 +343,7 @@ bool InputSystemBinding::LoadKeyConfiguration(const std::string& fileName)
   return true;
 }
 
-bool InputSystemBinding::SaveKeyConfiguration(const std::string& fileName) const
+bool InputSystemBinding::saveKeyConfiguration(const std::string& fileName) const
 {
   std::ofstream outFile;
   outFile.open(fileName.c_str(), std::ios_base::out | std::ios_base::binary

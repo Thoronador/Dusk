@@ -153,7 +153,7 @@ bool InputSystemEditor::keyPressed (const OIS::KeyEvent &arg)
               {
                 addToInput(myInputLine);
                 if (mUseLua)
-                  LuaEngine::GetSingleton().addScript(Script(myInputLine));
+                  LuaEngine::getSingleton().addScript(Script(myInputLine));
                 else
                   Console::getInstance()->addScript(Script(myInputLine));
               }

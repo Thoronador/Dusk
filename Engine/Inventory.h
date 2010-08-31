@@ -19,6 +19,7 @@
      - 2010-05-05 (rev 196) - documentation update
      - 2010-06-02 (rev 213) - update to work with Weapons, too
      - 2010-08-03 (rev 221) - minor improvement
+     - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
 
  ToDo list:
      - Probably we should change the inventory class from a map of strings and
@@ -56,61 +57,91 @@ class Inventory
     /* destructor */
     virtual ~Inventory();
 
-    /* AddItem: adds count items of ID ItemID to inventory; always succeeds. */
-    void AddItem(const std::string& ItemID, const unsigned int count);
+    /* addItem: adds count items of ID ItemID to inventory; always succeeds.
+
+       parameters:
+           ItemID - ID of the item(s) that will be added
+           count  - number of items that will be added
+    */
+    void addItem(const std::string& ItemID, const unsigned int count);
 
     /* RemoveItem: tries to remove count items of ID ItemID from inventory and
        returns number of items actually removed. If Inventory has count or more
        items of ID ItemID, then it always removes count items. If it has less
        than count items of ID ItemID, then it removes the amount of items it
-       has when the function was called. */
-    unsigned int RemoveItem(const std::string& ItemID, const unsigned int count);
+       has when the function was called.
 
-    /* GetItemCount: returns number of items with ID ItemID in inventory*/
-    unsigned int GetItemCount(const std::string& ItemID) const;
+       parameters:
+           ItemID - ID of the item(s) that will be removed
+           count  - number of items that shall be removed
+    */
+    unsigned int removeItem(const std::string& ItemID, const unsigned int count);
+
+    /* GetItemCount: returns number of items with ID ItemID in inventory
+
+       parameters:
+           ItemID - ID of the item whose amout shall be returned
+    */
+    unsigned int getItemCount(const std::string& ItemID) const;
 
     /* Checks whether inventory is empty (true) or not (false) */
-    bool IsEmpty() const;
+    bool isEmpty() const;
 
     /* Clears all items in inventory */
-    void MakeEmpty();
+    void makeEmpty();
 
-    /* Adds all items from this Inventory to the target Inventory. */
-    void AddAllItemsTo(Inventory& target) const;
+    /* Adds all items from this Inventory to the target Inventory.
+
+       parameters:
+           target - the inventory that will get the same items
+    */
+    void addAllItemsTo(Inventory& target) const;
 
     /* GetTotalWeight: returns the sum of the weights of all items currently in
        the inventory. */
-    float GetTotalWeight() const;
+    float getTotalWeight() const;
 
     /* GetTotalValue: returns the sum of the values of all items currently in
        the inventory. */
-    int GetTotalValue() const;
+    int getTotalValue() const;
 
     /* utility function to easily get access to an empty Inventory */
-    static const Inventory& GetEmptyInventory();
+    static const Inventory& getEmptyInventory();
 
     /* saves contents of inventory to given stream and returns true on success,
-       false otherwise */
-    virtual bool SaveToStream(std::ofstream& OutStream) const;
+       false otherwise
+
+       parameters:
+           OutStream - the output stream that will be used to save the inventory
+    */
+    virtual bool saveToStream(std::ofstream& OutStream) const;
 
     /* Loads contents of inventory from stream and returns true on success,
        false otherwise. The Inventory content is probably inconsistent after
-       that function failed, so don't rely on its contents in that case. */
-    virtual bool LoadFromStream(std::ifstream& InStream);
+       that function failed, so don't rely on its contents in that case.
+
+       parameters:
+           InStream - the input stream that will be used to load the inventory
+    */
+    virtual bool loadFromStream(std::ifstream& InStream);
 
     /* utility function to get iterator to the beginning of the internal map */
-    ConstInventoryIterator GetFirst() const;
+    ConstInventoryIterator getFirst() const;
 
     /* utility function to get iterator to the end of the internal map */
-    ConstInventoryIterator GetEnd() const;
+    ConstInventoryIterator getEnd() const;
 
     /* comparison operator for Inventory - returns true, if two Inventorys
-       contain the same items (ID) and same amount of them  */
+       contain the same items (ID) and same amount of them
+
+       parameters:
+           other - the other inventory that will be compared to this one
+    */
     bool operator==(const Inventory& other) const;
   private:
     std::map<std::string, unsigned int> m_Items;
     float m_TotalWeight;
-};//class
+};//class Inventory
 
 }//namespace
 

@@ -8,6 +8,7 @@
  History:
      - 2010-05-20 (rev 205) - initial version (by thoronador)
      - 2010-07-31 (rev 220) - GetObjectMesh() added (pure virtual here)
+     - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
 
  ToDo list:
      - ???
@@ -38,11 +39,11 @@ class InjectionObject: virtual public DuskObject
        force derived classes to re-implement their own versions of these
        functions.*/
     /* retrieves the object type as an enumeration value, which is useful for derived classes.*/
-    virtual ObjectTypes GetType() const = 0;
+    virtual ObjectTypes getDuskType() const = 0;
 
-    virtual bool SaveToStream(std::ofstream& OutStream) const = 0;
+    virtual bool saveToStream(std::ofstream& OutStream) const = 0;
 
-    virtual bool LoadFromStream(std::ifstream& InStream) = 0;
+    virtual bool loadFromStream(std::ifstream& InStream) = 0;
   protected:
     /* returns the name/path of the mesh that is used during enabling this
        object
@@ -53,7 +54,7 @@ class InjectionObject: virtual public DuskObject
            We declare this pure virtual here to enforce implementation in all
            derived classes.
     */
-    virtual std::string GetObjectMesh() const = 0;
+    virtual std::string getObjectMesh() const = 0;
 }; //class
 
 } //namespace

@@ -15,7 +15,7 @@ DiceBox::~DiceBox()
   //empty
 }
 
-DiceBox& DiceBox::GetSingleton()
+DiceBox& DiceBox::getSingleton()
 {
   static DiceBox Instance;
   return Instance;

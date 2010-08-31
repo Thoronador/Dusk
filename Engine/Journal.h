@@ -15,6 +15,7 @@
      - 2010-03-13 (rev 183) - FlagsToString() added to JournalRecord
      - 2010-03-18 (rev 185) - changeQuestID() added
      - 2010-08-20 (rev 232) - minor optimizations for engine
+     - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
 
  ToDo list:
      - ???
@@ -54,10 +55,10 @@ namespace Dusk
   bool isFinisher() const;
 
   /* returns a string indicating the set flags */
-  static std::string FlagsToString(const uint8 theFlags);
+  static std::string flagsToString(const uint8 theFlags);
 
   /* returns a string indicating the set flags */
-  std::string FlagsToString() const;
+  std::string flagsToString() const;
 }; //struct
 
 
@@ -91,7 +92,7 @@ class Journal
 {
   public:
     /* singleton access */
-    static Journal& GetSingleton();
+    static Journal& getSingleton();
 
     /* destructor */
     virtual ~Journal();
@@ -99,12 +100,16 @@ class Journal
     /* sets the name of the quest with ID JID to qName and returns true on
        success, false otherwise
 
-      remarks:
-          Quests have the name given in cUnnnameQuest, if no name was set yet.
-          If setting a quest name for an already existing quest, that name will
-          be overwritten (of course). However, if JID or qName is an empty
-          string, the function call will return false and the name will not be
-          changed.
+       parameters:
+          JID   - ID of the quest
+          qName - new name of the quest
+
+       remarks:
+           Quests have the name given in cUnnnameQuest, if no name was set yet.
+           If setting a quest name for an already existing quest, that name will
+           be overwritten (of course). However, if JID or qName is an empty
+           string, the function call will return false and the name will not be
+           changed.
     */
     bool setQuestName(const std::string& JID, const std::string& qName);
 
@@ -137,14 +142,27 @@ class Journal
     bool addEntry(const std::string& JID, const unsigned int jIndex,
                   const std::string& jText, const uint8 jFlags=0);
 
-    /* returns true, if an entry with the given quest ID and index exists */
+    /* returns true, if an entry with the given quest ID and index exists
+
+       parameters:
+           JID    - ID of the quest
+           jIndex - index of the entry
+    */
     bool hasEntry(const std::string& JID, const unsigned int jIndex) const;
 
-    /* returns true, if a quest with the given quest ID exists */
+    /* returns true, if a quest with the given quest ID exists
+
+       parameters:
+           questID - ID of the quest
+    */
     bool hasQuest(const std::string& questID) const;
 
     #ifdef DUSK_EDITOR
     /* changes the quest ID of quest oldID to newID and returns true on success
+
+       parameters:
+           oldID - old quest ID
+           newID - new quest ID
 
        Remarks:
          Will fail/return false, if oldID or newID is an empty string, if the
@@ -155,15 +173,26 @@ class Journal
 
     /* returns the text of the given entry, or an empty string if no such entry
        is present
+
+       parameters:
+           JID    - ID if the quest
+           jIndex - index of the quest entry
     */
     std::string getText(const std::string& JID, const unsigned int jIndex) const;
 
     /* returns the flags of the given entry, or zero if no such entry is present
+
+       parameters:
+           JID    - ID if the quest
+           jIndex - index of the quest entry
     */
     uint8 getFlags(const std::string& JID, const unsigned int jIndex) const;
 
     /* returns the quest name of quest with ID questID, or an empty string if
        no quest with that ID is present
+
+       parameters:
+           questID - ID if the quest
     */
     std::string getQuestName(const std::string& questID) const;
 
@@ -175,15 +204,19 @@ class Journal
 
     /* tries to delete the entry with the given quest ID and index. Returns true, if
        such an entry was deleted. Otherwise, false is returned.
+
+       parameters:
+           questID - ID if the quest
+           jIndex  - index of the quest entry
     */
     bool deleteEntry(const std::string& questID, const unsigned int jIndex);
     #endif
 
     /* returns the number of present journal entries (for statistics only) */
-    unsigned int NumberOfEntries() const;
+    unsigned int numberOfEntries() const;
 
     /* returns the number of distinct quests, i.e. the number of different IDs */
-    unsigned int NumberOfDistinctQuests() const;
+    unsigned int numberOfDistinctQuests() const;
 
     /* returns a vector of all present IDs
 
@@ -208,19 +241,22 @@ class Journal
 
     /* returns the highest index among the entries for quest jID, or zero if no
        quest with that ID is present
+
+       parameters:
+           jID - ID of the quest
     */
     unsigned int getMaximumAvailabeIndex(const std::string& jID) const;
 
     /* tries to save all data to the stream and returns true on success */
-    bool SaveAllToStream(std::ofstream& output) const;
+    bool saveAllToStream(std::ofstream& output) const;
 
     /* tries to load the next Journal entries from the stream and returns true
        on success, false on failure
     */
-    bool LoadNextFromStream(std::ifstream& input);
+    bool loadNextFromStream(std::ifstream& input);
 
     /* deletes ALL entries - use with caution */
-    void ClearAllEntries();
+    void clearAllEntries();
 
     /* static member holding the predefined name every quest has as long as no
        name has been set

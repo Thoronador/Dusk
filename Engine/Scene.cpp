@@ -76,32 +76,32 @@ void Scene::createGrassMesh()
         cam.setPosition(Ogre::Vector3(150, 50, 150));
         cam.lookAt(Ogre::Vector3(0, 0, 0));
 
-        if (DataLoader::GetSingleton().LoadFromFile("data"+path_sep+"DuskData.dusk"))
+        if (DataLoader::getSingleton().loadFromFile("data"+path_sep+"DuskData.dusk"))
         {
           std::cout << "Data loaded successfully.\n";
           if (Landscape::GetSingleton().SendToEngine(getAPI().getOgreSceneManager()))
           {
             std::cout << "Landscape successfully added.\n";
           }
-          ObjectManager::GetSingleton().EnableAllObjects(getAPI().getOgreSceneManager());
+          ObjectManager::getSingleton().enableAllObjects(getAPI().getOgreSceneManager());
         }
 
         //create waypoint object (for test purposes)
         WaypointObject* wpObj = NULL;
-        wpObj = InjectionManager::GetSingleton().addWaypointReference("robot",
+        wpObj = InjectionManager::getSingleton().addWaypointReference("robot",
                                     Ogre::Vector3(0.0f, 0.0f, 30.0f),
                                     Ogre::Vector3(0.0f, 0.0f, 0.0f), 0.55f);
-        wpObj->Enable(m_SceneManager);
-        wpObj->SetSpeed(12.5f);
+        wpObj->enable(m_SceneManager);
+        wpObj->setSpeed(12.5f);
         //aniObj->TravelToDestination(Ogre::Vector3(200.0f, 30.0f, 0.0f));
         //aniObj->PlayAnimation("Walk", true);
-        wpObj->AddWaypoint(Ogre::Vector3(200.0f, 30.0f, 0.0f));
-        wpObj->AddWaypoint(Ogre::Vector3(200.0f, 50.0f, -200.0f));
-        wpObj->AddWaypoint(Ogre::Vector3(0.0f, 0.0f, 30.0f));
+        wpObj->addWaypoint(Ogre::Vector3(200.0f, 30.0f, 0.0f));
+        wpObj->addWaypoint(Ogre::Vector3(200.0f, 50.0f, -200.0f));
+        wpObj->addWaypoint(Ogre::Vector3(0.0f, 0.0f, 30.0f));
         wpObj->setUseWaypoints(true);
         wpObj->setPatrolMode(true);
         //just out of curiosity
-        std::cout << "Animated robot type enum (int): "<<(int)(wpObj->GetType())<<"\n"
+        std::cout << "Animated robot type enum (int): "<<(int)(wpObj->getDuskType())<<"\n"
                   << "  sizeof(DuskObject): "<<sizeof(DuskObject)<<" bytes\n"
                   << "  sizeof(Light): "<<sizeof(Light)<<" bytes\n"
                   << "  sizeof(Container): "<<sizeof(Container)<<" bytes\n"
@@ -163,14 +163,14 @@ void Scene::createGrassMesh()
         wrec.Type = wtMelee;
         wrec.value = 100;
         wrec.weight = 2.5f;
-        WeaponBase::GetSingleton().addWeapon("sword", wrec);
+        WeaponBase::getSingleton().addWeapon("sword", wrec);
         //add projectile-shooting sword to weapon base
         wrec.Name = "Sword shooting swords";
         wrec.ProjectileID = "sword_projectile";
         wrec.Type = wtGun;
-        WeaponBase::GetSingleton().addWeapon("sword_gun", wrec);
+        WeaponBase::getSingleton().addWeapon("sword_gun", wrec);
         //add projectile information
-        ProjectileBase::GetSingleton().addProjectile("sword_projectile",
+        ProjectileBase::getSingleton().addProjectile("sword_projectile",
                                                 "Sword.mesh", 25.0, 40.0, 2, 8);
         //add player information to NPCBase
         NPCAnimations anims;
@@ -185,14 +185,14 @@ void Scene::createGrassMesh()
         tps.HandRight = "Handle.R";
         tps.SheathLeft = "Sheath.L";
         tps.SheathRight = "Sheath.R";
-        NPCBase::GetSingleton().addNPC("player", "The Player him-/herself",
-                        "Sinbad.mesh", 1, NPCAttributes::GetNullAttributes(),
-                        false, Inventory::GetEmptyInventory(), anims, tps);
-        if (NPCBase::GetSingleton().hasNPC("player"))
+        NPCBase::getSingleton().addNPC("player", "The Player him-/herself",
+                        "Sinbad.mesh", 1, NPCAttributes::getNullAttributes(),
+                        false, Inventory::getEmptyInventory(), anims, tps);
+        if (NPCBase::getSingleton().hasNPC("player"))
         {
           std::cout << "NPCBase's got player entry.\n";
           std::cout << "Tag points of \"player\":\n";
-          const NPCTagPoints& tttp = NPCBase::GetSingleton().getNPCTagPoints("player");
+          const NPCTagPoints& tttp = NPCBase::getSingleton().getNPCTagPoints("player");
           std::cout << "  Left  hand:   \""<<tttp.HandLeft<<"\"\n"
                     << "  Right hand:   \""<<tttp.HandRight<<"\"\n"
                     << "  Left  sheath: \""<<tttp.SheathLeft<<"\"\n"
@@ -203,18 +203,18 @@ void Scene::createGrassMesh()
           std::cout << "NPCBase does NOT have a player entry.\n";
         }
         //add player mesh
-        Player::GetSingleton().getInventory().AddItem("sword", 5);
-        std::cout << "Player now has "<<Player::GetSingleton().getConstInventory().GetItemCount("sword")
+        Player::getSingleton().getInventory().addItem("sword", 5);
+        std::cout << "Player now has "<<Player::getSingleton().getConstInventory().getItemCount("sword")
                   << " swords in inventory.\n";
-        Player::GetSingleton().getInventory().AddItem("sword_gun", 5);
-        std::cout << "Player now has "<<Player::GetSingleton().getConstInventory().GetItemCount("sword_gun")
+        Player::getSingleton().getInventory().addItem("sword_gun", 5);
+        std::cout << "Player now has "<<Player::getSingleton().getConstInventory().getItemCount("sword_gun")
                   << " sword guns in inventory.\n";
-        Player::GetSingleton().Enable(m_SceneManager);
-        Player::GetSingleton().SetRotation(Ogre::Vector3(0.0, 180.0, 0.0));
-        if (Player::GetSingleton().equip("sword"))
+        Player::getSingleton().enable(m_SceneManager);
+        Player::getSingleton().setRotation(Ogre::Vector3(0.0, 180.0, 0.0));
+        if (Player::getSingleton().equip("sword"))
         {
           std::cout << "First equip() successful.\n";
-          if (Player::GetSingleton().equip("sword_gun"))
+          if (Player::getSingleton().equip("sword_gun"))
           {
             std::cout << "Second equip() successful.\n";
           }
@@ -225,9 +225,9 @@ void Scene::createGrassMesh()
         }
         Camera::getSingleton().setZoom(125.0f);
         // ---- begin questlog test
-        QuestLog::GetSingleton().addQuestEntry("test_quest", 1);
-        QuestLog::GetSingleton().addQuestEntry("test_quest", 2);
-        QuestLog::GetSingleton().addQuestEntry("test_quest", 3);
+        QuestLog::getSingleton().addQuestEntry("test_quest", 1);
+        QuestLog::getSingleton().addQuestEntry("test_quest", 2);
+        QuestLog::getSingleton().addQuestEntry("test_quest", 3);
         // ---- end of questlog test
     }
 
@@ -235,7 +235,7 @@ void Scene::createGrassMesh()
     {
       std::cout << "Scene destruction in progress...\n";
       std::cout << "  Delete objects...\n";
-      DataLoader::GetSingleton().ClearData(ALL_BITS);
+      DataLoader::getSingleton().clearData(ALL_BITS);
       std::cout<<"  Delete weather effects...\n";
       Weather& w_singleton = Weather::getSingelton();
       if (w_singleton.isFoggy()) w_singleton.stopFog();

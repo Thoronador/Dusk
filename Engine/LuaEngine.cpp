@@ -43,7 +43,7 @@ LuaEngine::~LuaEngine()
   std::cout << "LuaEngine stopped.\n";
 }
 
-LuaEngine& LuaEngine::GetSingleton()
+LuaEngine& LuaEngine::getSingleton()
 {
   static LuaEngine Instance;
   return Instance;

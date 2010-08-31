@@ -59,8 +59,8 @@ void EditorApplicationObject::RefreshObjectList(void)
 
   std::map<std::string, std::string>::const_iterator first;
   std::map<std::string, std::string>::const_iterator end;
-  first = ObjectBase::GetSingleton().GetFirst();
-  end = ObjectBase::GetSingleton().GetEnd();
+  first = ObjectBase::getSingleton().getFirst();
+  end = ObjectBase::getSingleton().getEnd();
   while (first != end)
   {
     addObjectRecordToCatalogue(first->first, first->second);
@@ -148,7 +148,7 @@ void EditorApplicationObject::showObjectEditWindow(void)
     return;
   }
 
-  if (!ObjectBase::GetSingleton().hasObject(ID_of_object_to_edit))
+  if (!ObjectBase::getSingleton().hasObject(ID_of_object_to_edit))
   {
     std::cout << "ObjectEditWindow: Object not present in database.\n";
     showWarning("There seems to be no object with the ID \""+ID_of_object_to_edit
@@ -198,7 +198,7 @@ void EditorApplicationObject::showObjectEditWindow(void)
 
     //editbox for mesh path
     button = winmgr.createWindow("TaharezLook/Editbox", "Editor/ObjectEditFrame/Mesh_Edit");
-    button->setText(ObjectBase::GetSingleton().GetMeshName(ID_of_object_to_edit,false));
+    button->setText(ObjectBase::getSingleton().getMeshName(ID_of_object_to_edit,false));
     button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.5, 0)));
     button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.1, 0)));
     frame->addChildWindow(button);
@@ -383,7 +383,7 @@ bool EditorApplicationObject::ObjectConfirmIDChangeRenameClicked(const CEGUI::Ev
     ObjectID = std::string(winmgr.getWindow("Editor/ObjectEditFrame/ID_Edit")->getText().c_str());
     ObjectMesh = std::string(winmgr.getWindow("Editor/ObjectEditFrame/Mesh_Edit")->getText().c_str());
 
-    if (ObjectBase::GetSingleton().hasObject(ObjectID))
+    if (ObjectBase::getSingleton().hasObject(ObjectID))
     {
       showWarning("An Object with the ID \""+ObjectID+"\" already exists. "
                   +"Change that one as needed or delete it before giving another"
@@ -392,10 +392,10 @@ bool EditorApplicationObject::ObjectConfirmIDChangeRenameClicked(const CEGUI::Ev
     }//if
 
     //"rename", i.e. create object with new ID and delete object with old ID
-    ObjectBase::GetSingleton().addObject(ObjectID, ObjectMesh);
-    ObjectBase::GetSingleton().deleteObject(ID_of_object_to_edit);
+    ObjectBase::getSingleton().addObject(ObjectID, ObjectMesh);
+    ObjectBase::getSingleton().deleteObject(ID_of_object_to_edit);
     //update all objects
-    ObjectManager::GetSingleton().updateReferencesAfterIDChange( ID_of_object_to_edit, ObjectID, getAPI().getOgreSceneManager()/*mSceneMgr*/);
+    ObjectManager::getSingleton().updateReferencesAfterIDChange( ID_of_object_to_edit, ObjectID, getAPI().getOgreSceneManager()/*mSceneMgr*/);
     //add row for new object to catalogue
     addObjectRecordToCatalogue(ObjectID, ObjectMesh);
     //remove row of old ID
@@ -424,7 +424,7 @@ bool EditorApplicationObject::ObjectConfirmIDChangeNewClicked(const CEGUI::Event
     ObjectID = std::string(winmgr.getWindow("Editor/ObjectEditFrame/ID_Edit")->getText().c_str());
     ObjectMesh = std::string(winmgr.getWindow("Editor/ObjectEditFrame/Mesh_Edit")->getText().c_str());
 
-    if (ObjectBase::GetSingleton().hasObject(ObjectID))
+    if (ObjectBase::getSingleton().hasObject(ObjectID))
     {
       showWarning("An Object with the ID \""+ObjectID+"\" already exists. "
                   +"Change that one as needed or delete it before giving another"
@@ -434,7 +434,7 @@ bool EditorApplicationObject::ObjectConfirmIDChangeNewClicked(const CEGUI::Event
     //add new row to catalogue
     addObjectRecordToCatalogue(ObjectID, ObjectMesh);
     //add new object to database (ObjectBase)
-    ObjectBase::GetSingleton().addObject(ObjectID, ObjectMesh);
+    ObjectBase::getSingleton().addObject(ObjectID, ObjectMesh);
     //close edit window
     winmgr.destroyWindow("Editor/ObjectEditFrame");
     ID_of_object_to_edit = "";
@@ -550,14 +550,14 @@ bool EditorApplicationObject::ObjectNewFrameOKClicked(const CEGUI::EventArgs &e)
     }
 
     //check for presence of object with same ID
-    if (ObjectBase::GetSingleton().hasObject(std::string(id_edit->getText().c_str())))
+    if (ObjectBase::getSingleton().hasObject(std::string(id_edit->getText().c_str())))
     {
       showWarning("An Object with the given ID already exists.");
       return true;
     }
 
     //finally add it to ObjectBase
-    ObjectBase::GetSingleton().addObject(std::string(id_edit->getText().c_str()), std::string(mesh_edit->getText().c_str()));
+    ObjectBase::getSingleton().addObject(std::string(id_edit->getText().c_str()), std::string(mesh_edit->getText().c_str()));
     //update catalogue
     addObjectRecordToCatalogue(std::string(id_edit->getText().c_str()), std::string(mesh_edit->getText().c_str()));
     //destroy window
@@ -608,19 +608,19 @@ bool EditorApplicationObject::ObjectEditFrameSaveClicked(const CEGUI::EventArgs 
    return true;
   }
   //check if mesh has remained the same
-  if (std::string(mesh_edit->getText().c_str())==ObjectBase::GetSingleton().GetMeshName(ID_of_object_to_edit))
+  if (std::string(mesh_edit->getText().c_str())==ObjectBase::getSingleton().getMeshName(ID_of_object_to_edit))
   {
     showHint("You have not changed the data of this object, thus there are no changes to be saved.");
     return true;
   }
 
   //save it
-  ObjectBase::GetSingleton().addObject(std::string(id_edit->getText().c_str()),
+  ObjectBase::getSingleton().addObject(std::string(id_edit->getText().c_str()),
                                      std::string(mesh_edit->getText().c_str()));
   //update list
   RefreshObjectList();
   //update shown objects
-  ObjectManager::GetSingleton().reenableReferencesOfObject(ID_of_object_to_edit, getAPI().getOgreSceneManager()/*mSceneMgr*/);
+  ObjectManager::getSingleton().reenableReferencesOfObject(ID_of_object_to_edit, getAPI().getOgreSceneManager()/*mSceneMgr*/);
   //delete window
   if (winmgr.isWindowPresent("Editor/ObjectEditFrame"))
   {
@@ -649,7 +649,7 @@ bool EditorApplicationObject::ObjectDeleteFrameYesClicked(const CEGUI::EventArgs
     CEGUI::WindowManager::getSingleton().destroyWindow("Editor/ObjectDeleteFrame");
     return true;
   }
-  if (!ObjectBase::GetSingleton().deleteObject(ID_of_object_to_delete))
+  if (!ObjectBase::getSingleton().deleteObject(ID_of_object_to_delete))
   {
     showHint("ObjectBase class holds no object of the given ID ("
              +ID_of_object_to_delete+").");
@@ -657,7 +657,7 @@ bool EditorApplicationObject::ObjectDeleteFrameYesClicked(const CEGUI::EventArgs
     CEGUI::WindowManager::getSingleton().destroyWindow("Editor/ObjectDeleteFrame");
     return true;
   }
-  unsigned int refs_deleted = ObjectManager::GetSingleton().deleteReferencesOfObject(ID_of_object_to_delete);
+  unsigned int refs_deleted = ObjectManager::getSingleton().deleteReferencesOfObject(ID_of_object_to_delete);
   if (refs_deleted == 0)
   {
     showHint("Object \""+ID_of_object_to_delete+"\" deleted! It had no references which had to be deleted.");

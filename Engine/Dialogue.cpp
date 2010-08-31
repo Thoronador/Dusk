@@ -9,7 +9,7 @@ const uint8 Dialogue::cGreetingFlag = 1;
 const uint8 Dialogue::cDialogueFlag = 2;
 const std::string Dialogue::LuaDialogueConditionFunction = "DialogueConditional";
 
-bool Dialogue::LineRecord::SaveToStream(std::ofstream& out) const
+bool Dialogue::LineRecord::saveToStream(std::ofstream& out) const
 {
   unsigned int len, i;
   //text
@@ -66,7 +66,7 @@ bool Dialogue::LineRecord::SaveToStream(std::ofstream& out) const
   return out.good();
 }
 
-bool Dialogue::LineRecord::LoadFromStream(std::ifstream& inp)
+bool Dialogue::LineRecord::loadFromStream(std::ifstream& inp)
 {
   if (!(inp.good()))
   {
@@ -235,22 +235,22 @@ Dialogue::Dialogue()
 Dialogue::~Dialogue()
 {
   //empty
-  ClearData();
+  clearData();
 }
 
-Dialogue& Dialogue::GetSingleton()
+Dialogue& Dialogue::getSingleton()
 {
   static Dialogue Instance;
   return Instance;
 }
 
-void Dialogue::ClearData()
+void Dialogue::clearData()
 {
   m_DialogueLines.clear();
   m_GreetingLines.clear();
 }
 
-std::string Dialogue::GetText(const std::string& LineID) const
+std::string Dialogue::getText(const std::string& LineID) const
 {
   std::map<std::string, LineRecord>::const_iterator iter;
   iter = m_DialogueLines.find(LineID);
@@ -261,7 +261,7 @@ std::string Dialogue::GetText(const std::string& LineID) const
   return "";
 }
 
-Dialogue::ConditionRecord Dialogue::GetCondition(const std::string& LineID) const
+Dialogue::ConditionRecord Dialogue::getCondition(const std::string& LineID) const
 {
   std::map<std::string, LineRecord>::const_iterator iter;
   iter = m_DialogueLines.find(LineID);
@@ -275,12 +275,12 @@ Dialogue::ConditionRecord Dialogue::GetCondition(const std::string& LineID) cons
   return cr;
 }
 
-bool Dialogue::HasDialogueLine(const std::string& LineID) const
+bool Dialogue::hasDialogueLine(const std::string& LineID) const
 {
   return (m_DialogueLines.find(LineID) != m_DialogueLines.end());
 }
 
-Dialogue::Handle Dialogue::GetGreetingLine(const NPC* who) const
+Dialogue::Handle Dialogue::getGreetingLine(const NPC* who) const
 {
   unsigned int i;
   Handle temp;
@@ -291,7 +291,7 @@ Dialogue::Handle Dialogue::GetGreetingLine(const NPC* who) const
   std::map<std::string, std::vector<std::string> >::const_iterator iter;
   if (who != NULL)
   {
-    iter = m_GreetingLines.find(who->GetID());
+    iter = m_GreetingLines.find(who->getID());
     if (iter == m_GreetingLines.end())
     { //if there's no entry for that NPC, get the generic one
       iter = m_GreetingLines.find("");
@@ -310,7 +310,7 @@ Dialogue::Handle Dialogue::GetGreetingLine(const NPC* who) const
   //now check each entry for conditions, and if they are met, return this entry
   for (i=0; i<iter->second.size(); i=i+1)
   {
-    if (ConditionFulfilled(GetCondition(iter->second.at(i)), who))
+    if (conditionFulfilled(getCondition(iter->second.at(i)), who))
     {
       temp.LineID = iter->second.at(i);
       break;
@@ -341,7 +341,7 @@ Dialogue::Handle Dialogue::GetGreetingLine(const NPC* who) const
   //now check the conditions of the choices to display and add them
   for (i=0; i< dial_iter->second.Choices.size(); i=i+1)
   {
-    if (ConditionFulfilled(GetCondition(dial_iter->second.Choices.at(i)), who))
+    if (conditionFulfilled(getCondition(dial_iter->second.Choices.at(i)), who))
     {
       temp.Choices.push_back(dial_iter->second.Choices.at(i));
     }//if
@@ -351,7 +351,7 @@ Dialogue::Handle Dialogue::GetGreetingLine(const NPC* who) const
   return temp;
 }
 
-Dialogue::Handle Dialogue::GetDialogueLine(const std::string& LineID, const NPC* who) const
+Dialogue::Handle Dialogue::getDialogueLine(const std::string& LineID, const NPC* who) const
 {
   unsigned int i;
   Handle temp;
@@ -366,7 +366,7 @@ Dialogue::Handle Dialogue::GetDialogueLine(const std::string& LineID, const NPC*
     //add choices
     for (i=0; i<iter->second.Choices.size(); i=i+1)
     {
-      if (ConditionFulfilled(GetCondition(iter->second.Choices[i]), who))
+      if (conditionFulfilled(getCondition(iter->second.Choices[i]), who))
       {
         temp.Choices.push_back(iter->second.Choices.at(i));
       }
@@ -378,12 +378,12 @@ Dialogue::Handle Dialogue::GetDialogueLine(const std::string& LineID, const NPC*
   return temp;
 }
 
-void Dialogue::AddGreeting(const std::string& NPC_ID, const std::vector<std::string>& Choices)
+void Dialogue::addGreeting(const std::string& NPC_ID, const std::vector<std::string>& Choices)
 {
   m_GreetingLines[NPC_ID] = Choices;
 }
 
-void Dialogue::AddLine(const std::string& LineID, const LineRecord& lr)
+void Dialogue::addLine(const std::string& LineID, const LineRecord& lr)
 {
   if (LineID != "")
   {
@@ -391,7 +391,7 @@ void Dialogue::AddLine(const std::string& LineID, const LineRecord& lr)
   }
 }
 
-bool Dialogue::ProcessResultScript(const std::string& LineID)
+bool Dialogue::processResultScript(const std::string& LineID)
 {
   std::map<std::string, LineRecord>::const_iterator iter;
   iter = m_DialogueLines.find(LineID);
@@ -404,17 +404,17 @@ bool Dialogue::ProcessResultScript(const std::string& LineID)
     //no script present, done :)
     return true;
   }
-  return LuaEngine::GetSingleton().runString( iter->second.ResultScript->getStringRepresentation());
+  return LuaEngine::getSingleton().runString( iter->second.ResultScript->getStringRepresentation());
 }
 
-bool Dialogue::ConditionFulfilled(const ConditionRecord& cond, const NPC* who) const
+bool Dialogue::conditionFulfilled(const ConditionRecord& cond, const NPC* who) const
 {
   //only check if ID is set. Unset ID matches every NPC.
   if (cond.NPC_ID!="")
   {
     if (who!=NULL)
     {
-      if (who->GetID()!=cond.NPC_ID)
+      if (who->getID()!=cond.NPC_ID)
       {
         return false;
       }
@@ -436,31 +436,31 @@ bool Dialogue::ConditionFulfilled(const ConditionRecord& cond, const NPC* who) c
     {
       case copLess: //inventory count has to be less, so check for greater/equal
                     // to return false;
-           if (who->getConstInventory().GetItemCount(cond.ItemID)>=cond.ItemAmount)
+           if (who->getConstInventory().getItemCount(cond.ItemID)>=cond.ItemAmount)
            {
              return false;
            }
            break;
       case copLessEqual:
-           if (who->getConstInventory().GetItemCount(cond.ItemID)>cond.ItemAmount)
+           if (who->getConstInventory().getItemCount(cond.ItemID)>cond.ItemAmount)
            {
              return false;
            }
            break;
       case copEqual:
-           if (who->getConstInventory().GetItemCount(cond.ItemID)!=cond.ItemAmount)
+           if (who->getConstInventory().getItemCount(cond.ItemID)!=cond.ItemAmount)
            {
              return false;
            }
            break;
       case copGreaterEqual:
-           if (who->getConstInventory().GetItemCount(cond.ItemID)<cond.ItemAmount)
+           if (who->getConstInventory().getItemCount(cond.ItemID)<cond.ItemAmount)
            {
              return false;
            }
            break;
       case copGreater:
-           if (who->getConstInventory().GetItemCount(cond.ItemID)<=cond.ItemAmount)
+           if (who->getConstInventory().getItemCount(cond.ItemID)<=cond.ItemAmount)
            {
              return false;
            }
@@ -478,7 +478,7 @@ bool Dialogue::ConditionFulfilled(const ConditionRecord& cond, const NPC* who) c
   {
     if (!cond.ScriptedCondition->isEmpty())
     {
-      LuaEngine& Lua = LuaEngine::GetSingleton();
+      LuaEngine& Lua = LuaEngine::getSingleton();
       // set function to nil to prevent call to an earlier version
       lua_pushstring(Lua, LuaDialogueConditionFunction.c_str());
       lua_pushnil(Lua);
@@ -552,7 +552,7 @@ bool Dialogue::ConditionFulfilled(const ConditionRecord& cond, const NPC* who) c
   return true;
 }
 
-bool Dialogue::SaveToStream(std::ofstream& output) const
+bool Dialogue::saveToStream(std::ofstream& output) const
 {
    if (!(output.good()))
    {
@@ -601,7 +601,7 @@ bool Dialogue::SaveToStream(std::ofstream& output) const
      len = iter->first.length();
      output.write((char*) &len, sizeof(unsigned int));
      output.write(iter->first.c_str(), len);
-     if (!(iter->second.SaveToStream(output)))
+     if (!(iter->second.saveToStream(output)))
      {
        std::cout << "Dialogue::SaveToStream: ERROR while writing dialogue "
                  << "line \""<<iter->first<<"\".\n";
@@ -612,7 +612,7 @@ bool Dialogue::SaveToStream(std::ofstream& output) const
    return output.good();
 }
 
-bool Dialogue::LoadNextRecordFromStream(std::ifstream& input)
+bool Dialogue::loadNextRecordFromStream(std::ifstream& input)
 {
   if (!(input.good()))
   {
@@ -651,14 +651,14 @@ bool Dialogue::LoadNextRecordFromStream(std::ifstream& input)
       return false;
     }
     //load it
-    if (!(temp_lr.LoadFromStream(input)))
+    if (!(temp_lr.loadFromStream(input)))
     {
       std::cout << "Dialogue::LoadNextRecordFromStream: ERROR while loading "
                 << "line record.\n";
       return false;
     }
     //add data
-    AddLine(std::string(buffer), temp_lr);
+    addLine(std::string(buffer), temp_lr);
   } //if cDialogueFlag
   else if (flag==cGreetingFlag)
   {
@@ -715,7 +715,7 @@ bool Dialogue::LoadNextRecordFromStream(std::ifstream& input)
       }
       temp_vec.push_back(std::string(buffer));
     } //for
-    AddGreeting(NPC_ID, temp_vec);
+    addGreeting(NPC_ID, temp_vec);
   }
   else
   {
@@ -726,7 +726,7 @@ bool Dialogue::LoadNextRecordFromStream(std::ifstream& input)
   return input.good();
 }
 
-unsigned int Dialogue::NumberOfLines() const
+unsigned int Dialogue::numberOfLines() const
 {
   return m_GreetingLines.size() + m_DialogueLines.size();
 }

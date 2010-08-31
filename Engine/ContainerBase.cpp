@@ -12,16 +12,16 @@ ContainerBase::ContainerBase()
 ContainerBase::~ContainerBase()
 {
   //destructor
-  DeleteAllContainers();
+  deleteAllContainers();
 }
 
-ContainerBase& ContainerBase::GetSingleton()
+ContainerBase& ContainerBase::getSingleton()
 {
   static ContainerBase Instance;
   return Instance;
 }
 
-void ContainerBase::AddContainer(const std::string& ID, const std::string& _mesh, const Inventory& contents)
+void ContainerBase::addContainer(const std::string& ID, const std::string& _mesh, const Inventory& contents)
 {
   if (ID=="" or _mesh=="")
   {
@@ -35,34 +35,36 @@ void ContainerBase::AddContainer(const std::string& ID, const std::string& _mesh
     //not present, so create it
     m_ContainerList[ID].Mesh = _mesh;
     m_ContainerList[ID].ContainerInventory = Inventory();
-    contents.AddAllItemsTo(m_ContainerList[ID].ContainerInventory);
+    contents.addAllItemsTo(m_ContainerList[ID].ContainerInventory);
     return;
   }//if
   iter->second.Mesh = _mesh;
-  iter->second.ContainerInventory.MakeEmpty();
-  contents.AddAllItemsTo(iter->second.ContainerInventory);
+  iter->second.ContainerInventory.makeEmpty();
+  contents.addAllItemsTo(iter->second.ContainerInventory);
   return;
 }
 
-bool ContainerBase::DeleteContainer(const std::string& ID)
+#ifdef DUSK_EDITOR
+bool ContainerBase::deleteContainer(const std::string& ID)
 {
   std::map<std::string, ContainerRecord>::iterator iter;
   iter = m_ContainerList.find(ID);
   if (iter != m_ContainerList.end())
   {
-    iter->second.ContainerInventory.MakeEmpty();
+    iter->second.ContainerInventory.makeEmpty();
     m_ContainerList.erase(iter);
     return true;
   }
   return false;
 }
+#endif
 
-bool ContainerBase::HasContainer(const std::string& ID) const
+bool ContainerBase::hasContainer(const std::string& ID) const
 {
   return (m_ContainerList.find(ID)!=m_ContainerList.end());
 }
 
-std::string ContainerBase::GetContainerMesh(const std::string& ID, const bool UseMarkerOnError) const
+std::string ContainerBase::getContainerMesh(const std::string& ID, const bool UseMarkerOnError) const
 {
   std::map<std::string, ContainerRecord>::const_iterator iter;
   iter = m_ContainerList.find(ID);
@@ -77,7 +79,7 @@ std::string ContainerBase::GetContainerMesh(const std::string& ID, const bool Us
   return "";
 }
 
-const Inventory& ContainerBase::GetContainerInventory(const std::string& ID) const
+const Inventory& ContainerBase::getContainerInventory(const std::string& ID) const
 {
   std::map<std::string, ContainerRecord>::const_iterator iter;
   iter = m_ContainerList.find(ID);
@@ -85,26 +87,26 @@ const Inventory& ContainerBase::GetContainerInventory(const std::string& ID) con
   {
     return iter->second.ContainerInventory;
   }
-  return Inventory::GetEmptyInventory();
+  return Inventory::getEmptyInventory();
 }
 
-void ContainerBase::DeleteAllContainers()
+void ContainerBase::deleteAllContainers()
 {
   std::map<std::string, ContainerRecord>::iterator iter;
   iter = m_ContainerList.begin();
   while (iter != m_ContainerList.end())
   {
-    iter->second.ContainerInventory.MakeEmpty();
+    iter->second.ContainerInventory.makeEmpty();
   }//while
   m_ContainerList.clear();
 }
 
-unsigned int ContainerBase::NumberOfContainers() const
+unsigned int ContainerBase::numberOfContainers() const
 {
   return m_ContainerList.size();
 }
 
-bool ContainerBase::SaveAllToStream(std::ofstream& OutStream) const
+bool ContainerBase::saveAllToStream(std::ofstream& OutStream) const
 {
   if (!OutStream.good())
   {
@@ -127,7 +129,7 @@ bool ContainerBase::SaveAllToStream(std::ofstream& OutStream) const
     OutStream.write((char*) &len, sizeof(unsigned int));
     OutStream.write(traverse->second.Mesh.c_str(), len);
     //Inventory
-    if (!(traverse->second.ContainerInventory.SaveToStream(OutStream)))
+    if (!(traverse->second.ContainerInventory.saveToStream(OutStream)))
     {
       std::cout << "ContainerBase::SaveAllToStream: ERROR while writing "
                 << "container's inventory.\n";
@@ -138,7 +140,7 @@ bool ContainerBase::SaveAllToStream(std::ofstream& OutStream) const
   return OutStream.good();
 }
 
-bool ContainerBase::LoadNextContainerFromStream(std::ifstream& InStream)
+bool ContainerBase::loadNextContainerFromStream(std::ifstream& InStream)
 {
   if (!InStream.good())
   {
@@ -191,14 +193,14 @@ bool ContainerBase::LoadNextContainerFromStream(std::ifstream& InStream)
     return false;
   }
   Inventory temp;
-  if (!temp.LoadFromStream(InStream))
+  if (!temp.loadFromStream(InStream))
   {
     std::cout << "ContainerBase::LoadNextContainerFromStream: ERROR while "
               << "reading inventory contens from stream!\n";
     return false;
   }
   //all right so far, add new container
-  AddContainer(std::string(ID_Buffer), std::string(Mesh_Buffer), temp);
+  addContainer(std::string(ID_Buffer), std::string(Mesh_Buffer), temp);
   return InStream.good();
 }
 

@@ -6,6 +6,7 @@
  History:
      - 2009-12-23 (rev 144) - initial version; contains d4, d6, d10 and d20
      - 2010-06-06 (rev 215) - d8() added
+     - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
 
  ToDo list:
      - add more functions/ dice, if needed
@@ -27,7 +28,7 @@ namespace Dusk
       virtual ~DiceBox();
 
       /* Singleton access function */
-      static DiceBox& GetSingleton();
+      static DiceBox& getSingleton();
 
       /* "Throws" a four-sided die, returns a random number between 1 and 4 */
       unsigned int d4();

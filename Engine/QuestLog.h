@@ -8,6 +8,7 @@
  History:
      - 2010-02-05 (rev 163) - initial version (by thoronador)
      - 2010-03-08 (rev 178) - getMaximumPresentIndex() added
+     - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
 
  ToDo list:
      - ???
@@ -37,7 +38,7 @@ namespace Dusk
   {
     public:
       /* singleton access */
-      static QuestLog& GetSingleton();
+      static QuestLog& getSingleton();
 
       /* destructor */
       virtual ~QuestLog();
@@ -84,20 +85,30 @@ namespace Dusk
       std::vector<QLogEntry> listQuestEntries(const unsigned int offset, unsigned int limit=30) const;
 
       /* deletes all data, producing an empty QuestLog */
-      void ClearAllData();
+      void clearAllData();
 
       /* returns the number of quest entries in QuestLog */
-      unsigned int NumberOfQuestEntries() const;
+      unsigned int numberOfQuestEntries() const;
 
-      /* tries to save data to stream and returns true on success, false otherwise */
-      bool SaveToStream(std::ofstream& output) const;
+      /* tries to save data to stream and returns true on success, false otherwise
+
+         parameters:
+             output - the output stream that is used to save the quest log
+      */
+      bool saveToStream(std::ofstream& output) const;
 
       /* tries to load all data from stream and returns true on success, false
          otherwise
+
+         parameters:
+             input - the input stream that is used to load the quest log
       */
-      bool LoadFromStream(std::ifstream& input);
+      bool loadFromStream(std::ifstream& input);
     private:
+      /* constructor - private due to singleton pattern */
       QuestLog();
+
+      /* empty, private copy constructor due to singleton */
       QuestLog(const QuestLog& op) {}
 
       /* vector which keeps track of all recieved quest entries in chronological
@@ -122,7 +133,7 @@ namespace Dusk
       /* map for retrieving quest state without iterating through vector */
       std::map<std::string, bool> m_FinishedQuests;
 
-  }; //class
+  }; //class Questlog
 
 } //namespace
 

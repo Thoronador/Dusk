@@ -26,10 +26,10 @@ bool FrameListener::frameStarted(const Ogre::FrameEvent& evt)
 {
     InputSystem::captureInput();
     Console::getInstance()->processScripts();
-    LuaEngine::GetSingleton().processScripts();
+    LuaEngine::getSingleton().processScripts();
     Camera::getSingleton().move(evt);
-    InjectionManager::GetSingleton().InjectAnimationTime(evt.timeSinceLastFrame);
-    Player::GetSingleton().injectTime(evt.timeSinceLastFrame);
+    InjectionManager::getSingleton().injectAnimationTime(evt.timeSinceLastFrame);
+    Player::getSingleton().injectTime(evt.timeSinceLastFrame);
     //sun and so on
     const float cSunSpeedFactor = 1200.0f;
     Weather::getSingelton().addDaytime(evt.timeSinceLastFrame*cSunSpeedFactor);

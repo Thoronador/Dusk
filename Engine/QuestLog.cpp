@@ -6,7 +6,7 @@
 namespace Dusk
 {
 
-QuestLog& QuestLog::GetSingleton()
+QuestLog& QuestLog::getSingleton()
 {
   static QuestLog Instance;
   return Instance;
@@ -47,7 +47,7 @@ bool QuestLog::addQuestEntry(const std::string& questID, const unsigned int inde
     temp.index = index;
     m_TimeLine.push_back(temp);
     m_FinishedQuests[questID] = m_FinishedQuests[questID] or
-         ((Journal::GetSingleton().getFlags(questID, index)&JournalRecord::FinishedFlag)>0);
+         ((Journal::getSingleton().getFlags(questID, index)&JournalRecord::FinishedFlag)>0);
     return true;
   }
   //entry was already present, so we add nothing
@@ -154,19 +154,19 @@ std::vector<QLogEntry> QuestLog::listQuestEntries(const unsigned int offset, uns
   return qVec;
 }
 
-void QuestLog::ClearAllData()
+void QuestLog::clearAllData()
 {
   m_PresentEntries.clear();
   m_TimeLine.clear();
   m_FinishedQuests.clear();
 }
 
-unsigned int QuestLog::NumberOfQuestEntries() const
+unsigned int QuestLog::numberOfQuestEntries() const
 {
   return m_TimeLine.size();
 }
 
-bool QuestLog::SaveToStream(std::ofstream& output) const
+bool QuestLog::saveToStream(std::ofstream& output) const
 {
   if (!(output.good()))
   {
@@ -198,7 +198,7 @@ bool QuestLog::SaveToStream(std::ofstream& output) const
   return output.good();
 }
 
-bool QuestLog::LoadFromStream(std::ifstream& input)
+bool QuestLog::loadFromStream(std::ifstream& input)
 {
   if (!(input.good()))
   {

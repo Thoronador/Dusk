@@ -50,10 +50,10 @@ WaypointObject::WaypointObject(const std::string& _ID, const Ogre::Vector3& pos,
 WaypointObject::~WaypointObject()
 {
   //dtor
-  Disable();
+  disable();
 }
 
-unsigned int WaypointObject::AddWaypoint(const Ogre::Vector3& waypoint)
+unsigned int WaypointObject::addWaypoint(const Ogre::Vector3& waypoint)
 {
   if (m_Waypoints.empty())
   {
@@ -73,7 +73,7 @@ void WaypointObject::setUseWaypoints(const bool doUse)
   m_WaypointTravel = doUse;
   if (doUse && m_currentWaypoint<m_Waypoints.size())
   { //we have points and want movement, so start it
-    TravelToDestination(m_Waypoints.at(m_currentWaypoint));
+    travelToDestination(m_Waypoints.at(m_currentWaypoint));
   }
 }
 
@@ -99,12 +99,12 @@ bool WaypointObject::getPatrolMode() const
   return m_Patrol;
 }
 
-std::string WaypointObject::GetObjectMesh() const
+std::string WaypointObject::getObjectMesh() const
 {
-  return ObjectBase::GetSingleton().GetMeshName(ID);
+  return ObjectBase::getSingleton().getMeshName(ID);
 }
 
-ObjectTypes WaypointObject::GetType() const
+ObjectTypes WaypointObject::getDuskType() const
 {
   return otWaypoint;
 }
@@ -117,11 +117,11 @@ void WaypointObject::injectTime(const float SecondsPassed)
   }
   if (m_Travel)
   {
-    const float Distance = Ogre::Vector3(m_Destination-GetPosition()).squaredLength();
+    const float Distance = Ogre::Vector3(m_Destination-getPosition()).squaredLength();
     //are we moving to fast?
     if (Ogre::Math::Sqr(m_Speed*SecondsPassed)>=Distance)
     { //finished travelling
-      SetPosition(m_Destination);
+      setPosition(m_Destination);
       if (!m_WaypointTravel)
       {
         m_Travel = false;
@@ -135,7 +135,7 @@ void WaypointObject::injectTime(const float SecondsPassed)
           if (m_Patrol)
           { //...but we are in patrol mode, so start again
             m_currentWaypoint = 0;
-            TravelToDestination(m_Waypoints.at(0));
+            travelToDestination(m_Waypoints.at(0));
           }
           else
           { //...so let's stop, since we do not patrol
@@ -148,7 +148,7 @@ void WaypointObject::injectTime(const float SecondsPassed)
         else
         { //there are more waypoints, so select next
           m_currentWaypoint++;
-          TravelToDestination(m_Waypoints.at(m_currentWaypoint));
+          travelToDestination(m_Waypoints.at(m_currentWaypoint));
         }
       }
     }
@@ -162,13 +162,13 @@ void WaypointObject::injectTime(const float SecondsPassed)
     position = position + SecondsPassed*m_Speed*m_Direction;
   }
   //adjust position of scene node/ entity in Ogre
-  if (IsEnabled())
+  if (isEnabled())
   {
-    SetPosition(position);
+    setPosition(position);
   }
 }
 
-bool WaypointObject::SaveWaypointObjectPart(std::ofstream& OutStream) const
+bool WaypointObject::saveWaypointObjectPart(std::ofstream& OutStream) const
 {
   // save data members from WaypointObject
   //waypoint data
@@ -197,7 +197,7 @@ bool WaypointObject::SaveWaypointObjectPart(std::ofstream& OutStream) const
   return OutStream.good();
 }
 
-bool WaypointObject::LoadWaypointObjectPart(std::ifstream& InStream)
+bool WaypointObject::loadWaypointObjectPart(std::ifstream& InStream)
 {
   //load data members from WaypointObject
   //waypoint data
@@ -207,7 +207,7 @@ bool WaypointObject::LoadWaypointObjectPart(std::ifstream& InStream)
   InStream.read((char*) &m_Patrol, sizeof(bool));
   if (!InStream.good())
   {
-    std::cout << "WaypointObject::LoadWaypointObjectPart: ERROR while reading flags.\n";
+    std::cout << "WaypointObject::loadWaypointObjectPart: ERROR while reading flags.\n";
     return false;
   }
   // -- current waypoint
@@ -218,7 +218,7 @@ bool WaypointObject::LoadWaypointObjectPart(std::ifstream& InStream)
   InStream.read((char*) &wp_count, sizeof(unsigned int));
   if (wp_count>100)
   {
-    std::cout << "WaypointObject::LoadWaypointObjectPart: ERROR: There are "
+    std::cout << "WaypointObject::loadWaypointObjectPart: ERROR: There are "
               << "more than 100 waypoints for one object. Aborting to avoid too"
               << " much data in vector.\n";
     return false;
@@ -237,7 +237,7 @@ bool WaypointObject::LoadWaypointObjectPart(std::ifstream& InStream)
     temp_vec.z = f_temp;
     if (!(InStream.good()))
     {
-      std::cout << "WaypointObject::LoadWaypointObjectPart: ERROR while reading"
+      std::cout << "WaypointObject::loadWaypointObjectPart: ERROR while reading"
                 << " waypoints' data.\n";
       return false;
     }
@@ -246,44 +246,44 @@ bool WaypointObject::LoadWaypointObjectPart(std::ifstream& InStream)
   return (InStream.good());
 }
 
-bool WaypointObject::SaveToStream(std::ofstream& OutStream) const
+bool WaypointObject::saveToStream(std::ofstream& OutStream) const
 {
   if (!OutStream.good())
   {
-    std::cout << "WaypointObject::SaveToStream: ERROR: Stream contains errors!\n";
+    std::cout << "WaypointObject::saveToStream: ERROR: Stream contains errors!\n";
     return false;
   }
   //write header "RfWP" (reference of WaypointObject)
   OutStream.write((char*) &cHeaderRfWP, sizeof(unsigned int));
   //write all data inherited from DuskObject
-  if (!SaveDuskObjectPart(OutStream))
+  if (!saveDuskObjectPart(OutStream))
   {
-    std::cout << "WaypointObject::SaveToStream: ERROR while writing basic "
+    std::cout << "WaypointObject::saveToStream: ERROR while writing basic "
               << "data!\n";
     return false;
   }
   //write all data inherited from UniformMotionObject
-  if (!SaveUniformMotionObjectPart(OutStream))
+  if (!saveUniformMotionObjectPart(OutStream))
   {
-    std::cout << "WaypointObject::SaveToStream: ERROR while writing motion "
+    std::cout << "WaypointObject::saveToStream: ERROR while writing motion "
               << "data!\n";
     return false;
   }
   // go on with new data members from WaypointObject
-  return SaveWaypointObjectPart(OutStream);
+  return saveWaypointObjectPart(OutStream);
 }
 
-bool WaypointObject::LoadFromStream(std::ifstream& InStream)
+bool WaypointObject::loadFromStream(std::ifstream& InStream)
 {
   if (entity!=NULL)
   {
-    std::cout << "WaypointObject::LoadFromStream: ERROR: Cannot load from "
+    std::cout << "WaypointObject::loadFromStream: ERROR: Cannot load from "
               << "stream while object is enabled.\n";
     return false;
   }
   if (!InStream.good())
   {
-    std::cout << "WaypointObject::LoadFromStream: ERROR: Stream contains errors!\n";
+    std::cout << "WaypointObject::loadFromStream: ERROR: Stream contains errors!\n";
     return false;
   }
   //read header "RfWP"
@@ -291,26 +291,26 @@ bool WaypointObject::LoadFromStream(std::ifstream& InStream)
   InStream.read((char*) &Header, sizeof(unsigned int));
   if (Header!=cHeaderRfWP)
   {
-    std::cout << "WaypointObject::LoadFromStream: ERROR: Stream contains "
+    std::cout << "WaypointObject::loadFromStream: ERROR: Stream contains "
               << "invalid reference header.\n";
     return false;
   }
   //read all stuff inherited from DuskObject
-  if (!LoadDuskObjectPart(InStream))
+  if (!loadDuskObjectPart(InStream))
   {
-    std::cout << "WaypointObject::LoadFromStream: ERROR while reading basic "
+    std::cout << "WaypointObject::loadFromStream: ERROR while reading basic "
               << "object data.\n";
     return false;
   }//if
   //read all stuff inherited from UniformMotionObject
-  if (!LoadUniformMotionObjectPart(InStream))
+  if (!loadUniformMotionObjectPart(InStream))
   {
-    std::cout << "WaypointObject::LoadFromStream: ERROR while reading motion "
+    std::cout << "WaypointObject::loadFromStream: ERROR while reading motion "
               << "object data.\n";
     return false;
   }//if
   // go on with new data members from WaypointObject
-  return LoadWaypointObjectPart(InStream);
+  return loadWaypointObjectPart(InStream);
 }
 
 } //namespace

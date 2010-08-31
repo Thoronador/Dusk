@@ -12,6 +12,7 @@
      - 2009-12-05 (rev 139) - GetType() added
                             - method declarations improved
      - 2010-05-05 (rev 196) - documentation update
+     - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
 
  ToDo list:
      - ???
@@ -49,38 +50,51 @@ namespace Dusk
 
       /* Enables the light, i.e. tells the SceneManager to display it.
          Returns true on success, false on error.
+
+         parameters:
+             scm - the scene manager that will be used to create the light
       */
-      virtual bool Enable(Ogre::SceneManager* scm);
+      virtual bool enable(Ogre::SceneManager* scm);
 
       /* Disables the light, i.e. tells the SceneManager not to display it.
          Returns true on success, false on error. */
-      virtual bool Disable();
+      virtual bool disable();
 
       /* Returns true, if the light is currently enabled, false otherwise. */
-      virtual bool IsEnabled() const;
+      virtual bool isEnabled() const;
 
       /* retrieves the object type as an enumeration value */
-      virtual ObjectTypes GetType() const;
+      virtual ObjectTypes getDuskType() const;
 
-      /* sets the direction the light is shining to */
-      void SetDirection(const Ogre::Vector3& dir);
+      /* sets the direction the light is shining to
+
+         parameters:
+             dir - the light's new direction
+      */
+      void setDirection(const Ogre::Vector3& dir);
 
       /* retrieves the light's direction */
-      Ogre::Vector3 GetDirection() const;
+      Ogre::Vector3 getDirection() const;
 
       /* Saves the object to the given stream. Returns true on success, false
          otherwise.
+
+         parameters:
+             OutStream - the output stream that is used to save the object
       */
-      virtual bool SaveToStream(std::ofstream& OutStream) const;
+      virtual bool saveToStream(std::ofstream& OutStream) const;
 
       /* Tries to load an object from the given stream. Returns true on
          success, false otherwise.
+
+         parameters:
+             InStream - the input stream that is used to load the object
 
          remarks:
              If the function returns false, the data within the light object may
              be corrupted. It's advised not to use the object in this case.
       */
-      virtual bool LoadFromStream(std::ifstream& InStream);
+      virtual bool loadFromStream(std::ifstream& InStream);
     protected:
       /* contrary to DuskObject, this entity member is of type Light and not of
          type Ogre::Entity. Might possibly cause problems.

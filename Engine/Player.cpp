@@ -21,7 +21,7 @@ void listBoneChildren(const Ogre::Node* b, const unsigned int indents)
   }//for
 }
 
-Player& Player::GetSingleton()
+Player& Player::getSingleton()
 {
   static Player Instance;
   return Instance;
@@ -38,7 +38,7 @@ Player::~Player()
 {
   if (Ogre::Root::getSingletonPtr()!=NULL)
   {
-    Disable();
+    disable();
   }//if
   entity = NULL;
 }
@@ -61,8 +61,8 @@ bool Player::pickUpNearest()
       DuskObject* obj_ptr = static_cast<DuskObject*>(udo);
       if (obj_ptr->canPickUp())
       {
-        const float sd = position.squaredDistance(obj_ptr->GetPosition());
-        if ((sd<distance || distance<0.0f) and (obj_ptr->GetType()==otItem))
+        const float sd = position.squaredDistance(obj_ptr->getPosition());
+        if ((sd<distance || distance<0.0f) and (obj_ptr->getDuskType()==otItem))
         {
           distance = sd;
           item_ptr = static_cast<Item*>(obj_ptr);
@@ -85,7 +85,7 @@ bool Player::pickUpNearest()
 void Player::translate(const Ogre::Vector3& translationVector)
 {
   m_Direction = m_Speed*m_Direction+translationVector;
-  NPC::SetSpeed(m_Direction.normalise());
+  NPC::setSpeed(m_Direction.normalise());
 }
 
 void Player::injectTime(const float SecondsPassed)
@@ -98,14 +98,14 @@ void Player::injectTime(const float SecondsPassed)
                             position.z));
 }
 
-std::string Player::GetObjectMesh() const
+std::string Player::getObjectMesh() const
 {
   /* Until we have a proper player mesh, we use the Ogre mascot mesh from
      Zi Ye / omniter. */
   return "Sinbad.mesh";
 }
 
-bool Player::Enable(Ogre::SceneManager* scm)
+bool Player::enable(Ogre::SceneManager* scm)
 {
   if (entity!=NULL)
   {
@@ -116,11 +116,11 @@ bool Player::Enable(Ogre::SceneManager* scm)
     std::cout << "Player::Enable: ERROR: no scene manager present.\n";
     return false;
   }
-  if (!NPC::Enable(scm)) return false;
+  if (!NPC::enable(scm)) return false;
   //just for information
   // -- animation states
   unsigned int i;
-  const std::vector<std::string> as = GetPossibleAnimationStates();
+  const std::vector<std::string> as = getPossibleAnimationStates();
   for (i=0; i<as.size(); ++i)
   {
     std::cout << "Player animation state available: "<<as[i]<<"\n";
@@ -148,23 +148,16 @@ bool Player::Enable(Ogre::SceneManager* scm)
   entity->attachObjectToBone("Sheath.R", ent_sword);
   ent_sword = scm->createEntity(entity_name.str()+"_sword.Left", "Sword.mesh");
   entity->attachObjectToBone("Sheath.L", ent_sword);
-  /*
-  ent_sword = scm->createEntity(entity_name.str()+"_sword.HandLeft", "Sword.mesh");
-  entity->attachObjectToBone("Handle.L", ent_sword);
-  ent_sword = scm->createEntity(entity_name.str()+"_sword.HandRight", "Sword.mesh");
-  entity->attachObjectToBone("Handle.R", ent_sword);
-  StartAnimation("HandsClosed", false);
-  */
   return (entity!=NULL);
 }
 
-bool Player::SaveToStream(std::ofstream& OutStream) const
+bool Player::saveToStream(std::ofstream& OutStream) const
 {
   //not implemented yet
   return false;
 }
 
-bool Player::LoadFromStream(std::ifstream& InStream)
+bool Player::loadFromStream(std::ifstream& InStream)
 {
   //not implemented yet
   return false;

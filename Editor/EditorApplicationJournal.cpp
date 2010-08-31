@@ -192,7 +192,7 @@ bool EditorApplicationJournal::QuestEntryConfirmDeleteYesClicked(const CEGUI::Ev
   if (winmgr.isWindowPresent("Editor/QuestEntryConfirmDeleteFrame"))
   {
     winmgr.destroyWindow("Editor/QuestEntryConfirmDeleteFrame");
-    if ( Journal::GetSingleton().deleteEntry(QuestID_of_entry_to_delete, Index_of_entry_to_delete))
+    if ( Journal::getSingleton().deleteEntry(QuestID_of_entry_to_delete, Index_of_entry_to_delete))
     {
       showHint("Entry successfully deleted.");
       if (winmgr.isWindowPresent("Editor/JournalFrame/QuestCombobox"))
@@ -223,7 +223,7 @@ void EditorApplicationJournal::UpdateQuestList(void)
     CEGUI::Combobox* CBox = static_cast<CEGUI::Combobox*> (winmgr.getWindow("Editor/JournalFrame/QuestCombobox"));
     CBox->resetList();
     CEGUI::ListboxTextItem* lbi;
-    std::vector<std::string> qVec = Journal::GetSingleton().listAllQuestIDs();
+    std::vector<std::string> qVec = Journal::getSingleton().listAllQuestIDs();
     unsigned int i;
     for (i=0; i<qVec.size(); ++i)
     {
@@ -249,7 +249,7 @@ void EditorApplicationJournal::UpdateQuestEntryList(const std::string& questID)
     mcl->resetList();
     std::vector<unsigned int> indexVec;
     indexVec.clear();
-    indexVec = Journal::GetSingleton().listAllIndicesOfQuest(questID);
+    indexVec = Journal::getSingleton().listAllIndicesOfQuest(questID);
     CEGUI::ListboxItem *lbi;
     unsigned int i, row;
     for (i=0; i<indexVec.size(); ++i)
@@ -257,10 +257,10 @@ void EditorApplicationJournal::UpdateQuestEntryList(const std::string& questID)
       lbi = new CEGUI::ListboxTextItem(IntToString(indexVec[i]));
       lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
       row = mcl->addRow(lbi, 0);
-      lbi = new CEGUI::ListboxTextItem(JournalRecord::FlagsToString(Journal::GetSingleton().getFlags(questID, indexVec[i])));
+      lbi = new CEGUI::ListboxTextItem(JournalRecord::flagsToString(Journal::getSingleton().getFlags(questID, indexVec[i])));
       lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
       mcl->setItem(lbi, 1, row);
-      lbi = new CEGUI::ListboxTextItem(Journal::GetSingleton().getText(questID, indexVec[i]));
+      lbi = new CEGUI::ListboxTextItem(Journal::getSingleton().getText(questID, indexVec[i]));
       lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
       mcl->setItem(lbi, 2, row);
     }//for
@@ -271,11 +271,11 @@ bool EditorApplicationJournal::JournalFrameNewQuestClicked(const CEGUI::EventArg
 {
   //we just a quest with generic ID and name to the list
   unsigned int i = 0;
-  while (Journal::GetSingleton().hasQuest("new_quest"+IntToString(i)))
+  while (Journal::getSingleton().hasQuest("new_quest"+IntToString(i)))
   {
     ++i;
   }//while
-  Journal::GetSingleton().setQuestName("new_quest"+IntToString(i),
+  Journal::getSingleton().setQuestName("new_quest"+IntToString(i),
                                        "new quest #"+IntToString(i));
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
   CEGUI::Combobox* CBox = static_cast<CEGUI::Combobox*> (winmgr.getWindow("Editor/JournalFrame/QuestCombobox"));
@@ -294,7 +294,7 @@ bool EditorApplicationJournal::JournalFrameDeleteQuestClicked(const CEGUI::Event
     showHint("You have not selected a quest from the list!");
     return true;
   }
-  if (lbi->getText()=="(none)" or !Journal::GetSingleton().hasQuest(std::string(lbi->getText().c_str())))
+  if (lbi->getText()=="(none)" or !Journal::getSingleton().hasQuest(std::string(lbi->getText().c_str())))
   {
     showHint("You have not selected a valid quest!");
     return true;
@@ -314,7 +314,7 @@ bool EditorApplicationJournal::JournalFrameRenameQuestClicked(const CEGUI::Event
     showHint("You have not selected a quest from the list!");
     return true;
   }
-  if (lbi->getText()=="(none)" or !Journal::GetSingleton().hasQuest(std::string(lbi->getText().c_str())))
+  if (lbi->getText()=="(none)" or !Journal::getSingleton().hasQuest(std::string(lbi->getText().c_str())))
   {
     showHint("You have not selected a valid quest from the list!");
     return true;
@@ -392,7 +392,7 @@ bool EditorApplicationJournal::JournalDeleteQuestFrameYesClicked(const CEGUI::Ev
 {
   if (ID_of_quest_to_delete!="")
   {
-    if (Journal::GetSingleton().deleteQuest(ID_of_quest_to_delete))
+    if (Journal::getSingleton().deleteQuest(ID_of_quest_to_delete))
     {
       showHint("Quest with ID \""+ID_of_quest_to_delete+"\" was successfully "
               +"deleted.");
@@ -465,7 +465,7 @@ void EditorApplicationJournal::showQuestEntryNewWindow(void)
 
     //editbox for index
     button = winmgr.createWindow("TaharezLook/Editbox", "Editor/NewQuestEntryFrame/Index_Edit");
-    button->setText(IntToString(Journal::GetSingleton().getMaximumAvailabeIndex(ID_of_quest_to_add_entry)+1));
+    button->setText(IntToString(Journal::getSingleton().getMaximumAvailabeIndex(ID_of_quest_to_add_entry)+1));
     button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.25, 0)));
     button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.1, 0)));
     frame->addChildWindow(button);
@@ -535,7 +535,7 @@ bool EditorApplicationJournal::NewQuestEntryFrameOKClicked(const CEGUI::EventArg
       return true;
     }
     const unsigned int newIndex = StringToInt(IndexEdit->getText().c_str(), 0);
-    if (Journal::GetSingleton().hasEntry(ID_of_quest_to_add_entry, newIndex))
+    if (Journal::getSingleton().hasEntry(ID_of_quest_to_add_entry, newIndex))
     {
       showWarning("An entry with ID "+IntToString(newIndex)+" for quest \""
                   +ID_of_quest_to_add_entry+"\" already exists. Please choose"
@@ -555,7 +555,7 @@ bool EditorApplicationJournal::NewQuestEntryFrameOKClicked(const CEGUI::EventArg
       flags = JournalRecord::FinishedFlag;
     }
     //add it to journal
-    if (Journal::GetSingleton().addEntry(ID_of_quest_to_add_entry, newIndex, newText, flags))
+    if (Journal::getSingleton().addEntry(ID_of_quest_to_add_entry, newIndex, newText, flags))
     {
       showHint("New entry added successfully!");
       winmgr.destroyWindow("Editor/NewQuestEntryFrame");
@@ -680,10 +680,10 @@ void EditorApplicationJournal::showQuestEntryEditWindow(void)
   winmgr.getWindow("Editor/EditQuestEntryFrame/Index_Edit")->setText(
                      IntToString(Index_of_entry_to_edit));
   check = static_cast<CEGUI::Checkbox*> (winmgr.getWindow("Editor/EditQuestEntryFrame/Finished"));
-  check->setSelected((Journal::GetSingleton().getFlags(QuestID_of_entry_to_edit,
+  check->setSelected((Journal::getSingleton().getFlags(QuestID_of_entry_to_edit,
                      Index_of_entry_to_edit)&JournalRecord::FinishedFlag)>0);
   winmgr.getWindow("Editor/EditQuestEntryFrame/Text")->setText(
-      Journal::GetSingleton().getText(QuestID_of_entry_to_edit,Index_of_entry_to_edit));
+      Journal::getSingleton().getText(QuestID_of_entry_to_edit,Index_of_entry_to_edit));
 }
 
 bool EditorApplicationJournal::EditQuestEntryFrameCancelClicked(const CEGUI::EventArgs &e)
@@ -733,7 +733,7 @@ bool EditorApplicationJournal::EditQuestEntryFrameOKClicked(const CEGUI::EventAr
   //Did the user change the index?
   if (new_index!=Index_of_entry_to_edit)
   {
-    if (Journal::GetSingleton().hasEntry(QuestID_of_entry_to_edit, new_index))
+    if (Journal::getSingleton().hasEntry(QuestID_of_entry_to_edit, new_index))
     {
       showHint("You are trying to change the index of this entry, but an entry "
                +std::string("with the same index already exists for the quest \"")
@@ -741,7 +741,7 @@ bool EditorApplicationJournal::EditQuestEntryFrameOKClicked(const CEGUI::EventAr
       return true;
     }
     //we have a valid index change here, so remove old index first...
-    if (!Journal::GetSingleton().deleteEntry(QuestID_of_entry_to_edit, Index_of_entry_to_edit))
+    if (!Journal::getSingleton().deleteEntry(QuestID_of_entry_to_edit, Index_of_entry_to_edit))
     {
       showWarning("An error occured while changing the index of the entry!");
       QuestID_of_entry_to_edit = "";
@@ -755,7 +755,7 @@ bool EditorApplicationJournal::EditQuestEntryFrameOKClicked(const CEGUI::EventAr
       return true;
     }
     //...and add new index after that.
-    if (!Journal::GetSingleton().addEntry(QuestID_of_entry_to_edit, new_index, temp))
+    if (!Journal::getSingleton().addEntry(QuestID_of_entry_to_edit, new_index, temp))
     {
       showWarning("An error occured while adding the modified entry!");
     }
@@ -770,7 +770,7 @@ bool EditorApplicationJournal::EditQuestEntryFrameOKClicked(const CEGUI::EventAr
     return true;
   }
   //add entry
-  if (!Journal::GetSingleton().addEntry(QuestID_of_entry_to_edit,
+  if (!Journal::getSingleton().addEntry(QuestID_of_entry_to_edit,
         Index_of_entry_to_edit, temp))
   {
     showWarning("Could not change entry!");
@@ -831,7 +831,7 @@ void EditorApplicationJournal::showJournalRenameQuestWindow(void)
 
     //editbox for quest name
     window = winmgr.createWindow("TaharezLook/Editbox", "Editor/QuestRenameFrame/Name_Edit");
-    window->setText(Journal::GetSingleton().getQuestName(ID_of_quest_to_rename));
+    window->setText(Journal::getSingleton().getQuestName(ID_of_quest_to_rename));
     window->setPosition(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.45, 0)));
     window->setSize(CEGUI::UVector2(CEGUI::UDim(0.5, 0), CEGUI::UDim(0.2, 0)));
     frame->addChildWindow(window);
@@ -894,19 +894,19 @@ bool EditorApplicationJournal::QuestRenameFrameOKClicked(const CEGUI::EventArgs 
     if (ID_of_quest_to_rename==EditQID)
     {
       //just quest name changed
-      Journal::GetSingleton().setQuestName(ID_of_quest_to_rename, EditName);
+      Journal::getSingleton().setQuestName(ID_of_quest_to_rename, EditName);
     }
     else
     {
       //user tries to change quest ID
-      if (Journal::GetSingleton().hasQuest(EditQID))
+      if (Journal::getSingleton().hasQuest(EditQID))
       {
         showWarning("A quest with the given ID already exists. Please rename "
                 +std::string("the existing quest or choose another quest ID!"));
         return true;
       }
       //now we change the quest ID
-      if (!Journal::GetSingleton().changeQuestID(ID_of_quest_to_rename, EditQID))
+      if (!Journal::getSingleton().changeQuestID(ID_of_quest_to_rename, EditQID))
       {
         showWarning("Could not change quest ID!");
         return true;
@@ -914,7 +914,7 @@ bool EditorApplicationJournal::QuestRenameFrameOKClicked(const CEGUI::EventArgs 
       UpdateQuestList();
     }
     //finally update the quest's name
-    Journal::GetSingleton().setQuestName(EditQID, EditName);
+    Journal::getSingleton().setQuestName(EditQID, EditName);
   }
   winmgr.destroyWindow("Editor/QuestRenameFrame");
   ID_of_quest_to_rename = "";

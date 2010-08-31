@@ -78,8 +78,8 @@ void EditorApplicationLight::RefreshLightList(void)
 
   std::map<std::string, LightRecord>::const_iterator first;
   std::map<std::string, LightRecord>::const_iterator end;
-  first = LightBase::GetSingleton().GetFirst();
-  end = LightBase::GetSingleton().GetEnd();
+  first = LightBase::getSingleton().getFirst();
+  end = LightBase::getSingleton().getEnd();
   while (first != end)
   {
     addLightRecordToCatalogue(first->first, first->second);
@@ -298,7 +298,7 @@ void EditorApplicationLight::showLightEditWindow(void)
     return;
   }
 
-  if (!LightBase::GetSingleton().hasLight(ID_of_light_to_edit))
+  if (!LightBase::getSingleton().hasLight(ID_of_light_to_edit))
   {
     std::cout << "showLightEditWindow: Light not present in database.\n";
     showWarning("There seems to be no light with the ID \""+ID_of_light_to_edit
@@ -449,7 +449,7 @@ void EditorApplicationLight::showLightEditWindow(void)
     frame->addChildWindow(button);
   }//else
   //fill in the data
-  LightRecord lr = LightBase::GetSingleton().getLightData(ID_of_light_to_edit);
+  LightRecord lr = LightBase::getSingleton().getLightData(ID_of_light_to_edit);
   button = winmgr.getWindow("Editor/LightEditFrame/ID_Edit");
   button->setText(ID_of_light_to_edit);
   //colour values
@@ -625,7 +625,7 @@ bool EditorApplicationLight::LightDeleteFrameYesClicked(const CEGUI::EventArgs &
     CEGUI::WindowManager::getSingleton().destroyWindow("Editor/LightDeleteFrame");
     return true;
   }
-  if (!LightBase::GetSingleton().deleteLight(ID_of_light_to_delete))
+  if (!LightBase::getSingleton().deleteLight(ID_of_light_to_delete))
   {
     showHint("LightBase class holds no item of the given ID ("
              +ID_of_light_to_delete+").");
@@ -634,7 +634,7 @@ bool EditorApplicationLight::LightDeleteFrameYesClicked(const CEGUI::EventArgs &
     return true;
   }
   //kill references
-  unsigned int refs_deleted = ObjectManager::GetSingleton().deleteReferencesOfObject(ID_of_light_to_delete);
+  unsigned int refs_deleted = ObjectManager::getSingleton().deleteReferencesOfObject(ID_of_light_to_delete);
   if (refs_deleted == 0)
   {
     showHint("Light \""+ID_of_light_to_delete+"\" deleted! It had no references which had to be deleted.");
@@ -682,7 +682,7 @@ bool EditorApplicationLight::LightNewFrameOKClicked(const CEGUI::EventArgs &e)
       return true;
     }
     //check for presence of light with same ID
-    if (LightBase::GetSingleton().hasLight(std::string(id_edit->getText().c_str())))
+    if (LightBase::getSingleton().hasLight(std::string(id_edit->getText().c_str())))
     {
       showWarning("A Light with the given ID already exists!");
       return true;
@@ -702,7 +702,7 @@ bool EditorApplicationLight::LightNewFrameOKClicked(const CEGUI::EventArgs &e)
     }
     //assume radius
     entered_data.radius = 250.0f;
-    LightBase::GetSingleton().addLight( std::string(id_edit->getText().c_str()), entered_data);
+    LightBase::getSingleton().addLight( std::string(id_edit->getText().c_str()), entered_data);
     //update item catalogue
     addLightRecordToCatalogue(std::string(id_edit->getText().c_str()), entered_data);
     //destroy window
@@ -788,18 +788,18 @@ bool EditorApplicationLight::LightEditFrameSaveClicked(const CEGUI::EventArgs &e
   }
   lr.radius = StringToFloat(std::string(radius_edit->getText().c_str()), 123.45f);
   //check if data has remained the same
-  if (lr == (LightBase::GetSingleton().getLightData(ID_of_light_to_edit)))
+  if (lr == (LightBase::getSingleton().getLightData(ID_of_light_to_edit)))
   {
     showHint("You have not changed the data of this Light, thus there are no changes to be saved.");
     return true;
   }
   //save it
-  LightBase::GetSingleton().addLight(ID_of_light_to_edit, lr);
+  LightBase::getSingleton().addLight(ID_of_light_to_edit, lr);
   //update list
   RefreshLightList();
   //reference update
   unsigned int ref_count =
-  ObjectManager::GetSingleton().reenableReferencesOfObject(ID_of_light_to_edit, getAPI().getOgreSceneManager()/* mSceneMgr*/);
+  ObjectManager::getSingleton().reenableReferencesOfObject(ID_of_light_to_edit, getAPI().getOgreSceneManager()/* mSceneMgr*/);
   showHint("The Light \""+ID_of_light_to_edit+"\" and "+IntToString(ref_count)
           +" references were updated!");
   //delete window
@@ -826,7 +826,7 @@ bool EditorApplicationLight::LightConfirmIDChangeRenameClicked(const CEGUI::Even
     //get the windows with the needed entries
     std::string LightID;
     LightID = std::string(winmgr.getWindow("Editor/LightEditFrame/ID_Edit")->getText().c_str());
-    if (LightBase::GetSingleton().hasLight(LightID))
+    if (LightBase::getSingleton().hasLight(LightID))
     {
       showWarning("A Light with the ID \""+LightID+"\" already exists. "
                   +"Change that one as needed or delete it before giving another"
@@ -856,10 +856,10 @@ bool EditorApplicationLight::LightConfirmIDChangeRenameClicked(const CEGUI::Even
       lr.type = Ogre::Light::LT_DIRECTIONAL;
     }
     //"rename", i.e. create light with new ID and delete object with old ID
-    LightBase::GetSingleton().addLight(LightID, lr);
-    LightBase::GetSingleton().deleteLight(ID_of_light_to_edit);
+    LightBase::getSingleton().addLight(LightID, lr);
+    LightBase::getSingleton().deleteLight(ID_of_light_to_edit);
     //update all lights with same ID
-    ObjectManager::GetSingleton().updateReferencesAfterIDChange(ID_of_light_to_edit, LightID, getAPI().getOgreSceneManager()/*mSceneMgr*/);
+    ObjectManager::getSingleton().updateReferencesAfterIDChange(ID_of_light_to_edit, LightID, getAPI().getOgreSceneManager()/*mSceneMgr*/);
     //add row for new light to catalogue
     addLightRecordToCatalogue(LightID, lr);
     //remove row of old ID
@@ -915,7 +915,7 @@ bool EditorApplicationLight::LightConfirmIDChangeNewClicked(const CEGUI::EventAr
       lr.type = Ogre::Light::LT_DIRECTIONAL;
     }
 
-    if (LightBase::GetSingleton().hasLight(LightID))
+    if (LightBase::getSingleton().hasLight(LightID))
     {
       showWarning("A Light with the ID \""+LightID+"\" already exists. "
                   +"Change that one as needed or delete it before giving another"
@@ -925,7 +925,7 @@ bool EditorApplicationLight::LightConfirmIDChangeNewClicked(const CEGUI::EventAr
     //add new row to catalogue
     addLightRecordToCatalogue(LightID, lr);
     //add new object to database (ObjectBase)
-    LightBase::GetSingleton().addLight(LightID, lr);
+    LightBase::getSingleton().addLight(LightID, lr);
     //close edit window
     winmgr.destroyWindow("Editor/LightEditFrame");
     ID_of_light_to_edit = "";

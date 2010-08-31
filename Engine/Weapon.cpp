@@ -19,15 +19,15 @@ Weapon::Weapon(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vec
 
 Weapon::~Weapon()
 {
-  Disable();
+  disable();
 }
 
-std::string Weapon::GetObjectMesh() const
+std::string Weapon::getObjectMesh() const
 {
-  return WeaponBase::GetSingleton().getWeaponMesh(ID);
+  return WeaponBase::getSingleton().getWeaponMesh(ID);
 }
 
-ObjectTypes Weapon::GetType() const
+ObjectTypes Weapon::getDuskType() const
 {
   return otWeapon;
 }
@@ -38,7 +38,7 @@ bool Weapon::canPickUp() const
   return !m_Equipped;
 }
 
-bool Weapon::SaveToStream(std::ofstream& OutStream) const
+bool Weapon::saveToStream(std::ofstream& OutStream) const
 {
   if (!OutStream.good())
   {
@@ -48,14 +48,14 @@ bool Weapon::SaveToStream(std::ofstream& OutStream) const
   //write header "RfWe" (reference of Weapon)
   OutStream.write((char*) &cHeaderRfWe, sizeof(unsigned int));
   //write all data inherited from DuskObject
-  if (!SaveDuskObjectPart(OutStream))
+  if (!saveDuskObjectPart(OutStream))
   {
     std::cout << "Weapon::SaveToStream: ERROR while writing basic "
               << "data!\n";
     return false;
   }
   //write all data inherited from Item
-  if (!SaveItemPart(OutStream))
+  if (!saveItemPart(OutStream))
   {
     std::cout << "Weapon::SaveToStream: ERROR while writing item data!\n";
     return false;
@@ -64,7 +64,7 @@ bool Weapon::SaveToStream(std::ofstream& OutStream) const
   return OutStream.good();
 }
 
-bool Weapon::LoadFromStream(std::ifstream& InStream)
+bool Weapon::loadFromStream(std::ifstream& InStream)
 {
   if (entity!=NULL)
   {
@@ -87,14 +87,14 @@ bool Weapon::LoadFromStream(std::ifstream& InStream)
     return false;
   }
   //read all stuff inherited from DuskObject
-  if (!LoadDuskObjectPart(InStream))
+  if (!loadDuskObjectPart(InStream))
   {
     std::cout << "Weapon::LoadFromStream: ERROR while reading basic object "
               << "data.\n";
     return false;
   }//if
   //read all stuff inherited from item
-  if (!LoadItemPart(InStream))
+  if (!loadItemPart(InStream))
   {
     std::cout << "Weapon::LoadFromStream: ERROR while reading item data.\n";
     return false;

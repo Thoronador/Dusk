@@ -9,6 +9,7 @@
      - 2010-08-01 (rev 220) - GetObjectMesh() added
                             - Enable() and EnableWithoutSceneNode() removed
                               (inherited method is used instead)
+     - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
 
  ToDo list:
      - add possibility to actually attack and inflict damage with a weapon
@@ -39,24 +40,30 @@ class Weapon: public Item
     virtual ~Weapon();
 
     /* retrieves the object type as an enumeration value, which is useful for derived classes.*/
-    virtual ObjectTypes GetType() const;
+    virtual ObjectTypes getDuskType() const;
 
     /* returns true, if the player (or another NPC) can pick up the weapon */
     virtual bool canPickUp() const;
 
     /* Saves the weapon to the given stream. Returns true on success, false
        otherwise.
+
+       parameters:
+           OutStream - the output stream that is used to save the weapon
     */
-    virtual bool SaveToStream(std::ofstream& OutStream) const;
+    virtual bool saveToStream(std::ofstream& OutStream) const;
 
     /* Tries to load a weapon from the given stream. Returns true on
        success, false otherwise.
+
+       parameters:
+           InStream - the input stream that is used to load the weapon from
 
        remarks:
            If the function returns false, the data within the weapon may be
            corrupted. It's advised not to use the weapon in this case.
     */
-    virtual bool LoadFromStream(std::ifstream& InStream);
+    virtual bool loadFromStream(std::ifstream& InStream);
   protected:
     /* returns the name/path of the mesh that is used during enabling this
        object
@@ -65,7 +72,7 @@ class Weapon: public Item
            Every(!) derived, non-abstract class has to implement their own
            version of that function to ensure the use of the right meshes.
     */
-    virtual std::string GetObjectMesh() const;
+    virtual std::string getObjectMesh() const;
 }; //class
 
 } //namespace

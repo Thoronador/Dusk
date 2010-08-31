@@ -14,13 +14,13 @@ ProjectileBase::~ProjectileBase()
   m_Projectiles.clear();
 }
 
-ProjectileBase& ProjectileBase::GetSingleton()
+ProjectileBase& ProjectileBase::getSingleton()
 {
   static ProjectileBase Instance;
   return Instance;
 }
 
-void ProjectileBase::ClearAll()
+void ProjectileBase::clearAll()
 {
   m_Projectiles.clear();
 }
@@ -95,12 +95,12 @@ bool ProjectileBase::deleteProjectile(const std::string& ID)
   return true;
 }
 
-unsigned int ProjectileBase::GetNumberOfProjectiles() const
+unsigned int ProjectileBase::getNumberOfProjectiles() const
 {
   return m_Projectiles.size();
 }
 
-bool ProjectileBase::SaveAllToStream(std::ofstream& OutStream) const
+bool ProjectileBase::saveAllToStream(std::ofstream& OutStream) const
 {
   if (!OutStream.good())
   {
@@ -135,7 +135,7 @@ bool ProjectileBase::SaveAllToStream(std::ofstream& OutStream) const
   return OutStream.good();
 }
 
-bool ProjectileBase::LoadNextProjectileFromStream(std::ifstream& InStream)
+bool ProjectileBase::loadNextProjectileFromStream(std::ifstream& InStream)
 {
   if (!InStream.good())
   {

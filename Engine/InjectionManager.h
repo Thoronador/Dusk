@@ -26,6 +26,7 @@
                             - adjustments for Projectiles
      - 2010-06-02 (rev 213) - adjustments for weapons
      - 2010-08-18 (rev 230) - renamed AnimationData to InjectionManager
+     - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
 
  ToDo list:
      - ???
@@ -53,28 +54,56 @@ namespace Dusk
       virtual ~InjectionManager();
 
       /* singleton access function */
-      static InjectionManager& GetSingleton();
+      static InjectionManager& getSingleton();
 
       /* returns the number of object references the class holds */
-      unsigned int NumberOfReferences() const;
+      unsigned int numberOfReferences() const;
 
       /* adds a new AnimatedObject with given ID at given position with rotation
-         and scale, and returns a pointer to the created AnimatedObject. */
+         and scale, and returns a pointer to the created AnimatedObject.
+
+         parameters:
+             ID       - ID of the new animated object
+             position - position of the object
+             rotation - rotation of the object
+             scale    - scaling factor of the object
+      */
       AnimatedObject* addAnimatedReference(const std::string& ID, const Ogre::Vector3& position,
                                            const Ogre::Vector3& rotation, const float scale);
 
       /* adds a new NPC with given ID at given position with rotation and scale.
-         Returns a pointer to the created NPC. */
+         Returns a pointer to the created NPC.
+
+      parameters:
+             ID       - ID of the new NPC
+             position - position of the NPC
+             rotation - rotation of the NPC
+             scale    - scaling factor of the NPC
+
+      */
       NPC* addNPCReference(const std::string& ID, const Ogre::Vector3& position,
                            const Ogre::Vector3& rot, const float Scale);
 
       /* adds a new WaypointObject with given ID at given position with rotation
-         and scale, and returns a pointer to the created WaypointObject. */
+         and scale, and returns a pointer to the created WaypointObject.
+
+         parameters:
+             ID       - ID of the new waypoint object
+             position - position of the waypoint object
+             rotation - rotation of the waypoint object
+             scale    - scaling factor of the waypoint object
+      */
       WaypointObject* addWaypointReference(const std::string& ID, const Ogre::Vector3& position,
                                            const Ogre::Vector3& rotation, const float scale);
 
       /* adds a new Projectile with given ID at given position with rotation
          and scale, and returns a pointer to the created WaypointObject.
+
+         parameters:
+             ID       - ID of the new projectile
+             position - position of the object
+             rotation - rotation of the object
+             scale    - scaling factor of the object
       */
       Projectile* addProjectileReference(const std::string& ID, const Ogre::Vector3& position,
                                          const Ogre::Vector3& rotation, const float scale);
@@ -82,17 +111,17 @@ namespace Dusk
       /* returns a pointer to the first object reference with the given ID, or
          NULL if no such object is present
       */
-      InjectionObject* GetInjectionObjectReference(const std::string& ID) const;
+      InjectionObject* getInjectionObjectReference(const std::string& ID) const;
 
       /* returns a pointer to the first animated object reference (including NPC)
          with the given ID, or NULL if no such object is present
       */
-      AnimatedObject* GetAnimatedObjectReference(const std::string& ID) const;
+      AnimatedObject* getAnimatedObjectReference(const std::string& ID) const;
 
       /* same as GetAnimatedObjectReference, but with check for NPC -> if the
          referenced object is not a NPC, it returns NULL
       */
-      NPC* GetNPCReference(const std::string& ID) const;
+      NPC* getNPCReference(const std::string& ID) const;
 
       /* Deletes all objects with the given ID and returns the number of deleted objects.
 
@@ -108,20 +137,25 @@ namespace Dusk
              TimePassed - the amount of time that has passed since last frame,
                           measured in seconds
       */
-      void InjectAnimationTime(const float TimePassed);
+      void injectAnimationTime(const float TimePassed);
 
-      /* Tries to save all references to the stream. Returns true on success. */
-      bool SaveAllToStream(std::ofstream& output) const;
+      /* Tries to save all references to the stream. Returns true on success.
+
+         parameters:
+             output - the output stream that is used to save the data
+      */
+      bool saveAllToStream(std::ofstream& output) const;
 
       /* Tries to load the next object from stream and returns true on success
 
          parameters:
+             Stream           - the input stream that is used to load the data
              PrefetchedHeader - the first four bytes of the record to come
       */
-      bool LoadNextFromStream(std::ifstream& Stream, const unsigned int PrefetchedHeader);
+      bool loadNextFromStream(std::ifstream& Stream, const unsigned int PrefetchedHeader);
 
       /* deletes all referenced objects */
-      void ClearData();
+      void clearData();
 
       /* notify InjectionManager about an object that wants to be deleted
 

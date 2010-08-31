@@ -11,6 +11,7 @@
                             - methods to load and save containers added
                               (LoadNextContainerFromStream(), SaveAllToStream())
      - 2010-01-01 (rev 148) - documentation update
+     - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
 
  ToDo list:
      - ???
@@ -38,42 +39,84 @@ namespace Dusk
   class ContainerBase
   {
     public:
+      /* destructor */
       virtual ~ContainerBase();
       ///singleton access method
-      static ContainerBase& GetSingleton();
+      static ContainerBase& getSingleton();
 
-      /* Adds Container prototype with given ID, the mesh _mesh and the contents of ''contents''. */
-      void AddContainer(const std::string& ID, const std::string& _mesh, const Inventory& contents);
+      /* Adds Container prototype with given ID, the mesh _mesh and the contents of ''contents''.
 
+         parameters:
+             ID       - the ID of the new container
+             _mesh    - the mesh path for the container
+             contents - initial content of the container
+
+         remarks:
+             If a container with the same ID already exists, the old data will
+             be replaced by the new data.
+      */
+      void addContainer(const std::string& ID, const std::string& _mesh, const Inventory& contents);
+
+      #ifdef DUSK_EDITOR
       /* Deletes Container with given ID. Returns true, if such a Container
-         was present, false otherwise. */
-      bool DeleteContainer(const std::string& ID);
+         was present, false otherwise.
 
-      /* Returns true, if a Container with ID ID is present, false otherwise.*/
-      bool HasContainer(const std::string& ID) const;
+         parameter:
+             ID - ID of the container that should be deleted
+      */
+      bool deleteContainer(const std::string& ID);
+      #endif
 
-      /* Returns the mesh of container with given ID, if present. */
-      std::string GetContainerMesh(const std::string& ID, const bool UseMarkerOnError=true) const;
+      /* Returns true, if a Container with ID ID is present, false otherwise.
 
-      /* Returns the inventory of the container, if present. */
-      const Inventory& GetContainerInventory(const std::string& ID) const;
+         parameters:
+             ID - ID of the container which will be checked
+      */
+      bool hasContainer(const std::string& ID) const;
+
+      /* Returns the mesh of container with given ID, if present.
+
+         parameters:
+             ID               - ID of the container whose mesh shall be returned
+             UseMarkerOnError - If the requested container does not exist and
+                                this parameter is set to true, the function will
+                                return the path of the error marker mesh instead
+                                of returning an empty string.
+      */
+      std::string getContainerMesh(const std::string& ID, const bool UseMarkerOnError=true) const;
+
+      /* Returns the inventory of the container, if present.
+
+         parameters:
+             ID - ID of the container whose initial inventory shall be returned
+      */
+      const Inventory& getContainerInventory(const std::string& ID) const;
 
       /* Removes all containers from list. */
-      void DeleteAllContainers();
+      void deleteAllContainers();
 
       /* Returns number of currently available containers */
-      unsigned int NumberOfContainers() const;
+      unsigned int numberOfContainers() const;
 
-      /* Saves all Containers to stream; returns true on success */
-      bool SaveAllToStream(std::ofstream& OutStream) const;
+      /* Saves all Containers to stream; returns true on success
+
+         parameters:
+             OutStream - the output stream to which the object will be saved
+      */
+      bool saveAllToStream(std::ofstream& OutStream) const;
 
       /* Loads one(!) single container from stream; returns true on success,
          false otherwise. The data of the last loaded container is probably
          inconsistent after that function failed, so don't rely on it in that
-         case. */
-      bool LoadNextContainerFromStream(std::ifstream& InStream);
+         case.
+
+         parameters:
+             InStream - the input stream from which the container will be read
+      */
+      bool loadNextContainerFromStream(std::ifstream& InStream);
 
     private:
+      /* constructor - private due to singleton pattern */
       ContainerBase();
       // copy constructor
       ContainerBase(const ContainerBase& op) {}

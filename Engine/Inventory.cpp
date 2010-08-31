@@ -20,14 +20,14 @@ Inventory::~Inventory()
   m_TotalWeight = 0.0;
 }
 
-const Inventory& Inventory::GetEmptyInventory()
+const Inventory& Inventory::getEmptyInventory()
 {
   static Inventory EmptyThing;
-  EmptyThing.MakeEmpty();
+  EmptyThing.makeEmpty();
   return EmptyThing;
 }
 
-void Inventory::AddItem(const std::string& ItemID, const unsigned int count)
+void Inventory::addItem(const std::string& ItemID, const unsigned int count)
 {
   if (ItemID=="" or count==0)
   {
@@ -47,18 +47,18 @@ void Inventory::AddItem(const std::string& ItemID, const unsigned int count)
     m_Items[ItemID] = count;
   }
   //adjust weight of inventory according to added items
-  if (ItemBase::GetSingleton().hasItem(ItemID))
+  if (ItemBase::getSingleton().hasItem(ItemID))
   {
-    m_TotalWeight = m_TotalWeight +count*ItemBase::GetSingleton().GetItemWeight(ItemID);
+    m_TotalWeight = m_TotalWeight +count*ItemBase::getSingleton().getItemWeight(ItemID);
   }
   else
   {
     //if there's no such item in item base, it must have been a weapon
-    m_TotalWeight = m_TotalWeight +count*WeaponBase::GetSingleton().getWeaponWeight(ItemID);
+    m_TotalWeight = m_TotalWeight +count*WeaponBase::getSingleton().getWeaponWeight(ItemID);
   }
 }
 
-unsigned int Inventory::RemoveItem(const std::string& ItemID, const unsigned int count)
+unsigned int Inventory::removeItem(const std::string& ItemID, const unsigned int count)
 {
   if (count==0)
   {
@@ -82,21 +82,21 @@ unsigned int Inventory::RemoveItem(const std::string& ItemID, const unsigned int
       m_Items.erase(iter);
     }
     //adjust weight of inventory according to removed items
-    if (ItemBase::GetSingleton().hasItem(ItemID))
+    if (ItemBase::getSingleton().hasItem(ItemID))
     {
-      m_TotalWeight = m_TotalWeight - removed*ItemBase::GetSingleton().GetItemWeight(ItemID);
+      m_TotalWeight = m_TotalWeight - removed*ItemBase::getSingleton().getItemWeight(ItemID);
     }
     else
     {
       //must have been a weapon instead
-      m_TotalWeight = m_TotalWeight - removed*WeaponBase::GetSingleton().getWeaponWeight(ItemID);
+      m_TotalWeight = m_TotalWeight - removed*WeaponBase::getSingleton().getWeaponWeight(ItemID);
     }
     return removed;
   }
   return 0;
 }
 
-unsigned int Inventory::GetItemCount(const std::string& ItemID) const
+unsigned int Inventory::getItemCount(const std::string& ItemID) const
 {
   std::map<std::string, unsigned int>::const_iterator iter = m_Items.find(ItemID);
   if (iter!=m_Items.end())
@@ -106,53 +106,53 @@ unsigned int Inventory::GetItemCount(const std::string& ItemID) const
   return 0;
 }
 
-bool Inventory::IsEmpty() const
+bool Inventory::isEmpty() const
 {
   return m_Items.empty();
 }
 
-void Inventory::MakeEmpty()
+void Inventory::makeEmpty()
 {
   m_Items.clear();
   m_TotalWeight = 0.0f;
 }
 
-void Inventory::AddAllItemsTo(Inventory& target) const
+void Inventory::addAllItemsTo(Inventory& target) const
 {
   std::map<std::string, unsigned int>::const_iterator iter = m_Items.begin();
   while (iter!=m_Items.end())
   {
-    target.AddItem(iter->first, iter->second);
+    target.addItem(iter->first, iter->second);
     iter++;
   }//while
 }
 
-float Inventory::GetTotalWeight() const
+float Inventory::getTotalWeight() const
 {
   return m_TotalWeight;
 }
 
-int Inventory::GetTotalValue() const
+int Inventory::getTotalValue() const
 {
   int sum = 0;
   std::map<std::string, unsigned int>::const_iterator iter;
   iter = m_Items.begin();
   while (iter!=m_Items.end())
   {
-    if (ItemBase::GetSingleton().hasItem(iter->first))
+    if (ItemBase::getSingleton().hasItem(iter->first))
     { //it's an item
-      sum = sum + iter->second * ItemBase::GetSingleton().GetItemValue(iter->first);
+      sum = sum + iter->second * ItemBase::getSingleton().getItemValue(iter->first);
     }
     else
     { //it's a weapon
-      sum = sum + iter->second * WeaponBase::GetSingleton().getWeaponValue(iter->first);
+      sum = sum + iter->second * WeaponBase::getSingleton().getWeaponValue(iter->first);
     }
     ++iter;
   }//while
   return sum;
 }
 
-bool Inventory::SaveToStream(std::ofstream& OutStream) const
+bool Inventory::saveToStream(std::ofstream& OutStream) const
 {
   if (!OutStream.good())
   {
@@ -179,7 +179,7 @@ bool Inventory::SaveToStream(std::ofstream& OutStream) const
   return OutStream.good();
 }
 
-bool Inventory::LoadFromStream(std::ifstream& InStream)
+bool Inventory::loadFromStream(std::ifstream& InStream)
 {
   if (!InStream.good())
   {
@@ -195,7 +195,7 @@ bool Inventory::LoadFromStream(std::ifstream& InStream)
   }
   //read number of items
   InStream.read((char*) &count, sizeof(unsigned int));
-  MakeEmpty();
+  makeEmpty();
   char ID_Buffer[256];
   ID_Buffer[0] = ID_Buffer[255] = '\0';
   for (i=0; i<count; i++)
@@ -222,33 +222,33 @@ bool Inventory::LoadFromStream(std::ifstream& InStream)
       std::cout << "Inventory::LoadFromStream: ERROR while reading item amount!\n";
       return false;
     }
-    AddItem(std::string(ID_Buffer), len);
+    addItem(std::string(ID_Buffer), len);
   }//for
   return InStream.good();
 }
 
-ConstInventoryIterator Inventory::GetFirst() const
+ConstInventoryIterator Inventory::getFirst() const
 {
   return m_Items.begin();
 }
 
-ConstInventoryIterator Inventory::GetEnd() const
+ConstInventoryIterator Inventory::getEnd() const
 {
   return m_Items.end();
 }
 
 bool Inventory::operator==(const Inventory& other) const
 {
-  if (IsEmpty() and other.IsEmpty())
+  if (isEmpty() and other.isEmpty())
   { //both are empty, so they are the same
     return true;
   }
-  if (IsEmpty() or other.IsEmpty())
+  if (isEmpty() or other.isEmpty())
   { //only one is empty, so they are not the same
     return false;
   }
-  ConstInventoryIterator other_one = other.GetFirst();
-  ConstInventoryIterator other_end = other.GetEnd();
+  ConstInventoryIterator other_one = other.getFirst();
+  ConstInventoryIterator other_end = other.getEnd();
   ConstInventoryIterator self_one = m_Items.begin();
   ConstInventoryIterator self_end = m_Items.end();
 

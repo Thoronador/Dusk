@@ -9,6 +9,7 @@
      - 2010-05-21 (rev 207) - small improvement in SetSpeed()
      - 2010-05-31 (rev 211) - small fix
      - 2010-08-26 (rev 235) - isMoving() added
+     - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
 
  ToDo list:
      - implement possibility to make object "look" into the direction it is
@@ -43,9 +44,12 @@ class UniformMotionObject: virtual public InjectionObject
 
     /* gets the direction the object is moving to. If it returns the zero
        vector, it's not moving.*/
-    Ogre::Vector3 GetDirection() const;
+    Ogre::Vector3 getDirection() const;
 
     /* Sets the direction in which the object shall move.
+
+       parameters:
+           direc - the new direction
 
        remarks:
            The given direction will be normalised automatically.
@@ -53,12 +57,15 @@ class UniformMotionObject: virtual public InjectionObject
            However, you also need to set the movement speed to a value
            greater than zero to actually make the object move.
     */
-    void SetDirection(const Ogre::Vector3& direc);
+    void setDirection(const Ogre::Vector3& direc);
 
     /* returns the movement speed*/
-    float GetSpeed() const;
+    float getSpeed() const;
 
     /* sets the movement speed
+
+       parameters:
+           v - the new speed
 
        remarks:
            Smallest possible value is zero. Values less than zero will be set
@@ -66,7 +73,7 @@ class UniformMotionObject: virtual public InjectionObject
            If you want the object to move backwards, use SetDirection() to
            change its direction to the opposite.
     */
-    virtual void SetSpeed(const float v);
+    virtual void setSpeed(const float v);
 
     /* returns true, if the object is currently moving somehow */
     virtual bool isMoving() const;
@@ -75,8 +82,11 @@ class UniformMotionObject: virtual public InjectionObject
        as the movement speed was previously set to something greater than 0.
        The object will automatically stop moving after it has reached this
        place.
+
+       parameters:
+           dest - the new destination
     */
-    virtual void TravelToDestination(const Ogre::Vector3& dest);
+    virtual void travelToDestination(const Ogre::Vector3& dest);
 
     /* Returns the destination the object will is travelling to.
 
@@ -85,7 +95,7 @@ class UniformMotionObject: virtual public InjectionObject
            be (0,0,0)), use the return value of IsOnTravel() to determine
            whether the object is currently moving or not.
     */
-    Ogre::Vector3 GetDestination() const;
+    Ogre::Vector3 getDestination() const;
 
     /* Returns true, if the object is currently moving/ travelling to a certain
        destination.
@@ -96,9 +106,14 @@ class UniformMotionObject: virtual public InjectionObject
            move to a certain location. The object could still be moving into a
            given direction endlessly.
     */
-    bool IsOnTravel() const;
+    bool isOnTravel() const;
 
-    /* function to inject time for movement and perform movement */
+    /* function to inject time for movement and perform movement
+
+       parameters:
+           SecondsPassed - the time (in seconds) that passed since the last
+                           frame/ the last call of this function
+    */
     virtual void injectTime(const float SecondsPassed);
   protected:
     Ogre::Vector3 m_Direction, m_Destination;
@@ -108,20 +123,26 @@ class UniformMotionObject: virtual public InjectionObject
     /* Utility function which saves all data that is specific to an
        UniformMotionObject to the given stream. Returns true on success.
 
+       parameters:
+           output - the output stream that is used to save the object
+
        remarks:
            Derived classes will (most likely) call this function as part of
            their implementation of SaveToStream().
     */
-    bool SaveUniformMotionObjectPart(std::ofstream& output) const;
+    bool saveUniformMotionObjectPart(std::ofstream& output) const;
 
     /* Utility function which loads all data that is specific to an
        UniformMotionObject from the given stream. Returns true on success.
+
+       parameters:
+           InStream - the input stream that is used to load the object
 
        remarks:
            Derived classes will (most likely) call this function as part of
            their implementation of LoadFromStream().
     */
-    bool LoadUniformMotionObjectPart(std::ifstream& InStream);
+    bool loadUniformMotionObjectPart(std::ifstream& InStream);
 }; //class
 
 } //namespace

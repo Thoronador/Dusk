@@ -50,6 +50,7 @@
      - 2010-08-04 (rev 221) - isHitByRay() added
      - 2010-08-09 (rev 223) - fixed a bug that prevented compiling of DuskObject
                               under Ogre "Shoggoth" 1.6.0 and later versions
+     - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
 
  ToDo list:
      - ???
@@ -82,65 +83,89 @@ class DuskObject: public Ogre::UserDefinedObject
         /* default constructor */
         DuskObject();
 
-        /* constructor with parameter list */
+        /* constructor with parameter list
+
+           parameters:
+               _ID   - the object's ID
+               pos   - position of the object
+               rot   - rotation of the object
+               Scale - scaling factor of the object
+        */
         DuskObject(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale);
 
         /* destructor */
         virtual ~DuskObject();
 
         /* Retrieves object's position */
-        Ogre::Vector3 GetPosition() const;
+        Ogre::Vector3 getPosition() const;
 
         /* Retrieves object's rotation */
-        Ogre::Vector3 GetRotation() const;
+        Ogre::Vector3 getRotation() const;
 
-        /* Sets the position of the object. */
-        void SetPosition(const Ogre::Vector3& pos);
+        /* Sets the position of the object.
 
-        /* Sets rotation of the object. */
-        void SetRotation(const Ogre::Vector3& rot);
+           parameters:
+               pos - the new position of the object
+        */
+        void setPosition(const Ogre::Vector3& pos);
+
+        /* Sets rotation of the object.
+
+           parameters:
+               rot - the object's new rotation
+        */
+        void setRotation(const Ogre::Vector3& rot);
 
         /* Retrieves scaling factor of the object. */
-        float GetScale() const;
+        float getScale() const;
 
         /* Sets scaling factor of the object. Returns true on success.
+
+           parameters:
+               newScale - the new, desired scaling factor
 
            remarks:
                The scaling factor of an already enabled object cannot be changed.
                In such a case you have to call Disable() first, then set the new
                scaling factor and then re-enable it by calling Enable() again.
         */
-        bool SetScale(const float newScale);
+        bool setScale(const float newScale);
 
         /* Retrieves ID of the object. */
-        std::string GetID() const;
+        const std::string& getID() const;
 
         /* Changes ID of the object and returns true on success, false otherwise.
+
+           parameters:
+               newID - the new object ID
 
            remarks:
                Trying to change the ID to an empty string or changing the ID of
                a currently enabled object will always fail.
         */
-        bool ChangeID(const std::string& newID);
+        bool changeID(const std::string& newID);
 
         /* Enables the object, i.e. tells the SceneManager to display it.
            Returns true on success, false on error.
+
+           parameters:
+               scm - the SceneManager that will be used to display the object
 
            remarks:
                Derived classes potentially implement their individual versions
                of this function. The same applies for Disable() and IsEnabled().
         */
-        virtual bool Enable(Ogre::SceneManager* scm);
+        virtual bool enable(Ogre::SceneManager* scm);
 
         /* Disables the object, i.e. tells the SceneManager not to display it.
            Returns true on success, false on error. */
-        virtual bool Disable();
+        virtual bool disable();
 
         /* Returns true, if the object is currently enabled, or false otherwise. */
-        virtual bool IsEnabled() const;
+        virtual bool isEnabled() const;
 
         /* retrieves the object type as an enumeration value, which is useful for derived classes.*/
-        virtual ObjectTypes GetType() const;
+        virtual ObjectTypes getDuskType() const;
 
         /* returns true, if the player can pick up the object
 
@@ -170,14 +195,20 @@ class DuskObject: public Ogre::UserDefinedObject
         /* Saves the object to the given stream. Returns true on success, false
            otherwise.
 
+           parameters:
+               OutStream - the output stream that will be used to save the object
+
            remarks:
                Every derived class has to have its own implementation of this
                function to ensure the object is saved properly.
         */
-        virtual bool SaveToStream(std::ofstream& OutStream) const;
+        virtual bool saveToStream(std::ofstream& OutStream) const;
 
         /* Tries to load an object from the given stream. Returns true on
            success, false otherwise.
+
+           parameters:
+               InStream - the input stream that will be used to load the data
 
            remarks:
                Every derived class has to have its own implementation of this
@@ -185,7 +216,7 @@ class DuskObject: public Ogre::UserDefinedObject
                If the function returns false, the data within the object may be
                corrupted. It's advised not to use the object in this case.
         */
-        virtual bool LoadFromStream(std::ifstream& InStream);
+        virtual bool loadFromStream(std::ifstream& InStream);
     protected:
         /* returns the name/path of the mesh that is used during enabling this
            object
@@ -194,24 +225,32 @@ class DuskObject: public Ogre::UserDefinedObject
                Every(!) derived, non-abstract class has to implement their own
                version of that function to ensure the use of the right meshes.
         */
-        virtual std::string GetObjectMesh() const;
+        virtual std::string getObjectMesh() const;
 
         /* Helper function which saves all data in a DuskObject to the given
            stream. Returns true on success.
+
+           parameters:
+               output - the output stream that will be used to save the object
 
            remarks:
                Derived classes will (most likely) call this function as part of
                their implementation of SaveToStream().
         */
-        bool SaveDuskObjectPart(std::ofstream& output) const;
+        bool saveDuskObjectPart(std::ofstream& output) const;
+
         /* Helper function which loads all data in a DuskObject from the given
            stream. Returns true on success.
+
+           parameters:
+               InStream - the input stream that will be used to read the data
 
            remarks:
                Derived classes will (most likely) call this function as part of
                their implementation of LoadFromStream().
         */
-        bool LoadDuskObjectPart(std::ifstream& InStream);
+        bool loadDuskObjectPart(std::ifstream& InStream);
+
         std::string ID;
         Ogre::Entity *entity;
         Ogre::Vector3 position, rotation;

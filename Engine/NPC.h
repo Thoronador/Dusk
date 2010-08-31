@@ -37,6 +37,7 @@
      - 2010-08-15 (rev 224) - isHitByRay() added
      - 2010-08-26 (rev 235) - jump() added, functions for starting/ stopping the
                               walk, jump and idle animations added
+     - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
 
  ToDo list:
      - add possibility to equip weapons, clothes, armour, etc.
@@ -77,7 +78,7 @@ namespace Dusk
       virtual ~NPC();
 
       /* returns the enumeration type indicating that this is an NPC */
-      virtual ObjectTypes GetType() const;
+      virtual ObjectTypes getDuskType() const;
 
       /* checks if a static object is hit by a ray. If the ray hits the
            object, the function will return true and impact will be set to the
@@ -118,7 +119,7 @@ namespace Dusk
              If you want the object to move backwards, use SetDirection() to
              change its direction to the opposite.
       */
-      virtual void SetSpeed(const float v);
+      virtual void setSpeed(const float v);
 
       /* returns the current amount of health/ hitpoints of that NPC */
       float getHealth() const;
@@ -226,18 +227,27 @@ namespace Dusk
 
       /* Enables the NPC, i.e. tells the SceneManager to display it.
          Returns true on success, false on error.
+
+         parameters:
+             scm - the scene manager that is used to show the NPC
       */
-      virtual bool Enable(Ogre::SceneManager* scm);
+      virtual bool enable(Ogre::SceneManager* scm);
 
       /* saves NPC to given stream and returns true on success, false otherwise
+
+         parameters:
+             OutStream - the output stream that is used to save the NPC
       */
-      virtual bool SaveToStream(std::ofstream& OutStream) const;
+      virtual bool saveToStream(std::ofstream& OutStream) const;
 
       /* Loads NPC from stream and returns true on success, false otherwise.
          The NPC's data is probably inconsistent after that function failed, so
          don't rely on its data in that case.
+
+         parameters:
+             InStream - the input stream that is used to load the NPC from
       */
-      virtual bool LoadFromStream(std::ifstream& InStream);
+      virtual bool loadFromStream(std::ifstream& InStream);
 
       /* the maximum distance an item can be away from the NPC while being
          picked up
@@ -251,7 +261,7 @@ namespace Dusk
              Every(!) derived, non-abstract class has to implement their own
              version of that function to ensure the use of the right meshes.
       */
-      virtual std::string GetObjectMesh() const;
+      virtual std::string getObjectMesh() const;
 
       /*enumeration type for equipment slots */
       enum SlotType { stRightHand, stLeftHand };

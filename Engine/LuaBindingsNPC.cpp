@@ -11,7 +11,7 @@ int GetNPC(lua_State *L)
 {
   if (lua_gettop(L)==1)
   {
-    lua_pushlightuserdata(L, InjectionManager::GetSingleton().GetNPCReference(lua_tostring(L, 1)));
+    lua_pushlightuserdata(L, InjectionManager::getSingleton().getNPCReference(lua_tostring(L, 1)));
     return 1;
   }
   lua_pushstring(L, "GetNPC expects exactly one argument!\n");
@@ -462,7 +462,7 @@ int AddItem(lua_State *L)
       }
       const std::string itemID = lua_tostring(L, 2);
       const unsigned int amount = static_cast<unsigned int>(lua_tonumber(L, 3));
-      npcPtr->getInventory().AddItem(itemID, amount);
+      npcPtr->getInventory().addItem(itemID, amount);
     }
     return 0;
   }
@@ -481,7 +481,7 @@ int RemoveItem(lua_State *L)
     {
       const std::string itemID = lua_tostring(L, 2);
       const unsigned int amount = static_cast<unsigned int> (lua_tonumber(L, 3));
-      lua_pushnumber(L, npcPtr->getInventory().RemoveItem(itemID, amount));
+      lua_pushnumber(L, npcPtr->getInventory().removeItem(itemID, amount));
       return 1;
     }
     return 0;
@@ -499,7 +499,7 @@ int GetItemCount(lua_State *L)
     if (npcPtr!=NULL)
     {
       const std::string itemID = lua_tostring(L, 2);
-      lua_pushnumber(L, npcPtr->getConstInventory().GetItemCount(itemID));
+      lua_pushnumber(L, npcPtr->getConstInventory().getItemCount(itemID));
       return 1;
     }
     return 0;

@@ -14,6 +14,7 @@
      - 2010-05-06 (rev 199) - fixed two bugs in load/save functions
                             - improvement in ConditionFulfilled()'s script
                               condition handling
+     - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
 
  ToDo list:
      - extend class for more conditions
@@ -83,14 +84,20 @@ class Dialogue
 
       /* Tries to save the LineRecord to the given stream and returns true on
          success, false on failure.
+
+         parameters:
+             out - the output stream to which the record will be saved
       */
-      bool SaveToStream(std::ofstream& out) const;
+      bool saveToStream(std::ofstream& out) const;
 
       /* Tries to load the LineRecord from the given stream and returns true on
          success, false on failure. If that function failed, the data within
          this record is most likely to be corrupt.
+
+         parameters:
+             inp - the input stream from which the record will be loaded
       */
-      bool LoadFromStream(std::ifstream& inp);
+      bool loadFromStream(std::ifstream& inp);
     };
 
     /* Dialogue::Handle record. Contains all neccessary data for dialogue lines.
@@ -111,10 +118,10 @@ class Dialogue
     virtual ~Dialogue();
 
     /* Singleton access method */
-    static Dialogue& GetSingleton();
+    static Dialogue& getSingleton();
 
     /* Clears ALL dialogue data. Use with caution, or better, not at all. */
-    void ClearData();
+    void clearData();
 
     /* returns the dialogue handle of the greeting line for the given NPC
 
@@ -135,7 +142,7 @@ class Dialogue
             the start of the conversation. Subsequent lines have to be obtained
             by calling GetDialogueLine().
     */
-    Handle GetGreetingLine(const NPC* who) const;
+    Handle getGreetingLine(const NPC* who) const;
 
     /* returns the dialogue handle of the dialogue line with the ID LineID.
 
@@ -155,18 +162,29 @@ class Dialogue
            call GetGreetingLine(), because greetings are handled a bit different
            from other dialogue lines.
     */
-    Handle GetDialogueLine(const std::string& LineID, const NPC* who) const;
+    Handle getDialogueLine(const std::string& LineID, const NPC* who) const;
 
     /* Returns the text of line LineID, or an empty string, if no such line was
        found.
+
+       parameters:
+           LineID - the ID of the line whose text shall be returned
     */
-    std::string GetText(const std::string& LineID) const;
+    std::string getText(const std::string& LineID) const;
 
-    /* Returns the ConditionRecord of the line with the ID LineID */
-    ConditionRecord GetCondition(const std::string& LineID) const;
+    /* Returns the ConditionRecord of the line with the ID LineID
 
-    /* returns true, if there is a dialogue line with the given ID */
-    bool HasDialogueLine(const std::string& LineID) const;
+       parameters:
+           LineID - the ID of the line whose conditions shall be returned
+    */
+    ConditionRecord getCondition(const std::string& LineID) const;
+
+    /* returns true, if there is a dialogue line with the given ID
+
+       parameters:
+           LineID - the ID of the line whose presence shall be checked
+    */
+    bool hasDialogueLine(const std::string& LineID) const;
 
     /* Adds a list of greeting lines for NPCs with the ID NPC_ID
 
@@ -176,46 +194,60 @@ class Dialogue
            Choices - Vector of the IDs of the dialogue lines available for a
                      greeting
     */
-    void AddGreeting(const std::string& NPC_ID, const std::vector<std::string>& Choices);
+    void addGreeting(const std::string& NPC_ID, const std::vector<std::string>& Choices);
 
     /* Adds a new dialogue line with ID LineID and data lr.
+
+       parameters:
+           LineID - ID of the new line that will be added
+           lr     - record that contains all data for that line
 
        remarks:
            This function always succeeds, unless LineID is an empty string. In
            that case, nothing happens. If there already is a line with ID
            LineID, this line will be replaced.
     */
-    void AddLine(const std::string& LineID, const LineRecord& lr);
+    void addLine(const std::string& LineID, const LineRecord& lr);
 
     /* tries to run the result script of the line with ID LineID and returns
        true on success, false on failure
+
+       parameters:
+           LineID - ID of the line whose result script shall be processed
 
        remarks:
          The return value false can mean that either no line with the given ID
          is present, or an error occured while processing the script. If the
          requested line has no result script, true is returned.
     */
-    bool ProcessResultScript(const std::string& LineID);
+    bool processResultScript(const std::string& LineID);
 
     /* Tries to save ALL dialogue data to the given stream. Returns true on
        success, or false if an error occured.
+
+       parameters:
+           output - the output stream that will be used to save the dialogue
+                    data
     */
-    bool SaveToStream(std::ofstream& output) const;
+    bool saveToStream(std::ofstream& output) const;
 
     /* tries to load the next dialogue record (dialogue or greeting) from the
        given stream. Returns true on success, false otherwise.
+
+       parameters:
+           input - the input stream that will be used to read the dialogue data
     */
-    bool LoadNextRecordFromStream(std::ifstream& input);
+    bool loadNextRecordFromStream(std::ifstream& input);
 
     /* returns the number of dialogue lines, including greetings (which might
        be a bit misleading at some point)
     */
-    unsigned int NumberOfLines() const;
+    unsigned int numberOfLines() const;
 
     /* name of the Lua function a script has to use for dialogue conditions */
     static const std::string LuaDialogueConditionFunction;
   private:
-    /* constructor */
+    /* constructor - private, because it's singleton */
     Dialogue();
 
     /* private copy constructor - there can only be one */
@@ -223,8 +255,12 @@ class Dialogue
 
     /* Checks whether all conditions in ConditionRecord cond are met by NPC who.
        Returns true, if all conditions are met, returns false otherwise.
+
+       parameters:
+           cond - the conditions that have to be met
+           who  - the NPC that has to fulfill the conditions
     */
-    bool ConditionFulfilled(const ConditionRecord& cond, const NPC* who) const;
+    bool conditionFulfilled(const ConditionRecord& cond, const NPC* who) const;
 
     /* flags to indicate type of dialogue data when reading from or writhing to
        a stream

@@ -20,13 +20,13 @@ bool CommandQuestLog::execute(Dusk::Scene* scene, int count)
   {
     case qloToggle:
          //toggles visibility of QuestLog menu
-         Menu::GetSingleton().showQuestLog(!Menu::GetSingleton().isQuestLogVisible());
+         Menu::getSingleton().showQuestLog(!Menu::getSingleton().isQuestLogVisible());
          break;
     case qloNext:
-         Menu::GetSingleton().nextQuestLogPage();
+         Menu::getSingleton().nextQuestLogPage();
          break;
     case qloPrev:
-         Menu::GetSingleton().previousQuestLogPage();
+         Menu::getSingleton().previousQuestLogPage();
          break;
     default: //should never happen
          throw 42;

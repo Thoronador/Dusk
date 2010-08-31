@@ -41,7 +41,7 @@ bool AABoxTrigger::isWithin(const TriggerObject* obj) const
   {
     return false;
   }
-  return m_Box.intersects(obj->GetPosition());
+  return m_Box.intersects(obj->getPosition());
 }
 
 /* ---- SphereTrigger methods ---- */
@@ -71,7 +71,7 @@ bool SphereTrigger::isWithin(const TriggerObject* obj) const
 {
   if (obj!=NULL)
   {
-    return m_Sphere.intersects(obj->GetPosition());
+    return m_Sphere.intersects(obj->getPosition());
   }
   //NULL objects are not within the sphere
   return false;

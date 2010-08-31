@@ -15,9 +15,10 @@
      - 2010-08-01 (rev 220) - GetObjectMesh() added, Enable() simplified
      - 2010-08-16 (rev 229) - fix to prevent segfault in destructor
      - 2010-08-27 (rev 236) - translate() added
+     - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
 
  ToDo list:
-     - actually implement LoadFromStream() and SaveToStream()
+     - actually implement loadFromStream() and saveToStream()
      - ???
 
  Bugs:
@@ -37,7 +38,7 @@ namespace Dusk
   {
     public:
       /* singleton access */
-      static Player& GetSingleton();
+      static Player& getSingleton();
 
       /* destructor */
       virtual ~Player();
@@ -73,24 +74,34 @@ namespace Dusk
       */
       virtual void injectTime(const float SecondsPassed);
 
-      /* displays NPC mesh */
-      virtual bool Enable(Ogre::SceneManager* scm);
+      /* displays NPC mesh
+
+         parameters:
+             scm - the SceneManager that is used to show the player
+      */
+      virtual bool enable(Ogre::SceneManager* scm);
 
       /* saves NPC to given stream and returns true on success, false otherwise
+
+         parameters:
+             OutStream - the output stream that is used to save the player
 
          remarks:
             In its current state, this function does nothing but return false.
       */
-      virtual bool SaveToStream(std::ofstream& OutStream) const;
+      virtual bool saveToStream(std::ofstream& OutStream) const;
 
       /* Loads NPC from stream and returns true on success, false otherwise.
          The NPC's data is probably inconsistent after that function failed, so
          don't rely on its data in that case.
 
+         parameters:
+             InStream - the input stream that is used to save the player
+
          remarks:
             In its current state, this function does nothing but return false.
       */
-      virtual bool LoadFromStream(std::ifstream& InStream);
+      virtual bool loadFromStream(std::ifstream& InStream);
     protected:
       /* returns the name/path of the mesh that is used during enabling this
          object
@@ -99,7 +110,7 @@ namespace Dusk
              Every(!) derived, non-abstract class has to implement their own
              version of that function to ensure the use of the right meshes.
       */
-      virtual std::string GetObjectMesh() const;
+      virtual std::string getObjectMesh() const;
     private:
       /* constructor - private due to singleton pattern */
       Player();

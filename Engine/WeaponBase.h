@@ -10,6 +10,7 @@
      - 2010-06-02 (rev 213) - getWeaponValue() and getWeaponWeight() added
      - 2010-06-06 (rev 215) - time between attacks/ weapon attack speed added
      - 2010-06-10 (rev 217) - tiny adjustment in getWeaponData()
+     - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
 
  ToDo list:
      - ???
@@ -62,7 +63,7 @@ class WeaponBase
     ~WeaponBase();
 
     /* singleton access method */
-    static WeaponBase& GetSingleton();
+    static WeaponBase& getSingleton();
 
     /* adds a weapon with the given ID and data.
 
@@ -74,7 +75,11 @@ class WeaponBase
     */
     void addWeapon(const std::string& ID, const WeaponRecord& data);
 
-    /* returns true, if a weapon with the given ID is present */
+    /* returns true, if a weapon with the given ID is present
+
+       parameters:
+           ID - the ID of the weapon
+    */
     bool hasWeapon(const std::string& ID) const;
 
     /* Returns the mesh of weapon with given ID, if present. */
@@ -82,16 +87,25 @@ class WeaponBase
 
     /* returns the name of the given weapon, or an empty string if no weapon
        with that ID is present
+
+       parameters:
+           ID - the ID of the weapon
     */
     std::string getWeaponName(const std::string& ID) const;
 
     /* returns the value of the weapon with ID weaponID, or -1 if no weapon with
        that ID is present.
+
+       parameters:
+           weaponID - the ID of the weapon whose value is requested
     */
     int getWeaponValue(const std::string& weaponID) const;
 
     /* returns the weight of the weapon with ID weaponID, or zero if no weapon
        with that ID is present.
+
+       parameters:
+           weaponID - the ID of the weapons whose weight is requested
 
        remarks:
            Since zero is also a valid weight value for weaponss, a return value
@@ -101,6 +115,9 @@ class WeaponBase
 
     /* returns all data of the weapon with the given ID. If no weapon with that
        ID is present, the return value is undefined
+
+       parameters:
+           ID - the ID of the weapon
     */
     WeaponRecord getWeaponData(const std::string& ID) const;
 
@@ -108,20 +125,27 @@ class WeaponBase
     bool deleteWeapon(const std::string& ID);
 
     /* deletes all present weapons */
-    void ClearAll();
+    void clearAll();
 
     /* returns the number of present weapons in the list */
-    unsigned int NumberOfWeapons() const;
+    unsigned int numberOfWeapons() const;
 
-    /* tries to save all weapons to the stream and returns true on success */
-    bool SaveAllToStream(std::ofstream& OutStream) const;
+    /* tries to save all weapons to the stream and returns true on success
+
+       parameters:
+           OutStream - the output stream that is used to save the weapon data
+    */
+    bool saveAllToStream(std::ofstream& OutStream) const;
 
     /* Loads one(!) single weapon from stream; returns true on success, false
        otherwise. The data of the last loaded projectile is probably
        inconsistent after that function failed, so don't rely on it in that
        case.
+
+       parameters:
+           InStream - the input stream that is used to load the weapon data
     */
-    bool LoadNextWeaponFromStream(std::ifstream& InStream);
+    bool loadNextWeaponFromStream(std::ifstream& InStream);
   private:
     /* constructor - singleton */
     WeaponBase();

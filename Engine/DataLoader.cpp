@@ -28,13 +28,13 @@ DataLoader::~DataLoader()
   //empty
 }
 
-DataLoader& DataLoader::GetSingleton()
+DataLoader& DataLoader::getSingleton()
 {
   static DataLoader Instance;
   return Instance;
 }
 
-bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits) const
+bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits) const
 {
   std::ofstream output;
   unsigned int data_records;
@@ -55,23 +55,23 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
 
   if ((bits & INJECTION_BIT) !=0)
   {
-    data_records += InjectionManager::GetSingleton().NumberOfReferences();
+    data_records += InjectionManager::getSingleton().numberOfReferences();
   }
   if ((bits & CONTAINER_BIT) !=0)
   {
-    data_records += ContainerBase::GetSingleton().NumberOfContainers();
+    data_records += ContainerBase::getSingleton().numberOfContainers();
   }
   if ((bits & DIALOGUE_BIT) !=0)
   {
-    data_records += Dialogue::GetSingleton().NumberOfLines();
+    data_records += Dialogue::getSingleton().numberOfLines();
   }
   if ((bits & ITEM_BIT) !=0)
   {
-    data_records += ItemBase::GetSingleton().NumberOfItems();
+    data_records += ItemBase::getSingleton().numberOfItems();
   }
   if ((bits & JOURNAL_BIT) !=0)
   {
-    data_records += Journal::GetSingleton().NumberOfDistinctQuests();
+    data_records += Journal::getSingleton().numberOfDistinctQuests();
   }
   if ((bits & LANDSCAPE_BIT) !=0)
   {
@@ -79,19 +79,19 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   }
   if ((bits & LIGHT_BIT) !=0)
   {
-    data_records += LightBase::GetSingleton().NumberOfLights();
+    data_records += LightBase::getSingleton().numberOfLights();
   }
   if ((bits & NPC_BIT) !=0)
   {
-    data_records += NPCBase::GetSingleton().NumberOfNPCs();
+    data_records += NPCBase::getSingleton().numberOfNPCs();
   }
   if ((bits & OBJECT_BIT) !=0)
   {
-    data_records += ObjectBase::GetSingleton().NumberOfObjects();
+    data_records += ObjectBase::getSingleton().numberOfObjects();
   }
   if ((bits & PROJECTILE_BIT) !=0)
   {
-    data_records += ProjectileBase::GetSingleton().GetNumberOfProjectiles();
+    data_records += ProjectileBase::getSingleton().getNumberOfProjectiles();
   }
   if ((bits & QUEST_LOG_BIT) !=0)
   {
@@ -99,11 +99,11 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   }
   if ((bits & REFERENCE_BIT) !=0)
   {
-    data_records += ObjectManager::GetSingleton().NumberOfReferences();
+    data_records += ObjectManager::getSingleton().numberOfReferences();
   }
   if ((bits & WEAPON_BIT) !=0)
   {
-    data_records += WeaponBase::GetSingleton().NumberOfWeapons();
+    data_records += WeaponBase::getSingleton().numberOfWeapons();
   }
   //write number of records
   output.write((char*) &data_records, sizeof(unsigned int));
@@ -112,7 +112,7 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   //save containers
   if ((bits & CONTAINER_BIT)!=0)
   {
-    if (!ContainerBase::GetSingleton().SaveAllToStream(output))
+    if (!ContainerBase::getSingleton().saveAllToStream(output))
     {
       std::cout << "DataLoader::SaveToFile: ERROR: could not write Container "
                 << "data to file \""<<FileName<<"\".\n";
@@ -124,7 +124,7 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   //save projectiles
   if ((bits & PROJECTILE_BIT)!=0)
   {
-    if (!ProjectileBase::GetSingleton().SaveAllToStream(output))
+    if (!ProjectileBase::getSingleton().saveAllToStream(output))
     {
       std::cout << "DataLoader::SaveToFile: ERROR: could not write Projectile "
                 << "data to file \""<<FileName<<"\".\n";
@@ -136,7 +136,7 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   //save weapons
   if ((bits & WEAPON_BIT)!=0)
   {
-    if (!WeaponBase::GetSingleton().SaveAllToStream(output))
+    if (!WeaponBase::getSingleton().saveAllToStream(output))
     {
       std::cout << "DataLoader::SaveToFile: ERROR: could not write Weapon "
                 << "data to file \""<<FileName<<"\".\n";
@@ -148,7 +148,7 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   //save dialogues
   if ((bits & DIALOGUE_BIT)!=0)
   {
-    if (!Dialogue::GetSingleton().SaveToStream(output))
+    if (!Dialogue::getSingleton().saveToStream(output))
     {
       std::cout << "DataLoader::SaveToFile: ERROR: could not write Dialogue "
                 << "data to file \""<<FileName<<"\".\n";
@@ -160,7 +160,7 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   //save items
   if ((bits & ITEM_BIT) !=0)
   {
-    if (!ItemBase::GetSingleton().SaveToStream(output))
+    if (!ItemBase::getSingleton().saveToStream(output))
     {
       std::cout << "DataLoader::SaveToFile: ERROR: could not write item data to"
                 << " file \""<<FileName<<"\".\n";
@@ -172,7 +172,7 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   //save journal entries
   if ((bits & JOURNAL_BIT)!=0)
   {
-    if (!Journal::GetSingleton().SaveAllToStream(output))
+    if (!Journal::getSingleton().saveAllToStream(output))
     {
       std::cout << "DataLoader::SaveToFile: ERROR: could not write basic "
                 << "Journal data to file \""<<FileName<<"\".\n";
@@ -184,7 +184,7 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   //save quest log
   if ((bits & QUEST_LOG_BIT)!=0)
   {
-    if (!QuestLog::GetSingleton().SaveToStream(output))
+    if (!QuestLog::getSingleton().saveToStream(output))
     {
       std::cout << "DataLoader::SaveToFile: ERROR: could not write QuestLog "
                 << "data to file \""<<FileName<<"\".\n";
@@ -208,7 +208,7 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   //save lights
   if ((bits & LIGHT_BIT) !=0)
   {
-    if(!LightBase::GetSingleton().SaveAllToStream(output))
+    if(!LightBase::getSingleton().saveAllToStream(output))
     {
       std::cout << "DataLoader::SaveToFile: ERROR: could not write Light data "
                 << "to file \""<<FileName<<"\".\n";
@@ -220,7 +220,7 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   //save NPCs
   if ((bits & NPC_BIT) !=0)
   {
-    if (!NPCBase::GetSingleton().SaveToStream(output))
+    if (!NPCBase::getSingleton().saveToStream(output))
     {
       std::cout << "DataLoader::SaveToFile: ERROR: could not write NPC data to"
                 << " file \""<<FileName<<"\".\n";
@@ -232,7 +232,7 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   //save objects
   if ((bits & OBJECT_BIT) !=0)
   {
-    if (!ObjectBase::GetSingleton().SaveToStream(output))
+    if (!ObjectBase::getSingleton().saveToStream(output))
     {
       std::cout << "DataLoader::SaveToFile: ERROR: could not write object data "
                 << "to file \""<<FileName<<"\".\n";
@@ -244,7 +244,7 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   //save animated objects/ injection objects
   if ((bits & INJECTION_BIT)!=0)
   {
-    if (!InjectionManager::GetSingleton().SaveAllToStream(output))
+    if (!InjectionManager::getSingleton().saveAllToStream(output))
     {
       std::cout << "DataLoader::SaveToFile: ERROR: could not write Injection "
                 << "reference data to file \""<<FileName<<"\".\n";
@@ -256,7 +256,7 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   //save object references
   if ((bits & REFERENCE_BIT) !=0)
   {
-    if (!ObjectManager::GetSingleton().SaveAllToStream(output))
+    if (!ObjectManager::getSingleton().saveAllToStream(output))
     {
       std::cout << "DataLoader::SaveToFile: ERROR: could not write object "
                 << "reference data to file \""<<FileName<<"\".\n";
@@ -268,7 +268,7 @@ bool DataLoader::SaveToFile(const std::string& FileName, const unsigned int bits
   return true;
 }
 
-bool DataLoader::LoadFromFile(const std::string& FileName)
+bool DataLoader::loadFromFile(const std::string& FileName)
 {
   std::ifstream input;
   input.open(FileName.c_str(), std::ios::in | std::ios::binary);
@@ -314,16 +314,16 @@ bool DataLoader::LoadFromFile(const std::string& FileName)
     switch (Header)
     {
       case cHeaderCont:
-           success = ContainerBase::GetSingleton().LoadNextContainerFromStream(input);
+           success = ContainerBase::getSingleton().loadNextContainerFromStream(input);
            break;
       case cHeaderDial:
-           success = Dialogue::GetSingleton().LoadNextRecordFromStream(input);
+           success = Dialogue::getSingleton().loadNextRecordFromStream(input);
            break;
       case cHeaderItem:
-           success = ItemBase::GetSingleton().LoadFromStream(input);
+           success = ItemBase::getSingleton().loadFromStream(input);
            break;
       case cHeaderJour:
-           success = Journal::GetSingleton().LoadNextFromStream(input);
+           success = Journal::getSingleton().loadNextFromStream(input);
            break;
       case cHeaderLand:
            land_rec = Landscape::GetSingleton().CreateRecord();
@@ -334,32 +334,32 @@ bool DataLoader::LoadFromFile(const std::string& FileName)
            }
            break;
       case cHeaderLight:
-           success = LightBase::GetSingleton().LoadRecordFromStream(input);
+           success = LightBase::getSingleton().loadRecordFromStream(input);
            break;
       case cHeaderNPC_:
-           success = NPCBase::GetSingleton().LoadNextRecordFromStream(input);
+           success = NPCBase::getSingleton().loadNextRecordFromStream(input);
            break;
       case cHeaderObjS:
-           success = ObjectBase::GetSingleton().LoadFromStream(input);
+           success = ObjectBase::getSingleton().loadFromStream(input);
            break;
       case cHeaderQLog:
-           success = QuestLog::GetSingleton().LoadFromStream(input);
+           success = QuestLog::getSingleton().loadFromStream(input);
            break;
       case cHeaderRefC: //Container
       case cHeaderRefI: //Item
       case cHeaderRefL: //Light
       case cHeaderRefO: //DuskObject
       case cHeaderRfWe: //Weapon
-           success = ObjectManager::GetSingleton().LoadNextFromStream(input, Header);
+           success = ObjectManager::getSingleton().loadNextFromStream(input, Header);
            break;
       case cHeaderRefA:  //AnimatedObject
       case cHeaderRefN:  //NPC
       case cHeaderRefP:  //Projectiles
       case cHeaderRfWP:  //WaypointObject
-           success = InjectionManager::GetSingleton().LoadNextFromStream(input, Header);
+           success = InjectionManager::getSingleton().loadNextFromStream(input, Header);
            break;
       case cHeaderWeap:
-           success = WeaponBase::GetSingleton().LoadNextWeaponFromStream(input);
+           success = WeaponBase::getSingleton().loadNextWeaponFromStream(input);
            break;
       default:
           std::cout << "DataLoader::LoadFromFile: ERROR: Got unexpected header "
@@ -386,7 +386,7 @@ bool DataLoader::LoadFromFile(const std::string& FileName)
   return true;
 }
 
-void DataLoader::ClearData(const unsigned int bits)
+void DataLoader::clearData(const unsigned int bits)
 {
   if (bits==ALL_BITS)
   {
@@ -394,37 +394,37 @@ void DataLoader::ClearData(const unsigned int bits)
   }
   if ((bits & REFERENCE_BIT) != 0)
   {
-    ObjectManager::GetSingleton().ClearData();
+    ObjectManager::getSingleton().clearData();
   }//object references
 
   if ((bits & OBJECT_BIT) != 0)
   {
-    ObjectBase::GetSingleton().ClearAllObjects();
+    ObjectBase::getSingleton().clearAllObjects();
   }//Object information
 
   if ((bits & INJECTION_BIT) != 0)
   {
-    InjectionManager::GetSingleton().ClearData();
+    InjectionManager::getSingleton().clearData();
   }//animated object and NPC references
 
   if ((bits & CONTAINER_BIT)!=0)
   {
-    ContainerBase::GetSingleton().DeleteAllContainers();
+    ContainerBase::getSingleton().deleteAllContainers();
   }//container data
 
   if ((bits & DIALOGUE_BIT)!=0)
   {
-    Dialogue::GetSingleton().ClearData();
+    Dialogue::getSingleton().clearData();
   }//dialogue data
 
   if ((bits & ITEM_BIT)!=0)
   {
-    ItemBase::GetSingleton().ClearAllItems();
+    ItemBase::getSingleton().clearAllItems();
   }//item data
 
   if ((bits & JOURNAL_BIT) !=0)
   {
-    Journal::GetSingleton().ClearAllEntries();
+    Journal::getSingleton().clearAllEntries();
   }//journal
 
   if ((bits & LANDSCAPE_BIT) !=0)
@@ -434,38 +434,38 @@ void DataLoader::ClearData(const unsigned int bits)
 
   if ((bits & LIGHT_BIT) !=0)
   {
-    LightBase::GetSingleton().ClearAllData();
+    LightBase::getSingleton().clearAllData();
   }//lights
 
   if ((bits & NPC_BIT)!=0)
   {
-    NPCBase::GetSingleton().ClearAllNPCs();
+    NPCBase::getSingleton().clearAllNPCs();
   }//NPC data
 
   if ((bits & PROJECTILE_BIT) != 0)
   {
-    ProjectileBase::GetSingleton().ClearAll();
+    ProjectileBase::getSingleton().clearAll();
   }//projectile information
 
   if ((bits & QUEST_LOG_BIT) !=0)
   {
-    QuestLog::GetSingleton().ClearAllData();
+    QuestLog::getSingleton().clearAllData();
   }//quest log
 
   if ((bits & WEAPON_BIT) !=0)
   {
-    WeaponBase::GetSingleton().ClearAll();
+    WeaponBase::getSingleton().clearAll();
   }//weapons
 
 }//clear data function
 
-bool DataLoader::LoadSaveGame(const std::string& FileName)
+bool DataLoader::loadSaveGame(const std::string& FileName)
 {
   std::ifstream input;
   input.open(FileName.c_str(), std::ios::in | std::ios::binary);
   if(!input)
   {
-    std::cout << "DataLoader::LoadSaveGame: Could not open file \""<<FileName
+    std::cout << "DataLoader::loadSaveGame: Could not open file \""<<FileName
               << "\" for reading in binary mode.\n";
     return false;
   }//if
@@ -479,7 +479,7 @@ bool DataLoader::LoadSaveGame(const std::string& FileName)
 
   if (file_size<16)
   {
-    std::cout << "DataLoader::LoadSaveGame: file \""<<FileName << "\" is to "
+    std::cout << "DataLoader::loadSaveGame: file \""<<FileName << "\" is to "
               << "small to contain a real save game.\n";
     return false;
   }
@@ -489,7 +489,7 @@ bool DataLoader::LoadSaveGame(const std::string& FileName)
   input.read((char*) &Header, sizeof(unsigned int));
   if (Header!=cHeaderDusk)
   {
-    std::cout << "DataLoader::LoadSaveGame: ERROR: File \""<<FileName
+    std::cout << "DataLoader::loadSaveGame: ERROR: File \""<<FileName
               <<"\" contains invalid file header.\n";
     input.close();
     return false;
@@ -502,7 +502,7 @@ bool DataLoader::LoadSaveGame(const std::string& FileName)
   input.read((char*) &Header, sizeof(unsigned int));
   if (Header!=cHeaderSave)
   {
-    std::cout << "DataLoader::LoadSaveGame: ERROR: File \""<<FileName
+    std::cout << "DataLoader::loadSaveGame: ERROR: File \""<<FileName
               <<"\" does not seem to be a valid save game.\n";
     input.close();
     return false;
@@ -513,7 +513,7 @@ bool DataLoader::LoadSaveGame(const std::string& FileName)
   input.read((char*) &Header, sizeof(unsigned int));
   if (Header!=cHeaderMean)
   {
-    std::cout << "DataLoader::LoadSaveGame: ERROR: File \""<<FileName
+    std::cout << "DataLoader::loadSaveGame: ERROR: File \""<<FileName
               <<"\" does not contain a valid save game format.\n";
     input.close();
     return false;
@@ -523,7 +523,7 @@ bool DataLoader::LoadSaveGame(const std::string& FileName)
   input.read((char*) &Header, sizeof(unsigned int));
   if (Header!=cHeaderDeps)
   {
-    std::cout << "DataLoader::LoadSaveGame: ERROR: File \""<<FileName
+    std::cout << "DataLoader::loadSaveGame: ERROR: File \""<<FileName
               <<"\" does not contain a list of required data files.\n";
     input.close();
     return false;
@@ -533,13 +533,13 @@ bool DataLoader::LoadSaveGame(const std::string& FileName)
   input.read((char*) &depCount, sizeof(unsigned int));
   if (depCount == 0 or depCount>255)
   { //no reasonable limits given
-    std::cout << "DataLoader::LoadSaveGame: ERROR: File \""<<FileName
+    std::cout << "DataLoader::loadSaveGame: ERROR: File \""<<FileName
               << "\" has a list of required data files which is to long or to"
               << " short (length: "<<depCount<<").\n";
     input.close();
     return false;
   }
-  ClearData(ALL_BITS);
+  clearData(ALL_BITS);
   m_LoadedFiles.clear();
   unsigned int len;
   char buffer[256];
@@ -549,7 +549,7 @@ bool DataLoader::LoadSaveGame(const std::string& FileName)
     input.read((char*) &len, sizeof(unsigned int));
     if (len>255)
     {
-      std::cout << "DataLoader::LoadSaveGame: ERROR while loading file \""
+      std::cout << "DataLoader::loadSaveGame: ERROR while loading file \""
                 <<FileName<< "\": name of required data file is longer than 255"
                 <<" characters.\n";
       input.close();
@@ -560,7 +560,7 @@ bool DataLoader::LoadSaveGame(const std::string& FileName)
     buffer[len] = '\0';
     if (!input.good())
     {
-      std::cout << "DataLoader::LoadSaveGame: ERROR while reading name of "
+      std::cout << "DataLoader::loadSaveGame: ERROR while reading name of "
                 << "required data file.\n";
       input.close();
       return false;
@@ -569,14 +569,14 @@ bool DataLoader::LoadSaveGame(const std::string& FileName)
     const std::string dataFileName = std::string(buffer);
     if (dataFileName==FileName)
     {
-      std::cout << "DataLoader::LoadSaveGame: ERROR: SaveGame file cannot be a"
+      std::cout << "DataLoader::loadSaveGame: ERROR: SaveGame file cannot be a"
                 << "required data file of itself.\n";
       input.close();
       return false;
     }
-    if (!LoadFromFile(dataFileName))
+    if (!loadFromFile(dataFileName))
     {
-      std::cout << "DataLoader::LoadSaveGame: ERROR while loading required "
+      std::cout << "DataLoader::loadSaveGame: ERROR while loading required "
                 << "data file \""<<dataFileName<<"\" of save \""<<FileName
                 <<"\".\n";
       input.close();
@@ -584,14 +584,14 @@ bool DataLoader::LoadSaveGame(const std::string& FileName)
     }
     else
     {
-      std::cout << "DataLoader::LoadSaveGame: Info: data file \""<<dataFileName
+      std::cout << "DataLoader::loadSaveGame: Info: data file \""<<dataFileName
                 <<"\" of save \""<<FileName<<"\" successfully loaded.\n";
       m_LoadedFiles.push_back(dataFileName);
     }
   }//for
 
   //dependencies are loaded, now clear unneeded data
-  ClearData(SAVE_MEAN_BITS);
+  clearData(SAVE_MEAN_BITS);
   //go on loading
   bool success = true;
   unsigned int records_done = 0;
@@ -607,20 +607,20 @@ bool DataLoader::LoadSaveGame(const std::string& FileName)
       case cHeaderRefN:  //NPC
       case cHeaderRefP:  //Projectiles
       case cHeaderRfWP:  //WaypointObject
-           success = InjectionManager::GetSingleton().LoadNextFromStream(input, Header);
+           success = InjectionManager::getSingleton().loadNextFromStream(input, Header);
            break;
       case cHeaderRefC: //Container
       case cHeaderRefI: //Item
       case cHeaderRefL: //Light
       case cHeaderRefO: //DuskObject
       case cHeaderRfWe: //Weapon
-           success = ObjectManager::GetSingleton().LoadNextFromStream(input, Header);
+           success = ObjectManager::getSingleton().loadNextFromStream(input, Header);
            break;
       case cHeaderQLog: //questlog
-           success = QuestLog::GetSingleton().LoadFromStream(input);
+           success = QuestLog::getSingleton().loadFromStream(input);
            break;
       default:
-           std::cout <<"DataLoader::LoadSaveGame: ERROR: Got unexpected header "
+           std::cout <<"DataLoader::loadSaveGame: ERROR: Got unexpected header "
                      <<Header << " in file \""<<FileName<<"\" at position "
                      <<input.tellg()<<".\n";
            success = false;
@@ -628,7 +628,7 @@ bool DataLoader::LoadSaveGame(const std::string& FileName)
     }//swi
     if(!success or !input.good())
     {
-      std::cout << "DataLoader::LoadSaveGame: ERROR while reading data.\n"
+      std::cout << "DataLoader::loadSaveGame: ERROR while reading data.\n"
                 << "Position: "<<input.tellg() << " bytes.\n"
                 << "Records read: "<<records_done<<" (excluding failure)\n";
       input.close();
@@ -637,12 +637,12 @@ bool DataLoader::LoadSaveGame(const std::string& FileName)
     records_done = records_done+1;
   }//while
   input.close();
-  std::cout << "DataLoader::LoadSaveGame: Info: "<<records_done<<" out of "
+  std::cout << "DataLoader::loadSaveGame: Info: "<<records_done<<" out of "
             << data_records<< " expected records loaded.\n";
   return true;
 }
 
-bool DataLoader::SaveGame(const std::string& FileName) const
+bool DataLoader::saveGame(const std::string& FileName) const
 {
   std::ofstream output;
   output.open(FileName.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
@@ -655,8 +655,8 @@ bool DataLoader::SaveGame(const std::string& FileName) const
   //write header "Dusk"
   output.write((char*) &cHeaderDusk, sizeof(unsigned int));
   //determine and write number of records
-  unsigned int data_records = 1 /*QuestLog*/ + ObjectManager::GetSingleton().NumberOfReferences()
-                              + InjectionManager::GetSingleton().NumberOfReferences();
+  unsigned int data_records = 1 /*QuestLog*/ + ObjectManager::getSingleton().numberOfReferences()
+                              + InjectionManager::getSingleton().numberOfReferences();
   output.write((char*) &data_records, sizeof(unsigned int));
   //write headers to identify file as save game
   output.write((char*) &cHeaderSave, sizeof(unsigned int));
@@ -680,21 +680,21 @@ bool DataLoader::SaveGame(const std::string& FileName) const
     return false;
   }
   //write the data
-  if (!ObjectManager::GetSingleton().SaveAllToStream(output))
+  if (!ObjectManager::getSingleton().saveAllToStream(output))
   {
     std::cout << "DataLoader::SaveGame: ERROR while writing object data to "
               << "file \""<<FileName<<"\".\n";
     output.close();
     return false;
   }
-  if (!InjectionManager::GetSingleton().SaveAllToStream(output))
+  if (!InjectionManager::getSingleton().saveAllToStream(output))
   {
     std::cout << "DataLoader::SaveGame: ERROR while writing animation data to "
               << "file \""<<FileName<<"\".\n";
     output.close();
     return false;
   }
-  if (!QuestLog::GetSingleton().SaveToStream(output))
+  if (!QuestLog::getSingleton().saveToStream(output))
   {
     std::cout << "DataLoader::SaveGame: ERROR while writing quest log to "
               << "file \""<<FileName<<"\".\n";

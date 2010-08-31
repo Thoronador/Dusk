@@ -31,8 +31,8 @@ void EditorApplicationNPC::RefreshNPCList(void)
   mcl->resetList();
 
   std::map<std::string, NPCRecord>::const_iterator first;
-  first = NPCBase::GetSingleton().GetFirst();
-  const std::map<std::string, NPCRecord>::const_iterator end = NPCBase::GetSingleton().GetEnd();
+  first = NPCBase::getSingleton().getFirst();
+  const std::map<std::string, NPCRecord>::const_iterator end = NPCBase::getSingleton().getEnd();
   while (first != end)
   {
     addNPCRecordToCatalogue(first->first, first->second);
@@ -197,7 +197,7 @@ bool EditorApplicationNPC::NPCDeleteFrameYesClicked(const CEGUI::EventArgs &e)
     CEGUI::WindowManager::getSingleton().destroyWindow("Editor/NPCDeleteFrame");
     return true;
   }
-  if (!NPCBase::GetSingleton().deleteNPC(ID_of_NPC_to_delete))
+  if (!NPCBase::getSingleton().deleteNPC(ID_of_NPC_to_delete))
   {
     showHint("NPCBase class holds no NPC of the given ID ("
              +ID_of_NPC_to_delete+").");
@@ -207,7 +207,7 @@ bool EditorApplicationNPC::NPCDeleteFrameYesClicked(const CEGUI::EventArgs &e)
     return true;
   }
   //kill references
-  const unsigned int refs_deleted = InjectionManager::GetSingleton().deleteReferencesOfAnimatedObject(ID_of_NPC_to_delete);
+  const unsigned int refs_deleted = InjectionManager::getSingleton().deleteReferencesOfAnimatedObject(ID_of_NPC_to_delete);
   if (refs_deleted == 0)
   {
     showHint("NPC \""+ID_of_NPC_to_delete+"\" deleted! It had no references which had to be deleted.");
@@ -543,7 +543,7 @@ bool EditorApplicationNPC::NPCNewFrameOKClicked(const CEGUI::EventArgs &e)
       showHint("You have to enter an ID, Name and Mesh path for the NPC.");
       return true;
     }
-    if (NPCBase::GetSingleton().hasNPC(NPC_ID))
+    if (NPCBase::getSingleton().hasNPC(NPC_ID))
     {
       showHint("An NPC with the ID \""+NPC_ID+"\" already exists. Please "
               +"choose a different ID or delete the other NPC first.\n");
@@ -561,9 +561,9 @@ bool EditorApplicationNPC::NPCNewFrameOKClicked(const CEGUI::EventArgs &e)
     attr.Luck = static_cast<uint8>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Luck_Spin")))->getCurrentValue());
     const bool female = (static_cast<CEGUI::RadioButton*>(winmgr.getWindow("Editor/NPCNewFrame/RadioFemale")))->isSelected();
     const Inventory tempInv = MCLToInventory(static_cast<CEGUI::MultiColumnList*>(winmgr.getWindow("Editor/NPCNewFrame/InventoryList")));
-    NPCBase::GetSingleton().addNPC(NPC_ID, NPC_Name, NPC_Mesh, level, attr,
-                                   female, tempInv, NPCAnimations::GetNullAnimations(),
-                                   NPCTagPoints::GetNullTagPoints());
+    NPCBase::getSingleton().addNPC(NPC_ID, NPC_Name, NPC_Mesh, level, attr,
+                                   female, tempInv, NPCAnimations::getNullAnimations(),
+                                   NPCTagPoints::getNullTagPoints());
     winmgr.destroyWindow("Editor/NPCNewFrame");
     RefreshNPCList();
   }//if
@@ -717,8 +717,8 @@ void EditorApplicationNPC::UpdateItemList(CEGUI::Combobox* combo)
   {
     combo->resetList();
     CEGUI::ListboxItem* lbi = NULL;
-    std::map<std::string, ItemRecord>::const_iterator itemFirst = ItemBase::GetSingleton().GetFirst();
-    const std::map<std::string, ItemRecord>::const_iterator itemEnd = ItemBase::GetSingleton().GetEnd();
+    std::map<std::string, ItemRecord>::const_iterator itemFirst = ItemBase::getSingleton().getFirst();
+    const std::map<std::string, ItemRecord>::const_iterator itemEnd = ItemBase::getSingleton().getEnd();
     while (itemFirst!=itemEnd)
     {
       lbi = new CEGUI::ListboxTextItem(itemFirst->first);
@@ -779,7 +779,7 @@ bool EditorApplicationNPC::AddInventoryFrameCancelClicked(const CEGUI::EventArgs
 Inventory EditorApplicationNPC::MCLToInventory(const CEGUI::MultiColumnList* mcl)
 {
   Inventory temp;
-  temp.MakeEmpty();
+  temp.makeEmpty();
   if (mcl!=NULL)
   {
     if (mcl->getColumnCount()==2)
@@ -788,7 +788,7 @@ Inventory EditorApplicationNPC::MCLToInventory(const CEGUI::MultiColumnList* mcl
       unsigned int i;
       for (i=0; i<rows; ++i)
       {
-        temp.AddItem(mcl->getItemAtGridReference(CEGUI::MCLGridRef(i,1))->getText().c_str(),
+        temp.addItem(mcl->getItemAtGridReference(CEGUI::MCLGridRef(i,1))->getText().c_str(),
           StringToInt(mcl->getItemAtGridReference(CEGUI::MCLGridRef(i,0))->getText().c_str(),0));
       }
     }

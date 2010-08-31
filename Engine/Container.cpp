@@ -9,71 +9,71 @@ Container::Container()
     : DuskObject()
 {
   m_Changed = false;
-  m_Contents.MakeEmpty();
+  m_Contents.makeEmpty();
 }
 
 Container::Container(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale)
     : DuskObject(_ID, pos, rot, Scale)
 {
   m_Changed = false;
-  m_Contents.MakeEmpty();
-  ContainerBase::GetSingleton().GetContainerInventory(_ID).AddAllItemsTo(m_Contents);
+  m_Contents.makeEmpty();
+  ContainerBase::getSingleton().getContainerInventory(_ID).addAllItemsTo(m_Contents);
 }
 
 Container::~Container()
 {
-  m_Contents.MakeEmpty();
-  Disable();
+  m_Contents.makeEmpty();
+  disable();
 }
 
-bool Container::IsEmpty() const
+bool Container::isEmpty() const
 {
-  return m_Contents.IsEmpty();
+  return m_Contents.isEmpty();
 }
 
-void Container::TransferAllItemsTo(Inventory& target)
+void Container::transferAllItemsTo(Inventory& target)
 {
-  m_Contents.AddAllItemsTo(target);
-  m_Contents.MakeEmpty();
+  m_Contents.addAllItemsTo(target);
+  m_Contents.makeEmpty();
   m_Changed = true;
 }
 
-void Container::AddItem(const std::string& ItemID, const unsigned int count)
+void Container::addItem(const std::string& ItemID, const unsigned int count)
 {
   if (count==0 or ItemID=="")
   {
     return;
   }
-  m_Contents.AddItem(ItemID, count);
+  m_Contents.addItem(ItemID, count);
   m_Changed = true;
 }
 
-unsigned int Container::RemoveItem(const std::string& ItemID, const unsigned int count)
+unsigned int Container::removeItem(const std::string& ItemID, const unsigned int count)
 {
   if (count==0 or ItemID=="")
   {
     return 0;
   }
   m_Changed = true;
-  return m_Contents.RemoveItem(ItemID, count);
+  return m_Contents.removeItem(ItemID, count);
 }
 
-unsigned int Container::GetItemCount(const std::string& ItemID) const
+unsigned int Container::getItemCount(const std::string& ItemID) const
 {
-  return m_Contents.GetItemCount(ItemID);
+  return m_Contents.getItemCount(ItemID);
 }
 
-std::string Container::GetObjectMesh() const
+std::string Container::getObjectMesh() const
 {
-  return ContainerBase::GetSingleton().GetContainerMesh(ID);
+  return ContainerBase::getSingleton().getContainerMesh(ID);
 }
 
-ObjectTypes Container::GetType() const
+ObjectTypes Container::getDuskType() const
 {
   return otContainer;
 }
 
-bool Container::SaveToStream(std::ofstream& OutStream) const
+bool Container::saveToStream(std::ofstream& OutStream) const
 {
   if (!OutStream.good())
   {
@@ -83,7 +83,7 @@ bool Container::SaveToStream(std::ofstream& OutStream) const
   //write header "RefC" (reference of Container)
   OutStream.write((char*) &cHeaderRefC, sizeof(unsigned int)); //header
   //write data inherited from DuskObject
-  if (!SaveDuskObjectPart(OutStream))
+  if (!saveDuskObjectPart(OutStream))
   {
     std::cout << "Container::SaveToStream: ERROR while writing basic data!\n";
     return false;
@@ -94,7 +94,7 @@ bool Container::SaveToStream(std::ofstream& OutStream) const
   // -- inventory (only if neccessary)
   if (m_Changed)
   {
-    if (!m_Contents.SaveToStream(OutStream))
+    if (!m_Contents.saveToStream(OutStream))
     {
       std::cout << "Container::SaveToStream: ERROR while writing inventory data!\n";
       return false;
@@ -103,7 +103,7 @@ bool Container::SaveToStream(std::ofstream& OutStream) const
   return (OutStream.good());
 }
 
-bool Container::LoadFromStream(std::ifstream& InStream)
+bool Container::loadFromStream(std::ifstream& InStream)
 {
   if (entity!=NULL)
   {
@@ -127,7 +127,7 @@ bool Container::LoadFromStream(std::ifstream& InStream)
     return false;
   }
   //load data members inherited from DuskObject
-  if (!LoadDuskObjectPart(InStream))
+  if (!loadDuskObjectPart(InStream))
   {
     std::cout << "Container::LoadFromStream: ERROR while reading basic data.\n";
     return false;
@@ -138,7 +138,7 @@ bool Container::LoadFromStream(std::ifstream& InStream)
   InStream.read((char*) &m_Changed, sizeof(bool));
   if (m_Changed)
   { //load it from stream, contents were changed
-    if (!m_Contents.LoadFromStream(InStream))
+    if (!m_Contents.loadFromStream(InStream))
     {
       std::cout << "Container::LoadFromStream: ERROR while reading container "
                 << "inventory from stream.\n";
@@ -147,8 +147,8 @@ bool Container::LoadFromStream(std::ifstream& InStream)
   }
   else
   { //inventory was not changed, so get it from ContainerBase
-    m_Contents.MakeEmpty();
-    ContainerBase::GetSingleton().GetContainerInventory(ID).AddAllItemsTo(m_Contents);
+    m_Contents.makeEmpty();
+    ContainerBase::getSingleton().getContainerInventory(ID).addAllItemsTo(m_Contents);
   }
   return (InStream.good());
 }

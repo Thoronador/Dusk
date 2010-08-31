@@ -20,9 +20,9 @@ Projectile::Projectile()
 Projectile::Projectile(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale)
   : UniformMotionObject(_ID, pos, rot, Scale)
 {
-  if (ProjectileBase::GetSingleton().hasProjectile(_ID))
+  if (ProjectileBase::getSingleton().hasProjectile(_ID))
   {
-    const ProjectileRecord rec = ProjectileBase::GetSingleton().getProjectileData(_ID);
+    const ProjectileRecord rec = ProjectileBase::getSingleton().getProjectileData(_ID);
     m_TTL = rec.DefaultTTL;
     m_Speed = rec.DefaultVelocity;
   }
@@ -35,37 +35,37 @@ Projectile::Projectile(const std::string& _ID, const Ogre::Vector3& pos, const O
 
 Projectile::~Projectile()
 {
-  Disable();
+  disable();
 }
 
-ObjectTypes Projectile::GetType() const
+ObjectTypes Projectile::getDuskType() const
 {
   return otProjectile;
 }
 
-void Projectile::SetTTL(const float newTTL)
+void Projectile::setTTL(const float newTTL)
 {
   m_TTL = newTTL;
 }
 
-float Projectile::GetTTL() const
+float Projectile::getTTL() const
 {
   return m_TTL;
 }
 
-void Projectile::SetEmitter(DuskObject* emitter)
+void Projectile::setEmitter(DuskObject* emitter)
 {
   m_Emitter = emitter;
 }
 
-DuskObject* Projectile::GetEmitter() const
+DuskObject* Projectile::getEmitter() const
 {
   return m_Emitter;
 }
 
 void Projectile::injectTime(const float SecondsPassed)
 {
-  if (m_Speed>0.0f and m_Direction!=Ogre::Vector3::ZERO and IsEnabled())
+  if (m_Speed>0.0f and m_Direction!=Ogre::Vector3::ZERO and isEnabled())
   {
     //perform scene query to check whether projectile hit something
     Ogre::SceneManager* scm = entity->getParentSceneNode()->getCreator();
@@ -93,7 +93,7 @@ void Projectile::injectTime(const float SecondsPassed)
               {
                 //projectile will hit the landscape within this frame
                 // --> request deletetion of projectile
-                InjectionManager::GetSingleton().requestDeletion(this);
+                InjectionManager::getSingleton().requestDeletion(this);
                 return;
               }
             }//If hit by ray
@@ -105,9 +105,9 @@ void Projectile::injectTime(const float SecondsPassed)
           if (obj!=NULL and obj!=m_Emitter)
           {
             //hit a static object (or item or weapon)?
-            if ((obj->GetType()==otStatic or obj->GetType()==otAnimated
-                 or obj->GetType()==otWaypoint or obj->GetType()==otContainer)
-               or ((obj->GetType()==otItem or obj->GetType()==otWeapon)
+            if ((obj->getDuskType()==otStatic or obj->getDuskType()==otAnimated
+                 or obj->getDuskType()==otWaypoint or obj->getDuskType()==otContainer)
+               or ((obj->getDuskType()==otItem or obj->getDuskType()==otWeapon)
                    and !(static_cast<Item*>(obj))->isEquipped()))
             {
               Ogre::Vector3 vec_i(0.0, 0.0, 0.0);
@@ -117,12 +117,12 @@ void Projectile::injectTime(const float SecondsPassed)
                 {
                   //projectile will hit the static object within this frame
                   // --> request projectile deletetion
-                  InjectionManager::GetSingleton().requestDeletion(this);
+                  InjectionManager::getSingleton().requestDeletion(this);
                   return;
                 }//if distance shot enough
               }//hit?
             }//static?
-            else if (obj->GetType()==otNPC and obj!=m_Emitter)
+            else if (obj->getDuskType()==otNPC and obj!=m_Emitter)
             {
               Ogre::Vector3 vec_i(0.0, 0.0, 0.0);
               if (obj->isHitByRay(ray, vec_i))
@@ -132,23 +132,23 @@ void Projectile::injectTime(const float SecondsPassed)
                   //projectile will hit the NPC within this frame
                   // --> inflict damage
                   Dusk::NPC* npc_ptr = dynamic_cast<NPC*> (obj);
-                  const ProjectileRecord pr = ProjectileBase::GetSingleton().getProjectileData(this->ID);
+                  const ProjectileRecord pr = ProjectileBase::getSingleton().getProjectileData(this->ID);
                   switch (pr.dice)
                   {
                     case 4:
-                         npc_ptr->inflictDamage(DiceBox::GetSingleton().d4(pr.times));
+                         npc_ptr->inflictDamage(DiceBox::getSingleton().d4(pr.times));
                          break;
                     case 6:
-                         npc_ptr->inflictDamage(DiceBox::GetSingleton().d6(pr.times));
+                         npc_ptr->inflictDamage(DiceBox::getSingleton().d6(pr.times));
                          break;
                     case 8:
-                         npc_ptr->inflictDamage(DiceBox::GetSingleton().d8(pr.times));
+                         npc_ptr->inflictDamage(DiceBox::getSingleton().d8(pr.times));
                          break;
                     case 10:
-                         npc_ptr->inflictDamage(DiceBox::GetSingleton().d10(pr.times));
+                         npc_ptr->inflictDamage(DiceBox::getSingleton().d10(pr.times));
                          break;
                     case 20:
-                         npc_ptr->inflictDamage(DiceBox::GetSingleton().d20(pr.times));
+                         npc_ptr->inflictDamage(DiceBox::getSingleton().d20(pr.times));
                          break;
                     default:
                          std::cout << "Projectile::injectTime: ERROR: projectile \""
@@ -157,7 +157,7 @@ void Projectile::injectTime(const float SecondsPassed)
                          break;
                   }//switch
                   // --> request projectile deletetion
-                  InjectionManager::GetSingleton().requestDeletion(this);
+                  InjectionManager::getSingleton().requestDeletion(this);
                   return;
                 }//if distance shot enough
               }//hit?
@@ -179,25 +179,25 @@ void Projectile::injectTime(const float SecondsPassed)
     if (m_TTL<=0.0f)
     {
       //we are done here, so delete this object
-      InjectionManager::GetSingleton().requestDeletion(this);
+      InjectionManager::getSingleton().requestDeletion(this);
       return;
     }
   }//if
 }
 
-std::string Projectile::GetObjectMesh() const
+std::string Projectile::getObjectMesh() const
 {
-  return ProjectileBase::GetSingleton().getProjectileMesh(ID);
+  return ProjectileBase::getSingleton().getProjectileMesh(ID);
 }
 
-void Projectile::TravelToDestination(const Ogre::Vector3& dest)
+void Projectile::travelToDestination(const Ogre::Vector3& dest)
 {
   m_Destination = Ogre::Vector3::ZERO;
   m_Travel = false;
-  SetDirection(dest-GetPosition());
+  setDirection(dest-getPosition());
 }
 
-bool Projectile::SaveToStream(std::ofstream& OutStream) const
+bool Projectile::saveToStream(std::ofstream& OutStream) const
 {
   if (!OutStream.good())
   {
@@ -207,13 +207,13 @@ bool Projectile::SaveToStream(std::ofstream& OutStream) const
   //write header "RefP" (reference of Projectile)
   OutStream.write((char*) &cHeaderRefP, sizeof(unsigned int));
   //write all data inherited from DuskObject
-  if (!SaveDuskObjectPart(OutStream))
+  if (!saveDuskObjectPart(OutStream))
   {
     std::cout << "Projectile::SaveToStream: ERROR while writing basic data!\n";
     return false;
   }
   //write all data inherited from UniformMotionObject
-  if (!SaveUniformMotionObjectPart(OutStream))
+  if (!saveUniformMotionObjectPart(OutStream))
   {
     std::cout << "Projectile::SaveToStream: ERROR while writing motion data!\n";
     return false;
@@ -223,7 +223,7 @@ bool Projectile::SaveToStream(std::ofstream& OutStream) const
   return OutStream.good();
 }
 
-bool Projectile::LoadFromStream(std::ifstream& InStream)
+bool Projectile::loadFromStream(std::ifstream& InStream)
 {
   if (entity!=NULL)
   {
@@ -246,14 +246,14 @@ bool Projectile::LoadFromStream(std::ifstream& InStream)
     return false;
   }
   //read DuskObject stuff
-  if (!LoadDuskObjectPart(InStream))
+  if (!loadDuskObjectPart(InStream))
   {
     std::cout << "Projectile::LoadFromStream: ERROR while reading basic "
               << "data.\n";
     return false;
   }
   // go on with data members from UniformMotionObject
-  if (!LoadUniformMotionObjectPart(InStream))
+  if (!loadUniformMotionObjectPart(InStream))
   {
     std::cout << "Projectile::LoadFromStream: ERROR while loading motion data.\n";
     return false;

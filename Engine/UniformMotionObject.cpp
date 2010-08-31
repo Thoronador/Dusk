@@ -38,27 +38,27 @@ UniformMotionObject::UniformMotionObject(const std::string& _ID, const Ogre::Vec
 
 UniformMotionObject::~UniformMotionObject()
 {
-  //dtor
-  Disable();
+  //destructor
+  disable();
 }
 
-Ogre::Vector3 UniformMotionObject::GetDirection() const
+Ogre::Vector3 UniformMotionObject::getDirection() const
 {
   return m_Direction;
 }
 
-void UniformMotionObject::SetDirection(const Ogre::Vector3& direc)
+void UniformMotionObject::setDirection(const Ogre::Vector3& direc)
 {
   m_Direction = direc;
   m_Direction.normalise();
 }
 
-float UniformMotionObject::GetSpeed() const
+float UniformMotionObject::getSpeed() const
 {
   return m_Speed;
 }
 
-void UniformMotionObject::SetSpeed(const float v)
+void UniformMotionObject::setSpeed(const float v)
 {
   m_Speed = v;
   if (v<0.0f) m_Speed = 0.0f;
@@ -69,19 +69,19 @@ bool UniformMotionObject::isMoving() const
   return (m_Speed*m_Direction).squaredLength()>=0.0001;
 }
 
-void UniformMotionObject::TravelToDestination(const Ogre::Vector3& dest)
+void UniformMotionObject::travelToDestination(const Ogre::Vector3& dest)
 {
   m_Destination = dest;
   m_Travel = true;
-  SetDirection(dest-GetPosition());
+  setDirection(dest-getPosition());
 }
 
-Ogre::Vector3 UniformMotionObject::GetDestination() const
+Ogre::Vector3 UniformMotionObject::getDestination() const
 {
   return m_Destination;
 }
 
-bool UniformMotionObject::IsOnTravel() const
+bool UniformMotionObject::isOnTravel() const
 {
   return m_Travel;
 }
@@ -94,11 +94,11 @@ void UniformMotionObject::injectTime(const float SecondsPassed)
   }
   if (m_Travel)
   {
-    const float Distance = Ogre::Vector3(m_Destination-GetPosition()).squaredLength();
+    const float Distance = Ogre::Vector3(m_Destination-getPosition()).squaredLength();
     //are we moving to fast?
     if (Ogre::Math::Sqr(m_Speed*SecondsPassed)>=Distance)
     { //finished travelling
-      SetPosition(m_Destination);
+      setPosition(m_Destination);
       m_Travel = false;
       m_Direction = Ogre::Vector3::ZERO;
       m_Speed = 0.0f;
@@ -113,13 +113,13 @@ void UniformMotionObject::injectTime(const float SecondsPassed)
     position = position + SecondsPassed*m_Speed*m_Direction;
   }
   //adjust position of scene node/ entity in Ogre
-  if (IsEnabled())
+  if (isEnabled())
   {
-    SetPosition(position);
+    setPosition(position);
   }
 }
 
-bool UniformMotionObject::SaveUniformMotionObjectPart(std::ofstream& output) const
+bool UniformMotionObject::saveUniformMotionObjectPart(std::ofstream& output) const
 {
   //write direction and destination, and speed
   // -- direction
@@ -143,7 +143,7 @@ bool UniformMotionObject::SaveUniformMotionObjectPart(std::ofstream& output) con
   return output.good();
 }
 
-bool UniformMotionObject::LoadUniformMotionObjectPart(std::ifstream& InStream)
+bool UniformMotionObject::loadUniformMotionObjectPart(std::ifstream& InStream)
 {
   if (!InStream.good())
   {

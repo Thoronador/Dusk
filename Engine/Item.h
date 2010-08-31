@@ -11,6 +11,7 @@
                               added
      - 2010-07-31 (rev 220) - GetObjectMesh() added
                             - Enable() removed (uses inherited method instead)
+     - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
 
  ToDo list:
      - ???
@@ -42,20 +43,23 @@ class Item: public DuskObject
     /* Creates an entity of the object, but does not attach it to anny scene
        node. Returns true on success, false on error.
 
+       parameters:
+           scm - the scene manager that will be used to enable this object
+
        remarks:
            This is only used in NPC::equip(), because only objects without
            parent nodes can be attached to a bone.
            Derived classes potentially implement their individual versions of
            this function.
     */
-    virtual bool EnableWithoutSceneNode(Ogre::SceneManager* scm);
+    virtual bool enableWithoutSceneNode(Ogre::SceneManager* scm);
 
     /* Disables the object, i.e. tells the SceneManager not to display it.
        Returns true on success, false on error. */
-    virtual bool Disable();
+    virtual bool disable();
 
     /* retrieves the object type as an enumeration value, which is useful for derived classes.*/
-    virtual ObjectTypes GetType() const;
+    virtual ObjectTypes getDuskType() const;
 
     /* returns true, if the player can pick up the object
 
@@ -75,14 +79,20 @@ class Item: public DuskObject
     /* Saves the item to the given stream. Returns true on success, false
        otherwise.
 
+       parameters:
+           OutStream - the output stream that will be used to save the item
+
        remark:
            Every derived class has to have its own implementation of this
            function to ensure the derived object is saved properly.
     */
-    virtual bool SaveToStream(std::ofstream& OutStream) const;
+    virtual bool saveToStream(std::ofstream& OutStream) const;
 
     /* Tries to load an item from the given stream. Returns true on
        success, false otherwise.
+
+       parameters:
+           InStream - the input stream from which the item will be loaded
 
        remarks:
            Every derived class has to have its own implementation of this
@@ -90,7 +100,7 @@ class Item: public DuskObject
            If the function returns false, the data within the item may be
            corrupted. It's advised not to use the item in this case.
     */
-    virtual bool LoadFromStream(std::ifstream& InStream);
+    virtual bool loadFromStream(std::ifstream& InStream);
 
     /* returns the Ogre entity which is used to display that object */
     Ogre::Entity* exposeEntity() const;
@@ -102,25 +112,31 @@ class Item: public DuskObject
            Every(!) derived, non-abstract class has to implement their own
            version of that function to ensure the use of the right meshes.
     */
-    virtual std::string GetObjectMesh() const;
+    virtual std::string getObjectMesh() const;
 
     /* Helper function which saves all data in an Item to the given stream.
        Returns true on success.
+
+       parameters:
+           output - the output stream that will be used to save the item
 
        remarks:
            Derived classes will (most likely) call this function as part of
            their implementation of SaveToStream().
     */
-    bool SaveItemPart(std::ofstream& output) const;
+    bool saveItemPart(std::ofstream& output) const;
 
     /* Helper function which loads all data in an Item from the given stream.
        Returns true on success.
+
+       parameters:
+           input - the input stream that will be used to load the item
 
        remarks:
            Derived classes will (most likely) call this function as part of
            their implementation of LoadFromStream().
     */
-    bool LoadItemPart(std::ifstream& input);
+    bool loadItemPart(std::ifstream& input);
 
     //indicates whether a NPC has this item equipped
     bool m_Equipped;

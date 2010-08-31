@@ -19,11 +19,11 @@ bool CommandAttack::execute(Dusk::Scene* scene, int count)
 {
   if (m_DoStart)
   {
-    return Player::GetSingleton().startAttack();
+    return Player::getSingleton().startAttack();
   }
   else
   {
-    return Player::GetSingleton().stopAttack();
+    return Player::getSingleton().stopAttack();
   }
 }
 

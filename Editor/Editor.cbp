@@ -79,6 +79,8 @@
 		<Unit filename="../Engine/API.h" />
 		<Unit filename="../Engine/AnimatedObject.cpp" />
 		<Unit filename="../Engine/AnimatedObject.h" />
+		<Unit filename="../Engine/Celestial.cpp" />
+		<Unit filename="../Engine/Celestial.h" />
 		<Unit filename="../Engine/Container.cpp" />
 		<Unit filename="../Engine/Container.h" />
 		<Unit filename="../Engine/ContainerBase.cpp" />
@@ -152,6 +154,8 @@
 		<Unit filename="../Engine/Settings.h" />
 		<Unit filename="../Engine/Sound.cpp" />
 		<Unit filename="../Engine/Sound.h" />
+		<Unit filename="../Engine/Sun.cpp" />
+		<Unit filename="../Engine/Sun.h" />
 		<Unit filename="../Engine/UniformMotionObject.cpp" />
 		<Unit filename="../Engine/UniformMotionObject.h" />
 		<Unit filename="../Engine/VertexDataFunc.cpp" />

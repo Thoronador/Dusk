@@ -5,12 +5,12 @@
 namespace Dusk
 {
 
-bool LightRecord::IsBlack() const
+bool LightRecord::isBlack() const
 {
   return (red==0.0f && green==0.0f && blue==0.0f);
 }
 
-void LightRecord::Normalise()
+void LightRecord::normalise()
 {
    if (red>1.0f)
     {
@@ -42,7 +42,7 @@ void LightRecord::Normalise()
     }
 }
 
-LightRecord LightRecord::GetBlack(const float d)
+LightRecord LightRecord::getBlack(const float d)
 {
   LightRecord temp;
   temp.red = temp.green = temp.blue = 0.0f;
@@ -51,7 +51,7 @@ LightRecord LightRecord::GetBlack(const float d)
   return temp;
 }
 
-LightRecord LightRecord::GetRed(const float d)
+LightRecord LightRecord::getRed(const float d)
 {
   LightRecord temp;
   temp.red = 1.0f;
@@ -61,7 +61,7 @@ LightRecord LightRecord::GetRed(const float d)
   return temp;
 }
 
-LightRecord LightRecord::GetGreen(const float d)
+LightRecord LightRecord::getGreen(const float d)
 {
   LightRecord temp;
   temp.red = temp.blue = 0.0f;
@@ -71,7 +71,7 @@ LightRecord LightRecord::GetGreen(const float d)
   return temp;
 }
 
-LightRecord LightRecord::GetBlue(const float d)
+LightRecord LightRecord::getBlue(const float d)
 {
   LightRecord temp;
   temp.red = temp.green = 0.0f;
@@ -99,7 +99,7 @@ LightBase::~LightBase()
   m_LightList.clear();
 }
 
-LightBase& LightBase::GetSingleton()
+LightBase& LightBase::getSingleton()
 {
   static LightBase Instance;
   return Instance;
@@ -116,7 +116,7 @@ void LightBase::addLight(const std::string& ID, const float r, const float g,
     rec.blue = b;
     rec.radius = radius;
     rec.type = _type;
-    rec.Normalise();
+    rec.normalise();
     m_LightList[ID] = rec;
   }
 }
@@ -139,7 +139,7 @@ LightRecord LightBase::getLightData(const std::string& ID) const
     return l_iter->second;
   }
   //nothing found, so we give them a black light
-  return LightRecord::GetBlack(0.0f);
+  return LightRecord::getBlack(0.0f);
 }
 
 bool LightBase::deleteLight(const std::string& ID)
@@ -154,17 +154,17 @@ bool LightBase::deleteLight(const std::string& ID)
   return true;
 }
 
-void LightBase::ClearAllData()
+void LightBase::clearAllData()
 {
   m_LightList.clear();
 }
 
-unsigned int LightBase::NumberOfLights() const
+unsigned int LightBase::numberOfLights() const
 {
   return m_LightList.size();
 }
 
-bool LightBase::SaveAllToStream(std::ofstream& out_stream) const
+bool LightBase::saveAllToStream(std::ofstream& out_stream) const
 {
   unsigned int len = 0;
   std::map<std::string, LightRecord>::const_iterator l_iter = m_LightList.begin();
@@ -188,7 +188,7 @@ bool LightBase::SaveAllToStream(std::ofstream& out_stream) const
   return out_stream.good();
 }
 
-bool LightBase::LoadRecordFromStream(std::ifstream& in_stream)
+bool LightBase::loadRecordFromStream(std::ifstream& in_stream)
 {
   unsigned int Header = 0;
   if (!in_stream.good())
@@ -239,12 +239,12 @@ bool LightBase::LoadRecordFromStream(std::ifstream& in_stream)
   return true;
 }
 
-std::map<std::string, LightRecord>::const_iterator LightBase::GetFirst() const
+std::map<std::string, LightRecord>::const_iterator LightBase::getFirst() const
 {
   return m_LightList.begin();
 }
 
-std::map<std::string, LightRecord>::const_iterator LightBase::GetEnd() const
+std::map<std::string, LightRecord>::const_iterator LightBase::getEnd() const
 {
   return m_LightList.end();
 }

@@ -5,14 +5,14 @@
 namespace Dusk
 {
 
-NPCAttributes NPCAttributes::GetNullAttributes()
+NPCAttributes NPCAttributes::getNullAttributes()
 {
   NPCAttributes temp;
   temp.Str=temp.Agi=temp.Vit=temp.Int=temp.Will=temp.Cha=temp.Luck=0;
   return temp;
 }
 
-const NPCAnimations& NPCAnimations::GetNullAnimations()
+const NPCAnimations& NPCAnimations::getNullAnimations()
 {
   static NPCAnimations anims;
   anims.Idle = anims.Walk = anims.MeleeAttack = anims.ProjectileAttack
@@ -20,7 +20,7 @@ const NPCAnimations& NPCAnimations::GetNullAnimations()
   return anims;
 }
 
-const NPCTagPoints& NPCTagPoints::GetNullTagPoints()
+const NPCTagPoints& NPCTagPoints::getNullTagPoints()
 {
   static NPCTagPoints tags;
   tags.HandLeft = tags.HandRight = tags.SheathLeft = tags.SheathRight = "";
@@ -37,7 +37,7 @@ NPCBase::~NPCBase()
   m_NPCList.clear();
 }
 
-NPCBase& NPCBase::GetSingleton()
+NPCBase& NPCBase::getSingleton()
 {
   static NPCBase Instance;
   return Instance;
@@ -62,8 +62,8 @@ void NPCBase::addNPC(const std::string& ID, const std::string& Name,
     iter->second.Level = Level;
     iter->second.Attributes = Attr;
     iter->second.Female = female;
-    iter->second.InventoryAtStart.MakeEmpty();
-    StartingInventory.AddAllItemsTo(iter->second.InventoryAtStart);
+    iter->second.InventoryAtStart.makeEmpty();
+    StartingInventory.addAllItemsTo(iter->second.InventoryAtStart);
     iter->second.Animations = Anims;
     iter->second.TagPoints = TagPoints;
     return;
@@ -96,12 +96,12 @@ bool NPCBase::hasNPC(const std::string& NPC_ID) const
   return (m_NPCList.find(NPC_ID) != m_NPCList.end());
 }
 
-void NPCBase::ClearAllNPCs()
+void NPCBase::clearAllNPCs()
 {
   m_NPCList.clear();
 }
 
-unsigned int NPCBase::NumberOfNPCs() const
+unsigned int NPCBase::numberOfNPCs() const
 {
   return m_NPCList.size();
 }
@@ -148,7 +148,7 @@ NPCAttributes NPCBase::getAttributes(const std::string& NPC_ID) const
   {
     return iter->second.Attributes;
   }
-  return NPCAttributes::GetNullAttributes();
+  return NPCAttributes::getNullAttributes();
 }
 
 bool  NPCBase::isNPCFemale(const std::string& NPC_ID) const
@@ -168,7 +168,7 @@ const Inventory& NPCBase::getNPCInventory(const std::string& NPC_ID) const
   {
     return iter->second.InventoryAtStart;
   }
-  return Inventory::GetEmptyInventory();
+  return Inventory::getEmptyInventory();
 }
 
 const NPCAnimations& NPCBase::getNPCAnimations(const std::string& NPC_ID) const
@@ -178,7 +178,7 @@ const NPCAnimations& NPCBase::getNPCAnimations(const std::string& NPC_ID) const
   {
     return iter->second.Animations;
   }
-  return NPCAnimations::GetNullAnimations();
+  return NPCAnimations::getNullAnimations();
 }
 
 const NPCTagPoints& NPCBase::getNPCTagPoints(const std::string& NPC_ID) const
@@ -188,10 +188,10 @@ const NPCTagPoints& NPCBase::getNPCTagPoints(const std::string& NPC_ID) const
   {
     return iter->second.TagPoints;
   }
-  return NPCTagPoints::GetNullTagPoints();
+  return NPCTagPoints::getNullTagPoints();
 }
 
-bool NPCBase::SaveToStream(std::ofstream& output) const
+bool NPCBase::saveToStream(std::ofstream& output) const
 {
   if (!(output.good()))
   {
@@ -230,7 +230,7 @@ bool NPCBase::SaveToStream(std::ofstream& output) const
     // -- female flag
     output.write((char*) &(iter->second.Female), sizeof(bool));
     //inventory
-    if (!(iter->second.InventoryAtStart.SaveToStream(output)))
+    if (!(iter->second.InventoryAtStart.saveToStream(output)))
     {
       std::cout << "NPCBase::SaveToStream: ERROR while writing inventory data "
                 << "of NPC \""<<iter->first<<"\" to stream.\n";
@@ -283,7 +283,7 @@ bool NPCBase::SaveToStream(std::ofstream& output) const
   return output.good();
 }
 
-bool NPCBase::LoadNextRecordFromStream(std::ifstream& input)
+bool NPCBase::loadNextRecordFromStream(std::ifstream& input)
 {
   if (!(input.good()))
   {
@@ -376,7 +376,7 @@ bool NPCBase::LoadNextRecordFromStream(std::ifstream& input)
     return false;
   }
   //inventory
-  if (!(temp_rec.InventoryAtStart.LoadFromStream(input)))
+  if (!(temp_rec.InventoryAtStart.loadFromStream(input)))
   {
     std::cout << "NPCBase::LoadNextRecordFromStream: ERROR while reading NPC "
               << "inventory from stream.\n";
@@ -583,12 +583,12 @@ bool NPCBase::LoadNextRecordFromStream(std::ifstream& input)
 }
 
 #ifdef DUSK_EDITOR
-std::map<std::string, NPCRecord>::const_iterator NPCBase::GetFirst() const
+std::map<std::string, NPCRecord>::const_iterator NPCBase::getFirst() const
 {
   return m_NPCList.begin();
 }
 
-std::map<std::string, NPCRecord>::const_iterator NPCBase::GetEnd() const
+std::map<std::string, NPCRecord>::const_iterator NPCBase::getEnd() const
 {
   return m_NPCList.end();
 }

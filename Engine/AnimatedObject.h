@@ -42,6 +42,7 @@
                               parallel animations
      - 2010-08-01 (rev 220) - GetObjectMesh() added
      - 2010-08-15 (rev 224) - isHitByRay() added
+     - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
 
  ToDo list:
      - ???
@@ -84,16 +85,20 @@ namespace Dusk
         /* destructor */
         virtual ~AnimatedObject();
 
-        /* displays the object */
-        virtual bool Enable(Ogre::SceneManager* scm);
+        /* displays the object
+
+           parameters:
+               scm - the Scene Manager that is used to display the object
+        */
+        virtual bool enable(Ogre::SceneManager* scm);
 
         /* Disables the object, i.e. tells the SceneManager not to display it.
            Returns true on success, false on error.
         */
-        virtual bool Disable();
+        virtual bool disable();
 
         /* returns the object type as enumeration */
-        virtual ObjectTypes GetType() const;
+        virtual ObjectTypes getDuskType() const;
 
         /* checks if a static object is hit by a ray. If the ray hits the
            object, the function will return true and impact will be set to the
@@ -122,7 +127,7 @@ namespace Dusk
                or IsEnabled()). As long as the object isn't enabled, this will
                always return false / fail.
         */
-        bool StartAnimation(const std::string& AnimName, const bool DoLoop);
+        bool startAnimation(const std::string& AnimName, const bool DoLoop);
 
         /* stops a named animation and returns true on success
 
@@ -136,7 +141,7 @@ namespace Dusk
                play any animations, thus every animation can be considered to be
                stopped. ;D.
         */
-        bool StopAnimation(const std::string& AnimName);
+        bool stopAnimation(const std::string& AnimName);
 
         /* stops all animations and returns the number of stopped animations
 
@@ -147,7 +152,7 @@ namespace Dusk
                play any animations, thus every animation can be considered to be
                stopped already. ;D.
         */
-        unsigned int StopAllAnimations();
+        unsigned int stopAllAnimations();
 
         /* returns true, if the names animation is playing
 
@@ -161,12 +166,12 @@ namespace Dusk
                play any animations, thus every animation can be considered to be
                stopped. ;D.
         */
-        bool IsAnimationActive(const std::string& AnimName) const;
+        bool isAnimationActive(const std::string& AnimName) const;
 
         /* Returns the names of all currently playing animations. If no
             animation is playing, it returns an empty vector.
         */
-        std::vector<std::string> GetCurrentAnimations() const;
+        std::vector<std::string> getCurrentAnimations() const;
 
         /* Returns the list of possible animations for an enabled object. This
            works only for enabled objects. If the object is not enabled, the
@@ -176,14 +181,14 @@ namespace Dusk
               This function is not thread-safe, because the internally used
               iterator isn't thread-safe.
         */
-        std::vector<std::string> GetPossibleAnimationStates() const;
+        std::vector<std::string> getPossibleAnimationStates() const;
 
         /* returns true, if the given animation is /will be looped
 
            parameters:
                AnimName - name of the animation
         */
-        bool GetLoopState(const std::string& AnimName) const;
+        bool getLoopState(const std::string& AnimName) const;
 
         /* animated the object according to the passed time
 
@@ -198,14 +203,20 @@ namespace Dusk
         /* Saves the object to the given stream. Returns true on success, false
            otherwise.
 
+           parameters:
+               OutStream - the output stream to which the object will be saved
+
            remark:
                Every derived class has to have its own implementation of this
                function to ensure the object is saved properly.
         */
-        virtual bool SaveToStream(std::ofstream& OutStream) const;
+        virtual bool saveToStream(std::ofstream& OutStream) const;
 
         /* Tries to load an object from the given stream. Returns true on
            success, false otherwise.
+
+           parameters:
+               InStream - the input stream from which the data will be read
 
            remarks:
                Every derived class has to have its own implementation of this
@@ -213,7 +224,7 @@ namespace Dusk
                If the function returns false, the data within the object may be
                corrupted. It's advised not to use the object in this case.
         */
-        virtual bool LoadFromStream(std::ifstream& InStream);
+        virtual bool loadFromStream(std::ifstream& InStream);
     protected:
         /* returns the name/path of the mesh that is used during enabling this
            object
@@ -222,34 +233,40 @@ namespace Dusk
                Every(!) derived, non-abstract class has to implement their own
                version of that function to ensure the use of the right meshes.
         */
-        virtual std::string GetObjectMesh() const;
+        virtual std::string getObjectMesh() const;
 
         /* Utility function which saves all data that is specific to an
            AnimatedObject to the given stream. Returns true on success.
+
+           parameters:
+               OutStream - the output stream to which the object will be saved
 
            remarks:
              Derived classes will (most likely) call this function as part of
              their implementation of SaveToStream().
         */
-        bool SaveAnimatedObjectPart(std::ofstream& OutStream) const;
+        bool saveAnimatedObjectPart(std::ofstream& OutStream) const;
 
         /* Utility function which loads all data that is specific to an
            AnimatedObject from the given stream. Returns true on success.
+
+           parameters:
+               InStream - the input stream from which the data will be read
 
            remarks:
              Derived classes will (most likely) call this function as part of
              their implementation of LoadFromStream().
         */
-        bool LoadAnimatedObjectPart(std::ifstream& InStream);
+        bool loadAnimatedObjectPart(std::ifstream& InStream);
 
         /* updates the information about anims listed in m_Anims with currently
            playing animations
         */
-        void SynchronizeAnimationList();
+        void synchronizeAnimationList();
 
         //map that holds the animations while object is disabled
         std::map<std::string, AnimRecord> m_Anims;
-    };
+    }; //class AnimatedObject
 
 } //namespace
 

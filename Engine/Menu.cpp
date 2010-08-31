@@ -24,7 +24,7 @@ namespace Dusk
   //height of characters
   const float cQuestLogCharHeight = 0.029f;
 
-Menu& Menu::GetSingleton()
+Menu& Menu::getSingleton()
 {
   static Menu Instance;
   return Instance;
@@ -150,7 +150,7 @@ bool Menu::startDialogueWithNPC(NPC* who)
   //we don't want to interrupt ongoing conversations
   if (isDialogueActive()) return false;
 
-  Dialogue::Handle temp = Dialogue::GetSingleton().GetGreetingLine(who);
+  Dialogue::Handle temp = Dialogue::getSingleton().getGreetingLine(who);
   if (temp.LineID == "") return false; //nothing found here
 
   //get text of all dialogue line options
@@ -160,7 +160,7 @@ bool Menu::startDialogueWithNPC(NPC* who)
   unsigned int i;
   for (i=0; i<temp.Choices.size(); i=i+1)
   {
-    sv.push_back(Dialogue::GetSingleton().GetText(temp.Choices[i]));
+    sv.push_back(Dialogue::getSingleton().getText(temp.Choices[i]));
     m_OptionIDs.push_back(temp.Choices[i]);
   }//for
   if (temp.Choices.size()==0)
@@ -169,7 +169,7 @@ bool Menu::startDialogueWithNPC(NPC* who)
     m_OptionIDs.push_back("");
   }
   showDialogue(temp.Text, sv);
-  Dialogue::GetSingleton().ProcessResultScript(temp.LineID);
+  Dialogue::getSingleton().processResultScript(temp.LineID);
   m_DialoguePartner = who;
   return true;
 }
@@ -210,9 +210,9 @@ bool Menu::nextDialogueChoice(const unsigned int chosenOption)
     return false;
   }
 
-  Dialogue::Handle tempHandle = Dialogue::GetSingleton().GetDialogueLine(
+  Dialogue::Handle tempHandle = Dialogue::getSingleton().getDialogueLine(
                                   m_OptionIDs[chosenOption-1], m_DialoguePartner);
-  Dialogue::GetSingleton().ProcessResultScript(m_OptionIDs[chosenOption-1]);
+  Dialogue::getSingleton().processResultScript(m_OptionIDs[chosenOption-1]);
   if (tempHandle.Choices.size()==0)
   {
     //no more lines here... quit dialogue
@@ -222,7 +222,7 @@ bool Menu::nextDialogueChoice(const unsigned int chosenOption)
     return true;
   }
   //we have more choices, NPC will always select the first one available
-  tempHandle = Dialogue::GetSingleton().GetDialogueLine(tempHandle.Choices[0],
+  tempHandle = Dialogue::getSingleton().getDialogueLine(tempHandle.Choices[0],
                                                           m_DialoguePartner);
   m_OptionIDs.clear();
   //get text of all options
@@ -231,7 +231,7 @@ bool Menu::nextDialogueChoice(const unsigned int chosenOption)
   unsigned int i;
   for (i=0; i<tempHandle.Choices.size(); i=i+1)
   {
-    sv.push_back(Dialogue::GetSingleton().GetText(tempHandle.Choices[i]));
+    sv.push_back(Dialogue::getSingleton().getText(tempHandle.Choices[i]));
     m_OptionIDs.push_back(tempHandle.Choices[i]);
   }//for
   if (tempHandle.Choices.size()==0)
@@ -240,7 +240,7 @@ bool Menu::nextDialogueChoice(const unsigned int chosenOption)
     m_OptionIDs.push_back("");
   }
   showDialogue(tempHandle.Text, sv);
-  Dialogue::GetSingleton().ProcessResultScript(tempHandle.LineID);
+  Dialogue::getSingleton().processResultScript(tempHandle.LineID);
   return true;
 }
 
@@ -344,11 +344,11 @@ void Menu::showQuestLogEntries()
     std::cout << "Menu::showQuestLogEntries: ERROR: Panel not found!\n";
     return;
   }//if
-  std::vector<QLogEntry> entries = QuestLog::GetSingleton().listQuestEntries(m_QuestLogOffset, cQuestLogEntriesPerPage);
+  std::vector<QLogEntry> entries = QuestLog::getSingleton().listQuestEntries(m_QuestLogOffset, cQuestLogEntriesPerPage);
   if (m_QuestLogOffset>0 and entries.size()==0)
   { //reset offset, because we've gone too far, and fetch entries again
     m_QuestLogOffset = 0;
-    entries = QuestLog::GetSingleton().listQuestEntries(m_QuestLogOffset, cQuestLogEntriesPerPage);
+    entries = QuestLog::getSingleton().listQuestEntries(m_QuestLogOffset, cQuestLogEntriesPerPage);
   }
   Ogre::TextAreaOverlayElement* text_elem = NULL;
 
@@ -363,7 +363,7 @@ void Menu::showQuestLogEntries()
     text_elem->setPosition(0.025, cQuestLogEntryHeight*i+0.5*cQuestLogEntryHeight);
     text_elem->setDimensions(0.725, cQuestLogEntryHeight);
     text_elem->setAlignment(Ogre::TextAreaOverlayElement::Left);
-    text_elem->setCaption(chopString(Journal::GetSingleton().getText(entries[i].questID, entries[i].index),
+    text_elem->setCaption(chopString(Journal::getSingleton().getText(entries[i].questID, entries[i].index),
                 cQuestLogCharHeight, glyphs));
     text_elem->setFontName("Console");
     text_elem->setColour(Ogre::ColourValue(1.0, 0.5, 0.0));

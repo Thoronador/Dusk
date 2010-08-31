@@ -13,17 +13,17 @@ InjectionManager::InjectionManager()
 
 InjectionManager::~InjectionManager()
 {
-  ClearData();
+  clearData();
   m_RefCount = 0;
 }
 
-InjectionManager& InjectionManager::GetSingleton()
+InjectionManager& InjectionManager::getSingleton()
 {
   static InjectionManager Instance;
   return Instance;
 }
 
-unsigned int InjectionManager::NumberOfReferences() const
+unsigned int InjectionManager::numberOfReferences() const
 {
   return m_RefCount;
 }
@@ -64,7 +64,7 @@ Projectile* InjectionManager::addProjectileReference(const std::string& ID, cons
   return projPtr;
 }
 
-InjectionObject* InjectionManager::GetInjectionObjectReference(const std::string& ID) const
+InjectionObject* InjectionManager::getInjectionObjectReference(const std::string& ID) const
 {
   std::map<std::string, std::vector<InjectionObject*> >::const_iterator iter;
   iter = m_ReferenceMap.find(ID);
@@ -78,7 +78,7 @@ InjectionObject* InjectionManager::GetInjectionObjectReference(const std::string
   return NULL;
 }
 
-AnimatedObject* InjectionManager::GetAnimatedObjectReference(const std::string& ID) const
+AnimatedObject* InjectionManager::getAnimatedObjectReference(const std::string& ID) const
 {
   std::map<std::string, std::vector<InjectionObject*> >::const_iterator iter;
   iter = m_ReferenceMap.find(ID);
@@ -86,8 +86,8 @@ AnimatedObject* InjectionManager::GetAnimatedObjectReference(const std::string& 
   {
     if (!(iter->second.empty()))
     {
-      if ((iter->second.at(0)->GetType()==otNPC) or
-          (iter->second.at(0)->GetType()==otAnimated))
+      if ((iter->second.at(0)->getDuskType()==otNPC) or
+          (iter->second.at(0)->getDuskType()==otAnimated))
       {
         return (dynamic_cast<AnimatedObject*>(iter->second.at(0)));
       }
@@ -96,12 +96,12 @@ AnimatedObject* InjectionManager::GetAnimatedObjectReference(const std::string& 
   return NULL;
 }
 
-NPC* InjectionManager::GetNPCReference(const std::string& ID) const
+NPC* InjectionManager::getNPCReference(const std::string& ID) const
 {
-  InjectionObject* ap = GetInjectionObjectReference(ID);
+  InjectionObject* ap = getInjectionObjectReference(ID);
   if (ap!=NULL)
   {
-    if (ap->GetType() != otNPC)
+    if (ap->getDuskType() != otNPC)
     {
       return NULL;
     }
@@ -133,7 +133,7 @@ unsigned int InjectionManager::deleteReferencesOfAnimatedObject(const std::strin
   return deletedReferences;
 }
 
-void InjectionManager::InjectAnimationTime(const float TimePassed)
+void InjectionManager::injectAnimationTime(const float TimePassed)
 {
   if (!m_DeletionObjects.empty())
   {
@@ -155,7 +155,7 @@ void InjectionManager::InjectAnimationTime(const float TimePassed)
   }//while
 }
 
-void InjectionManager::ClearData()
+void InjectionManager::clearData()
 {
   InjectionObject * ObjPtr;
   std::map<std::string, std::vector<InjectionObject*> >::iterator iter;
@@ -165,7 +165,7 @@ void InjectionManager::ClearData()
     while(!(iter->second.empty()))
     {
       ObjPtr = iter->second.back();
-      ObjPtr->Disable();
+      ObjPtr->disable();
       delete ObjPtr;
       iter->second.pop_back();
     }//while
@@ -176,11 +176,11 @@ void InjectionManager::ClearData()
   m_RefCount = 0;
 }//clear data
 
-bool InjectionManager::SaveAllToStream(std::ofstream& output) const
+bool InjectionManager::saveAllToStream(std::ofstream& output) const
 {
   if (!(output.good()))
   {
-    std::cout << "InjectionManager::SaveToStream: ERROR: Bad stream given.\n";
+    std::cout << "InjectionManager::saveAllToStream: ERROR: Bad stream given.\n";
     return false;
   }
   unsigned int i;
@@ -193,9 +193,10 @@ bool InjectionManager::SaveAllToStream(std::ofstream& output) const
     {
       if (iter->second.at(i)!=NULL)
       {
-        if (!(iter->second.at(i)->SaveToStream(output)))
+        if (!(iter->second.at(i)->saveToStream(output)))
         {
-          std::cout << "InjectionManager::SaveToStream: ERROR while saving reference.\n";
+          std::cout << "InjectionManager::saveAllToStream: ERROR while saving "
+                    << "reference.\n";
           return false;
         } //if
       }//if
@@ -205,16 +206,16 @@ bool InjectionManager::SaveAllToStream(std::ofstream& output) const
   return output.good();
 }
 
-bool InjectionManager::LoadNextFromStream(std::ifstream& Stream, const unsigned int PrefetchedHeader)
+bool InjectionManager::loadNextFromStream(std::ifstream& Stream, const unsigned int PrefetchedHeader)
 {
   InjectionObject * animPtr = NULL;
   switch(PrefetchedHeader)
   {
     case cHeaderRefA:
          animPtr = new AnimatedObject;
-         if (animPtr->LoadFromStream(Stream))
+         if (animPtr->loadFromStream(Stream))
          {
-           m_ReferenceMap[animPtr->GetID()].push_back(animPtr);
+           m_ReferenceMap[animPtr->getID()].push_back(animPtr);
            ++m_RefCount;
            return true;
          }
@@ -222,9 +223,9 @@ bool InjectionManager::LoadNextFromStream(std::ifstream& Stream, const unsigned 
          break;
     case cHeaderRefN:
          animPtr = new NPC;
-         if (animPtr->LoadFromStream(Stream))
+         if (animPtr->loadFromStream(Stream))
          {
-           m_ReferenceMap[animPtr->GetID()].push_back(animPtr);
+           m_ReferenceMap[animPtr->getID()].push_back(animPtr);
            ++m_RefCount;
            return true;
          }
@@ -232,9 +233,9 @@ bool InjectionManager::LoadNextFromStream(std::ifstream& Stream, const unsigned 
          break;
     case cHeaderRefP:
          animPtr = new Projectile;
-         if (animPtr->LoadFromStream(Stream))
+         if (animPtr->loadFromStream(Stream))
          {
-           m_ReferenceMap[animPtr->GetID()].push_back(animPtr);
+           m_ReferenceMap[animPtr->getID()].push_back(animPtr);
            ++m_RefCount;
            return true;
          }
@@ -242,9 +243,9 @@ bool InjectionManager::LoadNextFromStream(std::ifstream& Stream, const unsigned 
          break;
     case cHeaderRfWP:
          animPtr = new WaypointObject;
-         if (animPtr->LoadFromStream(Stream))
+         if (animPtr->loadFromStream(Stream))
          {
-           m_ReferenceMap[animPtr->GetID()].push_back(animPtr);
+           m_ReferenceMap[animPtr->getID()].push_back(animPtr);
            ++m_RefCount;
            return true;
          }
@@ -280,7 +281,7 @@ void InjectionManager::performRequestedDeletions()
   std::map<std::string, std::vector<InjectionObject*> >::iterator iter;
   while (!m_DeletionObjects.empty())
   {
-    iter = m_ReferenceMap.find(m_DeletionObjects.back()->GetID());
+    iter = m_ReferenceMap.find(m_DeletionObjects.back()->getID());
     if (iter!=m_ReferenceMap.end())
     {
       unsigned int i;
@@ -289,7 +290,7 @@ void InjectionManager::performRequestedDeletions()
         if (iter->second.at(i)==m_DeletionObjects.back())
         {
           //found it
-          m_DeletionObjects.back()->Disable();
+          m_DeletionObjects.back()->disable();
           delete m_DeletionObjects.back();
           m_DeletionObjects.back() = NULL; //not really needed here
           iter->second.at(i)= iter->second.at(iter->second.size()-1);

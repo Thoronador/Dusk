@@ -12,6 +12,7 @@
      - 2010-08-07 (rev 222) - ray-based collision detection implemented
                             - emitter property added
      - 2010-08-15 (rev 224) - ray-based collision detection extended
+     - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
 
  ToDo list:
      - Improve collision detection for projectile. Currently only collisions
@@ -43,23 +44,26 @@ class Projectile: public UniformMotionObject
     virtual ~Projectile();
 
     /* retrieves the object type as an enumeration value, which is useful for derived classes.*/
-    virtual ObjectTypes GetType() const;
+    virtual ObjectTypes getDuskType() const;
 
     /* Sets the time to live (TTL), i.e. the amount of seconds before the
        projectile will be destroyed automatically
 
+       parameters:
+          newTTL - the new time to live
+
        remarks:
          * A value of zero or less than zero means infinite time or until the
            projectile hits a target.
-         * The main purpose for TTl is to avoid that projectiles which do not
+         * The main purpose for TTL is to avoid that projectiles which do not
            hit any target move on forever.
     */
-    void SetTTL(const float newTTL);
+    void setTTL(const float newTTL);
 
     /* returns the time to live, i.e. the amount of seconds before the
        projectile will be destroyed
     */
-    float GetTTL() const;
+    float getTTL() const;
 
     /* constant value which can be used to signal infinite TTL */
     static const float InfiniteTTL;
@@ -73,10 +77,10 @@ class Projectile: public UniformMotionObject
            The emitter will be the only NPC that will NOT be hurt by the
            projectile.
     */
-    void SetEmitter(DuskObject* emitter);
+    void setEmitter(DuskObject* emitter);
 
     /* returns the projectile's emitter, if any */
-    DuskObject* GetEmitter() const;
+    DuskObject* getEmitter() const;
 
     /* function to inject time for movement and perform movement */
     virtual void injectTime(const float SecondsPassed);
@@ -85,20 +89,29 @@ class Projectile: public UniformMotionObject
        Contrary to the implementation in UniformMotionObject, the projectile
        will NOT stop moving after it has reached that destination.
 
+       parameters:
+           dest - the new destination
+
        remarks:
            Reimplemented from UniformMotionObject.
     */
-    virtual void TravelToDestination(const Ogre::Vector3& dest);
+    virtual void travelToDestination(const Ogre::Vector3& dest);
 
     /* Saves the projectile to the given stream. Returns true on success, false
        otherwise.
+
+       parameters:
+           OutStream - the output stream that will be used to save the projectile
     */
-    virtual bool SaveToStream(std::ofstream& OutStream) const;
+    virtual bool saveToStream(std::ofstream& OutStream) const;
 
     /* Tries to load a projectile from the given stream. Returns true on
        success, false otherwise.
+
+       parameters:
+           InStream - the input stream that will be used to load the projectile
     */
-    virtual bool LoadFromStream(std::ifstream& InStream);
+    virtual bool loadFromStream(std::ifstream& InStream);
   protected:
     /* returns the name/path of the mesh that is used during enabling this
        object
@@ -107,7 +120,7 @@ class Projectile: public UniformMotionObject
            Every(!) derived, non-abstract class has to implement their own
            version of that function to ensure the use of the right meshes.
     */
-    virtual std::string GetObjectMesh() const;
+    virtual std::string getObjectMesh() const;
   private:
     // time to live before objet should be deleted
     float m_TTL;

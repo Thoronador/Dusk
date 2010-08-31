@@ -16,6 +16,7 @@
      - 2009-09-27 (rev 132) - }
      - 2010-01-30 (rev 161) - obsolete load/save functions removed
                             - documentation updated
+     - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
 
  ToDo list:
      - ???
@@ -72,12 +73,19 @@ namespace Dusk
       virtual ~ItemBase();
 
       /* singleton access */
-      static ItemBase& GetSingleton();
+      static ItemBase& getSingleton();
 
       /* returns true, if information about item with given ID is present */
       bool hasItem(const std::string& ID_of_item) const;
 
       /* adds a new item with given ID, name, value, weight and mesh path
+
+         parameters:
+             ID     - ID of the new item
+             name   - name of the item (shown in game)
+             value  - value of the item
+             weight - weight of the item
+             Mesh   - mesh path of the item
 
          remarks:
              If one of ID, name and Mesh is an empty string, or if value or
@@ -90,58 +98,85 @@ namespace Dusk
 
       /* utility variant of previous function; see remarks of addItem() for more
          information
+
+         parameters:
+             ID     - ID of the new item
+             record - structure that holds all data for the item
       */
       void addItem(const std::string& ID, const ItemRecord& record);
 
       /* tries to delete the item with the given ID and returns true, if such
          an item existed before deleting it. If no such item was present, the
          funtion will return false.
+
+         parameters:
+             ID_of_item - ID of the item that shall be deleted
       */
       bool deleteItem(const std::string& ID_of_item);
 
       /* deletes information of ALL items - use with caution (or not at all) */
-      void ClearAllItems();
+      void clearAllItems();
 
       /* returns the number of distinct items which are currently present */
-      unsigned int NumberOfItems() const;
+      unsigned int numberOfItems() const;
 
       /* returns the name of the given item, or an empty string if no such item
          is present
+
+         parameters:
+             itemID - ID of the item whose (ingame) name is requested
       */
-      std::string GetItemName(const std::string& itemID) const;
+      std::string getItemName(const std::string& itemID) const;
 
       /* returns the value of the item with ID itemID, or -1 if no item with
          that ID is present.
+
+         parameters:
+             itemID - ID of the item whose value is requested
       */
-      int GetItemValue(const std::string& itemID) const;
+      int getItemValue(const std::string& itemID) const;
 
       /* returns the weight of the item with ID itemID, or zero if no item with
          that ID is present.
+
+         parameters:
+             itemID - ID of the item whose weight is requested
 
          remarks:
              Since zero is also a valid weight value for items, a return value
              of zero is NOT a safe way to detect absence of a certain item.
       */
-      float GetItemWeight(const std::string& itemID) const;
+      float getItemWeight(const std::string& itemID) const;
 
       /* returns the mesh path of the given item, or an empty string, if no
           item with that ID is present. However, if UseMarkerOnError is set to
           true (default), this function will return the path to a predefined
           error mesh instead.
+
+          parameters:
+             itemID - ID of the item whose mesh path is requested
       */
-      std::string GetMeshName(const std::string& itemID, const bool UseMarkerOnError=true) const;
+      std::string getMeshName(const std::string& itemID, const bool UseMarkerOnError=true) const;
 
-      /* tries to save all items to the stream and returns true on success */
-      bool SaveToStream(std::ofstream& Stream) const;
+      /* tries to save all items to the stream and returns true on success
 
-      /* tries to read the next item from stream and returns true, if successful */
-      bool LoadFromStream(std::ifstream& Stream);
+         parameters:
+             Stream - output stream that is used to save all items
+      */
+      bool saveToStream(std::ofstream& Stream) const;
+
+      /* tries to read the next item from stream and returns true, if successful
+
+         parameters:
+             Stream - input stream that is used to load the next item
+      */
+      bool loadFromStream(std::ifstream& Stream);
 
       /* helper functions to access internal map iterators - not used in-game,
          only used by Editor application.
       */
-      std::map<std::string, ItemRecord>::const_iterator GetFirst() const;
-      std::map<std::string, ItemRecord>::const_iterator GetEnd() const;
+      std::map<std::string, ItemRecord>::const_iterator getFirst() const;
+      std::map<std::string, ItemRecord>::const_iterator getEnd() const;
     private:
       /* constructor */
       ItemBase();

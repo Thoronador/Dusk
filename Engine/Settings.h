@@ -19,6 +19,7 @@
      - 2010-06-06 (rev 215) - factor for critical damage added to initial values
      - 2010-08-28 (rev 237) - internal structure changed: one map for all types
                               of settings instead one map for each type
+     - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
 
  ToDo list:
      - ???
@@ -42,7 +43,7 @@ namespace Dusk
       virtual ~Settings();
 
       /* Singleton access function */
-      static Settings& GetSingleton();
+      static Settings& getSingleton();
 
       /* Adds a setting named setting_name with an (unsigned) integer value of uint_value
 
@@ -83,12 +84,20 @@ namespace Dusk
       std::string getSetting_string(const std::string& setting_name) const;
 
       /* Tries to load setting from the file FileName. Returns true on success,
-         false otherwise. */
-      bool LoadFromFile(const std::string& FileName);
+         false otherwise.
+
+         parameters:
+             FileName - the file that will be used to load the settings
+      */
+      bool loadFromFile(const std::string& FileName);
 
       /* Tries to save all settings to the file FileName. Returns true on
-         success, false otherwise. */
-      bool SaveToFile(const std::string& FileName) const;
+         success, false otherwise.
+
+         parameters:
+             FileName - name of the file that will be used to save the settings
+      */
+      bool saveToFile(const std::string& FileName) const;
 
       /* name of the file where Settings looks for predefined settings */
       static const std::string CharacterConfigurationFile;
@@ -122,7 +131,7 @@ namespace Dusk
       Settings(const Settings& op) {}
 
       /* Sets some initial settings */
-      void InitialSettings();
+      void initialSettings();
 
       std::map<std::string, SettingRecord> m_AllSettings;
   }; //class

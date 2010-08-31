@@ -7,6 +7,7 @@
 
  History:
      - 2010-05-30 (rev 210) - initial version (by thoronador)
+     - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
 
  ToDo list:
      - ???
@@ -50,7 +51,7 @@ namespace Dusk
       ~ProjectileBase();
 
       /* Singleton access */
-      static ProjectileBase& GetSingleton();
+      static ProjectileBase& getSingleton();
 
       /* adds a new projectile with the given data
 
@@ -67,33 +68,54 @@ namespace Dusk
       /* same as above, but with struct for data */
       void addProjectile(const std::string& ID, const ProjectileRecord& data);
 
-      /* returns true, if a projectile with the given ID is present */
+      /* returns true, if a projectile with the given ID is present
+
+         parameter(s):
+             ID - ID of the projectile
+      */
       bool hasProjectile(const std::string& ID) const;
 
       /* Returns the mesh of projectile with given ID, if present. */
       std::string getProjectileMesh(const std::string& ID, const bool UseMarkerOnError=true) const;
 
-      /* Returns the data of projectile with given ID, if present. */
+      /* Returns the data of projectile with given ID, if present.
+
+         parameter(s):
+             ID - ID of the projectile
+      */
       ProjectileRecord getProjectileData(const std::string& ID) const;
 
-      /* deletes a projectile by ID and returns true, if a projectile was deleted */
+      /* deletes a projectile by ID and returns true, if a projectile was deleted
+
+         parameters:
+             ID - ID of the projectile that should be deleted
+      */
       bool deleteProjectile(const std::string& ID);
 
       /* deletes all present projectiles */
-      void ClearAll();
+      void clearAll();
 
       /* returns the number of present projectiles in the list */
-      unsigned int GetNumberOfProjectiles() const;
+      unsigned int getNumberOfProjectiles() const;
 
-      /* Saves all Projectiles to stream and returns true on success */
-      bool SaveAllToStream(std::ofstream& OutStream) const;
+      /* Saves all Projectiles to stream and returns true on success
+
+         parameters:
+             OutStream - the output stream that is used to save the projectile
+                         data
+      */
+      bool saveAllToStream(std::ofstream& OutStream) const;
 
       /* Loads one(!) single projectile from stream; returns true on success,
          false otherwise. The data of the last loaded projectile is probably
          inconsistent after that function failed, so don't rely on it in that
          case.
+
+         parameters:
+             InStream - the input stream that is used to load the next
+                        projectile record from
       */
-      bool LoadNextProjectileFromStream(std::ifstream& InStream);
+      bool loadNextProjectileFromStream(std::ifstream& InStream);
   }; //class
 
 } //namespace

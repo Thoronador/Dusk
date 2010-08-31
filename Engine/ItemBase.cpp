@@ -15,7 +15,7 @@ ItemBase::~ItemBase()
   m_ItemList.clear();
 }
 
-ItemBase& ItemBase::GetSingleton()
+ItemBase& ItemBase::getSingleton()
 {
   static ItemBase Instance;
   return Instance;
@@ -60,17 +60,17 @@ bool ItemBase::deleteItem(const std::string& ID_of_item)
   return true;
 }
 
-void ItemBase::ClearAllItems()
+void ItemBase::clearAllItems()
 {
   m_ItemList.clear();
 }
 
-unsigned int ItemBase::NumberOfItems() const
+unsigned int ItemBase::numberOfItems() const
 {
   return m_ItemList.size();
 }
 
-std::string ItemBase::GetItemName(const std::string& itemID) const
+std::string ItemBase::getItemName(const std::string& itemID) const
 {
   std::map<std::string, ItemRecord>::const_iterator iter = m_ItemList.find(itemID);
   if (iter != m_ItemList.end())
@@ -80,7 +80,7 @@ std::string ItemBase::GetItemName(const std::string& itemID) const
   return "";
 }
 
-int ItemBase::GetItemValue(const std::string& itemID) const
+int ItemBase::getItemValue(const std::string& itemID) const
 {
   std::map<std::string, ItemRecord>::const_iterator iter;
   iter = m_ItemList.find(itemID);
@@ -91,7 +91,7 @@ int ItemBase::GetItemValue(const std::string& itemID) const
   return -1;
 }
 
-float ItemBase::GetItemWeight(const std::string& itemID) const
+float ItemBase::getItemWeight(const std::string& itemID) const
 {
   std::map<std::string, ItemRecord>::const_iterator iter;
   iter = m_ItemList.find(itemID);
@@ -102,7 +102,7 @@ float ItemBase::GetItemWeight(const std::string& itemID) const
   return 0.0;
 }
 
-std::string ItemBase::GetMeshName(const std::string& itemID, const bool UseMarkerOnError) const
+std::string ItemBase::getMeshName(const std::string& itemID, const bool UseMarkerOnError) const
 {
   std::map<std::string, ItemRecord>::const_iterator iter;
   iter = m_ItemList.find(itemID);
@@ -121,7 +121,7 @@ std::string ItemBase::GetMeshName(const std::string& itemID, const bool UseMarke
   }
 }
 
-bool ItemBase::SaveToStream(std::ofstream& Stream) const
+bool ItemBase::saveToStream(std::ofstream& Stream) const
 {
   std::map<std::string, ItemRecord>::const_iterator iter;
   unsigned int len = 0;
@@ -156,7 +156,7 @@ bool ItemBase::SaveToStream(std::ofstream& Stream) const
   return true;
 }
 
-bool ItemBase::LoadFromStream(std::ifstream& Stream)
+bool ItemBase::loadFromStream(std::ifstream& Stream)
 {
   unsigned int Header, len;
   //buffers declared static to avoid multiple allocation and deallocation
@@ -235,12 +235,12 @@ bool ItemBase::LoadFromStream(std::ifstream& Stream)
   return true;
 }
 
-std::map<std::string, ItemRecord>::const_iterator ItemBase::GetFirst() const
+std::map<std::string, ItemRecord>::const_iterator ItemBase::getFirst() const
 {
   return m_ItemList.begin();
 }
 
-std::map<std::string, ItemRecord>::const_iterator ItemBase::GetEnd() const
+std::map<std::string, ItemRecord>::const_iterator ItemBase::getEnd() const
 {
   return m_ItemList.end();
 }

@@ -18,7 +18,7 @@ bool JournalRecord::isFinisher() const
   return ((Flags&FinishedFlag)>0);
 }
 
-std::string JournalRecord::FlagsToString(const uint8 theFlags)
+std::string JournalRecord::flagsToString(const uint8 theFlags)
 {
   std::string result = "";
   if ((theFlags&DeletedFlag)>0) result = result +"D";
@@ -26,9 +26,9 @@ std::string JournalRecord::FlagsToString(const uint8 theFlags)
   return result;
 }
 
-std::string JournalRecord::FlagsToString() const
+std::string JournalRecord::flagsToString() const
 {
-  return FlagsToString(Flags);
+  return flagsToString(Flags);
 }
 
 const std::string Journal::cUnnamedQuest = "(quest has no name)";
@@ -43,7 +43,7 @@ Journal::~Journal()
   //empty
 }
 
-Journal& Journal::GetSingleton()
+Journal& Journal::getSingleton()
 {
   static Journal Instance;
   return Instance;
@@ -259,12 +259,12 @@ bool Journal::deleteEntry(const std::string& questID, const unsigned int jIndex)
 }
 #endif
 
-unsigned int Journal::NumberOfEntries() const
+unsigned int Journal::numberOfEntries() const
 {
   return m_TotalEntries;
 }
 
-unsigned int Journal::NumberOfDistinctQuests() const
+unsigned int Journal::numberOfDistinctQuests() const
 {
   return m_Entries.size();
 }
@@ -323,7 +323,7 @@ unsigned int Journal::getMaximumAvailabeIndex(const std::string& jID) const
   return index_iter->first;
 }
 
-bool Journal::SaveAllToStream(std::ofstream& output) const
+bool Journal::saveAllToStream(std::ofstream& output) const
 {
   if (!(output.good()))
   {
@@ -387,7 +387,7 @@ bool Journal::SaveAllToStream(std::ofstream& output) const
   return output.good();
 }
 
-bool Journal::LoadNextFromStream(std::ifstream& input)
+bool Journal::loadNextFromStream(std::ifstream& input)
 {
   if (!(input.good()))
   {
@@ -499,7 +499,7 @@ bool Journal::LoadNextFromStream(std::ifstream& input)
   return input.good();
 }
 
-void Journal::ClearAllEntries()
+void Journal::clearAllEntries()
 {
   m_Entries.clear();
   m_TotalEntries = 0;

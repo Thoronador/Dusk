@@ -30,6 +30,7 @@
      - 2010-06-06 (rev 215) - binding for attacking
      - 2010-08-20 (rev 231) - binding for QuestLog
      - 2010-08-28 (rev 237) - camera will now react on mouse movement
+     - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
 
  ToDo list:
      - method to load bind list from an external resource
@@ -142,7 +143,7 @@ namespace Dusk
            parameters:
                fileName - name of the file where the key bindings are located
         */
-        bool LoadKeyConfiguration(const std::string& fileName);
+        bool loadKeyConfiguration(const std::string& fileName);
 
         /* tries to save the key bindings to the file fileName and returns true
            in case of success
@@ -151,7 +152,7 @@ namespace Dusk
                fileName - name of the file that shall be used/created to save
                           the key bindings
         */
-        bool SaveKeyConfiguration(const std::string& fileName) const;
+        bool saveKeyConfiguration(const std::string& fileName) const;
 
     private:
         /**

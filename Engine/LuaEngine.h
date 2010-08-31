@@ -16,6 +16,7 @@
      - 2010-05-21 (rev 206) - bindings for AnimatedObject added
      - 2010-05-21 (rev 207) - bindings for UniformMotionObject added
      - 2010-05-28 (rev 209) - adjustments for namespace in QuestLog's bindings
+     - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
 
  ToDo list:
      - ???
@@ -44,7 +45,7 @@ class LuaEngine
     ~LuaEngine();
 
     /* singleton access */
-    static LuaEngine& GetSingleton();
+    static LuaEngine& getSingleton();
 
     /* runs the passed string as a Lua command and returns true on success
 
@@ -74,7 +75,11 @@ class LuaEngine
     */
     bool runFile(const std::string& FileName, std::string* err_msg=NULL);
 
-    /* adds a script to the script queue */
+    /* adds a script to the script queue
+
+       parameters:
+           theScript - the script that will be added to the script queue
+    */
     void addScript(const Dusk::Script& theScript);
 
    /* Processes the scripts on the internal queue
@@ -83,7 +88,7 @@ class LuaEngine
           maxEntries - The number of maximal entries to process. 0 means all.
 
       return value:
-          the number of processed.scripts
+          the number of processed scripts
     */
     unsigned int processScripts(unsigned int maxEntries = 0);
 

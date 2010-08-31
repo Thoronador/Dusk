@@ -50,15 +50,15 @@ AnimatedObject::AnimatedObject(const std::string& _ID, const Ogre::Vector3& pos,
 AnimatedObject::~AnimatedObject()
 {
   //dtor
-  Disable();
+  disable();
 }
 
-std::string AnimatedObject::GetObjectMesh() const
+std::string AnimatedObject::getObjectMesh() const
 {
-  return ObjectBase::GetSingleton().GetMeshName(ID);
+  return ObjectBase::getSingleton().getMeshName(ID);
 }
 
-bool AnimatedObject::Enable(Ogre::SceneManager* scm)
+bool AnimatedObject::enable(Ogre::SceneManager* scm)
 {
   if (entity!=NULL)
   {
@@ -73,7 +73,7 @@ bool AnimatedObject::Enable(Ogre::SceneManager* scm)
   std::stringstream entity_name;
   entity_name << ID << GenerateUniqueObjectID();
   //create entity + node and attach entity to node
-  entity = scm->createEntity(entity_name.str(), GetObjectMesh());
+  entity = scm->createEntity(entity_name.str(), getObjectMesh());
   Ogre::SceneNode* ent_node = scm->getRootSceneNode()->createChildSceneNode(entity_name.str(), position);
   ent_node->attachObject(entity);
   ent_node->scale(m_Scale, m_Scale, m_Scale);
@@ -116,14 +116,14 @@ bool AnimatedObject::Enable(Ogre::SceneManager* scm)
   return (entity!=NULL);
 }
 
-bool AnimatedObject::Disable()
+bool AnimatedObject::disable()
 {
   if (entity == NULL)
   {
     return true;
   }
   //synchro list
-  SynchronizeAnimationList();
+  synchronizeAnimationList();
   //disable it
   Ogre::SceneNode* ent_node = entity->getParentSceneNode();
   Ogre::SceneManager * scm;
@@ -140,7 +140,7 @@ bool AnimatedObject::Disable()
   return true;
 }
 
-ObjectTypes AnimatedObject::GetType() const
+ObjectTypes AnimatedObject::getDuskType() const
 {
   return otAnimated;
 }
@@ -153,7 +153,7 @@ bool AnimatedObject::isHitByRay(const Ogre::Ray& ray, Ogre::Vector3& impact) con
      GetMeshInformation() for static entities.
   */
   //if object is not enabled, it can not be hit by a ray
-  if (!IsEnabled()) return false;
+  if (!isEnabled()) return false;
   //perform bounding box check first, because it's less expensive and faster
   // than a full ray-to-polygon check
   if (!(ray.intersects(entity->getWorldBoundingBox()).first)) return false;
@@ -221,7 +221,7 @@ bool AnimatedObject::isHitByRay(const Ogre::Ray& ray, Ogre::Vector3& impact) con
   return false;
 }
 
-bool AnimatedObject::StartAnimation(const std::string& AnimName, const bool DoLoop)
+bool AnimatedObject::startAnimation(const std::string& AnimName, const bool DoLoop)
 {
   if (AnimName=="")
     return false;
@@ -247,7 +247,7 @@ bool AnimatedObject::StartAnimation(const std::string& AnimName, const bool DoLo
   return false;
 }
 
-bool AnimatedObject::StopAnimation(const std::string& AnimName)
+bool AnimatedObject::stopAnimation(const std::string& AnimName)
 {
   if (entity==NULL)  // no entitiy -> no animation, so basically
     return true;     //   the animation is already "stopped" :P
@@ -272,7 +272,7 @@ bool AnimatedObject::StopAnimation(const std::string& AnimName)
   return false;
 }
 
-unsigned int AnimatedObject::StopAllAnimations()
+unsigned int AnimatedObject::stopAllAnimations()
 {
   if (entity==NULL)  // no entitiy -> no animation, so basically
     return 0;        // all animations are already "stopped" :P
@@ -302,7 +302,7 @@ unsigned int AnimatedObject::StopAllAnimations()
   return result;
 }
 
-bool AnimatedObject::IsAnimationActive(const std::string& AnimName) const
+bool AnimatedObject::isAnimationActive(const std::string& AnimName) const
 {
   if (entity==NULL)  // no entitiy -> no animation, so basically
     return false;     //   the animation is already "stopped" :P
@@ -322,12 +322,12 @@ bool AnimatedObject::IsAnimationActive(const std::string& AnimName) const
   return false;
 }
 
-std::vector<std::string> AnimatedObject::GetCurrentAnimations() const
+std::vector<std::string> AnimatedObject::getCurrentAnimations() const
 {
   std::vector<std::string> tempList;
   tempList.clear();
   //if object is not enabled, get list from m_Anims
-  if (!IsEnabled())
+  if (!isEnabled())
   {
     std::map<std::string, AnimRecord>::const_iterator cIter = m_Anims.begin();
     while (cIter!=m_Anims.end())
@@ -351,7 +351,7 @@ std::vector<std::string> AnimatedObject::GetCurrentAnimations() const
   return tempList;
 }
 
-std::vector<std::string> AnimatedObject::GetPossibleAnimationStates() const
+std::vector<std::string> AnimatedObject::getPossibleAnimationStates() const
 {
   if (entity==NULL)
   {
@@ -372,9 +372,9 @@ std::vector<std::string> AnimatedObject::GetPossibleAnimationStates() const
   return result;
 }
 
-bool AnimatedObject::GetLoopState(const std::string& AnimName) const
+bool AnimatedObject::getLoopState(const std::string& AnimName) const
 {
-  if (IsEnabled())
+  if (isEnabled())
   {
     const Ogre::AnimationStateSet * anim_set = entity->getAllAnimationStates();
     if (anim_set==NULL) return false;
@@ -411,9 +411,9 @@ void AnimatedObject::injectTime(const float SecondsPassed)
   }//if
 }
 
-void AnimatedObject::SynchronizeAnimationList()
+void AnimatedObject::synchronizeAnimationList()
 {
-  if (!IsEnabled()) return;
+  if (!isEnabled()) return;
   //clear list
   m_Anims.clear();
   //rebuilt list with current data
@@ -432,7 +432,7 @@ void AnimatedObject::SynchronizeAnimationList()
   }// anim set present
 }
 
-bool AnimatedObject::SaveToStream(std::ofstream& OutStream) const
+bool AnimatedObject::saveToStream(std::ofstream& OutStream) const
 {
   if (!OutStream.good())
   {
@@ -442,17 +442,17 @@ bool AnimatedObject::SaveToStream(std::ofstream& OutStream) const
   //write header "RefA" (reference of AnimatedObject)
   OutStream.write((char*) &cHeaderRefA, sizeof(unsigned int));
   //write all data inherited from DuskObject
-  if (!SaveDuskObjectPart(OutStream))
+  if (!saveDuskObjectPart(OutStream))
   {
     std::cout << "AnimatedObject::SaveToStream: ERROR while writing basic "
               << "data!\n";
     return false;
   }
   // go on with new data members from AnimatedObject
-  return SaveAnimatedObjectPart(OutStream);
+  return saveAnimatedObjectPart(OutStream);
 }
 
-bool AnimatedObject::SaveAnimatedObjectPart(std::ofstream& OutStream) const
+bool AnimatedObject::saveAnimatedObjectPart(std::ofstream& OutStream) const
 {
   // save new data members from AnimatedObject
   // -- save length
@@ -475,7 +475,7 @@ bool AnimatedObject::SaveAnimatedObjectPart(std::ofstream& OutStream) const
   return OutStream.good();
 }
 
-bool AnimatedObject::LoadFromStream(std::ifstream& InStream)
+bool AnimatedObject::loadFromStream(std::ifstream& InStream)
 {
   if (entity!=NULL)
   {
@@ -498,17 +498,17 @@ bool AnimatedObject::LoadFromStream(std::ifstream& InStream)
     return false;
   }
   //read all stuff inherited from DuskObject
-  if (!LoadDuskObjectPart(InStream))
+  if (!loadDuskObjectPart(InStream))
   {
     std::cout << "AnimatedObject::LoadFromStream: ERROR while reading basic "
               << "object data.\n";
     return false;
   }//if
   // go on with new data members from AnimatedObject
-  return LoadAnimatedObjectPart(InStream);
+  return loadAnimatedObjectPart(InStream);
 }
 
-bool AnimatedObject::LoadAnimatedObjectPart(std::ifstream& InStream)
+bool AnimatedObject::loadAnimatedObjectPart(std::ifstream& InStream)
 {
   //load data members from AnimatedObject
   //animation data

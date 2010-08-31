@@ -12,7 +12,7 @@ int GetPlayer(lua_State *L)
 {
   if (lua_gettop(L)==0)
   {
-    AnimatedObject* a = &(Player::GetSingleton());
+    AnimatedObject* a = &(Player::getSingleton());
     lua_pushlightuserdata(L, a);
     return 1;
   }
@@ -25,7 +25,7 @@ int GetAnimated(lua_State *L)
 {
   if (lua_gettop(L)==1)
   {
-    lua_pushlightuserdata(L, InjectionManager::GetSingleton().GetAnimatedObjectReference(lua_tostring(L, 1)));
+    lua_pushlightuserdata(L, InjectionManager::getSingleton().getAnimatedObjectReference(lua_tostring(L, 1)));
     return 1;
   }
   lua_pushstring(L, "GetAnimated expects exactly one argument!\n");
@@ -40,7 +40,7 @@ int GetAnimatedLoop(lua_State *L)
     const AnimatedObject* aniPtr = static_cast<AnimatedObject*> (lua_touserdata(L, 1));
     if (aniPtr!=NULL)
     {
-      if (aniPtr->GetLoopState(lua_tostring(L, 2)))
+      if (aniPtr->getLoopState(lua_tostring(L, 2)))
       {
         lua_pushboolean(L, 1);
       }
@@ -66,7 +66,7 @@ int GetAnimatedAnimations(lua_State *L)
     const AnimatedObject* aniPtr = static_cast<AnimatedObject*> (lua_touserdata(L, 1));
     if (aniPtr!=NULL)
     {
-      const std::vector<std::string> result = aniPtr->GetCurrentAnimations();
+      const std::vector<std::string> result = aniPtr->getCurrentAnimations();
       unsigned int i;
       for (i=0; i<result.size(); ++i)
       {
@@ -90,7 +90,7 @@ int AnimatedStartAnimation(lua_State *L)
     AnimatedObject* aniPtr = static_cast<AnimatedObject*> (lua_touserdata(L, 1));
     if (aniPtr!=NULL)
     {
-      if (aniPtr->StartAnimation(lua_tostring(L, 2), lua_toboolean(L, 3)))
+      if (aniPtr->startAnimation(lua_tostring(L, 2), lua_toboolean(L, 3)))
         lua_pushboolean(L, 1);
       else lua_pushboolean(L, 0);
       return 1;
@@ -111,7 +111,7 @@ int AnimatedStopAnimation(lua_State *L)
     AnimatedObject* aniPtr = static_cast<AnimatedObject*> (lua_touserdata(L, 1));
     if (aniPtr!=NULL)
     {
-      if (aniPtr->StopAnimation(lua_tostring(L, 2)))
+      if (aniPtr->stopAnimation(lua_tostring(L, 2)))
         lua_pushboolean(L, 1);
       else lua_pushboolean(L, 0);
       return 1;
@@ -132,7 +132,7 @@ int AnimatedStopAllAnimations(lua_State *L)
     AnimatedObject* aniPtr = static_cast<AnimatedObject*> (lua_touserdata(L, 1));
     if (aniPtr!=NULL)
     {
-      lua_pushnumber(L, aniPtr->StopAllAnimations());
+      lua_pushnumber(L, aniPtr->stopAllAnimations());
       return 1;
     }
     lua_pushstring(L, "AnimatedStopAllAnimations got NULL for object pointer!\n");
@@ -151,7 +151,7 @@ int AnimatedIsAnimationActive(lua_State *L)
     const AnimatedObject* aniPtr = static_cast<AnimatedObject*> (lua_touserdata(L, 1));
     if (aniPtr!=NULL)
     {
-      if (aniPtr->IsAnimationActive(lua_tostring(L, 2)))
+      if (aniPtr->isAnimationActive(lua_tostring(L, 2)))
         lua_pushboolean(L, 1);
       else lua_pushboolean(L, 0);
       return 1;

@@ -13,6 +13,7 @@
      - 2009-09-27 (rev 132) - small improvements
      - 2009-09-27 (rev 133) - equality operator for LightRecords
      - 2010-05-06 (rev 198) - documentation update
+     - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
 
  ToDo list:
      - ???
@@ -45,40 +46,40 @@ namespace Dusk
       Ogre::Light::LightTypes type;
 
       /* returns true, if the colour of the light is black */
-      bool IsBlack() const;
+      bool isBlack() const;
 
       /* "normalises" colour components of the light, i.e. it makes sure the
          values are within [0;1], and sets negative radius to zero
       */
-      void Normalise();
+      void normalise();
 
       /* static function to get a black point light record
 
          parameters:
              d - range of light
       */
-      static LightRecord GetBlack(const float d=0.0f);
+      static LightRecord getBlack(const float d=0.0f);
 
       /* static function to get a red point light record
 
          parameters:
              d - range of light
       */
-      static LightRecord GetRed(const float d=0.0f);
+      static LightRecord getRed(const float d=0.0f);
 
       /* static function to get a green point light record
 
          parameters:
              d - range of light
       */
-      static LightRecord GetGreen(const float d=0.0f);
+      static LightRecord getGreen(const float d=0.0f);
 
       /* static function to get a blue point light record
 
          parameters:
              d - range of light
       */
-      static LightRecord GetBlue(const float d=0.0f);
+      static LightRecord getBlue(const float d=0.0f);
   };
 
   /* overloaded equality operator for light records */
@@ -93,7 +94,7 @@ namespace Dusk
       virtual ~LightBase();
 
       /* singleton access method */
-      static LightBase& GetSingleton();
+      static LightBase& getSingleton();
 
       /* adds a new light record to the database
 
@@ -148,31 +149,38 @@ namespace Dusk
          remarks:
              Currently only used be Editor and DataLoader.
       */
-      void ClearAllData();
+      void clearAllData();
 
       /* returns the number of distinct light records */
-      unsigned int NumberOfLights() const;
+      unsigned int numberOfLights() const;
 
       /* tries to save all light records to the given stream. Returns true, if
          the operation was successful, and false if it failed.
+
+         parameters:
+             out_stream - the output stream that is used to save the data
       */
-      bool SaveAllToStream(std::ofstream& out_stream) const;
+      bool saveAllToStream(std::ofstream& out_stream) const;
 
       /* tries to load one single light record from the given stream and returns
          true, if it was successful
+
+         parameters:
+             in_stream - the input stream that is used to load the light data
       */
-      bool LoadRecordFromStream(std::ifstream& in_stream);
+      bool loadRecordFromStream(std::ifstream& in_stream);
 
       /* utility functions to access internal map iterators - not used in-game,
          only used by Editor application.
       */
-      std::map<std::string, LightRecord>::const_iterator GetFirst() const;
-      std::map<std::string, LightRecord>::const_iterator GetEnd() const;
+      std::map<std::string, LightRecord>::const_iterator getFirst() const;
+      std::map<std::string, LightRecord>::const_iterator getEnd() const;
     private:
       /* private constructor (singleton pattern) */
       LightBase();
       /* empty copy constructor due to singleton pattern */
       LightBase(const LightBase& op){}
+      //list of lights
       std::map<std::string, LightRecord> m_LightList;
   };//class
 

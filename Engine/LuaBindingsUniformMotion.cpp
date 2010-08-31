@@ -14,7 +14,7 @@ int GetDirection(lua_State *L)
     const UniformMotionObject* umPtr = static_cast<UniformMotionObject*> (lua_touserdata(L, 1));
     if (umPtr!=NULL)
     {
-      const Ogre::Vector3 vec = umPtr->GetDirection();
+      const Ogre::Vector3 vec = umPtr->getDirection();
       lua_pushnumber(L, vec.x);
       lua_pushnumber(L, vec.y);
       lua_pushnumber(L, vec.z);
@@ -36,7 +36,7 @@ int SetDirection(lua_State *L)
     UniformMotionObject* umPtr = static_cast<UniformMotionObject*> (lua_touserdata(L, 1));
     if (umPtr!=NULL)
     {
-      umPtr->SetDirection(Ogre::Vector3(lua_tonumber(L, 2), lua_tonumber(L, 3),
+      umPtr->setDirection(Ogre::Vector3(lua_tonumber(L, 2), lua_tonumber(L, 3),
                                         lua_tonumber(L, 4)));
       return 0;
     }
@@ -56,7 +56,7 @@ int GetSpeed(lua_State *L)
     const UniformMotionObject* umPtr = static_cast<UniformMotionObject*> (lua_touserdata(L, 1));
     if (umPtr!=NULL)
     {
-      lua_pushnumber(L, umPtr->GetSpeed());
+      lua_pushnumber(L, umPtr->getSpeed());
       return 1;
     }
     lua_pushstring(L, "UMOGetSpeed() got NULL for object pointer!\n");
@@ -75,7 +75,7 @@ int SetSpeed(lua_State *L)
     UniformMotionObject* umPtr = static_cast<UniformMotionObject*> (lua_touserdata(L, 1));
     if (umPtr!=NULL)
     {
-      umPtr->SetSpeed(lua_tonumber(L, 2));
+      umPtr->setSpeed(lua_tonumber(L, 2));
       return 0;
     }
     lua_pushstring(L, "SetUMOSpeed() got NULL for object pointer!\n");
@@ -94,7 +94,7 @@ int GetDestination(lua_State *L)
     const UniformMotionObject* umPtr = static_cast<UniformMotionObject*> (lua_touserdata(L, 1));
     if (umPtr!=NULL)
     {
-      const Ogre::Vector3 vec = umPtr->GetDestination();
+      const Ogre::Vector3 vec = umPtr->getDestination();
       lua_pushnumber(L, vec.x);
       lua_pushnumber(L, vec.y);
       lua_pushnumber(L, vec.z);
@@ -116,7 +116,7 @@ int TravelToDestination(lua_State *L)
     UniformMotionObject* umPtr = static_cast<UniformMotionObject*> (lua_touserdata(L, 1));
     if (umPtr!=NULL)
     {
-      umPtr->TravelToDestination(Ogre::Vector3(lua_tonumber(L, 2), lua_tonumber(L, 3),
+      umPtr->travelToDestination(Ogre::Vector3(lua_tonumber(L, 2), lua_tonumber(L, 3),
                                                lua_tonumber(L, 4)));
       return 0;
     }
@@ -136,7 +136,7 @@ int IsOnTravel(lua_State *L)
     const UniformMotionObject* umPtr = static_cast<UniformMotionObject*> (lua_touserdata(L, 1));
     if (umPtr!=NULL)
     {
-      if (umPtr->IsOnTravel())
+      if (umPtr->isOnTravel())
         lua_pushboolean(L, 1);
       else lua_pushboolean(L, 0);
       return 1;

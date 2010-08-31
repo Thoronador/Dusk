@@ -16,17 +16,17 @@ ObjectManager::ObjectManager()
 
 ObjectManager::~ObjectManager()
 {
-  ClearData();
+  clearData();
   m_RefCount = 0;
 }
 
-ObjectManager& ObjectManager::GetSingleton()
+ObjectManager& ObjectManager::getSingleton()
 {
   static ObjectManager Instance;
   return Instance;
 }
 
-unsigned int ObjectManager::NumberOfReferences() const
+unsigned int ObjectManager::numberOfReferences() const
 {
   return m_RefCount;
 }
@@ -75,7 +75,7 @@ Weapon* ObjectManager::addWeaponReference(const std::string& ID,
   return WeaponPointer;
 }
 
-DuskObject* ObjectManager::GetObjectByID(const std::string& ID) const
+DuskObject* ObjectManager::getObjectByID(const std::string& ID) const
 {
   std::map<std::string, std::vector<DuskObject*> >::const_iterator iter;
   iter = m_ReferenceMap.find(ID);
@@ -89,7 +89,7 @@ DuskObject* ObjectManager::GetObjectByID(const std::string& ID) const
   return NULL;
 }
 
-bool ObjectManager::IsObjectPresent(const std::string& ID) const
+bool ObjectManager::isObjectPresent(const std::string& ID) const
 {
   std::map<std::string, std::vector<DuskObject*> >::const_iterator iter;
   iter = m_ReferenceMap.find(ID);
@@ -104,7 +104,7 @@ bool ObjectManager::removeItemReference(Item* pItem)
 {
   if (pItem==NULL) return false;
   std::map<std::string, std::vector<DuskObject*> >::iterator iter;
-  iter = m_ReferenceMap.find(pItem->GetID());
+  iter = m_ReferenceMap.find(pItem->getID());
   if (iter!=m_ReferenceMap.end())
   {
     unsigned int i;
@@ -113,7 +113,7 @@ bool ObjectManager::removeItemReference(Item* pItem)
       if (iter->second.at(i)==pItem)
       {
         //found it
-        pItem->Disable();
+        pItem->disable();
         delete pItem;
         pItem = NULL; //not really needed here
         iter->second.at(i)= iter->second.at(iter->second.size()-1);
@@ -127,7 +127,7 @@ bool ObjectManager::removeItemReference(Item* pItem)
   return false;
 }
 
-bool ObjectManager::SaveAllToStream(std::ofstream& Stream) const
+bool ObjectManager::saveAllToStream(std::ofstream& Stream) const
 {
   unsigned int i;
   std::map<std::string, std::vector<DuskObject*> >::const_iterator iter;
@@ -138,7 +138,7 @@ bool ObjectManager::SaveAllToStream(std::ofstream& Stream) const
     {
       if (iter->second.at(i)!=NULL)
       {
-        if (!(iter->second.at(i)->SaveToStream(Stream)) or (!Stream.good()))
+        if (!(iter->second.at(i)->saveToStream(Stream)) or (!Stream.good()))
         {
           std::cout << "ObjectManager::SaveAllToStream: ERROR while writing reference data.\n";
           return false;
@@ -150,16 +150,16 @@ bool ObjectManager::SaveAllToStream(std::ofstream& Stream) const
   return true;
 }
 
-bool ObjectManager::LoadNextFromStream(std::ifstream& Stream, const unsigned int PrefetchedHeader)
+bool ObjectManager::loadNextFromStream(std::ifstream& Stream, const unsigned int PrefetchedHeader)
 {
   DuskObject * objPtr = NULL;
   switch(PrefetchedHeader)
   {
     case cHeaderRefO:
          objPtr = new DuskObject;
-         if (objPtr->LoadFromStream(Stream))
+         if (objPtr->loadFromStream(Stream))
          {
-           m_ReferenceMap[objPtr->GetID()].push_back(objPtr);
+           m_ReferenceMap[objPtr->getID()].push_back(objPtr);
            ++m_RefCount;
            return true;
          }
@@ -167,9 +167,9 @@ bool ObjectManager::LoadNextFromStream(std::ifstream& Stream, const unsigned int
          break;
     case cHeaderRefL:
          objPtr = new Light;
-         if (objPtr->LoadFromStream(Stream))
+         if (objPtr->loadFromStream(Stream))
          {
-           m_ReferenceMap[objPtr->GetID()].push_back(objPtr);
+           m_ReferenceMap[objPtr->getID()].push_back(objPtr);
            ++m_RefCount;
            return true;
          }
@@ -177,9 +177,9 @@ bool ObjectManager::LoadNextFromStream(std::ifstream& Stream, const unsigned int
          break;
     case cHeaderRefC:
          objPtr = new Container;
-         if (objPtr->LoadFromStream(Stream))
+         if (objPtr->loadFromStream(Stream))
          {
-           m_ReferenceMap[objPtr->GetID()].push_back(objPtr);
+           m_ReferenceMap[objPtr->getID()].push_back(objPtr);
            ++m_RefCount;
            return true;
          }
@@ -187,9 +187,9 @@ bool ObjectManager::LoadNextFromStream(std::ifstream& Stream, const unsigned int
          break;
     case cHeaderRefI:
          objPtr = new Item;
-         if (objPtr->LoadFromStream(Stream))
+         if (objPtr->loadFromStream(Stream))
          {
-           m_ReferenceMap[objPtr->GetID()].push_back(objPtr);
+           m_ReferenceMap[objPtr->getID()].push_back(objPtr);
            ++m_RefCount;
            return true;
          }
@@ -197,9 +197,9 @@ bool ObjectManager::LoadNextFromStream(std::ifstream& Stream, const unsigned int
          break;
     case cHeaderRfWe:
          objPtr = new Weapon;
-         if (objPtr->LoadFromStream(Stream))
+         if (objPtr->loadFromStream(Stream))
          {
-           m_ReferenceMap[objPtr->GetID()].push_back(objPtr);
+           m_ReferenceMap[objPtr->getID()].push_back(objPtr);
            ++m_RefCount;
            return true;
          }
@@ -212,7 +212,7 @@ bool ObjectManager::LoadNextFromStream(std::ifstream& Stream, const unsigned int
   return false;
 }
 
-void ObjectManager::EnableAllObjects(Ogre::SceneManager * scm)
+void ObjectManager::enableAllObjects(Ogre::SceneManager * scm)
 {
   unsigned int i;
   if (scm==NULL)
@@ -229,14 +229,14 @@ void ObjectManager::EnableAllObjects(Ogre::SceneManager * scm)
     {
       if (iter->second.at(i)!=NULL)
       {
-        iter->second.at(i)->Enable(scm);
+        iter->second.at(i)->enable(scm);
       }
     }//for
     ++iter;
   }//while
 }
 
-void ObjectManager::DisableAllObjects()
+void ObjectManager::disableAllObjects()
 {
   unsigned int i;
   std::map<std::string, std::vector<DuskObject*> >::const_iterator iter;
@@ -247,7 +247,7 @@ void ObjectManager::DisableAllObjects()
     {
       if (iter->second.at(i)!=NULL)
       {
-        iter->second.at(i)->Disable();
+        iter->second.at(i)->disable();
       }
     }//for
     ++iter;
@@ -291,10 +291,10 @@ unsigned int ObjectManager::reenableReferencesOfObject(const std::string& ID, Og
     std::cout << "ObjectManager::reenableReferencesOfObject: ERROR: Scene Manager is NULL pointer!";
     return 0;
   }
-  if (!ObjectBase::GetSingleton().hasObject(ID) and
-      !LightBase::GetSingleton().hasLight(ID) and
-      !ContainerBase::GetSingleton().HasContainer(ID) and
-      !ItemBase::GetSingleton().hasItem(ID))
+  if (!ObjectBase::getSingleton().hasObject(ID) and
+      !LightBase::getSingleton().hasLight(ID) and
+      !ContainerBase::getSingleton().hasContainer(ID) and
+      !ItemBase::getSingleton().hasItem(ID))
   {
     std::cout << "ObjectManager::reenableReferencesOfObject: ERROR: there is no"
               << " record about object with the new ID \""+ID+"\" within the"
@@ -312,11 +312,11 @@ unsigned int ObjectManager::reenableReferencesOfObject(const std::string& ID, Og
   {
     if (iter->second.at(position)!=NULL)
     {
-      if (iter->second.at(position)->IsEnabled())
+      if (iter->second.at(position)->isEnabled())
       {
-        iter->second.at(position)->Disable();
-        iter->second.at(position)->Enable(scm);
-        re_enabled++;
+        iter->second.at(position)->disable();
+        iter->second.at(position)->enable(scm);
+        ++re_enabled;
       }//if
     }//if
   }//for
@@ -340,10 +340,10 @@ unsigned int ObjectManager::updateReferencesAfterIDChange(const std::string& old
               << "is the same as new ID. No need to change anything here.\n";
     return 0;
   }
-  if (!ObjectBase::GetSingleton().hasObject(newID) and
-      !LightBase::GetSingleton().hasLight(newID) and
-      !ContainerBase::GetSingleton().HasContainer(newID) and
-      !ItemBase::GetSingleton().hasItem(newID))
+  if (!ObjectBase::getSingleton().hasObject(newID) and
+      !LightBase::getSingleton().hasLight(newID) and
+      !ContainerBase::getSingleton().hasContainer(newID) and
+      !ItemBase::getSingleton().hasItem(newID))
   {
     std::cout << "ObjectManager::updateReferencesAfterIDChange: ERROR: there is "
               << "no record about object with the new ID \""+newID+"\" within "
@@ -369,15 +369,15 @@ unsigned int ObjectManager::updateReferencesAfterIDChange(const std::string& old
     DuskObject* objPtr = iter->second.back();
     if (objPtr!=NULL)
     {
-      if (objPtr->IsEnabled())
+      if (objPtr->isEnabled())
       { //we cannot change ID of enabled objects, so disable them first
-        objPtr->Disable();
-        objPtr->ChangeID(newID);
-        objPtr->Enable(scm);
+        objPtr->disable();
+        objPtr->changeID(newID);
+        objPtr->enable(scm);
       }
       else
       { //not enabled, so simply change ID
-        objPtr->ChangeID(newID);
+        objPtr->changeID(newID);
       }
       m_ReferenceMap[newID].push_back(objPtr);
       ++m_RefCount;
@@ -390,7 +390,7 @@ unsigned int ObjectManager::updateReferencesAfterIDChange(const std::string& old
 }
 #endif //DUSK_EDITOR
 
-void ObjectManager::ClearData()
+void ObjectManager::clearData()
 {
   DuskObject * ObjPtr;
   std::map<std::string, std::vector<DuskObject*> >::iterator iter;
@@ -400,7 +400,7 @@ void ObjectManager::ClearData()
      while (!(iter->second.empty()))
      {
       ObjPtr = iter->second.back();
-      ObjPtr->Disable();
+      ObjPtr->disable();
       delete ObjPtr;
       iter->second.pop_back();
      }//while

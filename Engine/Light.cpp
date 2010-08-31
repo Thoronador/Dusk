@@ -20,7 +20,7 @@ Light::Light(const std::string& ID, const Ogre::Vector3& pos, const Ogre::Vector
   m_Direction = dir;
 }
 
-bool Light::Enable(Ogre::SceneManager* scm)
+bool Light::enable(Ogre::SceneManager* scm)
 {
   if (entity != NULL)
   {
@@ -36,7 +36,7 @@ bool Light::Enable(Ogre::SceneManager* scm)
   entity_name << ID << GenerateUniqueObjectID();
 
   entity = scm->createLight(entity_name.str());
-  LightRecord lr = LightBase::GetSingleton().getLightData(ID);
+  LightRecord lr = LightBase::getSingleton().getLightData(ID);
   entity->setType(lr.type);
   entity->setPosition(Ogre::Vector3::ZERO);
   if (lr.type!=Ogre::Light::LT_POINT)
@@ -59,7 +59,7 @@ bool Light::Enable(Ogre::SceneManager* scm)
   return (entity!=NULL);
 }
 
-bool Light::Disable()
+bool Light::disable()
 {
   if (entity == NULL)
   {
@@ -79,17 +79,17 @@ bool Light::Disable()
   return true;
 }
 
-bool Light::IsEnabled() const
+bool Light::isEnabled() const
 {
   return (entity!=NULL);
 }
 
-ObjectTypes Light::GetType() const
+ObjectTypes Light::getDuskType() const
 {
   return otLight;
 }
 
-void Light::SetDirection(const Ogre::Vector3& dir)
+void Light::setDirection(const Ogre::Vector3& dir)
 {
   if (entity != NULL)
   {
@@ -98,12 +98,12 @@ void Light::SetDirection(const Ogre::Vector3& dir)
   m_Direction = dir;
 }
 
-Ogre::Vector3 Light::GetDirection() const
+Ogre::Vector3 Light::getDirection() const
 {
   return m_Direction;
 }
 
-bool Light::SaveToStream(std::ofstream& OutStream) const
+bool Light::saveToStream(std::ofstream& OutStream) const
 {
   if (!OutStream.good())
   {
@@ -146,7 +146,7 @@ bool Light::SaveToStream(std::ofstream& OutStream) const
   return (OutStream.good());
 }
 
-bool Light::LoadFromStream(std::ifstream& InStream)
+bool Light::loadFromStream(std::ifstream& InStream)
 {
   if (entity!=NULL)
   {

@@ -13,6 +13,7 @@
      - 2010-01-17 (rev 156) - update of SaveToStream() and LoadFromStream()
      - 2010-07-31 (rev 220) - GetObjectMesh() added
                             - Enable() removed (uses inherited method instead)
+     - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
 
  ToDo list:
      - ???
@@ -38,44 +39,67 @@ namespace Dusk
       virtual ~Container();
 
       /* returns true, if the container is empty */
-      bool IsEmpty() const;
+      bool isEmpty() const;
 
       /* adds all items in the container to Inventory target and empties
          container afterwards
 
+         parameters:
+             target - the inventory that will receive this container's items
+
          remarks:
              will not work as intended, if target is the calling container object
       */
-      void TransferAllItemsTo(Inventory& target);
+      void transferAllItemsTo(Inventory& target);
 
-      /* Adds count items of ID ItemID to the container */
-      void AddItem(const std::string& ItemID, const unsigned int count);
+      /* Adds count items of ID ItemID to the container
+
+         parameters:
+             ItemID - the ID of the item that will be added to the container
+             count  - amount of items that shall be added
+      */
+      void addItem(const std::string& ItemID, const unsigned int count);
 
       /* Tries to remove count items of ID ItemID from the container. If the
          container does not have that many items of ItemID, all available items
          with that ID are removed. Returns the number of items that were
          removed.
+
+         parameters:
+             ItemID - the ID of the item that will be removed from the container
+             count  - amount of items that shall be removed
+
+         returns:
+             the number of items that were actually removed from this container.
+             This number can be smaller than count, if there are not count items
+             of the given ID.
       */
-      unsigned int RemoveItem(const std::string& ItemID, const unsigned int count);
+      unsigned int removeItem(const std::string& ItemID, const unsigned int count);
 
       /* Returns the number of items with ID ItemID within the container */
-      unsigned int GetItemCount(const std::string& ItemID) const;
+      unsigned int getItemCount(const std::string& ItemID) const;
 
       /* returns object type (in this case otContainer) */
-      virtual ObjectTypes GetType() const;
+      virtual ObjectTypes getDuskType() const;
 
       /* Tries to save the container data to OutStream and returns true on
          success, false otherwise.
+
+         parameters:
+               OutStream - the output stream to which the object will be saved
       */
-      virtual bool SaveToStream(std::ofstream& OutStream) const;
+      virtual bool saveToStream(std::ofstream& OutStream) const;
 
       /* Tries to load the container data from stream InStream and returns true
          on success, false otherwise.
 
+         parameters:
+             InStream - the input stream from which the data will be read
+
          remarks:
              The container may have inconsistent data, if the function fails.
       */
-      virtual bool LoadFromStream(std::ifstream& InStream);
+      virtual bool loadFromStream(std::ifstream& InStream);
     protected:
       /* returns the name/path of the mesh that is used during enabling this
          object
@@ -84,7 +108,7 @@ namespace Dusk
              Every(!) derived, non-abstract class has to implement their own
              version of that function to ensure the use of the right meshes.
       */
-      virtual std::string GetObjectMesh() const;
+      virtual std::string getObjectMesh() const;
 
       //holds the contents of this container
       Inventory m_Contents;

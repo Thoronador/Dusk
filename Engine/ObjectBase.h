@@ -16,6 +16,7 @@
      - 2009-09-27 (rev 132) - }
      - 2010-01-30 (rev 161) - obsolete load/save functions removed
                             - documentation updated
+     - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
 
  ToDo list:
      - ???
@@ -60,7 +61,7 @@ namespace Dusk
       virtual ~ObjectBase();
 
       /* singleton access */
-      static ObjectBase& GetSingleton();
+      static ObjectBase& getSingleton();
 
       /* returns true, if an object with the given ID exists */
       bool hasObject(const std::string& IDOfObject) const;
@@ -68,38 +69,53 @@ namespace Dusk
       /* adds object with given ID and mesh. If an object with that ID already
          exists, it will be overwritten. If ID or mesh is an empty string,
          nothing will be done.
+
+         parameters:
+             ID   - ID of the object
+             Mesh - mesh path for the object
       */
       void addObject(const std::string& ID, const std::string& Mesh);
 
       /* tries to delete the object with the given ID and returns true if such
          an object was present (before deleting it, that is)
+
+         parameters:
+             ID_of_Object - ID of the object that shall be deleted
       */
       bool deleteObject(const std::string& ID_of_Object);
 
       /* deletes ALL objects, use with caution (or not at all) */
-      void ClearAllObjects();
+      void clearAllObjects();
 
       /* returns the number of objects which are currently present */
-      unsigned int NumberOfObjects() const;
+      unsigned int numberOfObjects() const;
 
       /* returns the mesh path of the given object, or an empty string, if no
           object with that ID is present. However, if UseMarkerOnError is set
           to true (default), this function will return the path to a predefined
           error mesh instead.
       */
-      std::string GetMeshName(const std::string& ID, const bool UseMarkerOnError=true) const;
+      std::string getMeshName(const std::string& ID, const bool UseMarkerOnError=true) const;
 
-      /* tries to save all objects to the stream and returns true on success */
-      bool SaveToStream(std::ofstream& Stream) const;
+      /* tries to save all objects to the stream and returns true on success
 
-      /* tries to read the next object from stream and returns true, if successful */
-      bool LoadFromStream(std::ifstream& Stream);
+         parameters:
+             Stream - output stream that is used to save the data
+      */
+      bool saveToStream(std::ofstream& Stream) const;
+
+      /* tries to read the next object from stream and returns true, if successful
+
+         parameters:
+             Stream - input stream that is used to load the data
+      */
+      bool loadFromStream(std::ifstream& Stream);
 
       /* helper functions to access internal map iterators - not used in-game,
          only used by Editor application.
       */
-      std::map<std::string, std::string>::const_iterator GetFirst() const;
-      std::map<std::string, std::string>::const_iterator GetEnd() const;
+      std::map<std::string, std::string>::const_iterator getFirst() const;
+      std::map<std::string, std::string>::const_iterator getEnd() const;
     private:
       /*  constuctor */
       ObjectBase();

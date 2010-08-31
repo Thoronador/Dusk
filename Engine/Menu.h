@@ -12,6 +12,7 @@
      - 2010-08-15 (rev 225) - fixed two bugs that could cause a crash/ error on
                               program termination
      - 2010-08-20 (rev 231) - visualisation of quest log implemented (partially)
+     - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
 
  ToDo list:
      - get a better material or texture for dialogue menu background
@@ -36,7 +37,7 @@ namespace Dusk
   {
     public:
       /* Singleton access method */
-      static Menu& GetSingleton();
+      static Menu& getSingleton();
 
       /* destructor */
       virtual ~Menu();
@@ -88,7 +89,10 @@ namespace Dusk
       /* switches to previous page in QuestLog */
       void previousQuestLogPage();
     private:
+      /* constructor - private due to singleton pattern */
       Menu();
+
+      /* empty, private copy constructor (singleton) */
       Menu(const Menu& op) {}
 
       /* shows the dialogue menu

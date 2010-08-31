@@ -480,7 +480,7 @@ void EditorApplication::CreateCEGUICatalogue(void)
   ir.weight = 0.2;
   ir.Mesh = "food/golden_delicious.mesh";
   addItemRecordToCatalogue("apple", ir);
-  ItemBase::GetSingleton().addItem("apple", ir);
+  ItemBase::getSingleton().addItem("apple", ir);
 
   //Light tab
   pane = winmgr.createWindow("TaharezLook/TabContentPane", "Editor/Catalogue/Tab/Light");
@@ -503,9 +503,9 @@ void EditorApplication::CreateCEGUICatalogue(void)
   mcl->subscribeEvent(CEGUI::Window::EventMouseButtonUp, CEGUI::Event::Subscriber(&EditorApplication::LightTabClicked, this));
 
   //sample data
-  LightBase::GetSingleton().addLight("light_red", LightRecord::GetRed(123.4));
-  LightBase::GetSingleton().addLight("light_green", LightRecord::GetGreen(23.4));
-  LightBase::GetSingleton().addLight("light_blue", LightRecord::GetBlue(3.4));
+  LightBase::getSingleton().addLight("light_red", LightRecord::getRed(123.4));
+  LightBase::getSingleton().addLight("light_green", LightRecord::getGreen(23.4));
+  LightBase::getSingleton().addLight("light_blue", LightRecord::getBlue(3.4));
   RefreshLightList();
 
   //NPC tab
@@ -682,7 +682,7 @@ bool EditorApplication::SaveButtonClicked(const CEGUI::EventArgs &e)
     return true;
   }
   //save it
-  if (DataLoader::GetSingleton().SaveToFile(LoadedDataFile, ALL_BITS))
+  if (DataLoader::getSingleton().saveToFile(LoadedDataFile, ALL_BITS))
   {
     showHint("File successfully saved!");
     return true;
@@ -695,15 +695,15 @@ bool EditorApplication::StatsButtonClicked(const CEGUI::EventArgs &e)
 {
   showHint( "Current statistics:\n  Landscape records: "
            + IntToString(Landscape::GetSingleton().RecordsAvailable())+"\n"
-           +"  Object records: "  + IntToString(ObjectBase::GetSingleton().NumberOfObjects())+"\n"
-           +"  Items: " + IntToString(ItemBase::GetSingleton().NumberOfItems())+"\n"
-           +"  Lights: " + IntToString(LightBase::GetSingleton().NumberOfLights())+"\n"
-           +"    Object, Light & Item references: "+ IntToString(ObjectManager::GetSingleton().NumberOfReferences())
-           +"\n  NPCs: " + IntToString(NPCBase::GetSingleton().NumberOfNPCs())
-           +"\n    Animated Object & NPC references: "+ IntToString(InjectionManager::GetSingleton().NumberOfReferences())
+           +"  Object records: "  + IntToString(ObjectBase::getSingleton().numberOfObjects())+"\n"
+           +"  Items: " + IntToString(ItemBase::getSingleton().numberOfItems())+"\n"
+           +"  Lights: " + IntToString(LightBase::getSingleton().numberOfLights())+"\n"
+           +"    Object, Light & Item references: "+ IntToString(ObjectManager::getSingleton().numberOfReferences())
+           +"\n  NPCs: " + IntToString(NPCBase::getSingleton().numberOfNPCs())
+           +"\n    Animated Object & NPC references: "+ IntToString(InjectionManager::getSingleton().numberOfReferences())
            +"\n  Journal:\n"
-           +"    quests: "+ IntToString(Journal::GetSingleton().NumberOfDistinctQuests())
-           +"\n    entries: "+ IntToString(Journal::GetSingleton().NumberOfEntries()), true);
+           +"    quests: "+ IntToString(Journal::getSingleton().numberOfDistinctQuests())
+           +"\n    entries: "+ IntToString(Journal::getSingleton().numberOfEntries()), true);
   return true;
 }
 
@@ -751,19 +751,19 @@ bool EditorApplication::LoadFrameOKClicked(const CEGUI::EventArgs &e)
     }
     //no directory, but file chosen -> load it
     // --- clear previously loaded data
-    DataLoader::GetSingleton().ClearData(ALL_BITS);
+    DataLoader::getSingleton().clearData(ALL_BITS);
     closeAllEditWindows();
     LoadedDataFile = "";
     ID_of_object_to_delete = "";
     mouse_object = edit_object = NULL;
     ClearCatalogue();
     // --- load file
-    if (!(DataLoader::GetSingleton().LoadFromFile(LoadFrameDirectory+PathToFile)))
+    if (!(DataLoader::getSingleton().loadFromFile(LoadFrameDirectory+PathToFile)))
     {
       showWarning( "Error while loading data from file \""+PathToFile+"\"! "
                   +"Clearing all loaded data to avoid unexpected behaviour.");
       //clear stuff that might have been loaded successfully before error
-      DataLoader::GetSingleton().ClearData(ALL_BITS);
+      DataLoader::getSingleton().clearData(ALL_BITS);
       Landscape::GetSingleton().RemoveFromEngine(mSceneMgr);
       return true;
     }
@@ -783,7 +783,7 @@ bool EditorApplication::LoadFrameOKClicked(const CEGUI::EventArgs &e)
     std::cout << "DEBUG: SendToEngine...\n";
     Landscape::GetSingleton().SendToEngine(mSceneMgr, false);
     std::cout << "DEBUG: EnableAllObjects...\n";
-    ObjectManager::GetSingleton().EnableAllObjects(mSceneMgr);
+    ObjectManager::getSingleton().enableAllObjects(mSceneMgr);
     EditorCamera::GetSingleton().resetToOrigin();
   }//else branch
   return true;
@@ -1120,7 +1120,7 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
 
         if (PlaceType==otLight)
         { //place a light
-          if (!LightBase::GetSingleton().hasLight(std::string(lbi->getText().c_str())))
+          if (!LightBase::getSingleton().hasLight(std::string(lbi->getText().c_str())))
           {
             showWarning("There is no Light with the ID \""
                         +std::string(lbi->getText().c_str())+"\", thus you can't "
@@ -1130,7 +1130,7 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
         }
         else if (PlaceType==otStatic)
         { //place an object
-          if (!ObjectBase::GetSingleton().hasObject(std::string(lbi->getText().c_str())))
+          if (!ObjectBase::getSingleton().hasObject(std::string(lbi->getText().c_str())))
           {
             showWarning("There is no Object with the ID \""
                         +std::string(lbi->getText().c_str())+"\", thus you can't "
@@ -1140,7 +1140,7 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
         }
         else
         { //place an item
-          if (!ItemBase::GetSingleton().hasItem(std::string(lbi->getText().c_str())))
+          if (!ItemBase::getSingleton().hasItem(std::string(lbi->getText().c_str())))
           {
             showWarning("There is no Item with the ID \""
                         +std::string(lbi->getText().c_str())+"\", thus you can't "
@@ -1154,24 +1154,24 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
         if (PlaceType==otStatic)
         {
           temp =
-          ObjectManager::GetSingleton().addObjectReference(std::string(lbi->getText().c_str()),
+          ObjectManager::getSingleton().addObjectReference(std::string(lbi->getText().c_str()),
                      EditorCamera::GetSingleton().getPosition() + quat*Ogre::Vector3(0.0f, 0.0f, -100.0f),
                      Ogre::Vector3::ZERO, 1.0f);
         }
         else if (PlaceType==otLight)
         {
           temp =
-          ObjectManager::GetSingleton().addLightReference(std::string(lbi->getText().c_str()),
+          ObjectManager::getSingleton().addLightReference(std::string(lbi->getText().c_str()),
                      EditorCamera::GetSingleton().getPosition() + quat*Ogre::Vector3(0.0f, 0.0f, -100.0f));
         }
         else
         {
           temp =
-          ObjectManager::GetSingleton().addItemReference( std::string(lbi->getText().c_str()),
+          ObjectManager::getSingleton().addItemReference( std::string(lbi->getText().c_str()),
                      EditorCamera::GetSingleton().getPosition() + quat*Ogre::Vector3(0.0f, 0.0f, -100.0f),
                      Ogre::Vector3::ZERO, 1.0f);
         }
-        temp->Enable(mSceneMgr);
+        temp->enable(mSceneMgr);
       }
       else
       {
@@ -1218,7 +1218,7 @@ bool EditorApplication::RootMouseMove(const CEGUI::EventArgs &e)
           temp.x = cRotationFactor * mouse_ea.moveDelta.d_y;
           temp.y = cRotationFactor * mouse_ea.moveDelta.d_x;
         }
-        mouse_object->SetRotation(mouse_object->GetRotation() + temp);
+        mouse_object->setRotation(mouse_object->getRotation() + temp);
         return true;
       }//if
       else
@@ -1231,7 +1231,7 @@ bool EditorApplication::RootMouseMove(const CEGUI::EventArgs &e)
             vec.y = -cMovementFactor*mouse_ea.moveDelta.d_y;
             vec = EditorCamera::GetSingleton().getOrientation() * vec;
             std::cout << "vec: "<<vec<<"\n";
-            mouse_object->SetPosition(mouse_object->GetPosition()+vec);
+            mouse_object->setPosition(mouse_object->getPosition()+vec);
           }
           // not implemented yet
       }//else
@@ -1354,7 +1354,7 @@ void EditorApplication::showObjectReferenceEditWindow(const CEGUI::Point& pt)
   else
   { //create window
     frame = static_cast<CEGUI::FrameWindow*> (winmgr.createWindow("TaharezLook/FrameWindow", "Editor/ObjectReference"));
-    switch(target->GetType())
+    switch(target->getDuskType())
     {
       case otStatic:
            frame->setText("Object"); break;
@@ -1510,13 +1510,13 @@ void EditorApplication::showObjectReferenceEditWindow(const CEGUI::Point& pt)
   frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.5, 0), CEGUI::UDim(0.5, 0)));
   frame->moveToFront();
   //content
-  winmgr.getWindow("Editor/ObjectReference/ID")->setText("ID: "+target->GetID());
-  winmgr.getWindow("Editor/ObjectReference/ScaleEdit")->setText(FloatToString(target->GetScale()));
-  Ogre::Vector3 vec = target->GetPosition();
+  winmgr.getWindow("Editor/ObjectReference/ID")->setText("ID: "+target->getID());
+  winmgr.getWindow("Editor/ObjectReference/ScaleEdit")->setText(FloatToString(target->getScale()));
+  Ogre::Vector3 vec = target->getPosition();
   winmgr.getWindow("Editor/ObjectReference/PosXSpin")->setText(FloatToString(vec.x));
   winmgr.getWindow("Editor/ObjectReference/PosYSpin")->setText(FloatToString(vec.y));
   winmgr.getWindow("Editor/ObjectReference/PosZSpin")->setText(FloatToString(vec.z));
-  vec = target->GetRotation();
+  vec = target->getRotation();
   winmgr.getWindow("Editor/ObjectReference/RotXSpin")->setText(FloatToString(vec.x));
   winmgr.getWindow("Editor/ObjectReference/RotYSpin")->setText(FloatToString(vec.y));
   winmgr.getWindow("Editor/ObjectReference/RotZSpin")->setText(FloatToString(vec.z));
@@ -1570,17 +1570,17 @@ bool EditorApplication::ObjectReferenceEditSaveClicked(const CEGUI::EventArgs &e
     spin = static_cast<CEGUI::Spinner*> (winmgr.getWindow("Editor/ObjectReference/RotZSpin"));
     rot.z = spin->getCurrentValue();
     //set the new values
-    edit_object->SetPosition(pos);
-    edit_object->SetRotation(rot);
-    if (edit_object->IsEnabled())
+    edit_object->setPosition(pos);
+    edit_object->setRotation(rot);
+    if (edit_object->isEnabled())
     {
-      edit_object->Disable();
-      edit_object->SetScale(new_scale);
-      edit_object->Enable(mSceneMgr);
+      edit_object->disable();
+      edit_object->setScale(new_scale);
+      edit_object->enable(mSceneMgr);
     }
     else
     {
-      edit_object->SetScale(new_scale);
+      edit_object->setScale(new_scale);
     }
     winmgr.destroyWindow("Editor/ObjectReference");
     edit_object = NULL;
@@ -1619,11 +1619,11 @@ DuskObject* EditorApplication::GetObjectAtMouse(const CEGUI::Point& pt)
            if ( rsq_iter->movable->getUserObject() != NULL)
            {
               DuskObject * d_obj = static_cast<DuskObject*> (rsq_iter->movable->getUserObject());
-              std::cout << "DEBUG: found object of ID \""<< d_obj->GetID() <<"\" at position ("
-                        << d_obj->GetPosition().x<<","<< d_obj->GetPosition().y<<","
-                        << d_obj->GetPosition().z<<")\n";
-              std::cout << "       Rotation: V3("<< d_obj->GetRotation().x
-                        <<","<< d_obj->GetRotation().y<<","<< d_obj->GetRotation().z<<")\n";
+              std::cout << "DEBUG: found object of ID \""<< d_obj->getID() <<"\" at position ("
+                        << d_obj->getPosition().x<<","<< d_obj->getPosition().y<<","
+                        << d_obj->getPosition().z<<")\n";
+              std::cout << "       Rotation: V3("<< d_obj->getRotation().x
+                        <<","<< d_obj->getRotation().y<<","<< d_obj->getRotation().z<<")\n";
               mo = d_obj;
            }
          }

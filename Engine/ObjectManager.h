@@ -34,6 +34,7 @@
      - 2010-06-02 (rev 213) - addWeaponReference() added; ObjectData can now
                               handle Weapons, too.
      - 2010-08-18 (rev 230) - renamed from ObjectData to ObjectManager
+     - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
 
  ToDo list:
      - extend class when further classes for non-animated objects are added
@@ -65,10 +66,10 @@ namespace Dusk
       virtual ~ObjectManager();
 
       /* Singleton access function */
-      static ObjectManager& GetSingleton();
+      static ObjectManager& getSingleton();
 
       /* returns the number of objects currently loaded */
-      unsigned int NumberOfReferences() const;
+      unsigned int numberOfReferences() const;
 
       /* adds a new object instance with given ID, position, rotation and scale
          to the game and returns a pointer to the newly created object
@@ -78,6 +79,10 @@ namespace Dusk
 
       /* adds a new light instance with given ID and position to the game and
          returns a pointer to the newly created light
+
+         parameters:
+             ID       - ID of the light
+             position - light's position
       */
       Light* addLightReference(const std::string& ID, const Ogre::Vector3& position);
 
@@ -101,12 +106,18 @@ namespace Dusk
 
       /* returns the first object of given ID, or NULL if no such object is
          present
+
+         parameters:
+             ID - ID of the object that shall be returned
       */
-      DuskObject* GetObjectByID(const std::string& ID) const;
+      DuskObject* getObjectByID(const std::string& ID) const;
 
       /* returns true, if at least one object of given ID is present
+
+         parameters:
+             ID - ID of the object whose presence should be checked
       */
-      bool IsObjectPresent(const std::string& ID) const;
+      bool isObjectPresent(const std::string& ID) const;
 
       /* tries to remove the given item from the reference map and returns true
          on success, false on failure.
@@ -121,25 +132,30 @@ namespace Dusk
       */
       bool removeItemReference(Item* pItem);
 
-      /* Tries to save all objects to the stream and returns true on success */
-      bool SaveAllToStream(std::ofstream& Stream) const;
+      /* Tries to save all objects to the stream and returns true on success
+
+         parameters:
+             Stream - the output stream that is used to save the object
+      */
+      bool saveAllToStream(std::ofstream& Stream) const;
 
       /* Tries to load the next object from stream and returns true on success
 
          parameters:
+             Stream           - input stream that will be used to read the data
              PrefetchedHeader - the first four bytes of the record to come
       */
-      bool LoadNextFromStream(std::ifstream& Stream, const unsigned int PrefetchedHeader);
+      bool loadNextFromStream(std::ifstream& Stream, const unsigned int PrefetchedHeader);
 
       /* Tries to enable all objects, i.e. display them in the scene
 
          parameters:
              scm - SceneManager which shall display the objects
       */
-      void EnableAllObjects(Ogre::SceneManager * scm);
+      void enableAllObjects(Ogre::SceneManager * scm);
 
       /* Tries to disable all objects */
-      void DisableAllObjects();
+      void disableAllObjects();
 
       #ifdef DUSK_EDITOR
       /* Deletes all objects with the given ID and returns the number of deleted objects.
@@ -173,7 +189,7 @@ namespace Dusk
          remarks:
              Never call this one manually, unless you know what you are doing here.
       */
-      void ClearData();
+      void clearData();
     private:
       /* private constructor (singleton pattern) */
       ObjectManager();

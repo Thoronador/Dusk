@@ -70,20 +70,20 @@ DuskObject::DuskObject(const std::string& _ID, const Ogre::Vector3& pos, const O
 DuskObject::~DuskObject()
 {
   //deletes related Ogre entity and scene node, if present
-  Disable();
+  disable();
 }
 
-Ogre::Vector3 DuskObject::GetPosition() const
+Ogre::Vector3 DuskObject::getPosition() const
 {
   return position;
 }
 
-Ogre::Vector3 DuskObject::GetRotation() const
+Ogre::Vector3 DuskObject::getRotation() const
 {
   return rotation;
 }
 
-void DuskObject::SetPosition(const Ogre::Vector3& pos)
+void DuskObject::setPosition(const Ogre::Vector3& pos)
 {
   if(entity!=NULL)
   {
@@ -95,7 +95,7 @@ void DuskObject::SetPosition(const Ogre::Vector3& pos)
   position = pos;
 }
 
-void DuskObject::SetRotation(const Ogre::Vector3& rot)
+void DuskObject::setRotation(const Ogre::Vector3& rot)
 {
   if (entity!=NULL)
   {
@@ -113,12 +113,12 @@ void DuskObject::SetRotation(const Ogre::Vector3& rot)
   IntervalVector360(rotation);
 }
 
-float DuskObject::GetScale() const
+float DuskObject::getScale() const
 {
   return m_Scale;
 }
 
-bool DuskObject::SetScale(const float newScale)
+bool DuskObject::setScale(const float newScale)
 {
   if (entity!=NULL)
   {
@@ -136,12 +136,12 @@ bool DuskObject::SetScale(const float newScale)
   return false;
 }
 
-std::string DuskObject::GetID() const
+const std::string& DuskObject::getID() const
 {
   return ID;
 }
 
-bool DuskObject::ChangeID(const std::string& newID)
+bool DuskObject::changeID(const std::string& newID)
 {
   if (newID!="" and entity==NULL)
   {
@@ -151,12 +151,12 @@ bool DuskObject::ChangeID(const std::string& newID)
   return false;
 }
 
-std::string DuskObject::GetObjectMesh() const
+std::string DuskObject::getObjectMesh() const
 {
-  return ObjectBase::GetSingleton().GetMeshName(ID);
+  return ObjectBase::getSingleton().getMeshName(ID);
 }
 
-bool DuskObject::Enable(Ogre::SceneManager* scm)
+bool DuskObject::enable(Ogre::SceneManager* scm)
 {
   if (entity!=NULL)
   {
@@ -172,7 +172,7 @@ bool DuskObject::Enable(Ogre::SceneManager* scm)
   std::stringstream entity_name;
   entity_name << ID << GenerateUniqueObjectID();
   //create entity + node and attach entity to node
-  entity = scm->createEntity(entity_name.str(), GetObjectMesh());
+  entity = scm->createEntity(entity_name.str(), getObjectMesh());
   Ogre::SceneNode* ent_node = scm->getRootSceneNode()->createChildSceneNode(entity_name.str(), position);
   ent_node->attachObject(entity);
   ent_node->scale(m_Scale, m_Scale, m_Scale);
@@ -185,7 +185,7 @@ bool DuskObject::Enable(Ogre::SceneManager* scm)
   return (entity!=NULL);
 }
 
-bool DuskObject::Disable()
+bool DuskObject::disable()
 {
   if (entity == NULL)
   {
@@ -207,12 +207,12 @@ bool DuskObject::Disable()
   return true;
 }
 
-bool DuskObject::IsEnabled() const
+bool DuskObject::isEnabled() const
 {
   return (entity!=NULL);
 }
 
-ObjectTypes DuskObject::GetType() const
+ObjectTypes DuskObject::getDuskType() const
 {
   return otStatic;
 }
@@ -225,7 +225,7 @@ bool DuskObject::canPickUp() const
 bool DuskObject::isHitByRay(const Ogre::Ray& ray, Ogre::Vector3& impact) const
 {
   //if object is not enabled, it can not be hit by a ray
-  if (!IsEnabled()) return false;
+  if (!isEnabled()) return false;
   //perform bounding box check first, because it's less expensive and faster
   // than a full ray-to-polygon check
   if (!(ray.intersects(entity->getWorldBoundingBox()).first)) return false;
@@ -293,7 +293,7 @@ bool DuskObject::isHitByRay(const Ogre::Ray& ray, Ogre::Vector3& impact) const
   return false;
 }
 
-bool DuskObject::SaveToStream(std::ofstream& OutStream) const
+bool DuskObject::saveToStream(std::ofstream& OutStream) const
 {
   if (!OutStream.good())
   {
@@ -303,10 +303,10 @@ bool DuskObject::SaveToStream(std::ofstream& OutStream) const
   //write header "RefO" (reference of Object)
   OutStream.write((char*) &cHeaderRefO, sizeof(unsigned int)); //header
   //write all data members, i.e. ID, position and rotation, and scale
-  return SaveDuskObjectPart(OutStream);
+  return saveDuskObjectPart(OutStream);
 }
 
-bool DuskObject::SaveDuskObjectPart(std::ofstream& output) const
+bool DuskObject::saveDuskObjectPart(std::ofstream& output) const
 {
   //write ID
   const unsigned int len = ID.length();
@@ -333,7 +333,7 @@ bool DuskObject::SaveDuskObjectPart(std::ofstream& output) const
   return output.good();
 }
 
-bool DuskObject::LoadFromStream(std::ifstream& InStream)
+bool DuskObject::loadFromStream(std::ifstream& InStream)
 {
   if (entity!=NULL)
   {
@@ -359,10 +359,10 @@ bool DuskObject::LoadFromStream(std::ifstream& InStream)
     return false;
   }
   //load all data members of DuskObject, i.e. ID, position, rotation, scale
-  return LoadDuskObjectPart(InStream);
+  return loadDuskObjectPart(InStream);
 }
 
-bool DuskObject::LoadDuskObjectPart(std::ifstream& InStream)
+bool DuskObject::loadDuskObjectPart(std::ifstream& InStream)
 {
   //read ID
   unsigned int len;

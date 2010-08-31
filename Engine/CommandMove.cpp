@@ -22,16 +22,16 @@ namespace Dusk
         switch(m_Direction)
         {
             case FORWARD:
-                Player::GetSingleton().translate(Ogre::Vector3(0,0,-moveConstant));
+                Player::getSingleton().translate(Ogre::Vector3(0,0,-moveConstant));
                 break;
             case BACKWARD:
-                Player::GetSingleton().translate(Ogre::Vector3(0,0,moveConstant));
+                Player::getSingleton().translate(Ogre::Vector3(0,0,moveConstant));
                 break;
             case LEFT:
-                Player::GetSingleton().translate(Ogre::Vector3(-moveConstant,0,0));
+                Player::getSingleton().translate(Ogre::Vector3(-moveConstant,0,0));
                 break;
             case RIGHT:
-                Player::GetSingleton().translate(Ogre::Vector3(moveConstant,0,0));
+                Player::getSingleton().translate(Ogre::Vector3(moveConstant,0,0));
                 break;
             case TURN_LEFT:
                 Camera::getSingleton().rotate(rotateDPS);
@@ -40,7 +40,7 @@ namespace Dusk
                 Camera::getSingleton().rotate(-rotateDPS);
                 break;
             case JUMP_UP:
-                Player::GetSingleton().jump();
+                Player::getSingleton().jump();
                 break;
             default:
             break;

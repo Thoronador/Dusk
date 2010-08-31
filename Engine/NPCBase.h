@@ -10,6 +10,7 @@
      - 2010-04-21 (rev 190) - female flag added
                             - GetFirst() and GetEnd() added
      - 2010-06-02 (rev 213) - information for animations and tag points added
+     - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
 
  ToDo list:
      - ???
@@ -34,7 +35,7 @@ namespace Dusk
   struct NPCAttributes
   {
     uint8 Str, Agi, Vit, Int, Will, Cha, Luck;
-    static NPCAttributes GetNullAttributes();
+    static NPCAttributes getNullAttributes();
   };
   /* struct to summarize all animations of NPC */
   struct NPCAnimations
@@ -51,7 +52,7 @@ namespace Dusk
     std::string Jump;
     //animation for dying
     std::string Death;
-    static const NPCAnimations& GetNullAnimations();
+    static const NPCAnimations& getNullAnimations();
   }; //struct
 
   struct NPCTagPoints
@@ -64,7 +65,7 @@ namespace Dusk
     std::string SheathLeft;
     //tag point for sheathed weapon on the right side of the NPC's body
     std::string SheathRight;
-    static const NPCTagPoints& GetNullTagPoints();
+    static const NPCTagPoints& getNullTagPoints();
   }; //struct
 
   /* struct to summarize all properties of an NPC*/
@@ -103,11 +104,24 @@ namespace Dusk
   {
     public:
       /* static Singleton retrieval */
-      static NPCBase& GetSingleton();
+      static NPCBase& getSingleton();
+
+      /* destructor */
       virtual ~NPCBase();
 
       /* Adds a new NPC record which uses the given ID, name, mesh, etc. to the
          'table'.
+
+         parameters:
+             ID                - ID of the NPC
+             Name              - name of the NPC (shown in game)
+             Mesh              - mesh path of the NPC's mesh
+             Level             - level of the NPC
+             Attr              - record that contains the NPC's initial attributes
+             female            - set this to true, if NPC is female
+             StartingInventory - the initial inventory contents of the NPC
+             Anims             - animations for that NPC
+             TagPoints         - tag point names for that NPC
 
          remarks:
            Always succeeds (except if out of memory). If there already is a
@@ -121,7 +135,11 @@ namespace Dusk
                   const NPCAnimations& Anims, const NPCTagPoints& TagPoints);
 
       /* Tries to delete the NPC record with the given ID. Returns true, if such
-         a record was present, or false otherwise. */
+         a record was present, or false otherwise.
+
+         parameters:
+             NPC_ID - ID of the NPC data that has to be deleted
+      */
       bool deleteNPC(const std::string& NPC_ID);
 
       /* Returns true, if a record for NPC 'NPC_ID' is present. */
@@ -133,10 +151,10 @@ namespace Dusk
            Only use that before realoading from a file, or if you really know
            what you are doing.
       */
-      void ClearAllNPCs();
+      void clearAllNPCs();
 
       /* Returns the current number of NPC entries (for statistics only) */
-      unsigned int NumberOfNPCs() const;
+      unsigned int numberOfNPCs() const;
 
       /* Returns the name of the NPC with ID 'NPC_ID', or an empty string if no
          such record is present.
@@ -178,23 +196,32 @@ namespace Dusk
 
       /* Tries to save all data to the given stream and returns true on success,
          or false if an error occured.
+
+         parameters:
+             output - the output stream that is used to save the NPC data
       */
-      bool SaveToStream(std::ofstream& output) const;
+      bool saveToStream(std::ofstream& output) const;
 
       /* Tries to load next NPCRecord from stream and returns true on success,
          or false on failure.
+
+         parameters:
+             input - the input stream that is used to load the next NPC record
       */
-      bool LoadNextRecordFromStream(std::ifstream& input);
+      bool loadNextRecordFromStream(std::ifstream& input);
 
       #ifdef DUSK_EDITOR
       /* returns constant iterator to first element in NPC list*/
-      std::map<std::string, NPCRecord>::const_iterator GetFirst() const;
+      std::map<std::string, NPCRecord>::const_iterator getFirst() const;
 
       /* returns constant iterator to end of NPC list*/
-      std::map<std::string, NPCRecord>::const_iterator GetEnd() const;
+      std::map<std::string, NPCRecord>::const_iterator getEnd() const;
       #endif
     private:
+      /* private constructor due to singleton pattern */
       NPCBase();
+
+      /* empty, private copy constructor (singleton pattern) */
       NPCBase(const NPCBase& op){}
       std::map<std::string,NPCRecord> m_NPCList;
   };//class
