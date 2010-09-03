@@ -16,6 +16,7 @@
      - 2010-08-16 (rev 229) - fix to prevent segfault in destructor
      - 2010-08-27 (rev 236) - translate() added
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
+     - 2010-09-03 (rev 240) - adjustments for Editor
 
  ToDo list:
      - actually implement loadFromStream() and saveToStream()

@@ -1,6 +1,8 @@
 #include "Player.h"
 #include "API.h"
-#include "Camera.h"
+#ifndef DUSK_EDITOR
+  #include "Camera.h"
+#endif
 #include <OgreSkeleton.h>
 
 namespace Dusk
@@ -92,10 +94,12 @@ void Player::injectTime(const float SecondsPassed)
 {
   //call inherited method
   NPC::injectTime(SecondsPassed);
+  #ifndef DUSK_EDITOR
   //adjust camera position, because camera follows player
   Camera::getSingleton().setPosition(Ogre::Vector3(position.x,
                             position.y+Camera::cAboveGroundLevel,
                             position.z));
+  #endif
 }
 
 std::string Player::getObjectMesh() const

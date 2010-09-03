@@ -1002,16 +1002,8 @@ void EditorApplication::closeAllEditWindows(void)
     winmgr.destroyWindow("Editor/QuestRenameFrame");
     ID_of_quest_to_rename = "";
   }
-  //frame for deleting NPCs
-  if (winmgr.isWindowPresent("Editor/NPCDeleteFrame"))
-  {
-    winmgr.destroyWindow("Editor/NPCDeleteFrame");
-  }
-  //frame for adding items to NPC inventory
-  if (winmgr.isWindowPresent("Editor/NPCNewFrame/AddInventoryFrame"))
-  {
-    winmgr.destroyWindow("Editor/NPCNewFrame/AddInventoryFrame");
-  }
+  //frame for NPCs
+  closeEditWindowsNPC();
 }
 
 bool EditorApplication::RootMouseDown(const CEGUI::EventArgs &e)
