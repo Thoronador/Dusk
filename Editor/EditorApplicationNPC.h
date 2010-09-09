@@ -17,6 +17,7 @@
      - 2010-09-03 (rev 240) - new NPCs can now have tag point names and
                               animation names
                             - closeEditWindowsNPC() added
+     - 2010-09-10 (rev 241) - preparations for editing NPCs
 
  ToDo list:
      - refine possibility to create NPCs (inventory)
@@ -50,9 +51,14 @@ class EditorApplicationNPC
   protected:
     //ID for NPC deletion
     std::string ID_of_NPC_to_delete;
+    //ID for editing
+    std::string ID_of_NPC_to_edit;
 
     NPCTagPoints m_NewNPCTagPoints;
     NPCAnimations m_NewNPCAnimations;
+
+    NPCTagPoints m_EditNPCTagPoints;
+    NPCAnimations m_EditNPCAnimations;
 
     /* destroys all windows that might currently be open, because they were
        created by this class
@@ -64,9 +70,12 @@ class EditorApplicationNPC
     //windows for creating/ editing NPCs
     void showNPCNewWindow(void);
 	void showNPCConfirmDeleteWindow(void);
-
 	void showNPCNewAnimsWindow(void);
 	void showNPCNewTagpointsWindow(void);
+
+	void showNPCEditWindow(void);
+	void showNPCEditAnimsWindow(void);
+	void showNPCEditTagpointsWindow(void);
 
 	//method to visually add a NPC record to the catalogue
 	void addNPCRecordToCatalogue(const std::string& ID, const NPCRecord& Record);
@@ -81,12 +90,12 @@ class EditorApplicationNPC
 	//callbacks of window to delete NPCs
 	bool NPCDeleteFrameNoClicked(const CEGUI::EventArgs &e);
 	bool NPCDeleteFrameYesClicked(const CEGUI::EventArgs &e);
+
 	//callbacks of window for creating new NPCs
 	bool NPCNewFrameCancelClicked(const CEGUI::EventArgs &e);
 	bool NPCNewFrameOKClicked(const CEGUI::EventArgs &e);
 	bool NPCNewFrameAnimsClicked(const CEGUI::EventArgs &e);
 	bool NPCNewFrameTagpointsClicked(const CEGUI::EventArgs &e);
-
 	//callbacks for animation window (new NPC)
 	bool NPCNewAnimsFrameCancelClicked(const CEGUI::EventArgs &e);
 	bool NPCNewAnimsFrameOKClicked(const CEGUI::EventArgs &e);
@@ -107,14 +116,32 @@ class EditorApplicationNPC
     bool AddInventoryFrameAddClicked(const CEGUI::EventArgs &e);
     bool AddInventoryFrameCancelClicked(const CEGUI::EventArgs &e);
 
+    //callbacks of window for editing NPCs
+	bool NPCEditFrameCancelClicked(const CEGUI::EventArgs &e);
+	bool NPCEditFrameOKClicked(const CEGUI::EventArgs &e);
+	bool NPCEditFrameAnimsClicked(const CEGUI::EventArgs &e);
+	bool NPCEditFrameTagpointsClicked(const CEGUI::EventArgs &e);
+
+	//create popup menu for inventory list in NPCEditFrame
+	void CreatePopupMenuNPCEditFrameList(void);
+	//callbacks for popup menu
+    bool EditInventoryListAddClicked(const CEGUI::EventArgs &e);
+    bool EditInventoryListEditClicked(const CEGUI::EventArgs &e);
+    bool EditInventoryListDeleteClicked(const CEGUI::EventArgs &e);
+
     //helper function to list all available item IDs in a Combobox
     void UpdateItemList(CEGUI::Combobox* combo);
 
     //gets data from MCL and transforms it into inventory
     Inventory MCLToInventory(const CEGUI::MultiColumnList* mcl);
+    //gets data from Inventory and puts it into MultiColumnist
+    void InventoryToMCL(const Inventory& invent, CEGUI::MultiColumnList* target);
 
 	//callback for clicking inventory list in NPCNewFrame
 	bool NPCNewFrameInventoryListClicked(const CEGUI::EventArgs &e);
+
+	//callback for clicking inventory list in NPCEditFrame
+	bool NPCEditFrameInventoryListClicked(const CEGUI::EventArgs &e);
 }; //class
 
 } //namespace

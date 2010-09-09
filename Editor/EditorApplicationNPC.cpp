@@ -10,9 +10,9 @@ namespace Dusk
 
 EditorApplicationNPC::EditorApplicationNPC()
 {
-  ID_of_NPC_to_delete = "";
-  m_NewNPCTagPoints = NPCTagPoints::getNullTagPoints();
-  m_NewNPCAnimations = NPCAnimations::getNullAnimations();
+  ID_of_NPC_to_delete = ID_of_NPC_to_edit = "";
+  m_NewNPCTagPoints = m_EditNPCTagPoints = NPCTagPoints::getNullTagPoints();
+  m_NewNPCAnimations = m_EditNPCAnimations = NPCAnimations::getNullAnimations();
 }
 
 EditorApplicationNPC::~EditorApplicationNPC()
@@ -101,14 +101,28 @@ bool EditorApplicationNPC::NPCNewClicked(const CEGUI::EventArgs &e)
 
 bool EditorApplicationNPC::NPCEditClicked(const CEGUI::EventArgs &e)
 {
-  //not implemented yet
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  const CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*>
+                                (winmgr.getWindow("Editor/Catalogue/Tab/NPC/List"));
+  CEGUI::ListboxItem* lbi = mcl->getFirstSelectedItem();
+  if (lbi==NULL)
+  {
+    showHint("You have to select a NPC from the list to edit it.");
+  }
+  else
+  {
+    const unsigned int row_index = mcl->getItemRowIndex(lbi);
+    lbi = mcl->getItemAtGridReference(CEGUI::MCLGridRef(row_index, 0));
+    ID_of_NPC_to_edit = std::string(lbi->getText().c_str());
+    showNPCEditWindow();
+  }
   return true;
 }
 
 bool EditorApplicationNPC::NPCDeleteClicked(const CEGUI::EventArgs &e)
 {
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
-  CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*>
+  const CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*>
                                 (winmgr.getWindow("Editor/Catalogue/Tab/NPC/List"));
   CEGUI::ListboxItem* lbi = mcl->getFirstSelectedItem();
   if (lbi==NULL)
@@ -844,6 +858,26 @@ Inventory EditorApplicationNPC::MCLToInventory(const CEGUI::MultiColumnList* mcl
   return temp;
 }
 
+void EditorApplicationNPC::InventoryToMCL(const Inventory& invent, CEGUI::MultiColumnList* target)
+{
+  if (target==NULL) return;
+  target->resetList();
+  ConstInventoryIterator iter = invent.getFirst();
+  const ConstInventoryIterator end_iter = invent.getEnd();
+  CEGUI::ListboxItem *lbi;
+  unsigned int row;
+  while (iter!=end_iter)
+  {
+    lbi = new CEGUI::ListboxTextItem(IntToString(iter->second));
+    lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
+    row = target->addRow(lbi, 0);
+    lbi = new CEGUI::ListboxTextItem(iter->first);
+    lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
+    target->setItem(lbi, 1, row);
+    ++iter;
+  } //while
+}
+
 bool EditorApplicationNPC::NPCNewFrameAnimsClicked(const CEGUI::EventArgs &e)
 {
   showNPCNewAnimsWindow();
@@ -1170,9 +1204,480 @@ void EditorApplicationNPC::closeEditWindowsNPC(void)
   {
     winmgr.destroyWindow("Editor/NPCNewFrame/AddInventoryFrame");
   }//if
+  if (winmgr.isWindowPresent("Editor/NPCEditFrame"))
+  {
+    winmgr.destroyWindow("Editor/NPCEditFrame");
+  }//if
   //reset tagpoints and animations
-  m_NewNPCAnimations = NPCAnimations::getNullAnimations();
-  m_NewNPCTagPoints = NPCTagPoints::getNullTagPoints();
+  m_NewNPCAnimations = m_EditNPCAnimations = NPCAnimations::getNullAnimations();
+  m_NewNPCTagPoints = m_EditNPCTagPoints = NPCTagPoints::getNullTagPoints();
+}
+
+void EditorApplicationNPC::showNPCEditWindow(void)
+{
+  CEGUI::FrameWindow* frame = NULL;
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/NPCEditFrame"))
+  {
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.getWindow("Editor/NPCEditFrame"));
+  }
+  else
+  {
+    //create frame and child windows
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.createWindow("TaharezLook/FrameWindow", "Editor/NPCEditFrame"));
+    frame->setTitleBarEnabled(true);
+    frame->setText("Edit NPC...");
+    frame->setCloseButtonEnabled(false);
+    frame->setFrameEnabled(true);
+    frame->setSizingEnabled(true);
+    frame->setInheritsAlpha(false);
+    winmgr.getWindow("Editor/Root")->addChildWindow(frame);
+
+    const float h = 2.5f/36.0f; //height of one element
+    const float d = 0.5f/36.0f; //distance between two adjacent elements
+    const float o = 2.0f/36.0f; //offset of first element
+
+    CEGUI::Window * button = NULL;
+    //static text for ID
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/NPCEditFrame/ID_Label");
+    button->setText("ID:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //editbox for ID
+    button = winmgr.createWindow("TaharezLook/Editbox", "Editor/NPCEditFrame/ID_Edit");
+    button->setText("");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //static text for name
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/NPCEditFrame/Name_Label");
+    button->setText("Name:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o+h+d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //editbox for name
+    button = winmgr.createWindow("TaharezLook/Editbox", "Editor/NPCEditFrame/Name_Edit");
+    button->setText("");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o+h+d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //static text for mesh
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/NPCEditFrame/Mesh_Label");
+    button->setText("Mesh:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o+2*h+2*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //editbox for mesh
+    button = winmgr.createWindow("TaharezLook/Editbox", "Editor/NPCEditFrame/Mesh_Edit");
+    button->setText("");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o+2*h+2*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //static text for gender
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/NPCEditFrame/Gender_Label");
+    button->setText("Gender:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o+3*h+3*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    CEGUI::RadioButton* radio = NULL;
+    //radio button for male
+    radio = static_cast<CEGUI::RadioButton*> (winmgr.createWindow("TaharezLook/RadioButton", "Editor/NPCEditFrame/RadioMale"));
+    radio->setText("Male");
+    radio->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o+3*h+3*d, 0)));
+    radio->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(h, 0)));
+    radio->setSelected(true);
+    radio->setGroupID(888);
+    frame->addChildWindow(radio);
+    //radio button for female
+    radio = static_cast<CEGUI::RadioButton*> (winmgr.createWindow("TaharezLook/RadioButton", "Editor/NPCEditFrame/RadioFemale"));
+    radio->setText("Female");
+    radio->setPosition(CEGUI::UVector2(CEGUI::UDim(0.65, 0), CEGUI::UDim(o+3*h+3*d, 0)));
+    radio->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(h, 0)));
+    radio->setSelected(false);
+    radio->setGroupID(888);
+    frame->addChildWindow(radio);
+
+    //static text for Attributes
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/NPCEditFrame/Attributes_Label");
+    button->setText("Attributes");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o+4*h+4*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //static text for Inventory
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/NPCEditFrame/Inventory_Label");
+    button->setText("Inventory");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.55, 0), CEGUI::UDim(o+4*h+4*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //static text for Str
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/NPCEditFrame/Str_Label");
+    button->setText("Str.:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o+5*h+5*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //spinner for Strength
+    CEGUI::Spinner* spin = static_cast<CEGUI::Spinner*> (winmgr.createWindow("TaharezLook/Spinner", "Editor/NPCEditFrame/Str_Spin"));
+    spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.175, 0), CEGUI::UDim(o+5*h+5*d, 0)));
+    spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(h, 0)));
+    spin->setTextInputMode(CEGUI::Spinner::Integer);
+    spin->setText("1");
+    spin->setMaximumValue(255.0f);
+    spin->setMinimumValue(1.0f);
+    frame->addChildWindow(spin);
+
+    //static text for Level
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/NPCEditFrame/Lvl_Label");
+    button->setText("Level:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o+5*h+5*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //spinner for Level
+    spin = static_cast<CEGUI::Spinner*> (winmgr.createWindow("TaharezLook/Spinner", "Editor/NPCEditFrame/Level_Spin"));
+    spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.425, 0), CEGUI::UDim(o+5*h+5*d, 0)));
+    spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(h, 0)));
+    spin->setTextInputMode(CEGUI::Spinner::Integer);
+    spin->setText("1");
+    spin->setMaximumValue(255.0f);
+    spin->setMinimumValue(1.0f);
+    frame->addChildWindow(spin);
+
+    //static text for Agility
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/NPCEditFrame/Agi_Label");
+    button->setText("Agi.:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o+6*h+6*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //spinner for Agility
+    spin = static_cast<CEGUI::Spinner*> (winmgr.createWindow("TaharezLook/Spinner", "Editor/NPCEditFrame/Agi_Spin"));
+    spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.175, 0), CEGUI::UDim(o+6*h+6*d, 0)));
+    spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(h, 0)));
+    spin->setTextInputMode(CEGUI::Spinner::Integer);
+    spin->setText("1");
+    spin->setMaximumValue(255.0f);
+    spin->setMinimumValue(1.0f);
+    frame->addChildWindow(spin);
+
+    //static text for Willpower
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/NPCEditFrame/Will_Label");
+    button->setText("Will:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o+6*h+6*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //spinner for Willpower
+    spin = static_cast<CEGUI::Spinner*> (winmgr.createWindow("TaharezLook/Spinner", "Editor/NPCEditFrame/Will_Spin"));
+    spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.425, 0), CEGUI::UDim(o+6*h+6*d, 0)));
+    spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(h, 0)));
+    spin->setTextInputMode(CEGUI::Spinner::Integer);
+    spin->setText("1");
+    spin->setMaximumValue(255.0f);
+    spin->setMinimumValue(1.0f);
+    frame->addChildWindow(spin);
+
+    //static text for Vitality
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/NPCEditFrame/Vit_Label");
+    button->setText("Vit.:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o+7*h+7*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //spinner for Vitality
+    spin = static_cast<CEGUI::Spinner*> (winmgr.createWindow("TaharezLook/Spinner", "Editor/NPCEditFrame/Vit_Spin"));
+    spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.175, 0), CEGUI::UDim(o+7*h+7*d, 0)));
+    spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(h, 0)));
+    spin->setTextInputMode(CEGUI::Spinner::Integer);
+    spin->setText("1");
+    spin->setMaximumValue(255.0f);
+    spin->setMinimumValue(1.0f);
+    frame->addChildWindow(spin);
+
+    //static text for Charisma
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/NPCEditFrame/Cha_Label");
+    button->setText("Cha.:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o+7*h+7*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //spinner for Charisma
+    spin = static_cast<CEGUI::Spinner*> (winmgr.createWindow("TaharezLook/Spinner", "Editor/NPCEditFrame/Cha_Spin"));
+    spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.425, 0), CEGUI::UDim(o+7*h+7*d, 0)));
+    spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(h, 0)));
+    spin->setTextInputMode(CEGUI::Spinner::Integer);
+    spin->setText("1");
+    spin->setMaximumValue(255.0f);
+    spin->setMinimumValue(1.0f);
+    frame->addChildWindow(spin);
+
+    //static text for Intelligence
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/NPCEditFrame/Int_Label");
+    button->setText("Int.:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o+8*h+8*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //spinner for Intelligence
+    spin = static_cast<CEGUI::Spinner*> (winmgr.createWindow("TaharezLook/Spinner", "Editor/NPCEditFrame/Int_Spin"));
+    spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.175, 0), CEGUI::UDim(o+8*h+8*d, 0)));
+    spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(h, 0)));
+    spin->setTextInputMode(CEGUI::Spinner::Integer);
+    spin->setText("1");
+    spin->setMaximumValue(255.0f);
+    spin->setMinimumValue(1.0f);
+    frame->addChildWindow(spin);
+
+    //static text for Luck
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/NPCEditFrame/Luck_Label");
+    button->setText("Luck:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o+8*h+8*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //spinner for Luck
+    spin = static_cast<CEGUI::Spinner*> (winmgr.createWindow("TaharezLook/Spinner", "Editor/NPCEditFrame/Luck_Spin"));
+    spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.425, 0), CEGUI::UDim(o+8*h+8*d, 0)));
+    spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(h, 0)));
+    spin->setTextInputMode(CEGUI::Spinner::Integer);
+    spin->setText("1");
+    spin->setMaximumValue(255.0f);
+    spin->setMinimumValue(1.0f);
+    frame->addChildWindow(spin);
+
+    //multi column list for inventory content
+    CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*>
+        (winmgr.createWindow("TaharezLook/MultiColumnList", "Editor/NPCEditFrame/InventoryList"));
+    mcl->setPosition(CEGUI::UVector2(CEGUI::UDim(0.55, 0), CEGUI::UDim(o+5*h+5*d, 0)));
+    mcl->setSize(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(4*h+3*d, 0)));
+    mcl->addColumn("#", 0, CEGUI::UDim(0.22, 0));
+    mcl->addColumn("Item ID", 1, CEGUI::UDim(0.72, 0));
+    mcl->setUserColumnDraggingEnabled(false);
+    mcl->subscribeEvent(CEGUI::Window::EventMouseButtonUp, CEGUI::Event::Subscriber(&EditorApplicationNPC::NPCEditFrameInventoryListClicked, this));
+    frame->addChildWindow(mcl);
+    //adds a popup menu + callbacks for clicks
+    CreatePopupMenuNPCEditFrameList();
+
+    //animations button
+    button = winmgr.createWindow("TaharezLook/Button", "Editor/NPCEditFrame/AnimButton");
+    button->setText("Animations...");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(o+9*h+9*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(h, 0)));
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplicationNPC::NPCEditFrameAnimsClicked, this));
+    frame->addChildWindow(button);
+
+    //tag points button
+    button = winmgr.createWindow("TaharezLook/Button", "Editor/NPCEditFrame/Tagpoints");
+    button->setText("Tagpoints...");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.65, 0), CEGUI::UDim(o+9*h+9*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(h, 0)));
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplicationNPC::NPCEditFrameTagpointsClicked, this));
+    frame->addChildWindow(button);
+
+    //OK button
+    button = winmgr.createWindow("TaharezLook/Button", "Editor/NPCEditFrame/OK");
+    button->setText("OK");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(o+10*h+10*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(h, 0)));
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplicationNPC::NPCEditFrameOKClicked, this));
+    frame->addChildWindow(button);
+    //Cancel button
+    button = winmgr.createWindow("TaharezLook/Button", "Editor/NPCEditFrame/Cancel");
+    button->setText("Cancel");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(o+10*h+10*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(h, 0)));
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplicationNPC::NPCEditFrameCancelClicked, this));
+    frame->addChildWindow(button);
+  }
+  frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.125, 0)));
+  frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.75, 0)));
+  frame->moveToFront();
+  //reset animations and tagpoints, to be sure we don't use old values set
+  // during a previous edit
+  m_EditNPCAnimations = NPCBase::getSingleton().getNPCAnimations(ID_of_NPC_to_edit);
+  m_EditNPCTagPoints = NPCBase::getSingleton().getNPCTagPoints(ID_of_NPC_to_edit);
+  // -- display NPC values --
+  const NPCBase& npc_info = NPCBase::getSingleton();
+  // ---- ID
+  winmgr.getWindow("Editor/NPCEditFrame/ID_Edit")->setText(ID_of_NPC_to_edit);
+  // ---- name
+  winmgr.getWindow("Editor/NPCEditFrame/Name_Edit")->setText(npc_info.getNPCName(ID_of_NPC_to_edit));
+  // ---- mesh
+  winmgr.getWindow("Editor/NPCEditFrame/Mesh_Edit")->setText(npc_info.getNPCMesh(ID_of_NPC_to_edit));
+  // ---- gender
+  if (npc_info.isNPCFemale(ID_of_NPC_to_edit))
+  {
+    (static_cast<CEGUI::RadioButton*>(winmgr.getWindow("Editor/NPCEditFrame/RadioFemale")))->setSelected(true);
+    (static_cast<CEGUI::RadioButton*>(winmgr.getWindow("Editor/NPCEditFrame/RadioMale")))->setSelected(false);
+  }
+  else
+  {
+    (static_cast<CEGUI::RadioButton*>(winmgr.getWindow("Editor/NPCEditFrame/RadioMale")))->setSelected(true);
+    (static_cast<CEGUI::RadioButton*>(winmgr.getWindow("Editor/NPCEditFrame/RadioFemale")))->setSelected(false);
+  }
+  // ---- level
+  (static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCEditFrame/Level_Spin")))->setCurrentValue(npc_info.getLevel(ID_of_NPC_to_edit));
+  // ---- attributes
+  const NPCAttributes attr = npc_info.getAttributes(ID_of_NPC_to_edit);
+  (static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCEditFrame/Agi_Spin")))->setCurrentValue(attr.Agi);
+  (static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCEditFrame/Cha_Spin")))->setCurrentValue(attr.Cha);
+  (static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCEditFrame/Int_Spin")))->setCurrentValue(attr.Int);
+  (static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCEditFrame/Luck_Spin")))->setCurrentValue(attr.Luck);
+  (static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCEditFrame/Str_Spin")))->setCurrentValue(attr.Str);
+  (static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCEditFrame/Vit_Spin")))->setCurrentValue(attr.Vit);
+  (static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCEditFrame/Will_Spin")))->setCurrentValue(attr.Will);
+  //inventory
+  CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*>
+                       (winmgr.getWindow("Editor/NPCEditFrame/InventoryList"));
+  InventoryToMCL(npc_info.getNPCInventory(ID_of_NPC_to_edit) , mcl);
+}
+
+void EditorApplicationNPC::CreatePopupMenuNPCEditFrameList(void)
+{
+  CEGUI::WindowManager &wmgr = CEGUI::WindowManager::getSingleton();
+  //PopUp Menu for inventory list
+  if (wmgr.isWindowPresent("Editor/NPCEditFrame/InventoryList/PopUp"))
+  {
+    return;
+  }
+  CEGUI::PopupMenu* popup = static_cast<CEGUI::PopupMenu*> (wmgr.createWindow("TaharezLook/PopupMenu", "Editor/NPCEditFrame/InventoryList/PopUp"));
+  popup->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.3, 0)));
+  popup->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.3, 0)));
+  CEGUI::MenuItem* menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/NPCEditFrame/InventoryList/PopUp/Add"));
+  menu_item->setText("Add item...");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplicationNPC::EditInventoryListAddClicked, this));
+  popup->addItem(menu_item);
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/NPCEditFrame/InventoryList/PopUp/Edit"));
+  menu_item->setText("Edit selected item...");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplicationNPC::EditInventoryListEditClicked, this));
+  popup->addItem(menu_item);
+  menu_item = static_cast<CEGUI::MenuItem*> (wmgr.createWindow("TaharezLook/MenuItem", "Editor/NPCEditFrame/InventoryList/PopUp/Delete"));
+  menu_item->setText("Delete selected item");
+  menu_item->subscribeEvent(CEGUI::MenuItem::EventClicked, CEGUI::Event::Subscriber(&EditorApplicationNPC::EditInventoryListDeleteClicked, this));
+  popup->addItem(menu_item);
+  wmgr.getWindow("Editor/NPCEditFrame/InventoryList")->addChildWindow(popup);
+  popup->closePopupMenu();
+}
+
+bool EditorApplicationNPC::NPCEditFrameInventoryListClicked(const CEGUI::EventArgs &e)
+{
+  const CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  CEGUI::PopupMenu * popup = static_cast<CEGUI::PopupMenu*> (winmgr.getWindow("Editor/NPCEditFrame/InventoryList/PopUp"));
+  if (!popup->isPopupMenuOpen())
+  {
+    const CEGUI::MouseEventArgs& mea = static_cast<const CEGUI::MouseEventArgs&> (e);
+    if (mea.button == CEGUI::RightButton)
+    {
+      const CEGUI::Rect mcl_rect = winmgr.getWindow("Editor/NPCEditFrame/InventoryList")->getPixelRect();
+      const float pu_x = (mea.position.d_x-mcl_rect.d_left)/mcl_rect.getWidth();
+      const float pu_y = (mea.position.d_y-mcl_rect.d_top)/mcl_rect.getHeight();
+      popup->setPosition(CEGUI::UVector2(CEGUI::UDim(pu_x, 0), CEGUI::UDim(pu_y, 0)));
+      popup->openPopupMenu();
+    }
+  }
+  else
+  {
+    popup->closePopupMenu();
+  }
+  return true;
+}
+
+bool EditorApplicationNPC::NPCEditFrameCancelClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/NPCEditFrame"))
+  {
+    winmgr.destroyWindow("Editor/NPCEditFrame");
+  }
+  if (winmgr.isWindowPresent("Editor/NPCEditTagsFrame"))
+  {
+    winmgr.destroyWindow("Editor/NPCEditTagsFrame");
+  }//if
+  if (winmgr.isWindowPresent("Editor/NPCEditAnimsFrame"))
+  {
+    winmgr.destroyWindow("Editor/NPCEditAnimsFrame");
+  }//if
+  if (winmgr.isWindowPresent("Editor/NPCEditFrame/AddInventoryFrame"))
+  {
+    winmgr.destroyWindow("Editor/NPCEditFrame/AddInventoryFrame");
+  }//if
+  return true;
+}
+
+bool EditorApplicationNPC::NPCEditFrameOKClicked(const CEGUI::EventArgs &e)
+{
+  //not implemented yet
+
+  //not implemented yet
+}
+
+bool EditorApplicationNPC::NPCEditFrameAnimsClicked(const CEGUI::EventArgs &e)
+{
+  showNPCEditAnimsWindow();
+  return true;
+}
+
+bool EditorApplicationNPC::NPCEditFrameTagpointsClicked(const CEGUI::EventArgs &e)
+{
+  showNPCEditTagpointsWindow();
+  return true;
+}
+
+bool EditorApplicationNPC::EditInventoryListAddClicked(const CEGUI::EventArgs &e)
+{
+  //not implemented yet
+
+  //not implemented yet
+}
+
+bool EditorApplicationNPC::EditInventoryListEditClicked(const CEGUI::EventArgs &e)
+{
+  //not implemented yet
+
+  //not implemented yet
+}
+
+bool EditorApplicationNPC::EditInventoryListDeleteClicked(const CEGUI::EventArgs &e)
+{
+  const CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*>
+                         (winmgr.getWindow("Editor/NPCEditFrame/InventoryList"));
+  CEGUI::ListboxItem* lbi = mcl->getFirstSelectedItem();
+  if (lbi==NULL)
+  {
+    showHint("You have to select an item before you can delete it.");
+    return true;
+  }
+  mcl->removeRow(mcl->getItemRowIndex(lbi));
+  return true;
+}
+
+void EditorApplicationNPC::showNPCEditAnimsWindow(void)
+{
+  //not implemented yet
+
+  //not implemented yet
+}
+
+void EditorApplicationNPC::showNPCEditTagpointsWindow(void)
+{
+  //not implemented yet
+
+  //not implemented yet
 }
 
 } //namespace
