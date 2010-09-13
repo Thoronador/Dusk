@@ -55,7 +55,7 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
 
   if ((bits & INJECTION_BIT) !=0)
   {
-    data_records += InjectionManager::getSingleton().numberOfReferences();
+    data_records += InjectionManager::getSingleton().getNumberOfReferences();
   }
   if ((bits & CONTAINER_BIT) !=0)
   {
@@ -656,7 +656,7 @@ bool DataLoader::saveGame(const std::string& FileName) const
   output.write((char*) &cHeaderDusk, sizeof(unsigned int));
   //determine and write number of records
   unsigned int data_records = 1 /*QuestLog*/ + ObjectManager::getSingleton().numberOfReferences()
-                              + InjectionManager::getSingleton().numberOfReferences();
+                              + InjectionManager::getSingleton().getNumberOfReferences();
   output.write((char*) &data_records, sizeof(unsigned int));
   //write headers to identify file as save game
   output.write((char*) &cHeaderSave, sizeof(unsigned int));

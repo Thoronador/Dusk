@@ -27,6 +27,8 @@
      - 2010-06-02 (rev 213) - adjustments for weapons
      - 2010-08-18 (rev 230) - renamed AnimationData to InjectionManager
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
+     - 2010-09-13 (rev 242) - reenableReferencesOfObject() and
+                              updateReferencesAfterIDChange() added (Editor only)
 
  ToDo list:
      - ???
@@ -57,7 +59,7 @@ namespace Dusk
       static InjectionManager& getSingleton();
 
       /* returns the number of object references the class holds */
-      unsigned int numberOfReferences() const;
+      unsigned int getNumberOfReferences() const;
 
       /* adds a new AnimatedObject with given ID at given position with rotation
          and scale, and returns a pointer to the created AnimatedObject.
@@ -123,6 +125,7 @@ namespace Dusk
       */
       NPC* getNPCReference(const std::string& ID) const;
 
+      #ifdef DUSK_EDITOR
       /* Deletes all objects with the given ID and returns the number of deleted objects.
 
          remarks:
@@ -130,6 +133,26 @@ namespace Dusk
       */
       unsigned int deleteReferencesOfAnimatedObject(const std::string& del_ID);
 
+      /* Disables and re-enables all currently enabled objects of given ID.
+         Returns the number of objects that were re-enabled.
+
+         remarks:
+             This is the method to update all enabled objects of one ID after
+             the mesh path has changed. This will not happen in-game and is
+             only used by the Editor.
+      */
+      unsigned int reenableReferencesOfObject(const std::string& ID, Ogre::SceneManager * scm);
+
+      /* Changes the ID of all objects with ID oldID to newID and returns the
+         number of objects that were updated
+
+         remarks:
+             Do not call this manually or in-game.
+             Method is used to update all references of an object after the ID
+             was changed (by Editor application).
+      */
+      unsigned int updateReferencesAfterIDChange(const std::string& oldID, const std::string& newID, Ogre::SceneManager* scm);
+      #endif
 
       /* makes all objects move according to the amount of time passed
 

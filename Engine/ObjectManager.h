@@ -2,8 +2,7 @@
  Author:  thoronador
  Date:    2010-05-15
  Purpose: ObjectManager Singleton class
-          holds data of all static objects, containers, lights and items in
-          the game.
+          holds all static objects, containers, lights and items in the game.
 
  History:
      - 2009-07-01 (rev 101) - initial version (by thoronador)

@@ -18,6 +18,7 @@
                               animation names
                             - closeEditWindowsNPC() added
      - 2010-09-10 (rev 241) - preparations for editing NPCs
+     - 2010-09-13 (rev 242) - editing NPCs is now possible
 
  ToDo list:
      - refine possibility to create NPCs (inventory)
@@ -121,6 +122,18 @@ class EditorApplicationNPC
 	bool NPCEditFrameOKClicked(const CEGUI::EventArgs &e);
 	bool NPCEditFrameAnimsClicked(const CEGUI::EventArgs &e);
 	bool NPCEditFrameTagpointsClicked(const CEGUI::EventArgs &e);
+	//callbacks for animation window (editing NPC)
+	bool NPCEditAnimsFrameCancelClicked(const CEGUI::EventArgs &e);
+	bool NPCEditAnimsFrameOKClicked(const CEGUI::EventArgs &e);
+	//callbacks for tagpoint window (new NPC)
+	bool NPCEditTagsFrameCancelClicked(const CEGUI::EventArgs &e);
+	bool NPCEditTagsFrameOKClicked(const CEGUI::EventArgs &e);
+
+	//window for adding new items to inventory list
+    void showEditInventoryListAddWindow(void);
+    //callbacks for that window
+    bool EditAddInventoryFrameAddClicked(const CEGUI::EventArgs &e);
+    bool EditAddInventoryFrameCancelClicked(const CEGUI::EventArgs &e);
 
 	//create popup menu for inventory list in NPCEditFrame
 	void CreatePopupMenuNPCEditFrameList(void);

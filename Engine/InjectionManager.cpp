@@ -1,5 +1,8 @@
 #include "InjectionManager.h"
 #include "DuskConstants.h"
+#ifdef DUSK_EDITOR
+  #include "NPCBase.h"
+#endif
 
 namespace Dusk
 {
@@ -23,7 +26,7 @@ InjectionManager& InjectionManager::getSingleton()
   return Instance;
 }
 
-unsigned int InjectionManager::numberOfReferences() const
+unsigned int InjectionManager::getNumberOfReferences() const
 {
   return m_RefCount;
 }
@@ -109,6 +112,7 @@ NPC* InjectionManager::getNPCReference(const std::string& ID) const
   return (dynamic_cast<NPC*>(ap));
 }
 
+#ifdef DUSK_EDITOR
 unsigned int InjectionManager::deleteReferencesOfAnimatedObject(const std::string& del_ID)
 {
   std::map<std::string, std::vector<InjectionObject*> >::iterator iter;
@@ -132,6 +136,108 @@ unsigned int InjectionManager::deleteReferencesOfAnimatedObject(const std::strin
   m_ReferenceMap.erase(iter);
   return deletedReferences;
 }
+
+unsigned int InjectionManager::reenableReferencesOfObject(const std::string& ID, Ogre::SceneManager * scm)
+{
+  unsigned int re_enabled = 0;
+  if (scm==NULL)
+  {
+    std::cout << "InjectionManager::reenableReferencesOfObject: ERROR: Scene "
+              << "Manager is NULL pointer!";
+    return 0;
+  }
+  if (!NPCBase::getSingleton().hasNPC(ID))
+  {
+    std::cout << "InjectionManager::reenableReferencesOfObject: ERROR: there is"
+              << " no record about NPC with the new ID \""+ID+"\" within the "
+              << "NPCBase class. Aborting.\n";
+    return 0;
+  }
+  std::map<std::string, std::vector<InjectionObject*> >::iterator iter;
+  iter = m_ReferenceMap.find(ID);
+  if (iter==m_ReferenceMap.end())
+  {
+    return 0;
+  }//if
+  unsigned int position;
+  for (position = 0; position<iter->second.size(); ++position)
+  {
+    if (iter->second.at(position)!=NULL)
+    {
+      if (iter->second.at(position)->isEnabled())
+      {
+        iter->second.at(position)->disable();
+        iter->second.at(position)->enable(scm);
+        ++re_enabled;
+      }//if
+    }//if
+  }//for
+  return re_enabled;
+}
+
+unsigned int InjectionManager::updateReferencesAfterIDChange(const std::string& oldID, const std::string& newID, Ogre::SceneManager* scm)
+{
+  if (oldID=="" or newID=="")
+  {
+    std::cout << "InjectionManager::updateReferencesAfterIDChange: ERROR: old "
+              << "ID or new ID is empty string. We don't want empty ID "
+              << "strings!\n";
+    return 0;
+  }
+  if (oldID==newID)
+  {
+    std::cout << "InjectionManager::updateReferencesAfterIDChange: Hint: old ID"
+              << " is the same as new ID. No need to change anything here.\n";
+    return 0;
+  }
+  if (!NPCBase::getSingleton().hasNPC(newID))
+  {
+    std::cout << "InjectionManager::updateReferencesAfterIDChange: ERROR: there"
+              << " is no record about object with the new ID \""+newID+"\" "
+              << "within the NPCBase class. Aborting.\n";
+    return 0;
+  }
+  if (scm==NULL)
+  {
+    std::cout << "InjectionManager::updateReferencesAfterIDChange: ERROR: got "
+              << "NULL pointer for scene manager. Unable to update enabled "
+              << "objects.\n";
+    return 0;
+  }
+  std::map<std::string, std::vector<InjectionObject*> >::iterator iter;
+  iter = m_ReferenceMap.find(oldID);
+  if (iter==m_ReferenceMap.end())
+  {
+    return 0;
+  }//if
+
+  unsigned int updated_references = 0;
+  //now update
+  while (!(iter->second.empty()))
+  {
+    InjectionObject* objPtr = iter->second.back();
+    if (objPtr!=NULL)
+    {
+      if (objPtr->isEnabled())
+      { //we cannot change ID of enabled objects, so disable them first
+        objPtr->disable();
+        objPtr->changeID(newID);
+        objPtr->enable(scm);
+      }
+      else
+      { //not enabled, so simply change ID
+        objPtr->changeID(newID);
+      }
+      m_ReferenceMap[newID].push_back(objPtr);
+      ++m_RefCount;
+    }//if not NULL
+    iter->second.pop_back();
+    --m_RefCount;
+    ++updated_references;
+  }//while
+  return updated_references;
+}
+#endif //ifdef DUSK_EDITOR
 
 void InjectionManager::injectAnimationTime(const float TimePassed)
 {

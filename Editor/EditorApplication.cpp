@@ -700,7 +700,7 @@ bool EditorApplication::StatsButtonClicked(const CEGUI::EventArgs &e)
            +"  Lights: " + IntToString(LightBase::getSingleton().numberOfLights())+"\n"
            +"    Object, Light & Item references: "+ IntToString(ObjectManager::getSingleton().numberOfReferences())
            +"\n  NPCs: " + IntToString(NPCBase::getSingleton().numberOfNPCs())
-           +"\n    Animated Object & NPC references: "+ IntToString(InjectionManager::getSingleton().numberOfReferences())
+           +"\n    Animated Object & NPC references: "+ IntToString(InjectionManager::getSingleton().getNumberOfReferences())
            +"\n  Journal:\n"
            +"    quests: "+ IntToString(Journal::getSingleton().numberOfDistinctQuests())
            +"\n    entries: "+ IntToString(Journal::getSingleton().numberOfEntries()), true);
