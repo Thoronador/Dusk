@@ -29,6 +29,8 @@
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-09-13 (rev 242) - reenableReferencesOfObject() and
                               updateReferencesAfterIDChange() added (Editor only)
+     - 2010-09-22 (rev 243) - addVehicleReference() added; adjustments for new
+                              Vehicle class
 
  ToDo list:
      - ???
@@ -49,6 +51,8 @@
 
 namespace Dusk
 {
+  class Vehicle; //forward declaration for Vehicle
+
   class InjectionManager
   {
     public:
@@ -85,6 +89,18 @@ namespace Dusk
       */
       NPC* addNPCReference(const std::string& ID, const Ogre::Vector3& position,
                            const Ogre::Vector3& rot, const float Scale);
+
+      /* adds a new Vehicle with given ID at given position with rotation and
+         scale, and returns a pointer to the created Vehicle.
+
+         parameters:
+             ID       - ID of the new Vehicle
+             position - position of the Vehicle
+             rotation - rotation of the Vehicle
+             scale    - scaling factor of the Vehicle
+      */
+      Vehicle* addVehicleReference(const std::string& ID, const Ogre::Vector3& position,
+                                   const Ogre::Vector3& rotation, const float scale);
 
       /* adds a new WaypointObject with given ID at given position with rotation
          and scale, and returns a pointer to the created WaypointObject.

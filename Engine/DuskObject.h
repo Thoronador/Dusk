@@ -51,6 +51,7 @@
      - 2010-08-09 (rev 223) - fixed a bug that prevented compiling of DuskObject
                               under Ogre "Shoggoth" 1.6.0 and later versions
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
+     - 2010-09-22 (rev 243) - enumeration value for Vehicle added
 
  ToDo list:
      - ???
@@ -73,7 +74,8 @@
 namespace Dusk{
 
 enum ObjectTypes {otUndefined, otStatic, otItem, otAnimated, otWaypoint,
-                  otLight, otContainer, otNPC, otProjectile, otWeapon};
+                  otLight, otContainer, otNPC, otProjectile, otVehicle,
+                  otWeapon};
 
 unsigned int GenerateUniqueObjectID();
 

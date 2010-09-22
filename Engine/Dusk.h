@@ -677,6 +677,32 @@ status:
 
 
 /*
+This Header defines the Vehicle class.
+
+description:
+    The class represents a Vehicle in the game, which can carry some
+    NPCs
+status:
+    under development (ha! That's a good one in a game engine that
+    still is way before maturity, huh? ;))
+    untested
+*/
+#include "Vehicle.h"
+
+
+/*
+This Header defines the VehicleBase Singleton class.
+
+description:
+    Holds information about distinct vehicle types in the game.
+    (Look-up table...)
+status:
+    untested.
+*/
+#include "VehicleBase.h"
+
+
+/*
 This Header defines the WaypointObject class
 
 description:

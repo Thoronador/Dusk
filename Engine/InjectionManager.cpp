@@ -3,6 +3,7 @@
 #ifdef DUSK_EDITOR
   #include "NPCBase.h"
 #endif
+#include "Vehicle.h"
 
 namespace Dusk
 {
@@ -47,6 +48,15 @@ NPC* InjectionManager::addNPCReference(const std::string& ID,
   m_ReferenceMap[ID].push_back(static_cast<AnimatedObject*>(NPCPointer));
   ++m_RefCount;
   return NPCPointer;
+}
+
+Vehicle* InjectionManager::addVehicleReference(const std::string& ID, const Ogre::Vector3& position,
+                                   const Ogre::Vector3& rotation, const float scale)
+{
+  Vehicle* vehiPtr = new Vehicle(ID, position, rotation, scale);
+  m_ReferenceMap[ID].push_back(vehiPtr);
+  ++m_RefCount;
+  return vehiPtr;
 }
 
 WaypointObject* InjectionManager::addWaypointReference(const std::string& ID, const Ogre::Vector3& position,
@@ -314,48 +324,58 @@ bool InjectionManager::saveAllToStream(std::ofstream& output) const
 
 bool InjectionManager::loadNextFromStream(std::ifstream& Stream, const unsigned int PrefetchedHeader)
 {
-  InjectionObject * animPtr = NULL;
+  InjectionObject * injectPtr = NULL;
   switch(PrefetchedHeader)
   {
     case cHeaderRefA:
-         animPtr = new AnimatedObject;
-         if (animPtr->loadFromStream(Stream))
+         injectPtr = new AnimatedObject;
+         if (injectPtr->loadFromStream(Stream))
          {
-           m_ReferenceMap[animPtr->getID()].push_back(animPtr);
+           m_ReferenceMap[injectPtr->getID()].push_back(injectPtr);
            ++m_RefCount;
            return true;
          }
-         delete animPtr;
+         delete injectPtr;
          break;
     case cHeaderRefN:
-         animPtr = new NPC;
-         if (animPtr->loadFromStream(Stream))
+         injectPtr = new NPC;
+         if (injectPtr->loadFromStream(Stream))
          {
-           m_ReferenceMap[animPtr->getID()].push_back(animPtr);
+           m_ReferenceMap[injectPtr->getID()].push_back(injectPtr);
            ++m_RefCount;
            return true;
          }
-         delete animPtr;
+         delete injectPtr;
          break;
     case cHeaderRefP:
-         animPtr = new Projectile;
-         if (animPtr->loadFromStream(Stream))
+         injectPtr = new Projectile;
+         if (injectPtr->loadFromStream(Stream))
          {
-           m_ReferenceMap[animPtr->getID()].push_back(animPtr);
+           m_ReferenceMap[injectPtr->getID()].push_back(injectPtr);
            ++m_RefCount;
            return true;
          }
-         delete animPtr;
+         delete injectPtr;
+         break;
+    case cHeaderRefV:
+         injectPtr = new Vehicle;
+         if (injectPtr->loadFromStream(Stream))
+         {
+           m_ReferenceMap[injectPtr->getID()].push_back(injectPtr);
+           ++m_RefCount;
+           return true;
+         }
+         delete injectPtr;
          break;
     case cHeaderRfWP:
-         animPtr = new WaypointObject;
-         if (animPtr->loadFromStream(Stream))
+         injectPtr = new WaypointObject;
+         if (injectPtr->loadFromStream(Stream))
          {
-           m_ReferenceMap[animPtr->getID()].push_back(animPtr);
+           m_ReferenceMap[injectPtr->getID()].push_back(injectPtr);
            ++m_RefCount;
            return true;
          }
-         delete animPtr;
+         delete injectPtr;
          break;
     default:
          std::cout << "InjectionManager::LoadNextFromStream: ERROR: unexpected"

@@ -12,6 +12,7 @@
 #include "ObjectManager.h"
 #include "QuestLog.h"
 #include "ProjectileBase.h"
+#include "VehicleBase.h"
 #include "WeaponBase.h"
 #include "DuskConstants.h"
 
@@ -52,11 +53,6 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
   //determine number of records
   data_records = 0;
 
-
-  if ((bits & INJECTION_BIT) !=0)
-  {
-    data_records += InjectionManager::getSingleton().getNumberOfReferences();
-  }
   if ((bits & CONTAINER_BIT) !=0)
   {
     data_records += ContainerBase::getSingleton().numberOfContainers();
@@ -64,6 +60,10 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
   if ((bits & DIALOGUE_BIT) !=0)
   {
     data_records += Dialogue::getSingleton().numberOfLines();
+  }
+  if ((bits & INJECTION_BIT) !=0)
+  {
+    data_records += InjectionManager::getSingleton().getNumberOfReferences();
   }
   if ((bits & ITEM_BIT) !=0)
   {
@@ -101,6 +101,10 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
   {
     data_records += ObjectManager::getSingleton().numberOfReferences();
   }
+  if ((bits & VEHICLE_BIT) !=0)
+  {
+    data_records += VehicleBase::getSingleton().getVehicleNumber();
+  }
   if ((bits & WEAPON_BIT) !=0)
   {
     data_records += WeaponBase::getSingleton().numberOfWeapons();
@@ -132,6 +136,18 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
       return false;
     }
   }//projectiles
+
+  //save vehicles
+  if ((bits & VEHICLE_BIT)!=0)
+  {
+    if (!VehicleBase::getSingleton().saveAllToStream(output))
+    {
+      std::cout << "DataLoader::SaveToFile: ERROR: could not write Vehicle "
+                << "data to file \""<<FileName<<"\".\n";
+      output.close();
+      return false;
+    }
+  }//vehicles
 
   //save weapons
   if ((bits & WEAPON_BIT)!=0)
@@ -355,8 +371,12 @@ bool DataLoader::loadFromFile(const std::string& FileName)
       case cHeaderRefA:  //AnimatedObject
       case cHeaderRefN:  //NPC
       case cHeaderRefP:  //Projectiles
+      case cHeaderRefV:  //Vehicles
       case cHeaderRfWP:  //WaypointObject
            success = InjectionManager::getSingleton().loadNextFromStream(input, Header);
+           break;
+      case cHeaderVehi:
+           success = VehicleBase::getSingleton().loadNextVehicleFromStream(input);
            break;
       case cHeaderWeap:
            success = WeaponBase::getSingleton().loadNextWeaponFromStream(input);
@@ -451,6 +471,11 @@ void DataLoader::clearData(const unsigned int bits)
   {
     QuestLog::getSingleton().clearAllData();
   }//quest log
+
+  if ((bits & VEHICLE_BIT) !=0)
+  {
+    VehicleBase::getSingleton().clearAll();
+  }//vehicles
 
   if ((bits & WEAPON_BIT) !=0)
   {

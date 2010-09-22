@@ -236,6 +236,10 @@
 		<Unit filename="Trigger.h" />
 		<Unit filename="UniformMotionObject.cpp" />
 		<Unit filename="UniformMotionObject.h" />
+		<Unit filename="Vehicle.cpp" />
+		<Unit filename="Vehicle.h" />
+		<Unit filename="VehicleBase.cpp" />
+		<Unit filename="VehicleBase.h" />
 		<Unit filename="VertexDataFunc.cpp" />
 		<Unit filename="VertexDataFunc.h" />
 		<Unit filename="WaypointObject.cpp" />

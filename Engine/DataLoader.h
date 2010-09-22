@@ -30,6 +30,7 @@
      - 2010-06-02 (rev 213) - update for Weapons
      - 2010-06-02 (rev 230) - update due to rename of AnimationData to InjectionManager
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
+     - 2010-09-22 (rev 243) - update for Vehicle and VehicleBase classes
 
  ToDo list:
      - extend class when further classes for data management are added
@@ -60,12 +61,14 @@ namespace Dusk
   const unsigned int PROJECTILE_BIT = 512;
   const unsigned int QUEST_LOG_BIT = 1024;
   const unsigned int REFERENCE_BIT = 2048;
-  const unsigned int WEAPON_BIT = 4096;
+  const unsigned int VEHICLE_BIT = 4096;
+  const unsigned int WEAPON_BIT = 8192;
 
   const unsigned int ALL_BITS = CONTAINER_BIT | DIALOGUE_BIT | INJECTION_BIT |
                                 ITEM_BIT | JOURNAL_BIT | LANDSCAPE_BIT |
                                 LIGHT_BIT | NPC_BIT | OBJECT_BIT | PROJECTILE_BIT
-                                | QUEST_LOG_BIT | REFERENCE_BIT | WEAPON_BIT;
+                                | QUEST_LOG_BIT | REFERENCE_BIT | VEHICLE_BIT
+                                | WEAPON_BIT;
 
   const unsigned int SAVE_MEAN_BITS = INJECTION_BIT | QUEST_LOG_BIT | REFERENCE_BIT;
 
