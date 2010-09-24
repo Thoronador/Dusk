@@ -38,6 +38,7 @@
      - 2010-08-26 (rev 235) - jump() added, functions for starting/ stopping the
                               walk, jump and idle animations added
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
+     - 2010-09-24 (rev 244) - getVehicle() and setVehicle() added
 
  ToDo list:
      - add possibility to equip weapons, clothes, armour, etc.
@@ -64,6 +65,9 @@
 
 namespace Dusk
 {
+
+  //forward declaration
+  class Vehicle;
 
   class NPC: public AnimatedObject, public WaypointObject
   {
@@ -225,6 +229,19 @@ namespace Dusk
       */
       virtual void jump(void);
 
+      /* returns the current vehicle that the NPC is on/in, or NULL if none */
+      Vehicle* getVehicle() const;
+
+      /* sets the current vehicle that the NPC is on/in, or NULL if none
+
+         remarks:
+             Do NOT call this function to mount the NPC onto a certain vehicle.
+             Instead, call Vehicle::mountPassengerAtIndex() with this NPC as
+             parameter. The vehicle will then use this function to set a
+             backlink to itself for convenience reasons.
+      */
+      void setVehicle(Vehicle* new_vehicle);
+
       /* Enables the NPC, i.e. tells the SceneManager to display it.
          Returns true on success, false on error.
 
@@ -338,6 +355,9 @@ namespace Dusk
       //data for jumping
       float m_JumpVelocity;
       bool m_Jump;
+
+      //current vehicle, if any
+      Vehicle* m_Vehicle;
 
       /* performs the NPCs movement according to direction, speed, jumping
 

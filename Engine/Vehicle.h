@@ -6,6 +6,9 @@
 
  History:
      - 2010-09-22 (rev 243) - initial version (by thoronador)
+     - 2010-09-24 (rev 244) - method for adjusting passenger's positions added
+                            - methods to mount/unmount passengers and query
+                              current number of passengers or get passengers
 
  ToDo list:
      - position and orientation of passengers has to be adjusted during
@@ -76,6 +79,60 @@ class Vehicle: public AnimatedObject, public WaypointObject
     /* returns the number of unoccupied mountpoints */
     virtual unsigned int getFreeMountpoints() const;
 
+    /* tries to set a passenger onto the vehicla at position with given index,
+       and returns true on success, false on failure.
+
+       parameters:
+           idx - zero-based index of the passenger's mountpoint (e.g. seat or
+                 something similar)
+           who - pointer to the NPC that shall be placed on/in the vehicle
+
+       remarks:
+           If there already is a NPC at the given index, the passenger will not
+           be changed and the function returns false.
+           The value of idx must be less than the return value of the function
+           getTotalMountpoints(), i.e. it must be less than the number of
+           available mountpoints.
+    */
+    bool mountPassengerAtIndex(const unsigned int idx, NPC* who);
+
+    /* tries to remove the passenger at position with given index from the vehicle,
+       and returns true on success, false on failure.
+
+       parameters:
+           idx - zero-based index of the passenger's mountpoint (e.g. seat or
+                 something similar)
+
+       remarks:
+           If there already is no NPC at the given index, the function will
+           return true(!), because the place is then free for another NPC.
+           The value of idx must be less than the return value of the function
+           getTotalMountpoints(), i.e. it must be less than the number of
+           available mountpoints.
+    */
+    bool unmountPassengerAtIndex(const unsigned int idx);
+
+    /* tries to remove the passenger from the vehicle, and returns true on
+       success (i.e. an NPC was removed), or false on failure.
+
+       parameters:
+           who - pointer to the NPC that should be removed
+
+       remarks:
+           If the NPC the pointer points to is not on the vehicle, or if the
+           pointer is NULL, the function returns false.
+    */
+    bool unmountPassenger(NPC* who);
+
+    /* returns a pointer to the passenger at position with given index, or NULL
+       if there is no passenger
+
+       parameters:
+           idx - zero-based index of the passenger's mountpoint (e.g. seat or
+                 something similar)
+    */
+    NPC* getPassengerAtIndex(const unsigned int idx) const;
+
     /* returns the current number of passengers */
     virtual unsigned int getPassengerCount() const;
 
@@ -115,8 +172,18 @@ class Vehicle: public AnimatedObject, public WaypointObject
     */
     bool enablePassengers(Ogre::SceneManager* scm);
 
+    /* re-adjusts the position of all passengers */
+    void adjustPassengerPosition();
+
+    struct PassengerRecord
+    {
+      NPC* who;
+      Ogre::Vector3 position_offset;
+      Ogre::Vector3 rotation_offset;
+    };//struct
+
     //list of passengers
-    std::vector<NPC*> m_Passengers;
+    std::map<unsigned int, PassengerRecord> m_Passengers;
 };//class
 
 

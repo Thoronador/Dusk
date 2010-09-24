@@ -11,6 +11,7 @@
 #include "API.h"
 #include "DiceBox.h"
 #include "Landscape.h"
+#include "Vehicle.h"
 
 namespace Dusk
 {
@@ -35,6 +36,7 @@ NPC::NPC()
   m_AttackFlags = 0;
   m_JumpVelocity = 0.0f;
   m_Jump = false;
+  m_Vehicle = NULL;
 }
 
 NPC::NPC(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale)
@@ -70,6 +72,7 @@ NPC::NPC(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& 
   m_AttackFlags = 0;
   m_JumpVelocity = 0.0f;
   m_Jump = false;
+  m_Vehicle = NULL;
 }
 
 NPC::~NPC()
@@ -99,6 +102,16 @@ void NPC::jump(void)
                             //  value later
     startJumpAnimation();
   }//if
+}
+
+Vehicle* NPC::getVehicle() const
+{
+  return m_Vehicle;
+}
+
+void NPC::setVehicle(Vehicle* new_vehicle)
+{
+  m_Vehicle = new_vehicle;
 }
 
 void NPC::move(const float SecondsPassed)

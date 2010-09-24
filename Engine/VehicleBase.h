@@ -7,6 +7,7 @@
 
  History:
      - 2010-09-22 (rev 243) - initial version (by thoronador)
+     - 2010-09-24 (rev 244) - mountpoint data and functions for retrieval added
 
  ToDo list:
      - ???
@@ -20,10 +21,18 @@
 
 #include <map>
 #include <string>
+#include <vector>
 #include <fstream>
+#include <OgreVector3.h>
 
 namespace Dusk
 {
+
+struct MountpointData
+{
+  Ogre::Vector3 offset;
+  Ogre::Vector3 rotation;
+};//struct
 
 struct VehicleRecord
 {
@@ -31,6 +40,7 @@ struct VehicleRecord
   std::string Name;
   float MaxSpeed;
   unsigned int MountpointCount;
+  std::vector<MountpointData> Mountpoints;
 }; //struct
 
 class VehicleBase
@@ -90,6 +100,46 @@ class VehicleBase
     */
     unsigned int getVehicleMountpoints(const std::string& ID) const;
 
+    /* returns the offset of a specified mountpoint for the given vehicle.
+       If no vehicle of with that ID is present, the return value is undefined.
+
+       parameters:
+           ID  - the ID of the vehicle
+           idx - zero-based index of the mountpoint
+
+       remarks:
+           The value of the parameter idx has to be less than the value
+           returned by getVehicleMountpoints().
+    */
+    const Ogre::Vector3& getMountpointOffset(const std::string& ID, unsigned int idx) const;
+
+    /* returns the rotation of a specified mountpoint for the given vehicle.
+       If no vehicle of with that ID is present, the return value is undefined.
+
+       parameters:
+           ID  - the ID of the vehicle
+           idx - zero-based index of the mountpoint
+
+       remarks:
+           The value of the parameter idx has to be less than the value
+           returned by getVehicleMountpoints().
+    */
+    const Ogre::Vector3& getMountpointRotation(const std::string& ID, unsigned int idx) const;
+
+    /* returns the data of a specified mountpoint for the given vehicle.
+       If no vehicle of with that ID is present, or mountpoint is not within the
+       acceptable range, the return value is undefined.
+
+       parameters:
+           ID  - the ID of the vehicle
+           idx - zero-based index of the mountpoint
+
+       remarks:
+           The value of the parameter idx has to be less than the value
+           returned by getVehicleMountpoints().
+    */
+    const MountpointData& getMountpointData(const std::string& ID, unsigned int idx) const;
+
     /* deletes a vehicle by ID and returns true, if a vehicle was deleted */
     bool deleteVehicle(const std::string& ID);
 
@@ -124,6 +174,8 @@ class VehicleBase
 
     //list of vehicles
     std::map<std::string, VehicleRecord> m_Vehicles;
+
+    MountpointData mp_null;
 }; //class
 
 } //namespace
