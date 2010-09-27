@@ -2,6 +2,7 @@
 #include "VehicleBase.h"
 #include "NPC.h"
 #include "DuskConstants.h"
+#include <OgreMatrix3.h>
 
 namespace Dusk
 {
@@ -107,6 +108,10 @@ bool Vehicle::enablePassengers(Ogre::SceneManager* scm)
 
 void Vehicle::adjustPassengerPosition()
 {
+  Ogre::Matrix3 mat3, mat_offset;
+  mat3.FromEulerAnglesXYZ(Ogre::Degree(rotation.x), Ogre::Degree(rotation.y),
+                          Ogre::Degree(rotation.z));
+  Ogre::Radian rx, ry, rz;
   std::map<unsigned int, PassengerRecord>::iterator iter;
   iter = m_Passengers.begin();
   while (iter!=m_Passengers.end())
@@ -118,7 +123,20 @@ void Vehicle::adjustPassengerPosition()
       iter->second.who->setPosition(getPosition()+iter->second.position_offset);
       //sets rotation which calculates as vehicle's rotation plus something else
       // I'm not so sure about yet.
-      iter->second.who->setRotation(getRotation()+iter->second.rotation_offset);
+      //iter->second.who->setRotation(getRotation()+iter->second.rotation_offset);
+
+      /* What we do here, is translate our rotation offset into a rotation
+         matrix, multiply the vehicle's rotation matrix with that one (so we get
+         the resulting rotation matrix for doing both rotations) and then we
+         translate the matrix back to angles, which can be used in setRotation().
+      */
+      mat_offset.FromEulerAnglesXYZ(Ogre::Degree(iter->second.rotation_offset.x),
+                                    Ogre::Degree(iter->second.rotation_offset.y),
+                                    Ogre::Degree(iter->second.rotation_offset.z));
+      mat_offset = mat3 * mat_offset;
+      mat_offset.ToEulerAnglesXYZ(rx, ry, rz);
+      iter->second.who->setRotation(Ogre::Vector3(rx.valueDegrees(),
+                                        ry.valueDegrees(), rz.valueDegrees()));
       /*****
        ***** To Do:
        +++++ ======

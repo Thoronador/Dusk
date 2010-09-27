@@ -9,6 +9,7 @@
      - 2010-09-24 (rev 244) - method for adjusting passenger's positions added
                             - methods to mount/unmount passengers and query
                               current number of passengers or get passengers
+     - 2010-09-27 (rev 245) - rotation of passengers adjusted
 
  ToDo list:
      - position and orientation of passengers has to be adjusted during

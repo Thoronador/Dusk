@@ -73,12 +73,12 @@ DuskObject::~DuskObject()
   disable();
 }
 
-Ogre::Vector3 DuskObject::getPosition() const
+const Ogre::Vector3& DuskObject::getPosition() const
 {
   return position;
 }
 
-Ogre::Vector3 DuskObject::getRotation() const
+const Ogre::Vector3& DuskObject::getRotation() const
 {
   return rotation;
 }

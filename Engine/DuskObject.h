@@ -52,6 +52,7 @@
                               under Ogre "Shoggoth" 1.6.0 and later versions
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-09-22 (rev 243) - enumeration value for Vehicle added
+     - 2010-09-27 (rev 245) - minor optimization
 
  ToDo list:
      - ???
@@ -99,10 +100,10 @@ class DuskObject: public Ogre::UserDefinedObject
         virtual ~DuskObject();
 
         /* Retrieves object's position */
-        Ogre::Vector3 getPosition() const;
+        const Ogre::Vector3& getPosition() const;
 
         /* Retrieves object's rotation */
-        Ogre::Vector3 getRotation() const;
+        const Ogre::Vector3& getRotation() const;
 
         /* Sets the position of the object.
 
