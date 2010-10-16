@@ -42,7 +42,10 @@ void Vehicle::injectTime(const float SecondsPassed)
   WaypointObject::injectTime(SecondsPassed);
   //adjust position and rotation of passengers according to their
   // mountpoint (e.g. seat) on the vehicle
-  adjustPassengerPosition();
+  if (isEnabled())
+  {
+    adjustPassengerPosition();
+  }//if
 }
 
 bool Vehicle::enable(Ogre::SceneManager* scm)
@@ -81,6 +84,7 @@ bool Vehicle::enablePassengers(Ogre::SceneManager* scm)
 {
   std::map<unsigned int, PassengerRecord>::iterator iter;
   iter = m_Passengers.begin();
+  const Ogre::Quaternion& rot_self = entity->getParentSceneNode()->getOrientation();
   while (iter!=m_Passengers.end())
   {
     if (iter->second.who!=NULL)
@@ -95,7 +99,7 @@ bool Vehicle::enablePassengers(Ogre::SceneManager* scm)
       */
       //sets position, which calculates as vehicle's position plus relative
       // offset position of passenger
-      iter->second.who->setPosition(getPosition()+iter->second.position_offset);
+      iter->second.who->setPosition(getPosition()+ rot_self*iter->second.position_offset);
       //sets rotation which calculates as vehicle's rotation plus something else
       // I'm not so sure about yet.
       iter->second.who->setRotation(getRotation()+iter->second.rotation_offset);
@@ -111,6 +115,7 @@ void Vehicle::adjustPassengerPosition()
   Ogre::Matrix3 mat3, mat_offset;
   mat3.FromEulerAnglesXYZ(Ogre::Degree(rotation.x), Ogre::Degree(rotation.y),
                           Ogre::Degree(rotation.z));
+  const Ogre::Quaternion& rot_self = entity->getParentSceneNode()->getOrientation();
   Ogre::Radian rx, ry, rz;
   std::map<unsigned int, PassengerRecord>::iterator iter;
   iter = m_Passengers.begin();
@@ -120,7 +125,7 @@ void Vehicle::adjustPassengerPosition()
     {
       //sets position, which calculates as vehicle's position plus relative
       // offset position of passenger
-      iter->second.who->setPosition(getPosition()+iter->second.position_offset);
+      iter->second.who->setPosition(getPosition()+rot_self*iter->second.position_offset);
       //sets rotation which calculates as vehicle's rotation plus something else
       // I'm not so sure about yet.
       //iter->second.who->setRotation(getRotation()+iter->second.rotation_offset);
@@ -137,12 +142,6 @@ void Vehicle::adjustPassengerPosition()
       mat_offset.ToEulerAnglesXYZ(rx, ry, rz);
       iter->second.who->setRotation(Ogre::Vector3(rx.valueDegrees(),
                                         ry.valueDegrees(), rz.valueDegrees()));
-      /*****
-       ***** To Do:
-       +++++ ======
-       +++++
-       +++++   -get correct rotation values
-      */
     }//who
     ++iter;
   }//while
