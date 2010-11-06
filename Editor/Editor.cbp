@@ -158,6 +158,10 @@
 		<Unit filename="../Engine/Sun.h" />
 		<Unit filename="../Engine/UniformMotionObject.cpp" />
 		<Unit filename="../Engine/UniformMotionObject.h" />
+		<Unit filename="../Engine/Vehicle.cpp" />
+		<Unit filename="../Engine/Vehicle.h" />
+		<Unit filename="../Engine/VehicleBase.cpp" />
+		<Unit filename="../Engine/VehicleBase.h" />
 		<Unit filename="../Engine/VertexDataFunc.cpp" />
 		<Unit filename="../Engine/VertexDataFunc.h" />
 		<Unit filename="../Engine/WaypointObject.cpp" />

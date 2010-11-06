@@ -1,3 +1,40 @@
+/*
+ -----------------------------------------------------------------------------
+    This file is part of the Dusk Engine.
+    Copyright (C) 2010 thoronador
+
+    The Dusk Engine is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    The Dusk Engine is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with the Dusk Engine.  If not, see <http://www.gnu.org/licenses/>.
+ -----------------------------------------------------------------------------
+*/
+
+/*---------------------------------------------------------------------------
+ Author:  thoronador
+ Date:    2010-05-21
+ Purpose: Lua functions/bindings for use of UniformMotionObject class in
+          Lua Scripts
+
+ History:
+     - 2010-05-21 (rev 207) - initial version (by thoronador)
+     - 2010-08-31 (rev 239) - naming convention enforced
+
+ ToDo list:
+     - ???
+
+ Bugs:
+     - Untested. If you find any bugs, then tell me please.
+ --------------------------------------------------------------------------*/
+
 #ifndef LUABINDINGSUNIFORMMOTION_H
 #define LUABINDINGSUNIFORMMOTION_H
 
