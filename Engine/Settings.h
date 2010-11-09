@@ -40,6 +40,8 @@
      - 2010-08-28 (rev 237) - internal structure changed: one map for all types
                               of settings instead one map for each type
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
+     - 2010-11-09 (rev 249) - possibility to specify default return value for
+                              get-functions added
 
  ToDo list:
      - ???
@@ -89,19 +91,20 @@ namespace Dusk
       SettingType hasSetting(const std::string& setting_name) const;
 
       /* Retrieves the value of an integer setting named setting_name. If no
-         such setting is present, the function will return zero.
+         such setting is present, the function will return defaultVal.
        */
-      unsigned int getSetting_uint(const std::string& setting_name) const;
+      unsigned int getSetting_uint(const std::string& setting_name, const unsigned int defaultVal=0) const;
 
       /* Retrieves the value of a floating point setting named setting_name.
-         If no such setting is present, the function will return zero.
+         If no such setting is present, the function will return the value of
+         defaultVal.
        */
-      float getSetting_float(const std::string& setting_name) const;
+      float getSetting_float(const std::string& setting_name, const float defaultVal=0.0f) const;
 
       /* Retrieves the value of a String setting named setting_name. If no such
          setting is present, the function will return an empty string.
        */
-      std::string getSetting_string(const std::string& setting_name) const;
+      std::string getSetting_string(const std::string& setting_name, const std::string& defaultVal="") const;
 
       /* Tries to load setting from the file FileName. Returns true on success,
          false otherwise.

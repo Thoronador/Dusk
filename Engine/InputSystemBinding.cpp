@@ -70,6 +70,8 @@ InputSystemBinding::InputSystemBinding()
     myBindListPress[OIS::KC_L] = Script("toggle_questlog");
     myBindListPress[OIS::KC_ADD] = Script("questlog_increase");
     myBindListPress[OIS::KC_SUBTRACT] = Script("questlog_decrease");
+    // --- screenshot
+    myBindListPress[OIS::KC_C] = Script("screenshot");
 
     myBindListRelease.clear();
     myBindListRelease[OIS::KC_W] = Script("move_backward");
@@ -234,6 +236,7 @@ std::string InputSystemBinding::getKeyStringFromScript(const Script& scr)
   if (str_rep=="toggle_questlog") return "questlog_key";
   if (str_rep=="questlog_increase") return "questlog_increase_key";
   if (str_rep=="questlog_decrease") return "questlog_decrease_key";
+  if (str_rep=="screenshot") return "screenshot_key";
 
   return ""; //no valid or known key script
 }
@@ -257,6 +260,8 @@ Script InputSystemBinding::getPressScriptFromKeyString(const std::string& ks)
   if (ks=="debug_rain_key") return Script("toggle_rain");
   if (ks=="debug_snow_key") return Script("toggle_snow");
 
+  if (ks=="screenshot_key") return Script("screenshot");
+
   return Script(""); //no known key -> empty script
 }
 
@@ -277,6 +282,8 @@ Script InputSystemBinding::getReleaseScriptFromKeyString(const std::string& ks)
   if (ks=="debug_fog_key") return Script("");
   if (ks=="debug_rain_key") return Script("");
   if (ks=="debug_snow_key") return Script("");
+
+  if (ks=="screenshot_key") return Script("");
 
   return Script(""); //no known key -> empty script
 }

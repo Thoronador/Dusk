@@ -19,7 +19,7 @@
 */
 
 /*---------------------------------------------------------------------------
- Authors: ssj5000, DaSteph, walljumper, ???
+ Authors: ssj5000, DaSteph, walljumper, thoronador
  Date:    2007-11-19
  Purpose: Application class
           Responsible for building up the engine
@@ -47,6 +47,7 @@
      - 2010-03-12 (rev 181) - small adjustments
      - 2010-03-24 (rev 186) - adjustments for camera, which is now singleton
      - 2010-08-03 (rev 221) - minor optimization, documentation updated
+     - 2010-11-09 (rev 249) - createScreenshot() added
 
  ToDo list:
      - ???
@@ -71,6 +72,14 @@ namespace Dusk
       virtual ~Application();
       virtual void go(const std::string& pluginFileName);
       Dusk::FrameListener* getFrameListener();
+
+      /* creates a screenshot of the render window and saves it as PNG to the
+         current directory
+
+         return value:
+           Returns false, if an error occured.
+      */
+      bool createScreenshot() const;
 
     protected:
       virtual bool initialise(const std::string& pluginFileName);

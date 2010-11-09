@@ -25,6 +25,10 @@
 #include "API.h"
 #include "Camera.h"
 #include "Sound.h"
+#include "Settings.h"
+#include "DuskFunctions.h"
+#include <OgreTexture.h>
+#include <OgreRenderTexture.h>
 
 namespace Dusk
 {
@@ -211,4 +215,30 @@ namespace Dusk
     {
         return static_cast<Dusk::FrameListener*>(m_FrameListener);
     }
-}
+//-------------------------------------------------------------------------------------
+    bool Application::createScreenshot() const
+    {
+      //We can't make screenshots without a window.
+      if (m_Window==NULL or m_Camera==NULL) return false;
+
+      const unsigned int screenIndex = Settings::getSingleton().getSetting_uint("ScreenshotIndex", 0);
+
+      Ogre::TexturePtr ptrTexture = Ogre::TextureManager::getSingleton().createManual(
+          "ScreenTex"+IntToString(screenIndex), Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+          Ogre::TEX_TYPE_2D, m_Window->getWidth(), m_Window->getHeight(), 0,
+          Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET);
+      Ogre::RenderTexture *renderTexture = ptrTexture->getBuffer()->getRenderTarget();
+
+      renderTexture->addViewport(m_Camera);
+      renderTexture->getViewport(0)->setClearEveryFrame(true);
+      renderTexture->getViewport(0)->setBackgroundColour(Ogre::ColourValue::Black);
+      //renderTexture->getViewport(0)->setOverlaysEnabled(false);
+      renderTexture->update();
+      const std::string screenPrefix = Settings::getSingleton().getSetting_string("ScreenshotPrefix", "Screenshot");
+      renderTexture->writeContentsToFile(screenPrefix+IntToString(screenIndex)+".png");
+      Settings::getSingleton().addSetting_uint("ScreenshotIndex", screenIndex+1);
+      Ogre::TextureManager::getSingleton().remove("ScreenTex"+IntToString(screenIndex));
+      return true;
+    }
+
+} //namespace

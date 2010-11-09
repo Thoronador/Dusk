@@ -35,6 +35,7 @@
 #include "CommandWeather.h"
 #include "CommandZoom.h"
 #include "CommandQuestLog.h"
+#include "CommandScreenshot.h"
 #include "DuskFunctions.h"
 #include "DuskTypes.h"
 #include <iostream>
@@ -445,6 +446,13 @@ int Console::executeCommand(const std::string& p_string)
             com = new CommandQuestLog(CommandQuestLog::qloPrev);
             m_Dispatcher->executeCommand(com);
             std::cout << "Previous QuestLog page." << std::endl;
+        }
+        // --- Screenshot command ---
+        else if (command[0] == "screenshot")
+        {
+            com = new CommandScreenshot();
+            m_Dispatcher->executeCommand(com);
+            std::cout << "Screenshot command executed." << std::endl;
         }
         // --- no command recognised ---
         else

@@ -53,6 +53,7 @@
      - 2010-06-06 (rev 215) - adjustments for CommandAttack
      - 2010-06-06 (rev 216) - fixed a bug
      - 2010-08-20 (rev 231) - adjustments for CommandQuestLog
+     - 2010-11-09 (rev 249) - adjustments for CommandScreenshot
 
  ToDo list:
      - update Console as soon as new commands are available

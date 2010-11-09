@@ -98,6 +98,7 @@ void Settings::initialSettings()
   addSetting_uint("HealthVitalityFactor", 3);
   addSetting_uint("HealthLevelFactor", 2);
   addSetting_uint("CriticalDamageFactor", 2);
+  addSetting_string("ScreenshotPrefix", "Screenshot");
 }
 
 Settings::~Settings()
@@ -136,7 +137,7 @@ Settings::SettingType Settings::hasSetting(const std::string& setting_name) cons
   return stNone;
 }
 
-unsigned int Settings::getSetting_uint(const std::string& setting_name) const
+unsigned int Settings::getSetting_uint(const std::string& setting_name, const unsigned int defaultVal) const
 {
   const std::map<std::string, SettingRecord>::const_iterator iter
            = m_AllSettings.find(setting_name);
@@ -148,10 +149,10 @@ unsigned int Settings::getSetting_uint(const std::string& setting_name) const
     }//if type matches
   }
   //nothing found
-  return 0;
+  return defaultVal;
 }
 
-float Settings::getSetting_float(const std::string& setting_name) const
+float Settings::getSetting_float(const std::string& setting_name, const float defaultVal) const
 {
   const std::map<std::string, SettingRecord>::const_iterator iter =
      m_AllSettings.find(setting_name);
@@ -163,10 +164,10 @@ float Settings::getSetting_float(const std::string& setting_name) const
     }//if type matches
   }
   //nothing found
-  return 0.0f;
+  return defaultVal;
 }
 
-std::string Settings::getSetting_string(const std::string& setting_name) const
+std::string Settings::getSetting_string(const std::string& setting_name, const std::string& defaultVal) const
 {
   const std::map<std::string, SettingRecord>::const_iterator iter =
           m_AllSettings.find(setting_name);
@@ -178,7 +179,7 @@ std::string Settings::getSetting_string(const std::string& setting_name) const
     }//it type matches
   }
   //nothing found
-  return "";
+  return defaultVal;
 }
 
 bool Settings::loadFromFile(const std::string& FileName)

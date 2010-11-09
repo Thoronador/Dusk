@@ -130,6 +130,8 @@
 		<Unit filename="CommandQuestLog.h" />
 		<Unit filename="CommandQuit.cpp" />
 		<Unit filename="CommandQuit.h" />
+		<Unit filename="CommandScreenshot.cpp" />
+		<Unit filename="CommandScreenshot.h" />
 		<Unit filename="CommandSoundVolume.cpp" />
 		<Unit filename="CommandSoundVolume.h" />
 		<Unit filename="CommandWeather.cpp" />

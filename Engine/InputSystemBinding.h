@@ -51,6 +51,7 @@
      - 2010-08-20 (rev 231) - binding for QuestLog
      - 2010-08-28 (rev 237) - camera will now react on mouse movement
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
+     - 2010-11-09 (rev 249) - binding for screenshots
 
  ToDo list:
      - method to load bind list from an external resource
