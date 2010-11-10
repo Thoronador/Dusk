@@ -19,13 +19,50 @@
 */
 
 #include "Trigger.h"
+#include "LuaEngine.h"
 
 namespace Dusk
 {
 
 Trigger::~Trigger()
 {
-  //empty
+  //remove all objects from list
+  m_ObjectList.clear();
+}
+
+bool Trigger::compLesser(const TriggerObject* a, const TriggerObject* b) const
+{
+  return reinterpret_cast<unsigned int>(a)<reinterpret_cast<unsigned int>(b);
+}
+
+void Trigger::addToTrigger(TriggerObject* obj)
+{
+  m_ObjectList.insert(obj);
+}
+
+bool Trigger::removeFromTrigger(TriggerObject* obj)
+{
+  return m_ObjectList.erase(obj)>0;
+}
+
+bool Trigger::isInList(TriggerObject* obj) const
+{
+  return m_ObjectList.find(obj)!=m_ObjectList.end();
+}
+
+unsigned int Trigger::getNumberOfObjectsWithin() const
+{
+  return m_ObjectList.size();
+}
+
+void Trigger::processObjects()
+{
+  std::set<TriggerObject*>::const_iterator iter = m_ObjectList.begin();
+  while (iter!=m_ObjectList.end())
+  {
+    onWithin(*iter);
+    ++iter;
+  }//while
 }
 
 /* ---- AABoxTrigger methods ---- */
@@ -100,6 +137,78 @@ bool SphereTrigger::isWithin(const TriggerObject* obj) const
 const Ogre::Sphere& SphereTrigger::getSphere() const
 {
   return m_Sphere;
+}
+
+/* ---- ScriptedTrigger methods ---- */
+
+ScriptedTrigger::ScriptedTrigger()
+{
+  m_EnterScript = Script();
+  m_WithinScript = Script();
+  m_ExitScript = Script();
+}
+
+ScriptedTrigger::ScriptedTrigger(const Script& enter, const Script& within, const Script& exit)
+{
+  m_EnterScript = enter;
+  m_WithinScript = within;
+  m_ExitScript = exit;
+}
+
+ScriptedTrigger::~ScriptedTrigger()
+{
+  //empty
+}
+
+const Script& ScriptedTrigger::getEnterScript() const
+{
+  return m_EnterScript;
+}
+
+const Script& ScriptedTrigger::getWithingScript() const
+{
+  return m_WithinScript;
+}
+
+const Script& ScriptedTrigger::getExitScript() const
+{
+  return m_ExitScript;
+}
+
+void ScriptedTrigger::setEnterScript(const Script& scr)
+{
+  m_EnterScript = scr;
+}
+
+void ScriptedTrigger::setWithinScript(const Script& scr)
+{
+  m_WithinScript = scr;
+}
+
+void ScriptedTrigger::setExitScript(const Script& scr)
+{
+  m_ExitScript = scr;
+}
+
+void ScriptedTrigger::onEnter(TriggerObject* obj)
+{
+  if ((obj==NULL) or m_EnterScript.isEmpty()) return;
+  std::string temp;
+  LuaEngine::getSingleton().runString(m_EnterScript.getStringRepresentation(), &temp);
+}
+
+void ScriptedTrigger::onExit(TriggerObject* obj)
+{
+  if ((obj==NULL) or m_ExitScript.isEmpty()) return;
+  std::string temp;
+  LuaEngine::getSingleton().runString(m_ExitScript.getStringRepresentation(), &temp);
+}
+
+void ScriptedTrigger::onWithin(TriggerObject* obj)
+{
+  if ((obj==NULL) or m_WithinScript.isEmpty()) return;
+  std::string temp;
+  LuaEngine::getSingleton().runString(m_ExitScript.getStringRepresentation(), &temp);
 }
 
 } //namespace

@@ -42,8 +42,8 @@
 					<Add directory="$(OGRE_HOME)/include" />
 				</Compiler>
 				<Linker>
-					<Add library="OgreMain_d" />
-					<Add library="OIS_D" />
+					<Add library="OgreMain" />
+					<Add library="OIS" />
 					<Add library="lua51" />
 					<Add directory="$(OGRE_HOME)/lib" />
 					<Add directory="$(OGRE_HOME)/bin/Debug" />

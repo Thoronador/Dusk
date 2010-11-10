@@ -31,11 +31,23 @@
           SphereTrigger abstract class
           provides a class for a trigger with spheric trigger area
 
+          ScriptedTrigger abstract class
+          provides a class for a trigger with scripts
+
  History:
      - 2010-08-30 (rev 238) - initial version (by thoronador)
+     - 2010-11-10 (rev 251) - small fix; ScriptedTrigger added
+                            - methods for handling objects within trigger added
+                              (pointers to objects that are affected by trigger
+                               can now be stored in trigger)
 
  ToDo list:
+     - provide a way for scripts of ScriptedTrigger to access the related
+       TriggerObject
+     - store objects that are currently within a trigger in the Trigger for
+       faster access
      - ???
+
  Bugs:
      - No known bugs. If you find one (or more), then tell us please.
  --------------------------------------------------------------------------*/
@@ -46,12 +58,14 @@
 #include <OgreAxisAlignedBox.h>
 #include <OgreSphere.h>
 #include "NPC.h"
+#include "Script.h"
 
 namespace Dusk
 {
 
 //set TriggerObject as alias for NPC - we only want NPCs to fire triggers
 typedef NPC TriggerObject;
+
 
 /* Trigger interface class
 
@@ -94,6 +108,26 @@ class Trigger
            obj - the object that needs to be tested for being within the trigger
     */
     virtual bool isWithin(const TriggerObject* obj) const = 0;
+
+    /* adds an object to the trigger */
+    void addToTrigger(TriggerObject* obj);
+
+    /* tries to remove the given object from the trigger and returns true, if
+       the object could be removed
+    */
+    bool removeFromTrigger(TriggerObject* obj);
+
+    /* returns true, if the given object is in the internal list */
+    bool isInList(TriggerObject* obj) const;
+
+    /* returns the number of objects that are currently within the trigger */
+    unsigned int getNumberOfObjectsWithin() const;
+
+    //calls onWithin() for every object within the trigger
+    void processObjects();
+  protected:
+    bool compLesser(const TriggerObject* a, const TriggerObject* b) const;
+    std::set<TriggerObject*> m_ObjectList;
 }; //class Trigger
 
 
@@ -103,7 +137,7 @@ class Trigger
    It implements methods to get and set the trigger's box, and implements
    isWithin() for a box. However, it does not implement any trigger behaviour.
 */
-class AABoxTrigger
+class AABoxTrigger: public virtual Trigger
 {
   public:
     /* default constructor */
@@ -186,6 +220,88 @@ class SphereTrigger: public virtual Trigger
     //the sphere that represents the trigger area
     Ogre::Sphere m_Sphere;
 }; //class SphereTrigger
+
+/* ScriptTrigger abstract class
+
+   Provides a class for a trigger that uses Scripts to implement event handling.
+   However, it does not implement any trigger area checks.
+*/
+class ScriptedTrigger: public virtual Trigger
+{
+  public:
+    /* constructor */
+    ScriptedTrigger();
+
+    /* constructor with script initialisation
+
+       parameters:
+           enter  - script that is called for entering objects
+           within - script that is called for objects within trigger
+           exit   - script that is called for leaving objects
+    */
+    ScriptedTrigger(const Script& enter, const Script& within, const Script& exit);
+
+    /* destructor */
+    ~ScriptedTrigger();
+
+    //script access functions
+    /* returns the script that is called upon entering the trigger */
+    virtual const Script& getEnterScript() const;
+
+    /* returns the script that is called while within the trigger */
+    virtual const Script& getWithingScript() const;
+
+    /* returns the script that is called upon leaving the trigger */
+    virtual const Script& getExitScript() const;
+
+    //script setters
+    /* sets the script that is called upon entering the trigger
+
+       parameters:
+           scr - the new script
+    */
+    virtual void setEnterScript(const Script& scr);
+
+    /* sets the script that is called while within the trigger
+
+       parameters:
+           scr - the new script
+    */
+    virtual void setWithinScript(const Script& scr);
+
+    /* sets the script that is called upon leaving the trigger
+
+       parameters:
+           scr - the new script
+    */
+    virtual void setExitScript(const Script& scr);
+
+    /* is called whenever an object enters the trigger area
+
+       parameters:
+           obj - the object that entered the trigger
+    */
+    virtual void onEnter(TriggerObject* obj);
+
+    /* is called whenever an object leaves the trigger area
+
+       parameters:
+           obj - the object that entered the trigger
+    */
+    virtual void onExit(TriggerObject* obj);
+
+    /* is called once every frame for each object within the trigger area
+
+       parameters:
+           obj - the object that is within the trigger area
+    */
+    virtual void onWithin(TriggerObject* obj);
+  protected:
+    //the scripts
+    Script m_EnterScript;
+    Script m_WithinScript;
+    Script m_ExitScript;
+}; //class ScriptedTrigger
 
 } //namespace
 
