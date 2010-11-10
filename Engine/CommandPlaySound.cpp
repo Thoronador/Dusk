@@ -39,19 +39,19 @@ namespace Dusk
       switch(m_operation)
       {
         case sopPlay:
-          return Sound::get().PlayNoise(m_Noise); break;
+          return Sound::get().playNoise(m_Noise); break;
         case sopPause:
-          return Sound::get().PauseNoise(m_Noise); break;
+          return Sound::get().pauseNoise(m_Noise); break;
         case sopUnPause:
-          return Sound::get().UnPauseNoise(m_Noise); break;
+          return Sound::get().unPauseNoise(m_Noise); break;
         case sopStop:
-          return Sound::get().StopNoise(m_Noise); break;
+          return Sound::get().stopNoise(m_Noise); break;
         case sopReplay:
           //New version of Sound has no Replay method yet. Instead we are using
           //a combination of Stop and Play to simulate the former Replay method.
-          if (Sound::get().StopNoise(m_Noise))
+          if (Sound::get().stopNoise(m_Noise))
           {
-            return Sound::get().PlayNoise(m_Noise);
+            return Sound::get().playNoise(m_Noise);
           }
           return false; break;
       }//switch

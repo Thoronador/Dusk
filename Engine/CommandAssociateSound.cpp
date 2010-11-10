@@ -39,7 +39,7 @@ namespace Dusk
 
   bool CommandAssociateSoundMedia::execute(Dusk::Scene* scene, int count)
   {
-    return Sound::get().Attach(m_Noise, m_Media);
+    return Sound::get().attach(m_Noise, m_Media);
   }
 
   // **** command for revoking associating between noise and media ****
@@ -57,6 +57,6 @@ namespace Dusk
 
   bool CommandDeassociateSoundMedia::execute(Dusk::Scene* scene, int count)
   {
-    return Sound::get().Detach(m_Noise);
+    return Sound::get().detach(m_Noise);
   }
 }

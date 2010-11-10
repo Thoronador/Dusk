@@ -87,14 +87,14 @@ Script Script::getStopScript() const
     return Script(std::string("stop {") + m_string + std::string("}"));
 }
 
-std::string Script::getStringRepresentation() const
+const std::string& Script::getStringRepresentation() const
 {
   return m_string;
 }
 
 bool Script::isEmpty() const
 {
-  return (m_string=="");
+  return m_string.empty();
 }
 
 } // namespace

@@ -38,6 +38,6 @@ namespace Dusk
 
   bool CommandSoundVolume::execute(Dusk::Scene* scene, int count)
   {
-    return Sound::get().SetNoiseVolume(m_Noise, m_Volume);
+    return Sound::get().setNoiseVolume(m_Noise, m_Volume);
   }
 }

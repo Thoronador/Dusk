@@ -86,7 +86,7 @@ namespace Dusk
         InputSystem::initializeInput(m_Window, m_Root);
 
         //Initialize Soundsystem
-        if (Sound::get().Init())
+        if (Sound::get().init())
         {
           std::cout << "Soundsystem successfully initialised.\n";
         }
@@ -213,7 +213,7 @@ namespace Dusk
 //-------------------------------------------------------------------------------------
     Dusk::FrameListener* Application::getFrameListener()
     {
-        return static_cast<Dusk::FrameListener*>(m_FrameListener);
+        return m_FrameListener;
     }
 //-------------------------------------------------------------------------------------
     bool Application::createScreenshot() const

@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2008, 2009, 2010 thoronador
+    Copyright (C) 2010 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,26 +18,27 @@
  -----------------------------------------------------------------------------
 */
 
-#include "CommandLoopSound.h"
-#include "Sound.h"
+#include "CommandScreenshot.h"
+#include "API.h"
+#include "Application.h"
 
 namespace Dusk
 {
-  //constructor
-  CommandLoopSound::CommandLoopSound(const std::string& NoiseID, const bool Looping)
-  {
-    m_Noise = NoiseID;
-    m_DoLoop = Looping;
-  }
 
-  //destructor
-  CommandLoopSound::~CommandLoopSound()
-  {
-    //empty
-  }
-
-  bool CommandLoopSound::execute(Dusk::Scene* scene, int count)
-  {
-    return Sound::get().loopNoise(m_Noise, m_DoLoop);
-  }
+CommandScreenshot::CommandScreenshot()
+{
+  //empty
 }
+
+CommandScreenshot::~CommandScreenshot()
+{
+  //empty
+}
+
+bool CommandScreenshot::execute(Dusk::Scene* scene, int count)
+{
+  return getAPI().getApplication()->createScreenshot();
+}
+
+
+} //namespace

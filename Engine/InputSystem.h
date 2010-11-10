@@ -25,13 +25,14 @@
           interface for different input systems
 
  History:
-     - 2007-11-26 (rev 7)    - initial version (by DaSteph)
-     - 2007-12-29 (rev 15)   - initializeInput(), toggleInput(), captureInput()
-                               added, class is now descendant of KeyListener
-     - 2007-12-29 (rev 16)   - } smaller
-     - 2008-01-26 (rev 30)   - }  fixes
-     - 2008-03-26 (rev 57)   - mouse support added (by walljumper)
-     - 2010-02-01 (rev 162)  - two utility functions added (by thoronador)
+     - 2007-11-26 (rev 7)   - initial version (by DaSteph)
+     - 2007-12-29 (rev 15)  - initializeInput(), toggleInput(), captureInput()
+                              added, class is now descendant of KeyListener
+     - 2007-12-29 (rev 16)  - } smaller
+     - 2008-01-26 (rev 30)  - }  fixes
+     - 2008-03-26 (rev 57)  - mouse support added (by walljumper)
+     - 2010-02-01 (rev 162) - two utility functions added (by thoronador)
+     - 2010-11-10 (rev 250) - minor optimization on includes
 
  ToDo list:
      - ???
@@ -43,7 +44,8 @@
 #ifndef INPUTSYSTEM_H_INCLUDED
 #define INPUTSYSTEM_H_INCLUDED
 
-#include <Ogre.h>
+#include <OgreRenderWindow.h>
+#include <OgreRoot.h>
 #include <OIS/OIS.h>
 
 #include "InputEvent.h"

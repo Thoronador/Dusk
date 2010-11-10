@@ -29,7 +29,7 @@ int CreateNoise(lua_State *L)
   const int top = lua_gettop(L);
   if (top==1)
   {
-    if (Sound::get().CreateNoise(lua_tostring(L, 1)))
+    if (Sound::get().createNoise(lua_tostring(L, 1)))
     { //push result
       lua_pushboolean(L, 1);
     }
@@ -49,7 +49,7 @@ int DestroyNoise(lua_State *L)
   const int top = lua_gettop(L);
   if (top==1)
   {
-    const bool success = Sound::get().DestroyNoise(lua_tostring(L, 1));
+    const bool success = Sound::get().destroyNoise(lua_tostring(L, 1));
     //push result
     if (success)
     {
@@ -71,7 +71,7 @@ int CreateMedia(lua_State *L)
   const int top = lua_gettop(L);
   if (top==2)
   {
-    const bool success = Sound::get().CreateMedia(lua_tostring(L, 1), lua_tostring(L, 2));
+    const bool success = Sound::get().createMedia(lua_tostring(L, 1), lua_tostring(L, 2));
     //push result
     if (success)
     {
@@ -93,7 +93,7 @@ int DestroyMedia(lua_State *L)
   const int top = lua_gettop(L);
   if (top==1)
   {
-    const bool success = Sound::get().DestroyMedia(lua_tostring(L, 1));
+    const bool success = Sound::get().destroyMedia(lua_tostring(L, 1));
     //push result
     if (success)
     {
@@ -115,7 +115,7 @@ int AttachMediaToNoise(lua_State *L)
   const int top = lua_gettop(L);
   if (top==2)
   {
-    const bool success = Sound::get().Attach(lua_tostring(L, 1), lua_tostring(L, 2));
+    const bool success = Sound::get().attach(lua_tostring(L, 1), lua_tostring(L, 2));
     //push result
     if (success)
     {
@@ -137,7 +137,7 @@ int DetachMediaFromNoise(lua_State *L)
   const int top = lua_gettop(L);
   if (top==1)
   {
-    const bool success = Sound::get().Detach(lua_tostring(L, 1));
+    const bool success = Sound::get().detach(lua_tostring(L, 1));
     //push result
     if (success)
     {
@@ -159,7 +159,7 @@ int PlaySound(lua_State *L)
   const int top = lua_gettop(L);
   if (top==1)
   {
-    const bool success = Sound::get().PlayNoise(lua_tostring(L, 1));
+    const bool success = Sound::get().playNoise(lua_tostring(L, 1));
     //push result
     if (success)
     {
@@ -181,7 +181,7 @@ int PauseSound(lua_State *L)
   const int top = lua_gettop(L);
   if (top==1)
   {
-    const bool success = Sound::get().PauseNoise(lua_tostring(L, 1));
+    const bool success = Sound::get().pauseNoise(lua_tostring(L, 1));
     //push result
     if (success)
     {
@@ -203,7 +203,7 @@ int UnPauseSound(lua_State *L)
   const int top = lua_gettop(L);
   if (top==1)
   {
-    const bool success = Sound::get().UnPauseNoise(lua_tostring(L, 1));
+    const bool success = Sound::get().unPauseNoise(lua_tostring(L, 1));
     //push result
     if (success)
     {
@@ -225,7 +225,7 @@ int StopSound(lua_State *L)
   const int top = lua_gettop(L);
   if (top==1)
   {
-    const bool success = Sound::get().StopNoise(lua_tostring(L, 1));
+    const bool success = Sound::get().stopNoise(lua_tostring(L, 1));
     //push result
     if (success)
     {
@@ -248,9 +248,9 @@ int ReplaySound(lua_State *L)
   if (top==1)
   {
     //use combination of Stop and Play
-    if (Sound::get().StopNoise(lua_tostring(L, 1)))
+    if (Sound::get().stopNoise(lua_tostring(L, 1)))
     {
-      if (Sound::get().PlayNoise(lua_tostring(L, 1)))
+      if (Sound::get().playNoise(lua_tostring(L, 1)))
       {
         lua_pushboolean(L, 1);
         return 1;
@@ -269,7 +269,7 @@ int LoopSound(lua_State *L)
   const int top = lua_gettop(L);
   if (top==2)
   {
-    const bool success = Sound::get().LoopNoise(lua_tostring(L, 1), lua_toboolean(L, 2)!=0);
+    const bool success = Sound::get().loopNoise(lua_tostring(L, 1), lua_toboolean(L, 2)!=0);
     //push result
     if (success)
     {
@@ -291,7 +291,7 @@ int SoundIsPlaying(lua_State *L)
   const int top = lua_gettop(L);
   if (top==1)
   {
-    if (Sound::get().IsPlayingNoise(lua_tostring(L, 1)))
+    if (Sound::get().isPlayingNoise(lua_tostring(L, 1)))
     {
       lua_pushboolean(L, 1);
       return 1;
@@ -309,7 +309,7 @@ int SoundIsLooping(lua_State *L)
   const int top = lua_gettop(L);
   if (top==1)
   {
-    if (Sound::get().IsLoopingNoise(lua_tostring(L, 1)))
+    if (Sound::get().isLoopingNoise(lua_tostring(L, 1)))
     {
       lua_pushboolean(L, 1);
       return 1;
@@ -327,7 +327,7 @@ int SetSoundVolume(lua_State *L)
   const int top = lua_gettop(L);
   if (top==2)
   {
-    const bool success = Sound::get().SetNoiseVolume(lua_tostring(L, 1), lua_tonumber(L, 2));
+    const bool success = Sound::get().setNoiseVolume(lua_tostring(L, 1), lua_tonumber(L, 2));
     //push result
     if (success)
     {
@@ -349,7 +349,7 @@ int GetSoundVolume(lua_State *L)
   const int top = lua_gettop(L);
   if (top==1)
   {
-    lua_pushnumber(L, Sound::get().GetNoiseVolume(lua_tostring(L, 1)));
+    lua_pushnumber(L, Sound::get().getNoiseVolume(lua_tostring(L, 1)));
     return 1;
   }
   lua_pushstring(L, "GetSoundVolume expects exactly one argument!\n");

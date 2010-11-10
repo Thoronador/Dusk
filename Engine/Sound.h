@@ -63,6 +63,8 @@
      - 2009-09-24 (rev 131) - function declarations improved
      - 2010-01-07 (rev 150) - documentation update
                             - IsInitialized() and HasVorbis() added
+     - 2010-11-10 (rev 250) - naming guidelines enforced
+                            - seperate sub-namespace for listener functions
 
  ToDo list:
      - ???
@@ -164,13 +166,13 @@ class Sound
           You need to call this function once before you can use any other
           functionality of this class.
     */
-    bool Init(std::string PathToLib_AL="NULL", std::string PathToLib_Vorbisfile="NULL", const bool needVorbis=false);//initializes OpenAL
+    bool init(std::string PathToLib_AL="NULL", std::string PathToLib_Vorbisfile="NULL", const bool needVorbis=false);//initializes OpenAL
 
     /* De-initialises the Sund class and returns true on success. */
-    bool Exit();//deinitializes OpenAL
+    bool exit();//deinitializes OpenAL
 
     /* Returns true, if Sound is initialised. */
-    bool IsInitialized() const;
+    bool isInitialized() const;
 
     /* Returns true, if the OggVorbis functions are loaded
 
@@ -179,14 +181,14 @@ class Sound
            OggVorbis files. However, you still might be able to load Wave files,
            depending on the return value of IsInitialised().
     */
-    bool HasVorbis() const;
+    bool hasVorbis() const;
 
     // **presence checks**
     /* Returns true, if a Media named MediaIdentifier is present */
-    bool IsMediaPresent(const std::string& MediaIdentifier) const;
+    bool isMediaPresent(const std::string& MediaIdentifier) const;
 
     /* Returns true, if a Noise named NoiseIdentifier is present */
-    bool IsNoisePresent(const std::string& NoiseIdentifier) const;
+    bool isNoisePresent(const std::string& NoiseIdentifier) const;
 
     /* Returns the list of all currently present noises.
 
@@ -195,7 +197,7 @@ class Sound
                                  names of the media attached to each noise. (If
                                  no media is attached, this is an empty string.)
     */
-    std::vector<std::string> GetNoiseList(const bool with_attached_media = false) const;
+    std::vector<std::string> getNoiseList(const bool with_attached_media = false) const;
 
     /* Returns the list of all currently loaded media.
 
@@ -203,18 +205,18 @@ class Sound
           with_file_names - if set to true, the list also contains the names of
                             the files the media were loaded from.
     */
-    std::vector<std::string> GetMediaList(const bool with_file_names = false) const;
+    std::vector<std::string> getMediaList(const bool with_file_names = false) const;
 
     // **noise management routines**
     /* Created a new Noise named NoiseIdentifier and returns true on success */
-    bool CreateNoise(const std::string& NoiseIdentifier);
+    bool createNoise(const std::string& NoiseIdentifier);
 
     /* Destroys the Noise named NoiseIdentifier and returns true on success */
-    bool DestroyNoise(const std::string& NoiseIdentifier);
+    bool destroyNoise(const std::string& NoiseIdentifier);
     //   Attach: associates existing Noise with a Media
-    bool Attach(const std::string& NoiseIdentifier, const std::string& MediaIdentifier);
+    bool attach(const std::string& NoiseIdentifier, const std::string& MediaIdentifier);
     //   Detach: revokes association between Noise and its attached Media
-    bool Detach(const std::string& NoiseIdentifier);
+    bool detach(const std::string& NoiseIdentifier);
     //   noise playback management
     /* Starts playback of media attached to the Noise named NoiseIdentifier, and
        returns true on success.
@@ -231,52 +233,52 @@ class Sound
           Sound::get().Attach("This Noise", "Some Media");
           Sound::get().PlayNoise("This Noise");
     */
-    bool PlayNoise(const std::string& NoiseIdentifier);
+    bool playNoise(const std::string& NoiseIdentifier);
 
     /* Pauses a playing noise and returns true on success.
        Pausing a noise that is either paused or stopped is a legal no-op,
        trying to pause a non-existing noise is an no-op and will return false
        and print a warning/hint.
     */
-    bool PauseNoise(const std::string& NoiseIdentifier);
+    bool pauseNoise(const std::string& NoiseIdentifier);
 
     /* Resumes a previously paused noise and returns true on success..
        Unpausing a playing or stopped noise is legal no-op, which will return
        true.
     */
-    bool UnPauseNoise(const std::string& NoiseIdentifier);
+    bool unPauseNoise(const std::string& NoiseIdentifier);
 
     /* Stops a playing noise and returns true on success, false on failure/error.
        Stopping an already stopped noise is legal no-op and will return true.
     */
-    bool StopNoise(const std::string& NoiseIdentifier);
+    bool stopNoise(const std::string& NoiseIdentifier);
 
     /* Sets a noise into looping mode if DoLoop==true, otherwise it gets the
        noise out of looping mode. Returns true on success, false otherwise.
     */
-    bool LoopNoise(const std::string& NoiseIdentifier, const bool DoLoop = true);
+    bool loopNoise(const std::string& NoiseIdentifier, const bool DoLoop = true);
 
     /* Sets the offset of noise NoiseIdentifier to the given amount of seconds
        and returns true on success. Trying to set an offset beyond the length of
        the attached media will result in failure.
     */
-    bool SetNoiseOffset(const std::string& NoiseIdentifier, const float seconds);
+    bool setNoiseOffset(const std::string& NoiseIdentifier, const float seconds);
 
     /* Retrieves noise offset in seconds. On error, -1.0 is returned. */
-    float GetNoiseOffset(const std::string& NoiseIdentifier) const;
+    float getNoiseOffset(const std::string& NoiseIdentifier) const;
 
     //   state retrieval functions
     /* Returns true if the noise NoiseIdentifier is currently playing. */
-    bool IsPlayingNoise(const std::string& NoiseIdentifier) const;
+    bool isPlayingNoise(const std::string& NoiseIdentifier) const;
 
     /* Returns true if the noise NoiseIdentifier is in looping mode. */
-    bool IsLoopingNoise(const std::string& FileName) const;
+    bool isLoopingNoise(const std::string& FileName) const;
     //   noise volume functions
-    bool SetNoiseVolume(const std::string& NoiseIdentifier, const float volume = 1.0f);
-    float GetNoiseVolume(const std::string& NoiseIdentifier, const bool consider_MinMax = false) const;
+    bool setNoiseVolume(const std::string& NoiseIdentifier, const float volume = 1.0f);
+    float getNoiseVolume(const std::string& NoiseIdentifier, const bool consider_MinMax = false) const;
     //   position of noises
-    bool SetNoisePosition(const std::string& NoiseIdentifier, const float x, const float y, const float z);
-    std::vector<float> GetNoisePosition(const std::string& NoiseIdentifier) const;
+    bool setNoisePosition(const std::string& NoiseIdentifier, const float x, const float y, const float z);
+    std::vector<float> getNoisePosition(const std::string& NoiseIdentifier) const;
     //   velocity of noises
     bool SetNoiseVelocity(const std::string& NoiseIdentifier, const float x, const float y, const float z);
     std::vector<float> GetNoiseVelocity(const std::string& NoiseIdentifier) const;
@@ -289,18 +291,18 @@ class Sound
       remarks:
           Only Wave and OggVorbis files are currently accepted as media files.
     */
-    bool CreateMedia(const std::string& MediaIdentifier, const std::string& PathToMedia);
+    bool createMedia(const std::string& MediaIdentifier, const std::string& PathToMedia);
 
     /* Tries to destroy the media named MediaIdentifier and returns true on
        success, false on failure.
     */
-    bool DestroyMedia(const std::string& MediaIdentifier);
+    bool destroyMedia(const std::string& MediaIdentifier);
 
     // **general state query/set functions**
     /* Returns the speed of sound in world units per second, or zero if there
        was an error.
     */
-    float GetSpeedOfSound() const;
+    float getSpeedOfSound() const;
 
     /* Sets the speed of sound to new_value world units per second and returns
        true on success.
@@ -308,29 +310,48 @@ class Sound
       remarks:
           Only positive values (i.e. greater than zero) are allowed.
     */
-    bool SetSpeedOfSound(const float new_value);
+    bool setSpeedOfSound(const float new_value);
 
     // **listener management functions**
-    //   positioning
-    bool SetListenerPostion(const float x, const float y, const float z);
-    std::vector<float> GetListenerPosition() const;
-    bool ListenerTranslatePostion(const float delta_x, const float delta_y, const float delta_z);
-    //   velocity
-    bool SetListenerVelocity(const float x, const float y, const float z);
-    std::vector<float> GetListenerVelocity() const;
-    //   orientation of listener
-    std::vector<float> GetListenerOrientation() const;
-    bool ListenerRotate(const float x_axis, const float y_axis=0.0f, const float z_axis=0.0f);
+      //   positioning
+      bool setListenerPostion(const float x, const float y, const float z);
+      std::vector<float> getListenerPosition() const;
+      bool translateListenerPostion(const float delta_x, const float delta_y, const float delta_z);
+      //   velocity
+      bool setListenerVelocity(const float x, const float y, const float z);
+      std::vector<float> getListenerVelocity() const;
+      //   orientation of listener
+      std::vector<float> getListenerOrientation() const;
+      bool rotateListener(const float x_axis, const float y_axis=0.0f, const float z_axis=0.0f);
 
     //singleton access method
     static Sound& get();
   protected:
 
   private:
+    /* constructor - private due to singleton pattern */
     Sound();
+
+    /* empty copy constructor */
     Sound(const Sound& op){}
-    bool CreateWAVMedia(const std::string& MediaIdentifier, const std::string& PathToMedia);
-    bool CreateOggMedia(const std::string& MediaIdentifier, const std::string& PathToMedia);
+
+    /* tries to load a RIFF Wave file into the buffers and returns true on
+       success
+
+       parameters:
+           MediaIdentifier - identifier of the new media
+           PathToMedia     - path to the Wave file
+    */
+    bool createWAVMedia(const std::string& MediaIdentifier, const std::string& PathToMedia);
+
+    /* tries to load an Ogg-Vorbis file into the buffers and returns true on
+       success, false on failure
+
+       parameters:
+           MediaIdentifier - identifier of the new media
+           PathToMedia     - path to the Ogg-Vorbis file
+    */
+    bool createOggMedia(const std::string& MediaIdentifier, const std::string& PathToMedia);
 
     /* Initialises all internal function pointers with NULL.
 

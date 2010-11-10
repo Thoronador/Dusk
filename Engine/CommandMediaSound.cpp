@@ -39,7 +39,7 @@ namespace Dusk
 
   bool CommandCreateMedia::execute(Dusk::Scene* scene, int count)
   {
-    return Sound::get().CreateMedia(m_Media, m_MediaPath);
+    return Sound::get().createMedia(m_Media, m_MediaPath);
   }
 
 
@@ -58,6 +58,6 @@ namespace Dusk
 
   bool CommandDestroyMedia::execute(Dusk::Scene* scene, int count)
   {
-    return Sound::get().DestroyMedia(m_Media);
+    return Sound::get().destroyMedia(m_Media);
   }
 }

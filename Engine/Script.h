@@ -34,6 +34,7 @@
      - 2010-02-01 (rev 162) - getStringRepresentation() and isEmpty() added
      - 2010-02-08 (rev 168) - trim() moved to DuskFunctions.h, because this is
                               not dependant on Script class
+     - 2010-11-10 (rev 250) - minor optimizations
 
  ToDo list:
      - ???
@@ -92,7 +93,7 @@ namespace Dusk
         Script getStopScript() const;
 
         /* returns the internal string representation of the script */
-        std::string getStringRepresentation() const;
+        const std::string& getStringRepresentation() const;
 
         /* returns true, if the script holds no data */
         bool isEmpty() const;

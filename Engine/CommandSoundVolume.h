@@ -29,6 +29,7 @@
      - 2009-01-03 (rev 67)  - adjustments to work with new (rev. 66) Sound
                               class
      - 2010-05-06 (rev 197) - documentation update
+     - 2010-11-10 (rev 250) - update for corrected function names in Sound
 
  ToDo list:
      - ???

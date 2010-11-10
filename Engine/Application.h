@@ -48,6 +48,7 @@
      - 2010-03-24 (rev 186) - adjustments for camera, which is now singleton
      - 2010-08-03 (rev 221) - minor optimization, documentation updated
      - 2010-11-09 (rev 249) - createScreenshot() added
+     - 2010-11-10 (rev 250) - minor optimization
 
  ToDo list:
      - ???
@@ -58,7 +59,10 @@
 
 #ifndef APPLICATION_H
 #define APPLICATION_H
-#include <Ogre.h>
+#include <OgreRoot.h>
+#include <OgreCamera.h>
+#include <OgreSceneManager.h>
+#include <OgreRenderWindow.h>
 #include "FrameListener.h"
 #include <string>
 namespace Dusk
@@ -100,7 +104,7 @@ namespace Dusk
       Ogre::Camera* m_Camera;
       Ogre::SceneManager* m_SceneManager;
       Ogre::RenderWindow* m_Window;
-      Ogre::FrameListener* m_FrameListener;
+      Dusk::FrameListener* m_FrameListener;
   };//class Application
 
 }//namespace

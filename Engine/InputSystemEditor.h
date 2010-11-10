@@ -45,6 +45,7 @@
      - 2010-08-15 (rev 226) - fixed bugs that could cause a crash/ error on
                               program termination
                             - documentation (history) updated
+     - 2010-11-10 (rev 250) - minor optimization on includes
 
  ToDo list:
      - ???

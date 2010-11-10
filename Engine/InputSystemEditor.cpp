@@ -21,6 +21,8 @@
 #include "InputSystemEditor.h"
 #include <OgreRoot.h>
 #include <OgreSceneManager.h>
+#include <OgreOverlayManager.h>
+#include <OgreHardwareBufferManager.h>
 #include "Console.h"
 #include "LuaEngine.h"
 #include "API.h"

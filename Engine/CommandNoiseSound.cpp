@@ -38,7 +38,7 @@ namespace Dusk
 
   bool CommandCreateNoise::execute(Dusk::Scene* scene, int count)
   {
-    return Sound::get().CreateNoise(m_Noise);
+    return Sound::get().createNoise(m_Noise);
   }
 
 
@@ -57,6 +57,6 @@ namespace Dusk
 
   bool CommandDestroyNoise::execute(Dusk::Scene* scene, int count)
   {
-    return Sound::get().DestroyNoise(m_Noise);
+    return Sound::get().destroyNoise(m_Noise);
   }
 }
