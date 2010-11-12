@@ -240,7 +240,8 @@ namespace Dusk
 
       renderTexture->addViewport(m_Camera);
       renderTexture->getViewport(0)->setClearEveryFrame(true);
-      renderTexture->getViewport(0)->setBackgroundColour(Ogre::ColourValue::Black);
+      //set background colour to colour - important for fog
+      renderTexture->getViewport(0)->setBackgroundColour(m_Window->getViewport(0)->getBackgroundColour());
       //renderTexture->getViewport(0)->setOverlaysEnabled(false);
       renderTexture->update();
       const std::string screenPrefix = Settings::getSingleton().getSetting_string("ScreenshotPrefix", "Screenshot");
