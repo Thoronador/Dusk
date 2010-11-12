@@ -51,6 +51,7 @@
                               updateReferencesAfterIDChange() added (Editor only)
      - 2010-09-22 (rev 243) - addVehicleReference() added; adjustments for new
                               Vehicle class
+     - 2010-11-12 (rev 252) - getBegin() and getEnd() added
 
  ToDo list:
      - ???
@@ -76,6 +77,9 @@ namespace Dusk
   class InjectionManager
   {
     public:
+      //iterator type for use in other classes
+      typedef std::map<std::string, std::vector<InjectionObject*> >::const_iterator ConstMapIterator;
+
       /* destructor */
       virtual ~InjectionManager();
 
@@ -229,6 +233,16 @@ namespace Dusk
              because doing so might cause a memory access violation.
       */
       void requestDeletion(InjectionObject* objPtr);
+
+      /* returns a constant iterator that points to the begin of the internal
+         map of objects
+      */
+      ConstMapIterator getBegin() const;
+
+      /* returns a constant iterator that points to the end of the internal
+         map of objects
+      */
+      ConstMapIterator getEnd() const;
     private:
       /* private constructor (singleton pattern) */
       InjectionManager();

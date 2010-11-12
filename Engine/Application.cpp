@@ -33,7 +33,7 @@
 namespace Dusk
 {
     /**
-    *Contructor of the Application class
+    *Constructor of the Application class
     *
     */
     Application::Application()
@@ -41,6 +41,15 @@ namespace Dusk
     {
         //ctor
         getAPI().setApplication(this);
+        //get selected screenshot file format
+        if (Settings::getSingleton().getSetting_string("ScreenshotFormat", "PNG")=="JPEG")
+        {
+          m_ScreenshotType = ssfJPEG;
+        }
+        else
+        {
+          m_ScreenshotType = ssfPNG;
+        }
     }
 
     Application::~Application()
@@ -235,7 +244,16 @@ namespace Dusk
       //renderTexture->getViewport(0)->setOverlaysEnabled(false);
       renderTexture->update();
       const std::string screenPrefix = Settings::getSingleton().getSetting_string("ScreenshotPrefix", "Screenshot");
-      renderTexture->writeContentsToFile(screenPrefix+IntToString(screenIndex)+".png");
+      //select proper file format
+      switch (m_ScreenshotType)
+      {
+        case ssfJPEG:
+             renderTexture->writeContentsToFile(screenPrefix+IntToString(screenIndex)+".jpg");
+             break;
+        case ssfPNG:
+             renderTexture->writeContentsToFile(screenPrefix+IntToString(screenIndex)+".png");
+             break;
+      }//switch
       Settings::getSingleton().addSetting_uint("ScreenshotIndex", screenIndex+1);
       Ogre::TextureManager::getSingleton().remove("ScreenTex"+IntToString(screenIndex));
       return true;

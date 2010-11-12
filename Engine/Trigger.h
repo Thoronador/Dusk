@@ -40,6 +40,7 @@
                             - methods for handling objects within trigger added
                               (pointers to objects that are affected by trigger
                                can now be stored in trigger)
+     - 2010-11-12 (rev 252) - checkForRemoval() added
 
  ToDo list:
      - provide a way for scripts of ScriptedTrigger to access the related
@@ -65,7 +66,7 @@ namespace Dusk
 
 //set TriggerObject as alias for NPC - we only want NPCs to fire triggers
 typedef NPC TriggerObject;
-
+const ObjectTypes cTriggerTypeEnum = otNPC;
 
 /* Trigger interface class
 
@@ -128,6 +129,11 @@ class Trigger
   protected:
     bool compLesser(const TriggerObject* a, const TriggerObject* b) const;
     std::set<TriggerObject*> m_ObjectList;
+
+    /*checks if objects within the trigger could be removed, because they moved
+      out of the trigger area since last frame
+    */
+    virtual void checkForRemoval();
 }; //class Trigger
 
 

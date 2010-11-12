@@ -65,7 +65,7 @@ NPC* InjectionManager::addNPCReference(const std::string& ID,
      const Ogre::Vector3& position, const Ogre::Vector3& rot, const float Scale)
 {
   NPC* NPCPointer = new NPC(ID, position, rot, Scale);
-  m_ReferenceMap[ID].push_back(static_cast<AnimatedObject*>(NPCPointer));
+  m_ReferenceMap[ID].push_back(NPCPointer);
   ++m_RefCount;
   return NPCPointer;
 }
@@ -83,7 +83,7 @@ WaypointObject* InjectionManager::addWaypointReference(const std::string& ID, co
                                            const Ogre::Vector3& rotation, const float scale)
 {
   WaypointObject* wpPointer = new WaypointObject(ID, position, rotation, scale);
-  m_ReferenceMap[ID].push_back(static_cast<WaypointObject*>(wpPointer));
+  m_ReferenceMap[ID].push_back(wpPointer);
   ++m_RefCount;
   return wpPointer;
 }
@@ -448,6 +448,16 @@ void InjectionManager::performRequestedDeletions()
     }
     m_DeletionObjects.pop_back();
   } //while
+}
+
+InjectionManager::ConstMapIterator InjectionManager::getBegin() const
+{
+  return m_ReferenceMap.begin();
+}
+
+InjectionManager::ConstMapIterator InjectionManager::getEnd() const
+{
+  return m_ReferenceMap.end();
 }
 
 }//namespace

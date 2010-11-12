@@ -57,11 +57,39 @@ unsigned int Trigger::getNumberOfObjectsWithin() const
 
 void Trigger::processObjects()
 {
+  //first remove unwanted objects
+  checkForRemoval();
+  //now process objects
   std::set<TriggerObject*>::const_iterator iter = m_ObjectList.begin();
   while (iter!=m_ObjectList.end())
   {
     onWithin(*iter);
     ++iter;
+  }//while
+}
+
+void Trigger::checkForRemoval()
+{
+  std::set<TriggerObject*>::const_iterator iter = m_ObjectList.begin();
+  while (iter!=m_ObjectList.end())
+  {
+    //Did the object move out of the trigger area?
+    if (!isWithin(*iter))
+    {
+      //call onExit() event handler for object
+      onExit(*iter);
+      //...and now remove object
+      m_ObjectList.erase(iter);
+      //Erased iterator is now invalid, that's why we have to set a new value.
+      // TO-DO:
+      // The begin of the list is valid, but not the optimal value. Optimal
+      // would be the object after the erased iterator.
+      iter = m_ObjectList.begin();
+    }
+    else
+    {
+      ++iter;
+    }
   }//while
 }
 

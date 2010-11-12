@@ -236,6 +236,8 @@
 		<Unit filename="Sun.h" />
 		<Unit filename="Trigger.cpp" />
 		<Unit filename="Trigger.h" />
+		<Unit filename="TriggerManager.cpp" />
+		<Unit filename="TriggerManager.h" />
 		<Unit filename="UniformMotionObject.cpp" />
 		<Unit filename="UniformMotionObject.h" />
 		<Unit filename="Vehicle.cpp" />

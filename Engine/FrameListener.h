@@ -48,6 +48,7 @@
      - 2010-05-06 (rev 198) - documentation update (this comment block added)
                             - small improvements
      - 2010-05-21 (rev 206) - adjustments for player movement
+     - 2010-11-12 (rev 252) - trigger management added
 
  ToDo list:
      - ???
@@ -90,9 +91,22 @@ namespace Dusk
            the rendering loop will be stopped.
         */
         void exit();
+
+        /* function to determine whether triggers are checked every frame or not
+
+           parameters:
+               active - If set to true, triggers will be processed. If set to
+                        false, they won't be processed.
+        */
+        void setTriggerActivity(const bool active);
+
+        /* returns whether trigger management is currently active */
+        bool getTriggerActivity() const;
+
     protected:
         //local variables
         bool m_Continue;
+        bool m_TriggersActive;
     };
 }
 

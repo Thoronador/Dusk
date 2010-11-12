@@ -42,6 +42,7 @@
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-11-09 (rev 249) - possibility to specify default return value for
                               get-functions added
+     - 2010-11-12 (rev 252) - new initial setting for screenshot format added
 
  ToDo list:
      - ???

@@ -82,6 +82,8 @@ Settings::Settings()
     else
     {
       std::cout << "failed.\n";
+      initialSettings();
+      std::cout << "Predefined settings are loaded instead.\n";
     }
   }
   else
@@ -99,6 +101,7 @@ void Settings::initialSettings()
   addSetting_uint("HealthLevelFactor", 2);
   addSetting_uint("CriticalDamageFactor", 2);
   addSetting_string("ScreenshotPrefix", "Screenshot");
+  addSetting_string("ScreenshotFormat", "PNG");
 }
 
 Settings::~Settings()

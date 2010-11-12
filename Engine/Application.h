@@ -49,6 +49,7 @@
      - 2010-08-03 (rev 221) - minor optimization, documentation updated
      - 2010-11-09 (rev 249) - createScreenshot() added
      - 2010-11-10 (rev 250) - minor optimization
+     - 2010-11-12 (rev 252) - screenshot can now be JPEG or PNG
 
  ToDo list:
      - ???
@@ -105,6 +106,11 @@ namespace Dusk
       Ogre::SceneManager* m_SceneManager;
       Ogre::RenderWindow* m_Window;
       Dusk::FrameListener* m_FrameListener;
+
+      //enumeration value for screenshot format
+      enum ScreenshotFormat { ssfJPEG, ssfPNG };
+
+      ScreenshotFormat m_ScreenshotType;
   };//class Application
 
 }//namespace
