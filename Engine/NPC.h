@@ -59,6 +59,8 @@
                               walk, jump and idle animations added
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-09-24 (rev 244) - getVehicle() and setVehicle() added
+     - 2010-11-13 (rev 254) - update due to renaming of some functions in
+                              Landscape class
 
  ToDo list:
      - add possibility to equip weapons, clothes, armour, etc.

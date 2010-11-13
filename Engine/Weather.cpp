@@ -150,7 +150,7 @@ void Weather::startSnow()
   #ifndef DUSK_EDITOR
   Ogre::SceneNode* SnowNode = Camera::getSingleton().getOgreCamera()->getParentSceneNode();
   #else
-  Ogre::SceneNode* SnowNode = EditorCamera::GetSingleton().getOgreCamera()->getParentSceneNode();
+  Ogre::SceneNode* SnowNode = EditorCamera::getSingleton().getOgreCamera()->getParentSceneNode();
   #endif
   SnowNode = SnowNode->createChildSceneNode(cSnowParticleSystem+"_Node");
   SnowNode->attachObject(SnowSys);
@@ -188,7 +188,7 @@ void Weather::startRain()
   #ifndef DUSK_EDITOR
   Ogre::SceneNode* RainNode = Camera::getSingleton().getOgreCamera()->getParentSceneNode();
   #else
-  Ogre::SceneNode* RainNode = EditorCamera::GetSingleton().getOgreCamera()->getParentSceneNode();
+  Ogre::SceneNode* RainNode = EditorCamera::getSingleton().getOgreCamera()->getParentSceneNode();
   #endif
   RainNode = RainNode->createChildSceneNode(cRainParticleSystem+"_Node");
   RainNode->attachObject(RainSys);

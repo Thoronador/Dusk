@@ -50,6 +50,8 @@
      - 2010-08-15 (rev 228) - destroyScene() does now destroy a bit more :P
      - 2010-08-22 (rev 233) - adjustments for Sun
      - 2010-08-27 (rev 236) - error in player's animation string fixed
+     - 2010-11-13 (rev 254) - update due to renaming of some functions in
+                              Landscape class
 
  ToDo list:
      - ???

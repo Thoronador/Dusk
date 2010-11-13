@@ -101,13 +101,13 @@ void Projectile::injectTime(const float SecondsPassed)
       if (result.at(i).movable!=NULL and result.at(i).movable!=entity)
       {
         //is it a landscape record?
-        if (LandscapeRecord::IsLandscapeRecordName(result.at(i).movable->getName()))
+        if (LandscapeRecord::isLandscapeRecordName(result.at(i).movable->getName()))
         {
           Ogre::Vector3 vec_i = ray.getPoint(result.at(i).distance);
-          const LandscapeRecord* land_rec = Landscape::GetSingleton().GetRecordAtXZ(vec_i.x, vec_i.z);
+          const LandscapeRecord* land_rec = Landscape::getSingleton().getRecordAtXZ(vec_i.x, vec_i.z);
           if (land_rec!=NULL)
           {
-            if (land_rec->IsHitByRay(ray, vec_i))
+            if (land_rec->isHitByRay(ray, vec_i))
             {
               if (vec_i.squaredDistance(position)<=Ogre::Math::Sqr(SecondsPassed*m_Speed))
               {

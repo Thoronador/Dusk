@@ -32,7 +32,7 @@ EditorCamera::EditorCamera()
   m_Turbo = false;
 }
 
-EditorCamera& EditorCamera::GetSingleton()
+EditorCamera& EditorCamera::getSingleton()
 {
   static EditorCamera Instance;
   return Instance;
@@ -134,7 +134,7 @@ void EditorCamera::resetToOrigin(void)
   }
 }
 
-void EditorCamera::processMovement(const Ogre::FrameEvent& evt)
+void EditorCamera::processMovement(const float seconds)
 {
   if ( m_primaryCameraNode == NULL )
   {
@@ -144,16 +144,16 @@ void EditorCamera::processMovement(const Ogre::FrameEvent& evt)
   {
     if (m_Turbo)
     {
-      m_primaryCameraNode->translate(4*evt.timeSinceLastFrame*translation_per_second, Ogre::Node::TS_LOCAL);
+      m_primaryCameraNode->translate(4*seconds*translation_per_second, Ogre::Node::TS_LOCAL);
     }
     else
     {
-      m_primaryCameraNode->translate(evt.timeSinceLastFrame*translation_per_second, Ogre::Node::TS_LOCAL);
+      m_primaryCameraNode->translate(seconds*translation_per_second, Ogre::Node::TS_LOCAL);
     }
   }
   if ( rotation_per_second != 0.0f )
   {
-    m_primaryCameraNode->yaw(Ogre::Degree(rotation_per_second * evt.timeSinceLastFrame), Ogre::Node::TS_LOCAL);
+    m_primaryCameraNode->yaw(Ogre::Degree(rotation_per_second * seconds), Ogre::Node::TS_LOCAL);
   }
 }
 
@@ -181,7 +181,7 @@ void EditorCamera::setTranslationVector(const Ogre::Vector3& velocity)
   translation_per_second = velocity;
 }
 
-Ogre::Vector3 EditorCamera::getTranslationVector(void)
+const Ogre::Vector3& EditorCamera::getTranslationVector(void)
 {
   return translation_per_second;
 }

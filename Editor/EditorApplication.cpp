@@ -192,12 +192,12 @@ void EditorApplication::createSceneManager(void)
 
 void EditorApplication::createCamera(void)
 {
-  EditorCamera::GetSingleton().setupCamera(mSceneMgr);
+  EditorCamera::getSingleton().setupCamera(mSceneMgr);
 }
 
 void EditorApplication::createFrameListener(void)
 {
-  mFrameListener= new EditorFrameListener(mWindow, EditorCamera::GetSingleton().getOgreCamera(), true, true);
+  mFrameListener= new EditorFrameListener(mWindow, EditorCamera::getSingleton().getOgreCamera(), true, true);
   mFrameListener->showDebugOverlay(true);
   mRoot->addFrameListener(mFrameListener);
 }
@@ -225,10 +225,10 @@ void EditorApplication::destroyScene(void)
 void EditorApplication::createViewports(void)
 {
   // Create one viewport, entire window
-  Ogre::Viewport* vp = mWindow->addViewport(EditorCamera::GetSingleton().getOgreCamera());
+  Ogre::Viewport* vp = mWindow->addViewport(EditorCamera::getSingleton().getOgreCamera());
   vp->setBackgroundColour(Ogre::ColourValue(0,0,0));
   //alter the camera aspect ratio to match the viewport
-  EditorCamera::GetSingleton().getOgreCamera()->setAspectRatio(
+  EditorCamera::getSingleton().getOgreCamera()->setAspectRatio(
         Ogre::Real(vp->getActualWidth()) / Ogre::Real(vp->getActualHeight()));
 }
 
@@ -714,7 +714,7 @@ bool EditorApplication::SaveButtonClicked(const CEGUI::EventArgs &e)
 bool EditorApplication::StatsButtonClicked(const CEGUI::EventArgs &e)
 {
   showHint( "Current statistics:\n  Landscape records: "
-           + IntToString(Landscape::GetSingleton().RecordsAvailable())+"\n"
+           + IntToString(Landscape::getSingleton().getNumberOfRecordsAvailable())+"\n"
            +"  Object records: "  + IntToString(ObjectBase::getSingleton().numberOfObjects())+"\n"
            +"  Items: " + IntToString(ItemBase::getSingleton().numberOfItems())+"\n"
            +"  Lights: " + IntToString(LightBase::getSingleton().numberOfLights())+"\n"
@@ -784,7 +784,7 @@ bool EditorApplication::LoadFrameOKClicked(const CEGUI::EventArgs &e)
                   +"Clearing all loaded data to avoid unexpected behaviour.");
       //clear stuff that might have been loaded successfully before error
       DataLoader::getSingleton().clearData(ALL_BITS);
-      Landscape::GetSingleton().RemoveFromEngine(mSceneMgr);
+      Landscape::getSingleton().removeFromEngine(mSceneMgr);
       return true;
     }
     showHint("File \""+PathToFile+"\" was successfully loaded into editor!");
@@ -800,11 +800,11 @@ bool EditorApplication::LoadFrameOKClicked(const CEGUI::EventArgs &e)
     RefreshLightList();
 
     //  --- make loaded stuff visible via Ogre
-    std::cout << "DEBUG: SendToEngine...\n";
-    Landscape::GetSingleton().SendToEngine(mSceneMgr, false);
+    std::cout << "DEBUG: sendToEngine...\n";
+    Landscape::getSingleton().sendToEngine(mSceneMgr, false);
     std::cout << "DEBUG: EnableAllObjects...\n";
     ObjectManager::getSingleton().enableAllObjects(mSceneMgr);
-    EditorCamera::GetSingleton().resetToOrigin();
+    EditorCamera::getSingleton().resetToOrigin();
   }//else branch
   return true;
 }
@@ -1161,26 +1161,26 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
           }
         }
 
-        Ogre::Quaternion quat = EditorCamera::GetSingleton().getOrientation();
+        const Ogre::Quaternion quat = EditorCamera::getSingleton().getOrientation();
         DuskObject* temp = NULL;
         if (PlaceType==otStatic)
         {
           temp =
           ObjectManager::getSingleton().addObjectReference(std::string(lbi->getText().c_str()),
-                     EditorCamera::GetSingleton().getPosition() + quat*Ogre::Vector3(0.0f, 0.0f, -100.0f),
+                     EditorCamera::getSingleton().getPosition() + quat*Ogre::Vector3(0.0f, 0.0f, -100.0f),
                      Ogre::Vector3::ZERO, 1.0f);
         }
         else if (PlaceType==otLight)
         {
           temp =
           ObjectManager::getSingleton().addLightReference(std::string(lbi->getText().c_str()),
-                     EditorCamera::GetSingleton().getPosition() + quat*Ogre::Vector3(0.0f, 0.0f, -100.0f));
+                     EditorCamera::getSingleton().getPosition() + quat*Ogre::Vector3(0.0f, 0.0f, -100.0f));
         }
         else
         {
           temp =
           ObjectManager::getSingleton().addItemReference( std::string(lbi->getText().c_str()),
-                     EditorCamera::GetSingleton().getPosition() + quat*Ogre::Vector3(0.0f, 0.0f, -100.0f),
+                     EditorCamera::getSingleton().getPosition() + quat*Ogre::Vector3(0.0f, 0.0f, -100.0f),
                      Ogre::Vector3::ZERO, 1.0f);
         }
         temp->enable(mSceneMgr);
@@ -1241,7 +1241,7 @@ bool EditorApplication::RootMouseMove(const CEGUI::EventArgs &e)
             Ogre::Vector3 vec(0.0f, 0.0f, 0.0f);
             vec.x = cMovementFactor*mouse_ea.moveDelta.d_x;
             vec.y = -cMovementFactor*mouse_ea.moveDelta.d_y;
-            vec = EditorCamera::GetSingleton().getOrientation() * vec;
+            vec = EditorCamera::getSingleton().getOrientation() * vec;
             std::cout << "vec: "<<vec<<"\n";
             mouse_object->setPosition(mouse_object->getPosition()+vec);
           }
@@ -1257,7 +1257,7 @@ bool EditorApplication::RootMouseMove(const CEGUI::EventArgs &e)
     //perform ray scene query
     Ogre::Ray pickRay;
     Ogre::RaySceneQuery * rsc_query = NULL;
-    pickRay = EditorCamera::GetSingleton().getOgreCamera()->getCameraToViewportRay(
+    pickRay = EditorCamera::getSingleton().getOgreCamera()->getCameraToViewportRay(
               mouse_ea.position.d_x/mWindow->getWidth(), mouse_ea.position.d_y/mWindow->getHeight());
     rsc_query = mSceneMgr->createRayQuery(pickRay);
     rsc_query->setRay(pickRay);
@@ -1275,27 +1275,27 @@ bool EditorApplication::RootMouseMove(const CEGUI::EventArgs &e)
           //found movable object
           std::cout << "DEBUG: found movable \"" <<rsq_iter->movable->getName()
                     <<"\" in a distance of "<< rsq_iter->distance <<" units.\n";
-          if (LandscapeRecord::IsLandscapeRecordName(rsq_iter->movable->getName()))
+          if (LandscapeRecord::isLandscapeRecordName(rsq_iter->movable->getName()))
           {
             //landscape record found
             LandscapeRecord* land_rec = NULL;
             Ogre::Vector3 vec_i = pickRay.getPoint(rsq_iter->distance);
-            land_rec = Landscape::GetSingleton().GetRecordAtXZ(vec_i.x, vec_i.z);
+            land_rec = Landscape::getSingleton().getRecordAtXZ(vec_i.x, vec_i.z);
             if (land_rec!= NULL)
             {
-              if (land_rec->IsHitByRay(pickRay, vec_i))
+              if (land_rec->isHitByRay(pickRay, vec_i))
               {
                 switch(mFrameListener->getEditorMode())
                 {
                   case EM_LandscapeColour:
-                       land_rec->SetColour(vec_i.x, vec_i.z, LandscapeColour.red,
+                       land_rec->setColour(vec_i.x, vec_i.z, LandscapeColour.red,
                                     LandscapeColour.green, LandscapeColour.blue);
                        break;
                   case EM_LandscapeUp:
-                       land_rec->Terraform(vec_i.x, vec_i.z, cTerraformDelta);
+                       land_rec->terraform(vec_i.x, vec_i.z, cTerraformDelta);
                        break;
                   case EM_LandscapeDown:
-                       land_rec->Terraform(vec_i.x, vec_i.z, -cTerraformDelta);
+                       land_rec->terraform(vec_i.x, vec_i.z, -cTerraformDelta);
                        break;
                   default://should never happen, because of if-branch in line 2772
                        std::cout<<"EditorApplication::RootMouseMove: Programming "
@@ -1607,7 +1607,7 @@ DuskObject* EditorApplication::GetObjectAtMouse(const CEGUI::Point& pt)
 
   Ogre::Ray pickRay;
   Ogre::RaySceneQuery * rsc_query = NULL;
-  pickRay = EditorCamera::GetSingleton().getOgreCamera()->getCameraToViewportRay(
+  pickRay = EditorCamera::getSingleton().getOgreCamera()->getCameraToViewportRay(
             pt.d_x/mWindow->getWidth(), pt.d_y/ mWindow->getHeight());
   rsc_query = mSceneMgr->createRayQuery(pickRay);
   rsc_query->setRay(pickRay);

@@ -51,6 +51,8 @@
      - 2010-06-02 (rev 230) - update due to rename of AnimationData to InjectionManager
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-09-22 (rev 243) - update for Vehicle and VehicleBase classes
+     - 2010-11-13 (rev 254) - update due to renaming of some functions in
+                              Landscape class
 
  ToDo list:
      - extend class when further classes for data management are added

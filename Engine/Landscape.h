@@ -42,15 +42,17 @@
      - ... There's still something missing here!
      - ...
      - 2010-05-08 (rev 200) - documentation updated
-                            - SaveAllToStream() added
+                            - saveAllToStream() added
      - 2010-05-14 (rev 203) - possibility to render Landscape as wire frame
-     - 2010-08-16 (rev 229) - error in ChangeListSize() fixed
+     - 2010-08-16 (rev 229) - error in changeListSize() fixed
+     - 2010-11-13 (rev 254) - naming guidelines enforced
 
  ToDo list:
      - implement LoadRecordFromStream() for Landscape class
-     - try to get rid of GetRecordByPosition(), if it's not used anymore by any
+     - try to get rid of getRecordByPosition(), if it's not used anymore by any
        other files in Engine and Editor
      - complete history (see above)
+     - allow landscape textures, multiple ones per record
      - ???
 
  Bugs:
@@ -98,26 +100,26 @@ namespace Dusk
 
       //shift of land via x and z axis
       /* returns the offset of record at the X-axis */
-      float OffsetX() const;
+      float getOffsetX() const;
 
       /* returns the offset of record at the Z-axis
 
          remarks:
            Yes, it's Z and not Y, despite the name.
       */
-      float OffsetY() const;
+      float getOffsetY() const;
 
       /* returns the distance between two adjacent points */
-      float Stride() const;
+      float getStride() const;
 
       float Height[65][65]; //height of the land
       unsigned char Colour[65][65][3]; //colour of the land in RGB-byte values
 
       /*returns highest altitude in record (calculated during loading process)*/
-      float Highest() const;
+      float getHighest() const;
 
       /*returns lowest altitude in record (calculated during loading process)*/
-      float Lowest() const;
+      float getLowest() const;
 
       //load and save functions
       /* tries to load the LandscapeRecord from the given stream and returns
@@ -127,23 +129,23 @@ namespace Dusk
              If the functions fails, the record may possibly contain incon-
              sistent data and therefore should not be used any more.
       */
-      bool LoadFromStream(std::ifstream& AStream);
+      bool loadFromStream(std::ifstream& AStream);
 
       /* tries to save landscape data to stream and returns true on success */
-      bool SaveToStream(std::ofstream& AStream) const;
+      bool saveToStream(std::ofstream& AStream) const;
 
       /*function for determining whether data is loaded or not - returns true,
         if the record contains valid landscape data. However, only the height
         values/data are considered, the colour data may still be crap.
       */
-      bool IsLoaded() const;
+      bool isLoaded() const;
 
       /* manipulates loading state (i.e. return value of IsLoaded() directly
 
          remarks:
              Use with care, or better: not at all.
       */
-      void SetLoadedState(const bool value);
+      void setLoadedState(const bool value);
 
       // **** manipulating landscape data ****
 
@@ -153,7 +155,7 @@ namespace Dusk
          remarks:
             Will always return true.
       */
-      bool Shift(const float delta);
+      bool shift(const float delta);
 
       /* scales the land data by factor, e.g. factor==10 -> all land is ten
          times as high as before
@@ -165,16 +167,16 @@ namespace Dusk
             The value of factor has to be larger than cMinScale.
             If no data is loaded (yet), the function will fail.
       */
-      bool Scale(const float factor);
+      bool scale(const float factor);
       /* make it plain at level value (i.e. all is as high as value indicates)
 
          return value:
              True on success (currently, that function cannot fail)
       */
-      bool MakePlain(const float value);
+      bool makePlain(const float value);
 
       /* returns true, if landscape data of this record is a plane */
-      bool IsPlain() const;
+      bool isPlain() const;
 
       /* creates landscape data via generator function; returns true on success
 
@@ -185,14 +187,14 @@ namespace Dusk
          remarks:
              The function has to be able to produce values for both x and z in [0;1].
       */
-      bool GenerateByFunction( float (*func) (const float x, const float z));
+      bool generateByFunction( float (*func) (const float x, const float z));
 
       /* colour landscape by generator function; returns true on success
 
           remarks:
               Function func has to be able to produce values for x and z in [0;1]
       */
-      bool ColourByFunction(ColourData (*func) (const float x, const float z));
+      bool colourByFunction(ColourData (*func) (const float x, const float z));
 
       /* move record to new position
 
@@ -200,7 +202,7 @@ namespace Dusk
              Offset_X - x-coordinate of new position
              Offset_Y - z(!)-coordinate of new position
       */
-      void MoveTo(const float Offset_X, const float Offset_Y);
+      void moveTo(const float Offset_X, const float Offset_Y);
 
       /* moves the landscape above/below point (x, 0, z) delta units up/down
 
@@ -213,7 +215,7 @@ namespace Dusk
          return value:
              Returns true on success.
       */
-      bool Terraform(const float x, const float z, const float delta);
+      bool terraform(const float x, const float z, const float delta);
 
       /* funtion to set colour at certain point. Returns true on success.
 
@@ -222,7 +224,7 @@ namespace Dusk
              z     - z-coordinate of the point that shall be moved
              r,g,b - new RGB-colour value
       */
-      bool SetColour(const float x, const float z, const unsigned char r,const unsigned char g, const unsigned char b);
+      bool setColour(const float x, const float z, const unsigned char r,const unsigned char g, const unsigned char b);
 
       /* sets the stride value (i.e. distance between adjacent points) to
          new_stride and returns true on success, false otherwise.
@@ -231,7 +233,7 @@ namespace Dusk
              The function will fail, if the new stride value is less or equal to
              zero. In this case, the value won't be changed.
       */
-      bool SetStride(const float new_stride);
+      bool setStride(const float new_stride);
 
       #ifndef NO_OGRE_IN_LANDSCAPE
       /* send loaded data to scene manager and return true on success
@@ -240,10 +242,10 @@ namespace Dusk
              scm       - SceneManager that shall be used to display landscape
              WireFrame - if true, landscape will be drawn as wireframe
       */
-      bool Enable(Ogre::SceneManager * scm, const bool WireFrame);
+      bool enable(Ogre::SceneManager * scm, const bool WireFrame);
 
       /*remove data from scene manager; returns true on success */
-      bool Disable();
+      bool disable();
 
       /* updates record, i.e. disable and re-enable it to get new data shown
          Returns true on success, false on failure.
@@ -253,15 +255,15 @@ namespace Dusk
          parameters:
              WireFrame - if true, landscape will be drawn as wireframe
       */
-      bool Update(const bool WireFrame);
+      bool update(const bool WireFrame);
 
       /* determines, whether record is currently shown */
-      bool IsEnabled() const;
+      bool isEnabled() const;
 
       /* checks a string for a valid Landscape record name and returns true, if
          the string val contains a valid name
       */
-      static bool IsLandscapeRecordName(const std::string& val);
+      static bool isLandscapeRecordName(const std::string& val);
 
       /* checks whether a ray hits this record or not
 
@@ -274,10 +276,10 @@ namespace Dusk
              ray      - the ray to check for hit on this record
              HitPoint - a 3D vector, where the hit location will be stored
       */
-      bool IsHitByRay(const Ogre::Ray& ray, Ogre::Vector3& HitPoint) const;
+      bool isHitByRay(const Ogre::Ray& ray, Ogre::Vector3& HitPoint) const;
       #endif
       // returns unique "identifier" of landscape record
-      unsigned int GetID() const;
+      unsigned int getID() const;
 
       // contains the dafault value for stride
       static const float cDefaultStride;
@@ -299,7 +301,7 @@ namespace Dusk
       /* returns the position of the point represented by Height[i][j] as a 3D
          Ogre Vector (utility function)
       */
-      const Ogre::Vector3 GetPositionOfIndex(const unsigned int i, const unsigned int j) const;
+      const Ogre::Vector3 getPositionOfIndex(const unsigned int i, const unsigned int j) const;
       #endif
   };
 
@@ -310,26 +312,26 @@ namespace Dusk
       virtual ~Landscape();
 
       /* singleton access method */
-      static Landscape& GetSingleton();
+      static Landscape& getSingleton();
 
       //load and save (all) records from/to file
       /* tries to load LandscapeRecords from the file specified by FileName.
          Returns true on success, false on failure.
       */
-      bool LoadFromFile(const std::string& FileName);
+      bool loadFromFile(const std::string& FileName);
 
       /* tries to save all present LandscapeRecords to the file specified by
          FileName. Returns true on success.
       */
-      bool SaveToFile(const std::string& FileName) const;
+      bool saveToFile(const std::string& FileName) const;
 
       /* tries to save all records to the given stream and returns true on
          success
       */
-      bool SaveAllToStream(std::ofstream& AStream) const;
+      bool saveAllToStream(std::ofstream& AStream) const;
 
       /* creates a new landscape record and returns a pointer to it */
-      LandscapeRecord* CreateRecord();
+      LandscapeRecord* createRecord();
 
       /* deletes the landscape record pointed to be recPtr
 
@@ -337,10 +339,10 @@ namespace Dusk
              After the call to that function, recPtr must NOT be referenced,
              because it will point to then deleted memory.
       */
-      void DestroyRecord(const LandscapeRecord* recPtr);
+      void destroyRecord(const LandscapeRecord* recPtr);
 
       /* returns the number of present LandscapeRecords */
-      unsigned int RecordsAvailable();
+      unsigned int getNumberOfRecordsAvailable();
 
       /* returns the LandscapeRecord at internal position record, or NULL if no
          record exists at this position
@@ -353,7 +355,7 @@ namespace Dusk
              value of parameter record, because randomly deleting a record will
              change the internal position of records.
       */
-      LandscapeRecord* GetRecordByPosition(const unsigned int record);
+      LandscapeRecord* getRecordByPosition(const unsigned int record);
 
       /* returns the record with ID recordID, or NULL if no record with that ID
          is available
@@ -363,16 +365,16 @@ namespace Dusk
              always get the same record for the same ID until the record is
              deleted. (After deletion, it will return a NULL pointer.)
       */
-      LandscapeRecord* GetRecordByID(const unsigned int recordID);
+      LandscapeRecord* getRecordByID(const unsigned int recordID);
 
       /* tries to find the LandscapeRecord which covers the point (x,0.0,y) and
          returns a pointer to it. If no record is at that point, NULL will be
          returned.
       */
-      LandscapeRecord* GetRecordAtXZ(const float x, const float y) const;
+      LandscapeRecord* getRecordAtXZ(const float x, const float y) const;
 
       /* deletes all LandscapeRecords */
-      void ClearAllRecords();
+      void clearAllRecords();
 
       #ifndef NO_OGRE_IN_LANDSCAPE
       /* sends all loaded data to scene manager and returns true on success
@@ -381,7 +383,7 @@ namespace Dusk
              scm       - SceneManager that shall be used to display landscape
              WireFrame - if true, landscape will be drawn as wireframe
       */
-      bool SendToEngine(Ogre::SceneManager * scm, const bool WireFrame=false);
+      bool sendToEngine(Ogre::SceneManager * scm, const bool WireFrame=false);
 
       /* removes all loaded landscape data from scene manager and returns true
          in case of success
@@ -393,7 +395,7 @@ namespace Dusk
              scm should be the same SceneManager that was previously used in the
              call to SendToEngine().
       */
-      bool RemoveFromEngine(Ogre::SceneManager * scm);
+      bool removeFromEngine(Ogre::SceneManager * scm);
 
       /* notify Landscape about a record that needs to be updated
 
@@ -404,10 +406,10 @@ namespace Dusk
              A LandscapeRecord that requests an update will be disabled and
              re-enabled during the next call of UpdateRecords().
       */
-      void RequestUpdate(LandscapeRecord* who);
+      void requestUpdate(LandscapeRecord* who);
 
       /*returns true, if there are any records who need an update */
-      bool NeedsUpdate() const;
+      bool needsUpdate() const;
 
       /* performs update of records who requested it since last call,
          and returns number of updated records
@@ -415,7 +417,7 @@ namespace Dusk
          parameters:
              WireFrame - if true, landscape will be drawn as wireframe
       */
-      unsigned int UpdateRecords(const bool WireFrame);
+      unsigned int updateRecords(const bool WireFrame);
       #endif
       /* returns the height of the landscape at a given point, i.e. the y-value
          of the point (x,y,z), where (x,y,z) is directly at the landscape's
@@ -426,7 +428,7 @@ namespace Dusk
              This function is used for "collision detection" with landscape
              within the game.
       */
-      float GetHeightAtPosition(const float x, const float z) const;
+      float getHeightAtPosition(const float x, const float z) const;
       static const std::string cLandNodeName;
       static const unsigned int cMaxLandRecords;
     private:
@@ -436,7 +438,7 @@ namespace Dusk
       Landscape(const Landscape& op){}
 
       /* internal function to change the size/length of m_RecordList */
-      void ChangeListSize(const unsigned int new_size);
+      void changeListSize(const unsigned int new_size);
 
       LandscapeRecord ** m_RecordList;
       unsigned int m_numRec, m_Capacity;

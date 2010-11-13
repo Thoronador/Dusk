@@ -21,8 +21,14 @@
 #ifndef EDITORFRAMELISTENER_H
 #define EDITORFRAMELISTENER_H
 
-#include <Ogre.h>
+//#include <Ogre.h>
+#include <OgreFrameListener.h>
+#include <OgreLogManager.h>
+#include <OgreMaterialManager.h>
+#include <OgreOverlayElement.h>
+#include <OgreOverlayManager.h>
 #include <OgreStringConverter.h>
+#include <OgreWindowEventUtilities.h>
 
 //Use this define to signify OIS will be used as a DLL
 //(so that dll import/export macros are in effect)

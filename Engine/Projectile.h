@@ -33,6 +33,8 @@
                             - emitter property added
      - 2010-08-15 (rev 224) - ray-based collision detection extended
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
+     - 2010-11-13 (rev 254) - update due to renaming of some functions in
+                              Landscape class
 
  ToDo list:
      - Improve collision detection for projectile. Currently only collisions

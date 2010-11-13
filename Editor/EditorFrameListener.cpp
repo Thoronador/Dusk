@@ -58,7 +58,7 @@ bool EditorFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 {
   if ( m_Mode == EM_Movement && arg.state.buttonDown(OIS::MB_Right))
   {
-    EditorCamera::GetSingleton().relativeRotation( arg.state.X.rel * 180.0f/800.0f);
+    EditorCamera::getSingleton().relativeRotation( arg.state.X.rel * 180.0f/800.0f);
     return true;
   }
   CEGUI::System::getSingleton().injectMouseMove(arg.state.X.rel, arg.state.Y.rel);
@@ -86,34 +86,34 @@ bool EditorFrameListener::keyPressed(const OIS::KeyEvent &arg)
     {
       case OIS::KC_W:
       case OIS::KC_UP:
-           EditorCamera::GetSingleton().setTranslationVector(25*Ogre::Vector3::NEGATIVE_UNIT_Z);
+           EditorCamera::getSingleton().setTranslationVector(25*Ogre::Vector3::NEGATIVE_UNIT_Z);
            return true;
            break;
       case OIS::KC_S:
       case OIS::KC_DOWN:
-           EditorCamera::GetSingleton().setTranslationVector(25*Ogre::Vector3::UNIT_Z);
+           EditorCamera::getSingleton().setTranslationVector(25*Ogre::Vector3::UNIT_Z);
            return true;
            break;
       case OIS::KC_A:
       case OIS::KC_LEFT:
-           EditorCamera::GetSingleton().setTranslationVector(25*Ogre::Vector3::NEGATIVE_UNIT_X);
+           EditorCamera::getSingleton().setTranslationVector(25*Ogre::Vector3::NEGATIVE_UNIT_X);
            return true;
            break;
       case OIS::KC_D:
       case OIS::KC_RIGHT:
-           EditorCamera::GetSingleton().setTranslationVector(25*Ogre::Vector3::UNIT_X);
+           EditorCamera::getSingleton().setTranslationVector(25*Ogre::Vector3::UNIT_X);
            return true;
            break;
       case OIS::KC_Q:
-           EditorCamera::GetSingleton().setRotationSpeed(60.0f);
+           EditorCamera::getSingleton().setRotationSpeed(60.0f);
            return true;
            break;
       case OIS::KC_E:
-           EditorCamera::GetSingleton().setRotationSpeed(-60.0f);
+           EditorCamera::getSingleton().setRotationSpeed(-60.0f);
            return true;
            break;
       case OIS::KC_LSHIFT:
-           EditorCamera::GetSingleton().setTurboMode(true);
+           EditorCamera::getSingleton().setTurboMode(true);
            return true;
            break;
       default: break;
@@ -140,16 +140,16 @@ bool EditorFrameListener::keyReleased(const OIS::KeyEvent &arg)
       case OIS::KC_LEFT:
       case OIS::KC_D:
       case OIS::KC_RIGHT:
-           EditorCamera::GetSingleton().setTranslationVector(Ogre::Vector3::ZERO);
+           EditorCamera::getSingleton().setTranslationVector(Ogre::Vector3::ZERO);
            return true;
            break;
       case OIS::KC_Q:
       case OIS::KC_E:
-           EditorCamera::GetSingleton().setRotationSpeed(0.0f);
+           EditorCamera::getSingleton().setRotationSpeed(0.0f);
            return true;
            break;
       case OIS::KC_LSHIFT:
-           EditorCamera::GetSingleton().setTurboMode(false);
+           EditorCamera::getSingleton().setTurboMode(false);
            return true;
            break;
       default: break;
@@ -412,11 +412,11 @@ bool EditorFrameListener::frameRenderingQueued(const Ogre::FrameEvent& evt)
 bool EditorFrameListener::frameEnded(const Ogre::FrameEvent& evt)
 {
   //move camera
-  EditorCamera::GetSingleton().processMovement(evt);
+  EditorCamera::getSingleton().processMovement(evt.timeSinceLastFrame);
   //check for landscape updates
-  if (Landscape::GetSingleton().NeedsUpdate())
+  if (Landscape::getSingleton().needsUpdate())
   {
-    std::cout << "Info: "<<Landscape::GetSingleton().UpdateRecords(m_WireFrameLandscape)<< " landscape record(s) updated.\n";
+    std::cout << "Info: "<<Landscape::getSingleton().updateRecords(m_WireFrameLandscape)<< " landscape record(s) updated.\n";
   }
   return true;
 }
@@ -460,8 +460,8 @@ void EditorFrameListener::setWireFrame(const bool wf)
   if (wf!=m_WireFrameLandscape)
   {
     m_WireFrameLandscape = wf;
-    Landscape::GetSingleton().RemoveFromEngine(getAPI().getOgreSceneManager());
-    Landscape::GetSingleton().SendToEngine(getAPI().getOgreSceneManager(), wf);
+    Landscape::getSingleton().removeFromEngine(getAPI().getOgreSceneManager());
+    Landscape::getSingleton().sendToEngine(getAPI().getOgreSceneManager(), wf);
   }
 }
 

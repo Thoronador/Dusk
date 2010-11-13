@@ -144,7 +144,7 @@ void NPC::move(const float SecondsPassed)
   }
   WaypointObject::injectTime(SecondsPassed);
   //now check for height
-  const float land_height = Landscape::GetSingleton().GetHeightAtPosition(position.x, position.z)
+  const float land_height = Landscape::getSingleton().getHeightAtPosition(position.x, position.z)
                                     /*+cAboveGroundLevel*/;
   if (m_Jump)
   {

@@ -333,7 +333,7 @@ bool ScanESP(const std::string& FileName, const std::string& DuskFileName)
   input.close();
 
   //save data and return
-  return Dusk::Landscape::GetSingleton().SaveToFile(DuskFileName);
+  return Dusk::Landscape::getSingleton().saveToFile(DuskFileName);
 }
 
 bool ProcessNextRecord(std::ifstream& in_File, const int FileSize)
@@ -2246,7 +2246,7 @@ bool ReadLAND(std::ifstream& in_File)
   unsigned int i,j;
 
   //get new record from Landscape singleton
-  DuskLand = Dusk::Landscape::GetSingleton().CreateRecord();
+  DuskLand = Dusk::Landscape::getSingleton().createRecord();
 
   for (i=0; i<65; i++)
   {
@@ -2260,10 +2260,10 @@ bool ReadLAND(std::ifstream& in_File)
       DuskLand->Colour[i][j][2] = MW_Colour[i][j][2];
     }//for j
   }//for i
-  DuskLand->SetStride(Dusk::LandscapeRecord::cDefaultStride);
-  DuskLand->MoveTo(Dusk::LandscapeRecord::cDefaultStride * 64 * CellX,
+  DuskLand->setStride(Dusk::LandscapeRecord::cDefaultStride);
+  DuskLand->moveTo(Dusk::LandscapeRecord::cDefaultStride * 64 * CellX,
                    Dusk::LandscapeRecord::cDefaultStride * 64 * CellY);
-  DuskLand->SetLoadedState(true);
+  DuskLand->setLoadedState(true);
   std::cout << "Debug: conversion finished.\n";
 
   return in_File.good();

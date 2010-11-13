@@ -68,37 +68,37 @@ LandscapeRecord::~LandscapeRecord()
   #ifndef NO_OGRE_IN_LANDSCAPE
   if (m_OgreObject != NULL)
   {
-    Disable();
+    disable();
   }
   #endif
 }
 
-float LandscapeRecord::Highest() const
+float LandscapeRecord::getHighest() const
 {
   return m_Highest;
 }
 
-float LandscapeRecord::Lowest() const
+float LandscapeRecord::getLowest() const
 {
   return m_Lowest;
 }
 
-float LandscapeRecord::OffsetX() const
+float LandscapeRecord::getOffsetX() const
 {
   return m_OffsetX;
 }
 
-float LandscapeRecord::OffsetY() const
+float LandscapeRecord::getOffsetY() const
 {
   return m_OffsetY;
 }
 
-float LandscapeRecord::Stride() const
+float LandscapeRecord::getStride() const
 {
   return m_Stride;
 }
 
-bool LandscapeRecord::LoadFromStream(std::ifstream &AStream)
+bool LandscapeRecord::loadFromStream(std::ifstream &AStream)
 {
   if (m_Loaded)
   {
@@ -183,7 +183,7 @@ bool LandscapeRecord::LoadFromStream(std::ifstream &AStream)
   return true;
 }//LoadFromStream
 
-bool LandscapeRecord::SaveToStream(std::ofstream &AStream) const
+bool LandscapeRecord::saveToStream(std::ofstream &AStream) const
 {
   if (!m_Loaded)
   {
@@ -216,17 +216,17 @@ bool LandscapeRecord::SaveToStream(std::ofstream &AStream) const
   return true;
 }//SaveToStream
 
-bool LandscapeRecord::IsLoaded() const
+bool LandscapeRecord::isLoaded() const
 {
   return m_Loaded;
 }
 
-void LandscapeRecord::SetLoadedState(const bool value)
+void LandscapeRecord::setLoadedState(const bool value)
 {
   m_Loaded = value;
 }
 
-bool LandscapeRecord::Shift(const float delta)
+bool LandscapeRecord::shift(const float delta)
 {
   unsigned int i,j;
 
@@ -240,15 +240,15 @@ bool LandscapeRecord::Shift(const float delta)
   m_Highest = m_Highest+delta;
   m_Lowest = m_Lowest+delta;
   #ifndef NO_OGRE_IN_LANDSCAPE
-  if (IsEnabled())
+  if (isEnabled())
   {
-    Landscape::GetSingleton().RequestUpdate(this);
+    Landscape::getSingleton().requestUpdate(this);
   }
   #endif
   return true;
 }
 
-bool LandscapeRecord::Scale(const float factor)
+bool LandscapeRecord::scale(const float factor)
 {
   if (!m_Loaded || factor<cMinScale)
   {
@@ -268,15 +268,15 @@ bool LandscapeRecord::Scale(const float factor)
   m_Highest = m_Highest*factor;
   m_Lowest = m_Lowest*factor;
   #ifndef NO_OGRE_IN_LANDSCAPE
-  if (IsEnabled())
+  if (isEnabled())
   {
-    Landscape::GetSingleton().RequestUpdate(this);
+    Landscape::getSingleton().requestUpdate(this);
   }
   #endif
   return true;
 }
 
-bool LandscapeRecord::MakePlain(const float value)
+bool LandscapeRecord::makePlain(const float value)
 {
   unsigned int i,j;
 
@@ -289,22 +289,22 @@ bool LandscapeRecord::MakePlain(const float value)
   }
   m_Highest = value;
   m_Lowest = value;
-  SetLoadedState(true);
+  setLoadedState(true);
   #ifndef NO_OGRE_IN_LANDSCAPE
-  if (IsEnabled())
+  if (isEnabled())
   {
-    Landscape::GetSingleton().RequestUpdate(this);
+    Landscape::getSingleton().requestUpdate(this);
   }
   #endif
   return true;
 }
 
-bool LandscapeRecord::IsPlain() const
+bool LandscapeRecord::isPlain() const
 {
   return m_Highest==m_Lowest;
 }
 
-bool LandscapeRecord::GenerateByFunction( float (*func) (const float x, const float z))
+bool LandscapeRecord::generateByFunction( float (*func) (const float x, const float z))
 {
   if (func==NULL)
   {
@@ -332,17 +332,17 @@ bool LandscapeRecord::GenerateByFunction( float (*func) (const float x, const fl
       }
     }//for j
   }//for i
-  SetLoadedState(true);
+  setLoadedState(true);
   #ifndef NO_OGRE_IN_LANDSCAPE
-  if (IsEnabled())
+  if (isEnabled())
   {
-    Landscape::GetSingleton().RequestUpdate(this);
+    Landscape::getSingleton().requestUpdate(this);
   }
   #endif
   return true;
 }//function
 
-bool LandscapeRecord::ColourByFunction(ColourData (*func) (const float x, const float z))
+bool LandscapeRecord::colourByFunction(ColourData (*func) (const float x, const float z))
 {
   if (func==NULL)
   {
@@ -363,27 +363,27 @@ bool LandscapeRecord::ColourByFunction(ColourData (*func) (const float x, const 
     }//for (inner)
   }//for
   #ifndef NO_OGRE_IN_LANDSCAPE
-  if (IsEnabled())
+  if (isEnabled())
   {
-    Landscape::GetSingleton().RequestUpdate(this);
+    Landscape::getSingleton().requestUpdate(this);
   }
   #endif
   return true;
 }
 
-void LandscapeRecord::MoveTo(const float Offset_X, const float Offset_Y)
+void LandscapeRecord::moveTo(const float Offset_X, const float Offset_Y)
 {
   m_OffsetX = Offset_X;
   m_OffsetY = Offset_Y;
   #ifndef NO_OGRE_IN_LANDSCAPE
-  if (IsEnabled())
+  if (isEnabled())
   {
-    Landscape::GetSingleton().RequestUpdate(this);
+    Landscape::getSingleton().requestUpdate(this);
   }
   #endif
 }
 
-bool LandscapeRecord::Terraform(const float x, const float z, const float delta)
+bool LandscapeRecord::terraform(const float x, const float z, const float delta)
 {
   if (x>=m_OffsetX && x<=m_OffsetX+64*m_Stride
      && z>=m_OffsetY && z<=m_OffsetY+64*m_Stride)
@@ -402,9 +402,9 @@ bool LandscapeRecord::Terraform(const float x, const float z, const float delta)
       m_Lowest = Height[x_idx][y_idx];
     }
     #ifndef NO_OGRE_IN_LANDSCAPE
-    if (IsEnabled())
+    if (isEnabled())
     {
-      Landscape::GetSingleton().RequestUpdate(this);
+      Landscape::getSingleton().requestUpdate(this);
     }
     #endif
     return true;
@@ -412,7 +412,7 @@ bool LandscapeRecord::Terraform(const float x, const float z, const float delta)
   return false;
 }
 
-bool LandscapeRecord::SetColour(const float x, const float z, const unsigned char r,const unsigned char g, const unsigned char b)
+bool LandscapeRecord::setColour(const float x, const float z, const unsigned char r,const unsigned char g, const unsigned char b)
 {
   if (x>=m_OffsetX && x<=m_OffsetX+64*m_Stride
      && z>=m_OffsetY && z<=m_OffsetY+64*m_Stride)
@@ -425,9 +425,9 @@ bool LandscapeRecord::SetColour(const float x, const float z, const unsigned cha
     Colour[x_idx][y_idx][1] = g;
     Colour[x_idx][y_idx][2] = b;
     #ifndef NO_OGRE_IN_LANDSCAPE
-    if (IsEnabled())
+    if (isEnabled())
     {
-      Landscape::GetSingleton().RequestUpdate(this);
+      Landscape::getSingleton().requestUpdate(this);
     }
     #endif
     return true;
@@ -436,7 +436,7 @@ bool LandscapeRecord::SetColour(const float x, const float z, const unsigned cha
   return false;
 }
 
-bool LandscapeRecord::SetStride(const float new_stride)
+bool LandscapeRecord::setStride(const float new_stride)
 {
   if (new_stride>0.0f)
   {
@@ -444,9 +444,9 @@ bool LandscapeRecord::SetStride(const float new_stride)
     {
       m_Stride = new_stride;
       #ifndef NO_OGRE_IN_LANDSCAPE
-      if (IsEnabled())
+      if (isEnabled())
       {
-        Landscape::GetSingleton().RequestUpdate(this);
+        Landscape::getSingleton().requestUpdate(this);
       }
       #endif
     }
@@ -456,7 +456,7 @@ bool LandscapeRecord::SetStride(const float new_stride)
 }
 
 #ifndef NO_OGRE_IN_LANDSCAPE
-bool LandscapeRecord::Enable(Ogre::SceneManager * scm, const bool WireFrame)
+bool LandscapeRecord::enable(Ogre::SceneManager * scm, const bool WireFrame)
 {
   if (!m_Loaded)
   {
@@ -486,7 +486,7 @@ bool LandscapeRecord::Enable(Ogre::SceneManager * scm, const bool WireFrame)
   landnode = scm->getSceneNode(Landscape::cLandNodeName);
 
   std::stringstream convert;
-  convert << GetID();
+  convert << getID();
 
   m_OgreObject = scm->createManualObject(cLandscapeNamePrefix+convert.str());
   m_OgreObject->estimateVertexCount(65*65);
@@ -575,7 +575,7 @@ bool LandscapeRecord::Enable(Ogre::SceneManager * scm, const bool WireFrame)
   return true;
 }
 
-bool LandscapeRecord::Disable()
+bool LandscapeRecord::disable()
 {
   if (m_OgreObject == NULL)
   {
@@ -605,7 +605,7 @@ bool LandscapeRecord::Disable()
   return true;
 }
 
-bool LandscapeRecord::Update(const bool WireFrame)
+bool LandscapeRecord::update(const bool WireFrame)
 {
   if (m_OgreObject == NULL)
   {
@@ -617,12 +617,12 @@ bool LandscapeRecord::Update(const bool WireFrame)
     std::cout << "LandscapeRecord::Update: ERROR: SceneManager is NULL.\n";
     return false;
   }
-  if (!Disable())
+  if (!disable())
   {
     std::cout << "LandscapeRecord::Update: ERROR: Could not remove record.\n";
     return false;
   }
-  if (!Enable(scm, WireFrame))
+  if (!enable(scm, WireFrame))
   {
     std::cout << "LandscapeRecord::Update: ERROR: Could not enable record.\n";
     return false;
@@ -630,12 +630,12 @@ bool LandscapeRecord::Update(const bool WireFrame)
   return true;
 }
 
-bool LandscapeRecord::IsEnabled() const
+bool LandscapeRecord::isEnabled() const
 {
   return (m_OgreObject != NULL);
 }
 
-bool LandscapeRecord::IsLandscapeRecordName(const std::string& val)
+bool LandscapeRecord::isLandscapeRecordName(const std::string& val)
 {
   if (val.length()<=cLandscapeNamePrefix.length())
   {
@@ -655,7 +655,7 @@ bool LandscapeRecord::IsLandscapeRecordName(const std::string& val)
   //return (StringToInt(val.substr(cLandscapeNamePrefix.length()), -1)>=0);
 }
 
-bool LandscapeRecord::IsHitByRay(const Ogre::Ray& ray, Ogre::Vector3& HitPoint) const
+bool LandscapeRecord::isHitByRay(const Ogre::Ray& ray, Ogre::Vector3& HitPoint) const
 {
   Ogre::Real minDistance = -1.0f;
   unsigned int i, j;
@@ -665,8 +665,8 @@ bool LandscapeRecord::IsHitByRay(const Ogre::Ray& ray, Ogre::Vector3& HitPoint) 
     {
       //first triangle: [i][j], [i][j+1], [i+1][j]
       std::pair<bool, Ogre::Real> hit = Ogre::Math::intersects(ray,
-                       GetPositionOfIndex(i,j), GetPositionOfIndex(i,j+1),
-                       GetPositionOfIndex(i+1,j), true, false);
+                       getPositionOfIndex(i,j), getPositionOfIndex(i,j+1),
+                       getPositionOfIndex(i+1,j), true, false);
       if (hit.first)
       {
         if ((hit.second < minDistance) or (minDistance<0.0f))
@@ -675,8 +675,8 @@ bool LandscapeRecord::IsHitByRay(const Ogre::Ray& ray, Ogre::Vector3& HitPoint) 
         }
       }
       //second triangle: [i+1][j], [i][j+1], [i+1][j+1]
-      hit = Ogre::Math::intersects(ray, GetPositionOfIndex(i+1,j),
-                       GetPositionOfIndex(i,j+1), GetPositionOfIndex(i+1,j+1),
+      hit = Ogre::Math::intersects(ray, getPositionOfIndex(i+1,j),
+                       getPositionOfIndex(i,j+1), getPositionOfIndex(i+1,j+1),
                        true, false);
       if (hit.first)
       {
@@ -696,7 +696,7 @@ bool LandscapeRecord::IsHitByRay(const Ogre::Ray& ray, Ogre::Vector3& HitPoint) 
   return false;
 }
 
-const Ogre::Vector3 LandscapeRecord::GetPositionOfIndex(const unsigned int i, const unsigned int j) const
+const Ogre::Vector3 LandscapeRecord::getPositionOfIndex(const unsigned int i, const unsigned int j) const
 {
   if (i<65 and j<65)
   {
@@ -707,7 +707,7 @@ const Ogre::Vector3 LandscapeRecord::GetPositionOfIndex(const unsigned int i, co
 
 #endif //ifndef NO_OGRE_IN_LANDSCAPE
 
-unsigned int LandscapeRecord::GetID() const
+unsigned int LandscapeRecord::getID() const
 {
   return m_RecordID;
 }
@@ -747,13 +747,13 @@ Landscape::~Landscape()
   }//if
 }//destructor
 
-Landscape& Landscape::GetSingleton()
+Landscape& Landscape::getSingleton()
 {
     static Landscape Instance;
     return Instance;
 }
 
-bool Landscape::LoadFromFile(const std::string& FileName)
+bool Landscape::loadFromFile(const std::string& FileName)
 {
   if (m_numRec!=0)
   {
@@ -803,20 +803,20 @@ bool Landscape::LoadFromFile(const std::string& FileName)
 
   //m_RecordList = new LandscapeRecord[numRecords];
   //m_numRec = numRecords;
-  ChangeListSize(numRecords);
+  changeListSize(numRecords);
 
   //read loop
   for (i=0; i<numRecords; i=i+1)
   {
-    LandscapeRecord* tr = CreateRecord();
-    if (!tr->LoadFromStream(input))
+    LandscapeRecord* tr = createRecord();
+    if (!tr->loadFromStream(input))
     {
       std::cout << "Landscape::LoadFromFile: File \""<<FileName<< "\" has "
                 << "invalid record data. Clearing loaded data.\n";
       //delete[] m_RecordList;
       //m_RecordList= NULL;
       //m_numRec = 0;
-      ChangeListSize(0);
+      changeListSize(0);
       input.close();
       return false;
     }
@@ -825,7 +825,7 @@ bool Landscape::LoadFromFile(const std::string& FileName)
   return true;
 }
 
-bool Landscape::SaveToFile(const std::string& FileName) const
+bool Landscape::saveToFile(const std::string& FileName) const
 {
   if (m_numRec==0)
   {
@@ -851,7 +851,7 @@ bool Landscape::SaveToFile(const std::string& FileName) const
 
   for (i=0; i<m_numRec; i=i+1)
   {
-    if (!m_RecordList[i]->SaveToStream(output))
+    if (!m_RecordList[i]->saveToStream(output))
     {
       std::cout << "Landscape::SaveToFile: Error while writing record "<<i+1
                 << " to file \"" <<FileName<<"\".\n";
@@ -863,7 +863,7 @@ bool Landscape::SaveToFile(const std::string& FileName) const
   return true;
 }//SaveToFile
 
-bool Landscape::SaveAllToStream(std::ofstream& AStream) const
+bool Landscape::saveAllToStream(std::ofstream& AStream) const
 {
   if (!AStream.good())
   {
@@ -874,7 +874,7 @@ bool Landscape::SaveAllToStream(std::ofstream& AStream) const
   unsigned int i;
   for (i=0; i<m_numRec; i=i+1)
   {
-    if (!m_RecordList[i]->SaveToStream(AStream))
+    if (!m_RecordList[i]->saveToStream(AStream))
     {
       std::cout << "Landscape::SaveAllToStream: Error while saving record "<<i+1
                 << " to stream.\n";
@@ -884,7 +884,7 @@ bool Landscape::SaveAllToStream(std::ofstream& AStream) const
   return AStream.good();
 }
 
-void Landscape::ChangeListSize(const unsigned int new_size)
+void Landscape::changeListSize(const unsigned int new_size)
 {
   LandscapeRecord ** new_list;
   LandscapeRecord ** temp_list;
@@ -923,7 +923,7 @@ void Landscape::ChangeListSize(const unsigned int new_size)
   m_Capacity = new_size;
 }//ChangeListSize
 
-LandscapeRecord* Landscape::CreateRecord()
+LandscapeRecord* Landscape::createRecord()
 {
   //check for insufficient list length
   if (m_numRec == m_Capacity)
@@ -931,11 +931,11 @@ LandscapeRecord* Landscape::CreateRecord()
     //allocate new memory
     if (m_Capacity<500)
     {
-      ChangeListSize(m_Capacity*2+1);
+      changeListSize(m_Capacity*2+1);
     }//if
     else
     {
-      ChangeListSize(m_Capacity+100);
+      changeListSize(m_Capacity+100);
     }
   }//if
 
@@ -944,7 +944,7 @@ LandscapeRecord* Landscape::CreateRecord()
   return m_RecordList[m_numRec-1];
 }
 
-void Landscape::DestroyRecord(const LandscapeRecord* recPtr)
+void Landscape::destroyRecord(const LandscapeRecord* recPtr)
 {
   //far from optimal :(
   if (recPtr==NULL)
@@ -968,7 +968,7 @@ void Landscape::DestroyRecord(const LandscapeRecord* recPtr)
   }//for
 }//DestroyRecord
 
-unsigned int Landscape::RecordsAvailable()
+unsigned int Landscape::getNumberOfRecordsAvailable()
 {
   return m_numRec;
 }
@@ -976,7 +976,7 @@ unsigned int Landscape::RecordsAvailable()
 //gets pointer to the record-th record in list
 //  ---- unsafe, because position of records might change due to deleting and
 //       adding records
-LandscapeRecord* Landscape::GetRecordByPosition(const unsigned int record)
+LandscapeRecord* Landscape::getRecordByPosition(const unsigned int record)
 {
   if (record>=m_numRec)
   {
@@ -986,13 +986,13 @@ LandscapeRecord* Landscape::GetRecordByPosition(const unsigned int record)
 }
 
 //get pointer to first record which covers position (x,-inf,z)
-LandscapeRecord* Landscape::GetRecordAtXZ(const float x, const float z) const
+LandscapeRecord* Landscape::getRecordAtXZ(const float x, const float z) const
 {
   unsigned int i;
   for(i=0; i<m_numRec; i++)
   {
-    if ((x>=m_RecordList[i]->OffsetX()) && (x<=m_RecordList[i]->OffsetX()+64*LandscapeRecord::cDefaultStride)
-       &&(z>=m_RecordList[i]->OffsetY()) && (z<=m_RecordList[i]->OffsetY()+64*LandscapeRecord::cDefaultStride))
+    if ((x>=m_RecordList[i]->getOffsetX()) && (x<=m_RecordList[i]->getOffsetX()+64*LandscapeRecord::cDefaultStride)
+       &&(z>=m_RecordList[i]->getOffsetY()) && (z<=m_RecordList[i]->getOffsetY()+64*LandscapeRecord::cDefaultStride))
     {
       return m_RecordList[i];
     }//if
@@ -1002,7 +1002,7 @@ LandscapeRecord* Landscape::GetRecordAtXZ(const float x, const float z) const
 
 //gets pointer to record with given ID
 //  ---- safer than GetRecordByPosition(), but also slower
-LandscapeRecord* Landscape::GetRecordByID(const unsigned int recordID)
+LandscapeRecord* Landscape::getRecordByID(const unsigned int recordID)
 {
   if (m_numRec==0)
   {
@@ -1013,7 +1013,7 @@ LandscapeRecord* Landscape::GetRecordByID(const unsigned int recordID)
 
   for (i=0; i<m_numRec; i++)
   {
-    if (m_RecordList[i]->GetID() == recordID)
+    if (m_RecordList[i]->getID() == recordID)
     {
       return m_RecordList[i];
     }
@@ -1021,13 +1021,13 @@ LandscapeRecord* Landscape::GetRecordByID(const unsigned int recordID)
   return NULL;
 }
 
-void Landscape::ClearAllRecords()
+void Landscape::clearAllRecords()
 {
-  ChangeListSize(0);
+  changeListSize(0);
 }
 
 #ifndef NO_OGRE_IN_LANDSCAPE
-bool Landscape::SendToEngine(Ogre::SceneManager * scm, const bool WireFrame)
+bool Landscape::sendToEngine(Ogre::SceneManager * scm, const bool WireFrame)
 {
   if (m_numRec==0)
   {
@@ -1049,12 +1049,12 @@ bool Landscape::SendToEngine(Ogre::SceneManager * scm, const bool WireFrame)
   unsigned int i;
   for (i=0; i<m_numRec; i++)
   {
-    m_RecordList[i]->Enable(scm, WireFrame);
+    m_RecordList[i]->enable(scm, WireFrame);
   }//for
   return true;
 }
 
-bool Landscape::RemoveFromEngine(Ogre::SceneManager * scm)
+bool Landscape::removeFromEngine(Ogre::SceneManager * scm)
 {
   if(m_numRec == 0)
   {
@@ -1070,7 +1070,7 @@ bool Landscape::RemoveFromEngine(Ogre::SceneManager * scm)
   unsigned int i;
   for (i=0; i<m_numRec; i++)
   {
-    m_RecordList[i]->Disable();
+    m_RecordList[i]->disable();
   }//for
   if (scm->hasSceneNode(cLandNodeName))
   {
@@ -1082,7 +1082,7 @@ bool Landscape::RemoveFromEngine(Ogre::SceneManager * scm)
   return true;
 }
 
-void Landscape::RequestUpdate(LandscapeRecord* who)
+void Landscape::requestUpdate(LandscapeRecord* who)
 {
   if (who!=NULL)
   {
@@ -1097,17 +1097,17 @@ void Landscape::RequestUpdate(LandscapeRecord* who)
   }
 }
 
-bool Landscape::NeedsUpdate() const
+bool Landscape::needsUpdate() const
 {
   return (!(m_RecordsForUpdate.empty()));
 }
 
-unsigned int Landscape::UpdateRecords(const bool WireFrame)
+unsigned int Landscape::updateRecords(const bool WireFrame)
 {
   unsigned int count = 0;
   while (!m_RecordsForUpdate.empty())
   {
-    if (m_RecordsForUpdate.back()->Update(WireFrame))
+    if (m_RecordsForUpdate.back()->update(WireFrame))
     {
       count++;
     }
@@ -1118,7 +1118,7 @@ unsigned int Landscape::UpdateRecords(const bool WireFrame)
 
 #endif //ifndef NO_OGRE_IN_LANDSCAPE
 
-float Landscape::GetHeightAtPosition(const float x, const float y) const
+float Landscape::getHeightAtPosition(const float x, const float y) const
 {
   if (m_numRec == 0)
   {
@@ -1127,15 +1127,15 @@ float Landscape::GetHeightAtPosition(const float x, const float y) const
   unsigned int i, x_idx, y_idx;
   for(i=0; i<m_numRec; i++)
   {
-    const float stride = m_RecordList[i]->Stride();
-    if ((x>=m_RecordList[i]->OffsetX()) && (x<=m_RecordList[i]->OffsetX()+64*stride)
-       &&(y>=m_RecordList[i]->OffsetY()) && (y<=m_RecordList[i]->OffsetY()+64*stride))
+    const float stride = m_RecordList[i]->getStride();
+    if ((x>=m_RecordList[i]->getOffsetX()) && (x<=m_RecordList[i]->getOffsetX()+64*stride)
+       &&(y>=m_RecordList[i]->getOffsetY()) && (y<=m_RecordList[i]->getOffsetY()+64*stride))
     {
       //got it
       //not implemented exactly yet, but at least we have a return value which
       // is somewhat near the real value
-      x_idx = (unsigned int)((x-m_RecordList[i]->OffsetX())/stride);
-      y_idx = (unsigned int)((y-m_RecordList[i]->OffsetY())/stride);
+      x_idx = (unsigned int)((x-m_RecordList[i]->getOffsetX())/stride);
+      y_idx = (unsigned int)((y-m_RecordList[i]->getOffsetY())/stride);
 
       if (x_idx==64 or y_idx==64)
       {
@@ -1145,8 +1145,8 @@ float Landscape::GetHeightAtPosition(const float x, const float y) const
       //interpolation to get better approximation of height between points
       float x_linear, y_linear; //linear factors
       float ip1, ip2; //height at interpolatoin points 1 and 2
-      x_linear = (x-m_RecordList[i]->OffsetX()-x_idx*stride)/stride;
-      y_linear = (y-m_RecordList[i]->OffsetY()-y_idx*stride)/stride;
+      x_linear = (x-m_RecordList[i]->getOffsetX()-x_idx*stride)/stride;
+      y_linear = (y-m_RecordList[i]->getOffsetY()-y_idx*stride)/stride;
 
       ip1 = (1.0-x_linear)*m_RecordList[i]->Height[x_idx][y_idx]
            +      x_linear*m_RecordList[i]->Height[x_idx+1][y_idx];

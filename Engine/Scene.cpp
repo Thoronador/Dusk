@@ -99,7 +99,7 @@ void Scene::createGrassMesh()
         if (DataLoader::getSingleton().loadFromFile("data"+path_sep+"DuskData.dusk"))
         {
           std::cout << "Data loaded successfully.\n";
-          if (Landscape::GetSingleton().SendToEngine(getAPI().getOgreSceneManager()))
+          if (Landscape::getSingleton().sendToEngine(getAPI().getOgreSceneManager()))
           {
             std::cout << "Landscape successfully added.\n";
           }
@@ -263,8 +263,8 @@ void Scene::createGrassMesh()
       if (w_singleton.isSnowing()) w_singleton.stopSnow();
       w_singleton.deleteAllCelestials();
       std::cout << "  Delete Landscape...\n";
-      Landscape::GetSingleton().RemoveFromEngine(getAPI().getOgreSceneManager());
-      Landscape::GetSingleton().ClearAllRecords();
+      Landscape::getSingleton().removeFromEngine(getAPI().getOgreSceneManager());
+      Landscape::getSingleton().clearAllRecords();
       std::cout << "Scene destroyed.\n";
     }
 } //namespace

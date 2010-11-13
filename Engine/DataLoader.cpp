@@ -95,7 +95,7 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
   }
   if ((bits & LANDSCAPE_BIT) !=0)
   {
-    data_records += Landscape::GetSingleton().RecordsAvailable();
+    data_records += Landscape::getSingleton().getNumberOfRecordsAvailable();
   }
   if ((bits & LIGHT_BIT) !=0)
   {
@@ -232,7 +232,7 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
   //save landscape
   if ((bits & LANDSCAPE_BIT) !=0)
   {
-    if (!(Landscape::GetSingleton().SaveAllToStream(output)))
+    if (!(Landscape::getSingleton().saveAllToStream(output)))
     {
       std::cout << "DataLoader::SaveToFile: ERROR: could not write landscape "
                 << "records to file \""<<FileName<<"\".\n";
@@ -362,11 +362,11 @@ bool DataLoader::loadFromFile(const std::string& FileName)
            success = Journal::getSingleton().loadNextFromStream(input);
            break;
       case cHeaderLand:
-           land_rec = Landscape::GetSingleton().CreateRecord();
-           success = land_rec->LoadFromStream(input);
+           land_rec = Landscape::getSingleton().createRecord();
+           success = land_rec->loadFromStream(input);
            if (!success)
            {
-             Landscape::GetSingleton().DestroyRecord(land_rec);
+             Landscape::getSingleton().destroyRecord(land_rec);
            }
            break;
       case cHeaderLight:
@@ -469,7 +469,7 @@ void DataLoader::clearData(const unsigned int bits)
 
   if ((bits & LANDSCAPE_BIT) !=0)
   {
-    Landscape::GetSingleton().ClearAllRecords();
+    Landscape::getSingleton().clearAllRecords();
   }//landscape
 
   if ((bits & LIGHT_BIT) !=0)
