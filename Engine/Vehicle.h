@@ -32,6 +32,7 @@
      - 2010-09-27 (rev 245) - rotation of passengers adjusted
      - 2010-10-17 (rev 246) - error in calculation of position of passengers
                               fixed
+     - 2010-11-20 (rev 255) - rotation is now stored as Quaternion
 
  ToDo list:
      - position and orientation of passengers has to be adjusted during
@@ -62,7 +63,7 @@ class Vehicle: public AnimatedObject, public WaypointObject
     Vehicle();
 
     /* constructor with parameters */
-    Vehicle(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale);
+    Vehicle(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Quaternion& rot, const float Scale);
 
     /* destructor */
     virtual ~Vehicle();
@@ -202,7 +203,7 @@ class Vehicle: public AnimatedObject, public WaypointObject
     {
       NPC* who;
       Ogre::Vector3 position_offset;
-      Ogre::Vector3 rotation_offset;
+      Ogre::Quaternion rotation_offset;
     };//struct
 
     //list of passengers

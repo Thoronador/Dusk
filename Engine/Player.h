@@ -37,6 +37,7 @@
      - 2010-08-27 (rev 236) - translate() added
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-09-03 (rev 240) - adjustments for Editor
+     - 2010-11-20 (rev 255) - rotation is now stored as Quaternion
 
  ToDo list:
      - actually implement loadFromStream() and saveToStream()

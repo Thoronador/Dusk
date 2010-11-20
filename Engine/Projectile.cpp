@@ -37,7 +37,7 @@ Projectile::Projectile()
   m_Emitter = NULL;
 }
 
-Projectile::Projectile(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale)
+Projectile::Projectile(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Quaternion& rot, const float Scale)
   : UniformMotionObject(_ID, pos, rot, Scale)
 {
   if (ProjectileBase::getSingleton().hasProjectile(_ID))

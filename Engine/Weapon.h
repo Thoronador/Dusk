@@ -30,6 +30,7 @@
                             - Enable() and EnableWithoutSceneNode() removed
                               (inherited method is used instead)
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
+     - 2010-11-20 (rev 255) - rotation is now stored as Quaternion
 
  ToDo list:
      - add possibility to actually attack and inflict damage with a weapon
@@ -54,7 +55,7 @@ class Weapon: public Item
     Weapon();
 
     /* constructor with initial values */
-    Weapon(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale);
+    Weapon(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Quaternion& rot, const float Scale);
 
     /* destructor */
     virtual ~Weapon();

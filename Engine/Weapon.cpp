@@ -31,7 +31,7 @@ Weapon::Weapon()
   m_Equipped = false;
 }
 
-Weapon::Weapon(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale)
+Weapon::Weapon(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Quaternion& rot, const float Scale)
   : Item(_ID, pos, rot, Scale)
 {
   m_Equipped = false;

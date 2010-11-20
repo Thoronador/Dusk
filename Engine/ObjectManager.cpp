@@ -52,7 +52,7 @@ unsigned int ObjectManager::numberOfReferences() const
 }
 
 DuskObject* ObjectManager::addObjectReference(const std::string& ID,
-    const Ogre::Vector3& position, const Ogre::Vector3& rotation, const float scale)
+    const Ogre::Vector3& position, const Ogre::Quaternion& rotation, const float scale)
 {
   DuskObject * ObjectPointer = new DuskObject(ID, position, rotation, scale);
   m_ReferenceMap[ID].push_back(ObjectPointer);
@@ -69,7 +69,7 @@ Light* ObjectManager::addLightReference(const std::string& ID, const Ogre::Vecto
 }
 
 Container* ObjectManager::addContainerReference(const std::string& ID,
-    const Ogre::Vector3& position, const Ogre::Vector3& rotation, const float scale)
+    const Ogre::Vector3& position, const Ogre::Quaternion& rotation, const float scale)
 {
   Container* ContainerPointer = new Container(ID, position, rotation, scale);
   m_ReferenceMap[ID].push_back(ContainerPointer);
@@ -78,7 +78,7 @@ Container* ObjectManager::addContainerReference(const std::string& ID,
 }
 
 Item* ObjectManager::addItemReference(const std::string& ID,
-    const Ogre::Vector3& position, const Ogre::Vector3& rotation, const float scale)
+    const Ogre::Vector3& position, const Ogre::Quaternion& rotation, const float scale)
 {
   Item* ItemPointer = new Item(ID, position, rotation, scale);
   m_ReferenceMap[ID].push_back(ItemPointer);
@@ -87,7 +87,7 @@ Item* ObjectManager::addItemReference(const std::string& ID,
 }
 
 Weapon* ObjectManager::addWeaponReference(const std::string& ID,
-    const Ogre::Vector3& position, const Ogre::Vector3& rotation, const float scale)
+    const Ogre::Vector3& position, const Ogre::Quaternion& rotation, const float scale)
 {
   Weapon* WeaponPointer = new Weapon(ID, position, rotation, scale);
   m_ReferenceMap[ID].push_back(WeaponPointer);

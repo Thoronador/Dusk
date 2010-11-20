@@ -35,7 +35,7 @@ unsigned int GenerateUniqueObjectID()
   return m_genUID++;
 }
 
-void IntervalVector360(Ogre::Vector3& vec)
+/*void IntervalVector360(Ogre::Vector3& vec)
 {
   if (vec.x>360.0f)
   {
@@ -61,23 +61,23 @@ void IntervalVector360(Ogre::Vector3& vec)
   {
     vec.z += 360.0f;
   }
-}
+}*/
 
 DuskObject::DuskObject()
 {
   //ctor
   ID = "";
   position = Ogre::Vector3::ZERO;
-  rotation = Ogre::Vector3::ZERO;
+  m_Rotation = Ogre::Quaternion::IDENTITY;
   m_Scale = 1.0f;
   entity = NULL;
 }
 
-DuskObject::DuskObject(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale)
+DuskObject::DuskObject(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Quaternion& rot, const float Scale)
 {
   ID = _ID;
   position = pos;
-  rotation = rot;
+  m_Rotation = rot;
   if (m_Scale>0.0f)
   {
     m_Scale = Scale;
@@ -98,9 +98,9 @@ const Ogre::Vector3& DuskObject::getPosition() const
   return position;
 }
 
-const Ogre::Vector3& DuskObject::getRotation() const
+const Ogre::Quaternion& DuskObject::getRotation() const
 {
-  return rotation;
+  return m_Rotation;
 }
 
 void DuskObject::setPosition(const Ogre::Vector3& pos)
@@ -115,22 +115,22 @@ void DuskObject::setPosition(const Ogre::Vector3& pos)
   position = pos;
 }
 
-void DuskObject::setRotation(const Ogre::Vector3& rot)
+void DuskObject::setRotation(const Ogre::Quaternion& rot)
 {
   if (entity!=NULL)
   {
     if (entity->getParentSceneNode()!=NULL)
     {
-      entity->getParentSceneNode()->resetOrientation();
+      entity->getParentSceneNode()->setOrientation(rot);
+      /*entity->getParentSceneNode()->resetOrientation();
       //not sure whether this is the best one...
       // maybe we still need to set a different transform space
       entity->getParentSceneNode()->rotate(Ogre::Vector3::UNIT_X, Ogre::Degree(rot.x));
       entity->getParentSceneNode()->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(rot.y));
-      entity->getParentSceneNode()->rotate(Ogre::Vector3::UNIT_Z, Ogre::Degree(rot.z));
+      entity->getParentSceneNode()->rotate(Ogre::Vector3::UNIT_Z, Ogre::Degree(rot.z));*/
     }
   }
-  rotation = rot;
-  IntervalVector360(rotation);
+  m_Rotation = rot;
 }
 
 float DuskObject::getScale() const
@@ -187,7 +187,6 @@ bool DuskObject::enable(Ogre::SceneManager* scm)
     std::cout << "DuskObject::Enable: ERROR: no scene manager present.\n";
     return false;
   }
-
   //generate unique entity name
   std::stringstream entity_name;
   entity_name << ID << GenerateUniqueObjectID();
@@ -196,10 +195,11 @@ bool DuskObject::enable(Ogre::SceneManager* scm)
   Ogre::SceneNode* ent_node = scm->getRootSceneNode()->createChildSceneNode(entity_name.str(), position);
   ent_node->attachObject(entity);
   ent_node->scale(m_Scale, m_Scale, m_Scale);
-  //not sure whether this is the best one for rotation
+  /*//not sure whether this is the best one for rotation
   ent_node->rotate(Ogre::Vector3::UNIT_X, Ogre::Degree(rotation.x));
   ent_node->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(rotation.y));
-  ent_node->rotate(Ogre::Vector3::UNIT_Z, Ogre::Degree(rotation.z));
+  ent_node->rotate(Ogre::Vector3::UNIT_Z, Ogre::Degree(rotation.z));*/
+  ent_node->setOrientation(m_Rotation);
   //set user defined object to this object as reverse link
   entity->setUserObject(this);
   return (entity!=NULL);
@@ -342,11 +342,13 @@ bool DuskObject::saveDuskObjectPart(std::ofstream& output) const
   xyz = position.z;
   output.write((char*) &xyz, sizeof(float));
   // -- rotation
-  xyz = rotation.x;
+  xyz = m_Rotation.w;
   output.write((char*) &xyz, sizeof(float));
-  xyz = rotation.y;
+  xyz = m_Rotation.x;
   output.write((char*) &xyz, sizeof(float));
-  xyz = rotation.z;
+  xyz = m_Rotation.y;
+  output.write((char*) &xyz, sizeof(float));
+  xyz = m_Rotation.z;
   output.write((char*) &xyz, sizeof(float));
   // -- scale
   output.write((char*) &m_Scale, sizeof(float));
@@ -413,11 +415,13 @@ bool DuskObject::loadDuskObjectPart(std::ifstream& InStream)
   position.z = f_temp;
   //rotation
   InStream.read((char*) &f_temp, sizeof(float));
-  rotation.x = f_temp;
+  m_Rotation.w = f_temp;
   InStream.read((char*) &f_temp, sizeof(float));
-  rotation.y = f_temp;
+  m_Rotation.x = f_temp;
   InStream.read((char*) &f_temp, sizeof(float));
-  rotation.z = f_temp;
+  m_Rotation.y = f_temp;
+  InStream.read((char*) &f_temp, sizeof(float));
+  m_Rotation.z = f_temp;
   //scale
   InStream.read((char*) &f_temp, sizeof(float));
   m_Scale = f_temp;

@@ -52,6 +52,7 @@
      - 2010-09-22 (rev 243) - addVehicleReference() added; adjustments for new
                               Vehicle class
      - 2010-11-12 (rev 252) - getBegin() and getEnd() added
+     - 2010-11-20 (rev 255) - rotation is now stored as quaternion
 
  ToDo list:
      - ???
@@ -99,7 +100,7 @@ namespace Dusk
              scale    - scaling factor of the object
       */
       AnimatedObject* addAnimatedReference(const std::string& ID, const Ogre::Vector3& position,
-                                           const Ogre::Vector3& rotation, const float scale);
+                                           const Ogre::Quaternion& rotation, const float scale);
 
       /* adds a new NPC with given ID at given position with rotation and scale.
          Returns a pointer to the created NPC.
@@ -112,7 +113,7 @@ namespace Dusk
 
       */
       NPC* addNPCReference(const std::string& ID, const Ogre::Vector3& position,
-                           const Ogre::Vector3& rot, const float Scale);
+                           const Ogre::Quaternion& rot, const float Scale);
 
       /* adds a new Vehicle with given ID at given position with rotation and
          scale, and returns a pointer to the created Vehicle.
@@ -124,7 +125,7 @@ namespace Dusk
              scale    - scaling factor of the Vehicle
       */
       Vehicle* addVehicleReference(const std::string& ID, const Ogre::Vector3& position,
-                                   const Ogre::Vector3& rotation, const float scale);
+                                   const Ogre::Quaternion& rotation, const float scale);
 
       /* adds a new WaypointObject with given ID at given position with rotation
          and scale, and returns a pointer to the created WaypointObject.
@@ -136,7 +137,7 @@ namespace Dusk
              scale    - scaling factor of the waypoint object
       */
       WaypointObject* addWaypointReference(const std::string& ID, const Ogre::Vector3& position,
-                                           const Ogre::Vector3& rotation, const float scale);
+                                           const Ogre::Quaternion& rotation, const float scale);
 
       /* adds a new Projectile with given ID at given position with rotation
          and scale, and returns a pointer to the created WaypointObject.
@@ -148,7 +149,7 @@ namespace Dusk
              scale    - scaling factor of the object
       */
       Projectile* addProjectileReference(const std::string& ID, const Ogre::Vector3& position,
-                                         const Ogre::Vector3& rotation, const float scale);
+                                         const Ogre::Quaternion& rotation, const float scale);
 
       /* returns a pointer to the first object reference with the given ID, or
          NULL if no such object is present

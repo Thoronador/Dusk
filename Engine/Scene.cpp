@@ -110,7 +110,7 @@ void Scene::createGrassMesh()
         WaypointObject* wpObj = NULL;
         wpObj = InjectionManager::getSingleton().addWaypointReference("robot",
                                     Ogre::Vector3(0.0f, 0.0f, 30.0f),
-                                    Ogre::Vector3(0.0f, 0.0f, 0.0f), 0.55f);
+                                    Ogre::Quaternion::IDENTITY, 0.55f);
         wpObj->enable(m_SceneManager);
         wpObj->setSpeed(12.5f);
         //aniObj->TravelToDestination(Ogre::Vector3(200.0f, 30.0f, 0.0f));
@@ -230,7 +230,7 @@ void Scene::createGrassMesh()
         std::cout << "Player now has "<<Player::getSingleton().getConstInventory().getItemCount("sword_gun")
                   << " sword guns in inventory.\n";
         Player::getSingleton().enable(m_SceneManager);
-        Player::getSingleton().setRotation(Ogre::Vector3(0.0, 180.0, 0.0));
+        Player::getSingleton().setRotation(Ogre::Quaternion(Ogre::Degree(180.0), Ogre::Vector3::UNIT_Y));
         if (Player::getSingleton().equip("sword"))
         {
           std::cout << "First equip() successful.\n";

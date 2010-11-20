@@ -52,6 +52,7 @@
      - 2010-08-27 (rev 236) - error in player's animation string fixed
      - 2010-11-13 (rev 254) - update due to renaming of some functions in
                               Landscape class
+     - 2010-11-20 (rev 255) - rotation is now handled as Quaternion
 
  ToDo list:
      - ???

@@ -54,6 +54,7 @@
                               handle Weapons, too.
      - 2010-08-18 (rev 230) - renamed from ObjectData to ObjectManager
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
+     - 2010-11-20 (rev 255) - rotation is now stored as Quaternion
 
  ToDo list:
      - extend class when further classes for non-animated objects are added
@@ -94,7 +95,7 @@ namespace Dusk
          to the game and returns a pointer to the newly created object
       */
       DuskObject* addObjectReference(const std::string& ID, const Ogre::Vector3& position,
-                               const Ogre::Vector3& rotation, const float scale);
+                               const Ogre::Quaternion& rotation, const float scale);
 
       /* adds a new light instance with given ID and position to the game and
          returns a pointer to the newly created light
@@ -109,19 +110,19 @@ namespace Dusk
          to the game and returns a pointer to the newly created container
       */
       Container* addContainerReference(const std::string& ID, const Ogre::Vector3& position,
-                               const Ogre::Vector3& rotation, const float scale);
+                               const Ogre::Quaternion& rotation, const float scale);
 
       /* adds a new item instance with given ID, position, rotation and scale
          to the game and returns a pointer to the newly created item
       */
       Item* addItemReference(const std::string& ID, const Ogre::Vector3& position,
-                             const Ogre::Vector3& rotation, const float scale);
+                             const Ogre::Quaternion& rotation, const float scale);
 
       /* adds a new weapon instance with given ID, position, rotation and scale
          to the game and returns a pointer to the newly created weapon
       */
       Weapon* addWeaponReference(const std::string& ID, const Ogre::Vector3& position,
-                             const Ogre::Vector3& rotation, const float scale);
+                             const Ogre::Quaternion& rotation, const float scale);
 
       /* returns the first object of given ID, or NULL if no such object is
          present

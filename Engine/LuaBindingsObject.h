@@ -31,6 +31,7 @@
                               errors, if they don't have a non-NULL pointer to
                               a DuskObject
      - 2010-05-21 (rev 207) - documentation updated; Lua namespace added
+     - 2010-11-20 (rev 255) - rotation is now stored as Quaternion
 
  ToDo list:
      - ???
@@ -146,10 +147,11 @@ namespace Lua
 
   /* returns the rotation of the given object
 
-     return value(s) on stack: 3
-         #1 (number) - x-component of the object's rotation
-         #2 (number) - y-component of the object's rotation
-         #3 (number) - z-component of the object's rotation
+     return value(s) on stack: 4
+         #1 (number) - w-component of the object's rotation
+         #2 (number) - x-component of the object's rotation
+         #3 (number) - y-component of the object's rotation
+         #4 (number) - z-component of the object's rotation
 
      expected stack parameters: 1
          #1 (userdata) - pointer to the object
@@ -161,11 +163,12 @@ namespace Lua
      return value(s) on stack: 0
          nothing / nil
 
-     expected stack parameters: 4
+     expected stack parameters: 5
          #1 (userdata) - pointer to the object
-         #2 (number)   - x-component of the object's rotation
-         #3 (number)   - y-component of the object's rotation
-         #4 (number)   - z-component of the object's rotation
+         #2 (number)   - w-component of the object's rotation
+         #3 (number)   - x-component of the object's rotation
+         #4 (number)   - y-component of the object's rotation
+         #5 (number)   - z-component of the object's rotation
   */
   int SetObjectRotation(lua_State *L);
 

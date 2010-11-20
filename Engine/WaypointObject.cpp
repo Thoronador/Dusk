@@ -30,7 +30,7 @@ WaypointObject::WaypointObject()
   //ctor
   ID = "";
   position = Ogre::Vector3::ZERO;
-  rotation = Ogre::Vector3::ZERO;
+  m_Rotation = Ogre::Quaternion::IDENTITY;
   m_Scale = 1.0f;
   entity = NULL;
   m_Direction = Ogre::Vector3::ZERO;
@@ -44,11 +44,11 @@ WaypointObject::WaypointObject()
   m_Patrol = false;
 }
 
-WaypointObject::WaypointObject(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale)
+WaypointObject::WaypointObject(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Quaternion& rot, const float Scale)
 {
   ID = _ID;
   position = pos;
-  rotation = rot;
+  m_Rotation = rot;
   if (m_Scale>0.0f)
   {
     m_Scale = Scale;

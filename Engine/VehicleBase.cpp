@@ -127,7 +127,7 @@ const Ogre::Vector3& VehicleBase::getMountpointOffset(const std::string& ID, uns
   return Ogre::Vector3::ZERO;
 }
 
-const Ogre::Vector3& VehicleBase::getMountpointRotation(const std::string& ID, unsigned int idx) const
+const Ogre::Quaternion& VehicleBase::getMountpointRotation(const std::string& ID, unsigned int idx) const
 {
   const std::map<std::string, VehicleRecord>::const_iterator cIter =
       m_Vehicles.find(ID);
@@ -138,7 +138,7 @@ const Ogre::Vector3& VehicleBase::getMountpointRotation(const std::string& ID, u
   }
   std::cout << "VehicleBase::getMountpointRotation: ERROR: no vehicle with ID \""
             << ID<<"\" found.\n";
-  return Ogre::Vector3::ZERO;
+  return Ogre::Quaternion::IDENTITY;
 }
 
 const MountpointData& VehicleBase::getMountpointData(const std::string& ID, unsigned int idx) const
@@ -219,6 +219,8 @@ bool VehicleBase::saveAllToStream(std::ofstream& OutStream) const
       temp = iter->second.Mountpoints.at(len).offset.z;
       OutStream.write((char*) &temp, sizeof(float));
       // -- rotation
+      temp = iter->second.Mountpoints.at(len).rotation.w;
+      OutStream.write((char*) &temp, sizeof(float));
       temp = iter->second.Mountpoints.at(len).rotation.x;
       OutStream.write((char*) &temp, sizeof(float));
       temp = iter->second.Mountpoints.at(len).rotation.y;
@@ -331,7 +333,7 @@ bool VehicleBase::loadNextVehicleFromStream(std::ifstream& InStream)
     return false;
   }
   //read the mountpoint data
-  float x, y, z;
+  float w, x, y, z;
   MountpointData mpd;
   for (len=0; len<vRec.MountpointCount; ++len)
   {
@@ -341,10 +343,11 @@ bool VehicleBase::loadNextVehicleFromStream(std::ifstream& InStream)
     InStream.read((char*) &z, sizeof(float));
     mpd.offset = Ogre::Vector3(x,y,z);
     // -- rotation
+    InStream.read((char*) &w, sizeof(float));
     InStream.read((char*) &x, sizeof(float));
     InStream.read((char*) &y, sizeof(float));
     InStream.read((char*) &z, sizeof(float));
-    mpd.rotation = Ogre::Vector3(x,y,z);
+    mpd.rotation = Ogre::Quaternion(w,x,y,z);
     if (!InStream.good())
     {
       std::cout << "VehicleBase::loadNextVehicleFromStream: ERROR while reading"

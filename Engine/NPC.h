@@ -61,6 +61,7 @@
      - 2010-09-24 (rev 244) - getVehicle() and setVehicle() added
      - 2010-11-13 (rev 254) - update due to renaming of some functions in
                               Landscape class
+     - 2010-11-20 (rev 255) - rotation is now stored as Quaternion
 
  ToDo list:
      - add possibility to equip weapons, clothes, armour, etc.
@@ -98,7 +99,7 @@ namespace Dusk
       NPC();
 
       /* constructor with parameter list */
-      NPC(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale);
+      NPC(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Quaternion& rot, const float Scale);
 
       /* destructor */
       virtual ~NPC();

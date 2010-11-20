@@ -53,7 +53,7 @@ unsigned int InjectionManager::getNumberOfReferences() const
 }
 
 AnimatedObject* InjectionManager::addAnimatedReference(const std::string& ID,
-    const Ogre::Vector3& position, const Ogre::Vector3& rotation, const float scale)
+    const Ogre::Vector3& position, const Ogre::Quaternion& rotation, const float scale)
 {
   AnimatedObject * ObjectPointer = new AnimatedObject(ID, position, rotation, scale);
   m_ReferenceMap[ID].push_back(ObjectPointer);
@@ -62,7 +62,7 @@ AnimatedObject* InjectionManager::addAnimatedReference(const std::string& ID,
 }
 
 NPC* InjectionManager::addNPCReference(const std::string& ID,
-     const Ogre::Vector3& position, const Ogre::Vector3& rot, const float Scale)
+     const Ogre::Vector3& position, const Ogre::Quaternion& rot, const float Scale)
 {
   NPC* NPCPointer = new NPC(ID, position, rot, Scale);
   m_ReferenceMap[ID].push_back(NPCPointer);
@@ -71,7 +71,7 @@ NPC* InjectionManager::addNPCReference(const std::string& ID,
 }
 
 Vehicle* InjectionManager::addVehicleReference(const std::string& ID, const Ogre::Vector3& position,
-                                   const Ogre::Vector3& rotation, const float scale)
+                                   const Ogre::Quaternion& rotation, const float scale)
 {
   Vehicle* vehiPtr = new Vehicle(ID, position, rotation, scale);
   m_ReferenceMap[ID].push_back(vehiPtr);
@@ -80,7 +80,7 @@ Vehicle* InjectionManager::addVehicleReference(const std::string& ID, const Ogre
 }
 
 WaypointObject* InjectionManager::addWaypointReference(const std::string& ID, const Ogre::Vector3& position,
-                                           const Ogre::Vector3& rotation, const float scale)
+                                           const Ogre::Quaternion& rotation, const float scale)
 {
   WaypointObject* wpPointer = new WaypointObject(ID, position, rotation, scale);
   m_ReferenceMap[ID].push_back(wpPointer);
@@ -89,7 +89,7 @@ WaypointObject* InjectionManager::addWaypointReference(const std::string& ID, co
 }
 
 Projectile* InjectionManager::addProjectileReference(const std::string& ID, const Ogre::Vector3& position,
-                                   const Ogre::Vector3& rotation, const float scale)
+                                   const Ogre::Quaternion& rotation, const float scale)
 {
   Projectile* projPtr = new Projectile(ID, position, rotation, scale);
   m_ReferenceMap[ID].push_back(projPtr);

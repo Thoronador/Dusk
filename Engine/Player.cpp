@@ -50,7 +50,7 @@ Player& Player::getSingleton()
 }
 
 Player::Player()
-  : NPC("player", Ogre::Vector3(0.0, 0.0, 300), Ogre::Vector3::ZERO, 1.0f)
+  : NPC("player", Ogre::Vector3(0.0, 0.0, 300), Ogre::Quaternion::IDENTITY, 1.0f)
 {
   //not much done yet
   ID = "player";

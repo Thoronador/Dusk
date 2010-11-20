@@ -30,6 +30,7 @@
      - 2010-08-01 (rev 220) - GetObjectMesh() added,
                             - Enable() removed (inherited method is used instead)
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
+     - 2010-11-20 (rev 255) - rotation is now stored as Quaternion
 
  ToDo list:
      - implement possibility to make object "look" into the direction it is
@@ -57,7 +58,7 @@ class WaypointObject: public UniformMotionObject
     WaypointObject();
 
     /* constructor with parameter list*/
-    WaypointObject(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale);
+    WaypointObject(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Quaternion& rot, const float Scale);
 
     /* destructor */
     virtual ~WaypointObject();

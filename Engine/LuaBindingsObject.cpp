@@ -195,11 +195,12 @@ int GetObjectRotation(lua_State *L)
     const DuskObject* objPtr = static_cast<DuskObject*> (lua_touserdata(L, 1));
     if (objPtr!=NULL)
     {
-      const Ogre::Vector3 vec = objPtr->getRotation();
-      lua_pushnumber(L, vec.x);
-      lua_pushnumber(L, vec.y);
-      lua_pushnumber(L, vec.z);
-      return 3;
+      const Ogre::Quaternion quat = objPtr->getRotation();
+      lua_pushnumber(L, quat.w);
+      lua_pushnumber(L, quat.x);
+      lua_pushnumber(L, quat.y);
+      lua_pushnumber(L, quat.z);
+      return 4;
     }
     lua_pushstring(L, "GetObjectRotation() got NULL for object pointer!\n");
     lua_error(L);
@@ -212,13 +213,13 @@ int GetObjectRotation(lua_State *L)
 
 int SetObjectRotation(lua_State *L)
 {
-  if (lua_gettop(L)==4)
+  if (lua_gettop(L)==5)
   {
     DuskObject* objPtr = static_cast<DuskObject*> (lua_touserdata(L, 1));
     if (objPtr!=NULL)
     {
-      objPtr->setRotation(Ogre::Vector3(lua_tonumber(L, 2), lua_tonumber(L, 3),
-                                        lua_tonumber(L, 4)));
+      objPtr->setRotation(Ogre::Quaternion(lua_tonumber(L, 2), lua_tonumber(L, 3),
+                                           lua_tonumber(L, 4), lua_tonumber(L, 5)));
     }
     else
     {
@@ -227,7 +228,7 @@ int SetObjectRotation(lua_State *L)
     }
     return 0;
   }
-  lua_pushstring(L, "SetObjectRotation expects exactly four arguments!\n");
+  lua_pushstring(L, "SetObjectRotation expects exactly five arguments!\n");
   lua_error(L);
   return 0;
 }

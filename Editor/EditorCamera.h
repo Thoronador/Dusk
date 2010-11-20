@@ -62,7 +62,7 @@ namespace Dusk
       Ogre::Vector3 getPosition(void);
 
       /* returns the camera's orientation */
-      Ogre::Quaternion getOrientation(void);
+      const Ogre::Quaternion& getOrientation(void);
 
       /* sets the zoom level of the camera. Positive values will zoom behind the
          camera, negative values zoom to a position in front of the camera.

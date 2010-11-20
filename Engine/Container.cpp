@@ -32,7 +32,7 @@ Container::Container()
   m_Contents.makeEmpty();
 }
 
-Container::Container(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale)
+Container::Container(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Quaternion& rot, const float Scale)
     : DuskObject(_ID, pos, rot, Scale)
 {
   m_Changed = false;

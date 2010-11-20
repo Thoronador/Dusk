@@ -95,7 +95,7 @@ Ogre::Vector3 EditorCamera::getPosition(void)
   return Ogre::Vector3::ZERO;
 }
 
-Ogre::Quaternion EditorCamera::getOrientation(void)
+const Ogre::Quaternion& EditorCamera::getOrientation(void)
 {
   if (m_primaryCameraNode == NULL)
   {

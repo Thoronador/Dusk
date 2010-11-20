@@ -44,18 +44,17 @@ AnimatedObject::AnimatedObject()
   //ctor
   ID = "";
   position = Ogre::Vector3::ZERO;
-  rotation = Ogre::Vector3::ZERO;
+  m_Rotation = Ogre::Quaternion::IDENTITY;
   m_Scale = 1.0f;
   entity = NULL;
-
   m_Anims.clear();
 }
 
-AnimatedObject::AnimatedObject(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale)
+AnimatedObject::AnimatedObject(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Quaternion& rot, const float Scale)
 {
   ID = _ID;
   position = pos;
-  rotation = rot;
+  m_Rotation = rot;
   if (m_Scale>0.0f)
   {
     m_Scale = Scale;
@@ -97,10 +96,11 @@ bool AnimatedObject::enable(Ogre::SceneManager* scm)
   Ogre::SceneNode* ent_node = scm->getRootSceneNode()->createChildSceneNode(entity_name.str(), position);
   ent_node->attachObject(entity);
   ent_node->scale(m_Scale, m_Scale, m_Scale);
-  //not sure whether this is the best one for rotation
+  /*//not sure whether this is the best one for rotation
   ent_node->rotate(Ogre::Vector3::UNIT_X, Ogre::Degree(rotation.x));
   ent_node->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(rotation.y));
-  ent_node->rotate(Ogre::Vector3::UNIT_Z, Ogre::Degree(rotation.z));
+  ent_node->rotate(Ogre::Vector3::UNIT_Z, Ogre::Degree(rotation.z));*/
+  ent_node->setOrientation(m_Rotation);
   //set user defined object to this object as reverse link
   entity->setUserObject(this);
   //restore saved or queued animations

@@ -33,6 +33,7 @@
                             - method declarations improved
      - 2010-05-05 (rev 196) - documentation update
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
+     - 2010-11-20 (rev 255) - rotation is now stored as Quaternion
 
  ToDo list:
      - ???

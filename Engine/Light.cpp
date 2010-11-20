@@ -34,7 +34,7 @@ Light::Light()
 }
 
 Light::Light(const std::string& ID, const Ogre::Vector3& pos, const Ogre::Vector3& dir)
-  : DuskObject(ID, pos, Ogre::Vector3::ZERO, 1.0f)
+  : DuskObject(ID, pos, Ogre::Quaternion::IDENTITY, 1.0f)
 {
   //constructor
   m_Direction = dir;
@@ -70,10 +70,11 @@ bool Light::enable(Ogre::SceneManager* scm)
 
   Ogre::SceneNode* ent_node = scm->getRootSceneNode()->createChildSceneNode(entity_name.str(), position);
   ent_node->attachObject(entity);
-  //not sure whether this is the best one for rotation
+  /*//not sure whether this is the best one for rotation
   ent_node->rotate(Ogre::Vector3::UNIT_X, Ogre::Degree(rotation.x));
   ent_node->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(rotation.y));
-  ent_node->rotate(Ogre::Vector3::UNIT_Z, Ogre::Degree(rotation.z));
+  ent_node->rotate(Ogre::Vector3::UNIT_Z, Ogre::Degree(rotation.z));*/
+  ent_node->setOrientation(m_Rotation);
   //set user defined object to this object as reverse link
   entity->setUserObject(this);
   return (entity!=NULL);
@@ -149,11 +150,13 @@ bool Light::saveToStream(std::ofstream& OutStream) const
   xyz = position.z;
   OutStream.write((char*) &xyz, sizeof(float));
   // -- rotation
-  xyz = rotation.x;
+  xyz = m_Rotation.w;
   OutStream.write((char*) &xyz, sizeof(float));
-  xyz = rotation.y;
+  xyz = m_Rotation.x;
   OutStream.write((char*) &xyz, sizeof(float));
-  xyz = rotation.z;
+  xyz = m_Rotation.y;
+  OutStream.write((char*) &xyz, sizeof(float));
+  xyz = m_Rotation.z;
   OutStream.write((char*) &xyz, sizeof(float));
   //(We don't need scale for lights, so don't write it to stream.)
   // -- direction
@@ -219,11 +222,13 @@ bool Light::loadFromStream(std::ifstream& InStream)
   position.z = f_temp;
   //rotation
   InStream.read((char*) &f_temp, sizeof(float));
-  rotation.x = f_temp;
+  m_Rotation.w = f_temp;
   InStream.read((char*) &f_temp, sizeof(float));
-  rotation.y = f_temp;
+  m_Rotation.x = f_temp;
   InStream.read((char*) &f_temp, sizeof(float));
-  rotation.z = f_temp;
+  m_Rotation.y = f_temp;
+  InStream.read((char*) &f_temp, sizeof(float));
+  m_Rotation.z = f_temp;
   //scale is not needed / always 1.0f
   m_Scale = 1.0f;
   //direction

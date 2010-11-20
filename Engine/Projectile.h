@@ -35,6 +35,7 @@
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-11-13 (rev 254) - update due to renaming of some functions in
                               Landscape class
+     - 2010-11-20 (rev 255) - rotation is now stored as Quaternion
 
  ToDo list:
      - Improve collision detection for projectile. Currently only collisions
@@ -60,7 +61,7 @@ class Projectile: public UniformMotionObject
     Projectile();
 
     /* constructor with parameter list */
-    Projectile(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale);
+    Projectile(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Quaternion& rot, const float Scale);
 
     /* destructor */
     virtual ~Projectile();

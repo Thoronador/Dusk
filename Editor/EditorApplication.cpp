@@ -1168,7 +1168,7 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
           temp =
           ObjectManager::getSingleton().addObjectReference(std::string(lbi->getText().c_str()),
                      EditorCamera::getSingleton().getPosition() + quat*Ogre::Vector3(0.0f, 0.0f, -100.0f),
-                     Ogre::Vector3::ZERO, 1.0f);
+                     Ogre::Quaternion::IDENTITY, 1.0f);
         }
         else if (PlaceType==otLight)
         {
@@ -1181,7 +1181,7 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
           temp =
           ObjectManager::getSingleton().addItemReference( std::string(lbi->getText().c_str()),
                      EditorCamera::getSingleton().getPosition() + quat*Ogre::Vector3(0.0f, 0.0f, -100.0f),
-                     Ogre::Vector3::ZERO, 1.0f);
+                     Ogre::Quaternion::IDENTITY, 1.0f);
         }
         temp->enable(mSceneMgr);
       }

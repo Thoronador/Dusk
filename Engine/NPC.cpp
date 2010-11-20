@@ -42,7 +42,7 @@ const unsigned char NPC::Flag_CanRightAttack = 2;
 const unsigned char NPC::Flag_CanLeftAttack = 4;
 
 NPC::NPC()
-  : AnimatedObject("", Ogre::Vector3::ZERO, Ogre::Vector3::ZERO, 1.0f)
+  : AnimatedObject("", Ogre::Vector3::ZERO, Ogre::Quaternion::IDENTITY, 1.0f)
 {
   //assume some random data
   //all attributes to one
@@ -59,7 +59,7 @@ NPC::NPC()
   m_Vehicle = NULL;
 }
 
-NPC::NPC(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale)
+NPC::NPC(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Quaternion& rot, const float Scale)
  : AnimatedObject(_ID, pos, rot, Scale)
 {
   if (NPCBase::getSingleton().hasNPC(ID))
@@ -461,11 +461,11 @@ bool NPC::equip(const std::string& ItemID, const SlotType slot)
   Item* pItem = NULL;
   if (ItemBase::getSingleton().hasItem(ItemID))
   {
-    pItem = new Item(ItemID, Ogre::Vector3::ZERO, Ogre::Vector3::ZERO, 1.0f);
+    pItem = new Item(ItemID, Ogre::Vector3::ZERO, Ogre::Quaternion::IDENTITY, 1.0f);
   }
   else if (WeaponBase::getSingleton().hasWeapon(ItemID))
   {
-    pItem = new Weapon(ItemID, Ogre::Vector3::ZERO, Ogre::Vector3::ZERO, 1.0f);
+    pItem = new Weapon(ItemID, Ogre::Vector3::ZERO, Ogre::Quaternion::IDENTITY, 1.0f);
   }
   else
   {
@@ -1060,7 +1060,7 @@ void NPC::performAttack(const SlotType attackSlot)
     Projectile* projPtr = InjectionManager::getSingleton().addProjectileReference(
       wRec.ProjectileID, //ID
       position,
-      rotation,
+      m_Rotation,
       1.0f);
     //not sure whether this is the best choice
     projPtr->setDirection(entity->getParentSceneNode()->getOrientation()*Ogre::Vector3(0.0, 0.0, 1.0));

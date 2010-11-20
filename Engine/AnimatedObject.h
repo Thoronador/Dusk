@@ -63,6 +63,7 @@
      - 2010-08-01 (rev 220) - GetObjectMesh() added
      - 2010-08-15 (rev 224) - isHitByRay() added
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
+     - 2010-11-20 (rev 255) - rotation is now stored as quaternion
 
  ToDo list:
      - ???
@@ -100,7 +101,7 @@ namespace Dusk
         AnimatedObject();
 
         /* constructor with parameter list */
-        AnimatedObject(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale);
+        AnimatedObject(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Quaternion& rot, const float Scale);
 
         /* destructor */
         virtual ~AnimatedObject();

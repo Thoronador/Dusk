@@ -34,6 +34,7 @@
      - 2010-07-31 (rev 220) - GetObjectMesh() added
                             - Enable() removed (uses inherited method instead)
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
+     - 2010-11-20 (rev 255) - rotation is now stored as quaternion
 
  ToDo list:
      - ???
@@ -55,7 +56,7 @@ namespace Dusk
   {
     public:
       Container();
-      Container(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale);
+      Container(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Quaternion& rot, const float Scale);
       virtual ~Container();
 
       /* returns true, if the container is empty */

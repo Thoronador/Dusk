@@ -73,6 +73,7 @@
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-09-22 (rev 243) - enumeration value for Vehicle added
      - 2010-09-27 (rev 245) - minor optimization
+     - 2010-11-20 (rev 255) - rotation is now stored as quaternion
 
  ToDo list:
      - ???
@@ -89,6 +90,7 @@
 #include <OgreUserDefinedObject.h>
 #include <OgreEntity.h>
 #include <OgreSceneManager.h>
+#include <OgreQuaternion.h>
 #include <OgreVector3.h>
 #include <OgreRay.h>
 
@@ -114,7 +116,7 @@ class DuskObject: public Ogre::UserDefinedObject
                rot   - rotation of the object
                Scale - scaling factor of the object
         */
-        DuskObject(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale);
+        DuskObject(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Quaternion& rot, const float Scale);
 
         /* destructor */
         virtual ~DuskObject();
@@ -123,7 +125,7 @@ class DuskObject: public Ogre::UserDefinedObject
         const Ogre::Vector3& getPosition() const;
 
         /* Retrieves object's rotation */
-        const Ogre::Vector3& getRotation() const;
+        const Ogre::Quaternion& getRotation() const;
 
         /* Sets the position of the object.
 
@@ -137,7 +139,7 @@ class DuskObject: public Ogre::UserDefinedObject
            parameters:
                rot - the object's new rotation
         */
-        void setRotation(const Ogre::Vector3& rot);
+        void setRotation(const Ogre::Quaternion& rot);
 
         /* Retrieves scaling factor of the object. */
         float getScale() const;
@@ -276,7 +278,8 @@ class DuskObject: public Ogre::UserDefinedObject
 
         std::string ID;
         Ogre::Entity *entity;
-        Ogre::Vector3 position, rotation;
+        Ogre::Vector3 position;
+        Ogre::Quaternion m_Rotation;
         float m_Scale;
 };
 

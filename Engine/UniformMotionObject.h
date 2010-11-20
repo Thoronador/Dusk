@@ -30,6 +30,7 @@
      - 2010-05-31 (rev 211) - small fix
      - 2010-08-26 (rev 235) - isMoving() added
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
+     - 2010-11-20 (rev 255) - rotation is now stored as Quaternion
 
  ToDo list:
      - implement possibility to make object "look" into the direction it is
@@ -57,7 +58,7 @@ class UniformMotionObject: virtual public InjectionObject
     UniformMotionObject();
 
     /* constructor with parameter list */
-    UniformMotionObject(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const float Scale);
+    UniformMotionObject(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Quaternion& rot, const float Scale);
 
     /* destructor */
     virtual ~UniformMotionObject();
