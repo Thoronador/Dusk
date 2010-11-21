@@ -34,6 +34,7 @@
      - 2009-09-27 (rev 133) - equality operator for LightRecords
      - 2010-05-06 (rev 198) - documentation update
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
+     - 2010-11-21 (rev 257) - minor optimization
 
  ToDo list:
      - ???

@@ -609,7 +609,7 @@ bool Dialogue::saveToStream(std::ofstream& output) const
                  << "lines for \""<<gr_iter->first<<"\".\n";
        return false;
      }
-     gr_iter++;
+     ++gr_iter;
    }//while
 
    //write dialogue lines
@@ -627,7 +627,7 @@ bool Dialogue::saveToStream(std::ofstream& output) const
                  << "line \""<<iter->first<<"\".\n";
        return false;
      }
-     iter++;
+     ++iter;
    }//while
    return output.good();
 }

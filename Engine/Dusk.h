@@ -52,18 +52,6 @@ status:
 */
 #include "AnimatedObject.h"
 
-/*
-This Header defines the AnimationData Singleton class
-
-description:
-    The class holds/manages all animated object in the game and
-    makes sure they all get their animations played properly by
-    injecting the animation time each frame.
-status:
-    seems to work
-*/
-#include "AnimationData.h"
-
 
 /*
 This Header defines the Application class
@@ -117,6 +105,17 @@ description:
 */
 #include "CommandAssociateSound.h"
 
+
+/*
+This Header defines the CommandAttack class.
+
+description:
+    Their purpose is to manage attacks of the player (i.e. starts or stops
+    them).
+*/
+#include "CommandAttack.h"
+
+
 /*
 This Header defines the CommandLoopSound class.
 
@@ -125,6 +124,7 @@ description:
     depending on the given boolean value.
 */
 #include "CommandLoopSound.h"
+
 
 /*
 This Header defines the CommandCreateMedia and CommandDestroyMedia classes.
@@ -165,6 +165,7 @@ status:
 */
 #include "CommandPickUp.h"
 
+
 /*
 This Header defines the CommandPlaySound class
 
@@ -177,14 +178,36 @@ description:
 
 
 /*
-This Header defines the CommandQuit class
+This Header defines the CommandQuuestLog class.
 
 description:
-    It is used to exit the engine
+    It is used to switch visibility of the QuestLog.
+status:
+    Seems to work.
+*/
+#include "CommandQuestLog.h"
+
+
+/*
+This Header defines the CommandQuit class.
+
+description:
+    It is used to exit the engine.
 status:
     Seems to work.
 */
 #include "CommandQuit.h"
+
+
+/*
+This Header defines the CommandScreenshot class.
+
+description:
+    It is used to take screenshots.
+status:
+    Seems to work.
+*/
+#include "CommandScreenshot.h"
 
 
 /*
@@ -208,7 +231,7 @@ status:
 
 
 /*
-This Header defines the CommandZoom class
+This Header defines the CommandZoom class.
 
 description:
     Zooms the camera in and out.
@@ -341,8 +364,23 @@ This Header defines the FrameListener class.
 
 description:
     Cares for Timemanagment
+status:
+    works
 */
 #include "FrameListener.h"
+
+
+/*
+This Header defines the AnimationData Singleton class
+
+description:
+    The class holds/manages all animated object in the game and
+    makes sure they all get their animations played properly by
+    injecting the animation time each frame.
+status:
+    seems to work
+*/
+#include "InjectionManager.h"
 
 
 /*
@@ -550,14 +588,14 @@ status:
 
 
 /*
-This Header defines the ObjectData Singelton class.
+This Header defines the ObjectManager Singelton class.
 
 description:
     Holds all static objects in the game.
 status:
     works
 */
-#include "ObjectBase.h"
+#include "ObjectManager.h"
 
 
 /*
@@ -684,6 +722,17 @@ status:
 
 
 /*
+This Header defines the TriggerManager Singletin class.
+
+description:
+    The TriggerManager holds all triggers in the game.
+status:
+    not tested, needs load/save routines
+*/
+#include "TriggerManager.h"
+
+
+/*
 This Header defines the UniformMotionObject class
 
 description:
@@ -720,6 +769,21 @@ status:
     untested.
 */
 #include "VehicleBase.h"
+
+
+/*
+This Header defines two functions that return the vertex data of a mesh.
+
+description:
+    Functions that return the vertex data of a mesh; used for retrieving data
+    for collision detections.
+    The code of VertexDataFunc.h was take from the Ogre Wiki (see file for
+    exact location/ URL) and is not licensed under GPL but is in the public
+    domain instead.
+status:
+    Works.
+*/
+#include "VertexDataFunc.h"
 
 
 /*

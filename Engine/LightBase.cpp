@@ -203,7 +203,7 @@ bool LightBase::saveAllToStream(std::ofstream& out_stream) const
     out_stream.write((char*) &(l_iter->second.radius), sizeof(float));
     //write light type
     out_stream.write((char*) &(l_iter->second.type), sizeof(Ogre::Light::LightTypes));
-    l_iter++;
+    ++l_iter;
   }//while
   return out_stream.good();
 }

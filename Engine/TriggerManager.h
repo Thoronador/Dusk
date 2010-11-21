@@ -65,6 +65,7 @@ class TriggerManager
     */
     bool removeTrigger(Trigger* trig);
 
+    /* iterator type to iterate over complete trigger list */
     typedef std::set<Trigger*>::const_iterator ConstIterator;
 
     /* returns an iterator to the start of the internal data structure that

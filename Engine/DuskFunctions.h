@@ -38,7 +38,9 @@
      - 2010-08-26 (rev 235) - CSVToVector() added
 
  ToDo list:
+     - implement a faster version of FileExists()
      - ???
+
  Bugs:
      - No known bugs. If you find one (or more), then tell me please.
  --------------------------------------------------------------------------*/

@@ -35,6 +35,7 @@
                             - improvement in ConditionFulfilled()'s script
                               condition handling
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
+     - 2010-11-21 (rev 257) - minor optimization
 
  ToDo list:
      - extend class for more conditions

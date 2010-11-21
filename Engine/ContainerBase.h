@@ -32,6 +32,7 @@
                               (LoadNextContainerFromStream(), SaveAllToStream())
      - 2010-01-01 (rev 148) - documentation update
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
+     - 2010-11-21 (rev 257) - minor optimization
 
  ToDo list:
      - ???

@@ -143,7 +143,7 @@ void Inventory::addAllItemsTo(Inventory& target) const
   while (iter!=m_Items.end())
   {
     target.addItem(iter->first, iter->second);
-    iter++;
+    ++iter;
   }//while
 }
 
@@ -194,7 +194,7 @@ bool Inventory::saveToStream(std::ofstream& OutStream) const
     OutStream.write(traverse->first.c_str(), len);
     //amount
     OutStream.write((char*) &(traverse->second), sizeof(unsigned int));
-    traverse++;
+    ++traverse;
   }//while
   return OutStream.good();
 }

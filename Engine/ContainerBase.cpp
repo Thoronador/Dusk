@@ -155,7 +155,7 @@ bool ContainerBase::saveAllToStream(std::ofstream& OutStream) const
                 << "container's inventory.\n";
       return false;
     }//if
-    traverse++;
+    ++traverse;
   }//while
   return OutStream.good();
 }

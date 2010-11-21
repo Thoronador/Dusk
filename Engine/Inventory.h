@@ -40,6 +40,7 @@
      - 2010-06-02 (rev 213) - update to work with Weapons, too
      - 2010-08-03 (rev 221) - minor improvement
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
+     - 2010-11-21 (rev 257) - minor optimization
 
  ToDo list:
      - Probably we should change the inventory class from a map of strings and
