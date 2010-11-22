@@ -23,6 +23,8 @@
 #include <CEGUI/CEGUI.h>
 #include <iostream>
 #include "../Engine/DuskFunctions.h"
+#include "../Engine/ObjectManager.h"
+#include "../Engine/API.h"
 
 namespace Dusk
 {
@@ -416,8 +418,8 @@ bool EditorApplicationItem::ItemConfirmIDChangeRenameClicked(const CEGUI::EventA
     //"rename", i.e. create item with new ID and delete item with old ID
     ItemBase::getSingleton().addItem(ItemID, ir.Name, ir.value, ir.weight, ir.Mesh);
     ItemBase::getSingleton().deleteItem(ID_of_item_to_edit);
-    //update all items (not implemented yet, there are no item references at all)
-    // ItemData::GetSingleton().updateReferencesAfterIDChange( ID_of_item_to_edit, ItemID, mSceneMgr);
+    //update all items
+    ObjectManager::getSingleton().updateReferencesAfterIDChange(ID_of_item_to_edit, ItemID, getAPI().getOgreSceneManager());
     //add row for new item to catalogue
     addItemRecordToCatalogue(ItemID, ir);
     //remove row of old ID
@@ -700,7 +702,8 @@ bool EditorApplicationItem::ItemEditFrameSaveClicked(const CEGUI::EventArgs &e)
                                    ir.Name, ir.value, ir.weight, ir.Mesh);
   //update list
   RefreshItemList();
-  //reference update: no item references implemented yet
+  //reference update
+  ObjectManager::getSingleton().reenableReferencesOfObject(ID_of_item_to_edit, getAPI().getOgreSceneManager());
   //delete window
   if (winmgr.isWindowPresent("Editor/ItemEditFrame"))
   {
@@ -738,7 +741,16 @@ bool EditorApplicationItem::ItemDeleteFrameYesClicked(const CEGUI::EventArgs &e)
     CEGUI::WindowManager::getSingleton().destroyWindow("Editor/ItemDeleteFrame");
     return true;
   }
-  showHint("Item \""+ID_of_item_to_delete+"\" deleted!\n(References are not implemented yet, thus none were deleted.)");
+  //delete references
+  unsigned int refs_deleted = ObjectManager::getSingleton().deleteReferencesOfObject(ID_of_item_to_delete);
+  if (refs_deleted == 0)
+  {
+    showHint("Item \""+ID_of_item_to_delete+"\" deleted! It had no references which had to be deleted.");
+  }
+  else
+  {
+    showHint("Item \""+ID_of_item_to_delete+"\" and "+IntToString(refs_deleted)+" reference(s) of it were deleted!");
+  }
 
   //delete row in multi column list of items
   CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*>
@@ -801,8 +813,8 @@ void EditorApplicationItem::showItemConfirmDeleteWindow(void)
     button->subscribeEvent(CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&EditorApplicationItem::ItemDeleteFrameNoClicked, this));
   }
-  textbox->setText("Do you really want to delete the item \""+ID_of_item_to_delete+"\"? (References of items are not "
-                     +"implemented and hence not deleted.)");
+  textbox->setText("Do you really want to delete the item \""+ID_of_item_to_delete
+                  +"\"and all of its references?");
   frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.22, 0)));
   frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.4, 0)));
   frame->moveToFront();
@@ -821,9 +833,8 @@ void EditorApplicationItem::RefreshItemList(void)
   mcl->resetList();
 
   std::map<std::string, ItemRecord>::const_iterator first;
-  std::map<std::string, ItemRecord>::const_iterator end;
   first = ItemBase::getSingleton().getFirst();
-  end = ItemBase::getSingleton().getEnd();
+  const std::map<std::string, ItemRecord>::const_iterator end = ItemBase::getSingleton().getEnd();
   while (first != end)
   {
     addItemRecordToCatalogue(first->first, first->second);

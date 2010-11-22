@@ -1100,10 +1100,11 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
       }
       if (mcl->getName() != "Editor/Catalogue/Tab/Object/List" &&
           mcl->getName() != "Editor/Catalogue/Tab/Light/List" &&
-          mcl->getName() != "Editor/Catalogue/Tab/Item/List")
+          mcl->getName() != "Editor/Catalogue/Tab/Item/List" &&
+          mcl->getName() != "Editor/Catalogue/Tab/NPC/List")
       {
         std::cout << "Debug: List \""<< mcl->getName()+"/List" << "\" found, "
-                  << "but that's not the Object, Light or Item list.\n";
+                  << "but that's not the Object, Light, Item or NPC list.\n";
         return true;
       }
 
@@ -1123,11 +1124,21 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
         }
         else if (mcl->getName() == "Editor/Catalogue/Tab/Item/List")
         {
-           PlaceType = otItem;
+          PlaceType = otItem;
+        }
+        else if (mcl->getName() == "Editor/Catalogue/Tab/Object/List")
+        {
+          PlaceType = otStatic;
+        }
+        else if (mcl->getName() == "Editor/Catalogue/Tab/NPC/List")
+        {
+          PlaceType = otNPC;
         }
         else
         {
-           PlaceType = otStatic;
+          showWarning(std::string("Error: No associated object type for \"")
+                      + mcl->getName().c_str()+"\" found!");
+          return true;
         }
 
         if (PlaceType==otLight)
@@ -1150,7 +1161,7 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
             return true;
           }
         }
-        else
+        else if (PlaceType==otItem)
         { //place an item
           if (!ItemBase::getSingleton().hasItem(std::string(lbi->getText().c_str())))
           {
@@ -1159,6 +1170,22 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
                         +"place it.");
             return true;
           }
+        }
+        else if (PlaceType==otNPC)
+        { //place an NPC
+          if (!NPCBase::getSingleton().hasNPC(std::string(lbi->getText().c_str())))
+          {
+            showWarning("There is no NPC with the ID \""
+                        +std::string(lbi->getText().c_str())+"\", thus you can't "
+                        +"place it.");
+            return true;
+          }
+        }
+        else
+        {
+          showWarning(std::string("Error: No associated object type for \"")
+                      + mcl->getName().c_str()+"\" found!");
+          return true;
         }
 
         const Ogre::Quaternion quat = EditorCamera::getSingleton().getOrientation();
@@ -1176,13 +1203,27 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
           ObjectManager::getSingleton().addLightReference(std::string(lbi->getText().c_str()),
                      EditorCamera::getSingleton().getPosition() + quat*Ogre::Vector3(0.0f, 0.0f, -100.0f));
         }
-        else
+        else if (PlaceType==otItem)
         {
           temp =
-          ObjectManager::getSingleton().addItemReference( std::string(lbi->getText().c_str()),
+          ObjectManager::getSingleton().addItemReference(std::string(lbi->getText().c_str()),
                      EditorCamera::getSingleton().getPosition() + quat*Ogre::Vector3(0.0f, 0.0f, -100.0f),
                      Ogre::Quaternion::IDENTITY, 1.0f);
         }
+        else if (PlaceType==otNPC)
+        {
+          temp =
+          InjectionManager::getSingleton().addNPCReference(std::string(lbi->getText().c_str()),
+                     EditorCamera::getSingleton().getPosition() + quat*Ogre::Vector3(0.0f, 0.0f, -100.0f),
+                     Ogre::Quaternion::IDENTITY, 1.0f);
+        }
+        else
+        {
+          showWarning(std::string("Error: No associated object type for \"")
+                     + mcl->getName().c_str()+"\" found!\nPlace type is "+IntToString(PlaceType)+".");
+          return true;
+        }
+
         temp->enable(mSceneMgr);
       }
       else
@@ -1307,7 +1348,7 @@ bool EditorApplication::RootMouseMove(const CEGUI::EventArgs &e)
             }//if record returned
           }//if object has Landscape name
         }//if movable object
-        rsq_iter++;
+        ++rsq_iter;
       }//while
     }
     else
@@ -1644,7 +1685,7 @@ DuskObject* EditorApplication::GetObjectAtMouse(const CEGUI::Point& pt)
        {
          std::cout << "DEBUG: RSQ result: entity is not a movable.\n";
        }
-       rsq_iter++;
+       ++rsq_iter;
      }//while
   }
   else

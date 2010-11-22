@@ -28,6 +28,8 @@
 
  History:
      - 2010-04-30 (rev 193)  - initial version (by thoronador)
+     - 2010-08-31 (rev 239)  - naming convention enforced
+     - 2010-11-22 (rev 259)  - item references are now handled, too
 
  ToDo list:
      - ???
