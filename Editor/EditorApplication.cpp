@@ -1230,7 +1230,7 @@ bool EditorApplication::RootMouseMove(const CEGUI::EventArgs &e)
           temp.x = cRotationFactor * mouse_ea.moveDelta.d_y;
           temp.y = cRotationFactor * mouse_ea.moveDelta.d_x;
         }
-        mouse_object->setRotation(mouse_object->getRotation() + temp);
+        mouse_object->setRotation(TripleToQuaternion(QuaternionToTriple(mouse_object->getRotation()) + temp));
         return true;
       }//if
       else
@@ -1528,7 +1528,7 @@ void EditorApplication::showObjectReferenceEditWindow(const CEGUI::Point& pt)
   winmgr.getWindow("Editor/ObjectReference/PosXSpin")->setText(FloatToString(vec.x));
   winmgr.getWindow("Editor/ObjectReference/PosYSpin")->setText(FloatToString(vec.y));
   winmgr.getWindow("Editor/ObjectReference/PosZSpin")->setText(FloatToString(vec.z));
-  vec = target->getRotation();
+  vec = QuaternionToTriple(target->getRotation());
   winmgr.getWindow("Editor/ObjectReference/RotXSpin")->setText(FloatToString(vec.x));
   winmgr.getWindow("Editor/ObjectReference/RotYSpin")->setText(FloatToString(vec.y));
   winmgr.getWindow("Editor/ObjectReference/RotZSpin")->setText(FloatToString(vec.z));
@@ -1583,7 +1583,7 @@ bool EditorApplication::ObjectReferenceEditSaveClicked(const CEGUI::EventArgs &e
     rot.z = spin->getCurrentValue();
     //set the new values
     edit_object->setPosition(pos);
-    edit_object->setRotation(rot);
+    edit_object->setRotation(TripleToQuaternion(rot));
     if (edit_object->isEnabled())
     {
       edit_object->disable();

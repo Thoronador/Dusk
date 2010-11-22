@@ -20,6 +20,7 @@
 
 #include "EditorApplicationBase.h"
 #include <CEGUI/CEGUI.h>
+#include <OgreMatrix3.h>
 
 namespace Dusk
 {
@@ -154,6 +155,29 @@ bool HintFrameOKClicked(const CEGUI::EventArgs &e)
     winmgr.destroyWindow("Editor/HintFrame");
   }
   return true;
+}
+
+Ogre::Quaternion TripleToQuaternion(const float x, const float y, const float z)
+{
+  return Ogre::Quaternion(Ogre::Degree(x), Ogre::Vector3::UNIT_X)
+         *Ogre::Quaternion(Ogre::Degree(y), Ogre::Vector3::UNIT_Y)
+         *Ogre::Quaternion(Ogre::Degree(z), Ogre::Vector3::UNIT_Z);
+}
+
+Ogre::Quaternion TripleToQuaternion(const Ogre::Vector3& vec)
+{
+  return Ogre::Quaternion(Ogre::Degree(vec.x), Ogre::Vector3::UNIT_X)
+         *Ogre::Quaternion(Ogre::Degree(vec.y), Ogre::Vector3::UNIT_Y)
+         *Ogre::Quaternion(Ogre::Degree(vec.z), Ogre::Vector3::UNIT_Z);
+}
+
+Ogre::Vector3 QuaternionToTriple(const Ogre::Quaternion& quat)
+{
+  Ogre::Matrix3 mat;
+  quat.ToRotationMatrix(mat);
+  Ogre::Radian x,y,z;
+  mat.ToEulerAnglesXYZ(x,y,z);
+  return Ogre::Vector3(x.valueDegrees(),y.valueDegrees(),z.valueDegrees());
 }
 
 } //namespace

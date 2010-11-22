@@ -41,6 +41,8 @@
 
 #include <string>
 #include <CEGUI/CEGUIEventArgs.h>
+#include <OgreQuaternion.h>
+#include <OgreVector3.h>
 
 namespace Dusk
 {
@@ -51,6 +53,11 @@ namespace Dusk
     //callbacks for OK buttons
     bool WarningFrameOKClicked(const CEGUI::EventArgs &e);
 	bool HintFrameOKClicked(const CEGUI::EventArgs &e);
+	//utility functions to convert angle-axis-rotations to quaternions
+	Ogre::Quaternion TripleToQuaternion(const float x, const float y, const float z);
+	Ogre::Quaternion TripleToQuaternion(const Ogre::Vector3& vec);
+	//... and vice versa
+	Ogre::Vector3 QuaternionToTriple(const Ogre::Quaternion& quat);
 
 } //namespace
 

@@ -178,7 +178,7 @@ description:
 
 
 /*
-This Header defines the CommandQuuestLog class.
+This Header defines the CommandQuestLog class.
 
 description:
     It is used to switch visibility of the QuestLog.
@@ -371,10 +371,10 @@ status:
 
 
 /*
-This Header defines the AnimationData Singleton class
+This Header defines the InjectionManager Singleton class
 
 description:
-    The class holds/manages all animated object in the game and
+    The class holds/manages all animated objects in the game and
     makes sure they all get their animations played properly by
     injecting the animation time each frame.
 status:
@@ -722,7 +722,7 @@ status:
 
 
 /*
-This Header defines the TriggerManager Singletin class.
+This Header defines the TriggerManager Singleton class.
 
 description:
     The TriggerManager holds all triggers in the game.
