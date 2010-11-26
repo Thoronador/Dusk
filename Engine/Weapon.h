@@ -31,6 +31,7 @@
                               (inherited method is used instead)
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-11-20 (rev 255) - rotation is now stored as Quaternion
+     - 2010-11-26 (rev 260) - canCollide() added (always returns true)
 
  ToDo list:
      - add possibility to actually attack and inflict damage with a weapon
@@ -62,6 +63,14 @@ class Weapon: public Item
 
     /* retrieves the object type as an enumeration value, which is useful for derived classes.*/
     virtual ObjectTypes getDuskType() const;
+
+    /* returns true, if the object shall be considered during collision
+       detection
+
+       remarks:
+           Will always return true for weapons.
+    */
+    virtual bool canCollide() const;
 
     /* returns true, if the player (or another NPC) can pick up the weapon */
     virtual bool canPickUp() const;

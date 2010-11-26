@@ -28,8 +28,17 @@
 
  History:
      - 2010-04-30 (rev 194)  - initial version (by thoronador)
+     - 2010-08-18 (rev 230)  - minor adjustment due to renaming of ObjectData
+                               to ObjectManager
+     - 2010-08-31 (rev 239)  - naming conventions (engine) enforced
+     - 2010-11-26 (rev 260)  - "compatibility update" for collision flag
+                               (setting that flag still needs to be implemented)
 
  ToDo list:
+     - allow user to set collision flag for static objects via Editor.
+       Currently, we only use true in every case.
+       Check for occurences of ObjectBase::getSingleton().addObject() when you
+       are trying to implement that.
      - ???
 
  Bugs:

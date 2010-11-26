@@ -165,6 +165,13 @@ ObjectTypes AnimatedObject::getDuskType() const
   return otAnimated;
 }
 
+bool AnimatedObject::canCollide() const
+{
+  //TODO: adjust in future, if static and animated objects don't use the same
+  // data source.
+  return ObjectBase::getSingleton().getObjectCollision(ID);
+}
+
 bool AnimatedObject::isHitByRay(const Ogre::Ray& ray, Ogre::Vector3& impact) const
 {
   /* Basically, this function has the same code that DuskObject::isHitByRay()

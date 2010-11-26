@@ -77,13 +77,13 @@ void EditorApplicationObject::RefreshObjectList(void)
   mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/Catalogue/Tab/Object/List"));
   mcl->resetList();
 
-  std::map<std::string, std::string>::const_iterator first;
-  std::map<std::string, std::string>::const_iterator end;
+  std::map<std::string, ObjectRecord>::const_iterator first;
+  std::map<std::string, ObjectRecord>::const_iterator end;
   first = ObjectBase::getSingleton().getFirst();
   end = ObjectBase::getSingleton().getEnd();
   while (first != end)
   {
-    addObjectRecordToCatalogue(first->first, first->second);
+    addObjectRecordToCatalogue(first->first, first->second.Mesh);
     ++first;
   }//while
   return;
@@ -412,7 +412,9 @@ bool EditorApplicationObject::ObjectConfirmIDChangeRenameClicked(const CEGUI::Ev
     }//if
 
     //"rename", i.e. create object with new ID and delete object with old ID
-    ObjectBase::getSingleton().addObject(ObjectID, ObjectMesh);
+    ObjectBase::getSingleton().addObject(ObjectID, ObjectMesh, true);
+    /*not implemented yet/ to do: third parameter (here: true) in above line
+      should be a real value, either from checkbox or previous object.*/
     ObjectBase::getSingleton().deleteObject(ID_of_object_to_edit);
     //update all objects
     ObjectManager::getSingleton().updateReferencesAfterIDChange( ID_of_object_to_edit, ObjectID, getAPI().getOgreSceneManager()/*mSceneMgr*/);
@@ -454,7 +456,9 @@ bool EditorApplicationObject::ObjectConfirmIDChangeNewClicked(const CEGUI::Event
     //add new row to catalogue
     addObjectRecordToCatalogue(ObjectID, ObjectMesh);
     //add new object to database (ObjectBase)
-    ObjectBase::getSingleton().addObject(ObjectID, ObjectMesh);
+    ObjectBase::getSingleton().addObject(ObjectID, ObjectMesh, true);
+    /*not implemented yet/ to do: third parameter (here: true) in above line
+      should be a real value, either from checkbox or previous object.*/
     //close edit window
     winmgr.destroyWindow("Editor/ObjectEditFrame");
     ID_of_object_to_edit = "";
@@ -577,7 +581,10 @@ bool EditorApplicationObject::ObjectNewFrameOKClicked(const CEGUI::EventArgs &e)
     }
 
     //finally add it to ObjectBase
-    ObjectBase::getSingleton().addObject(std::string(id_edit->getText().c_str()), std::string(mesh_edit->getText().c_str()));
+    ObjectBase::getSingleton().addObject(std::string(id_edit->getText().c_str()), std::string(mesh_edit->getText().c_str()),
+                   true);
+    /*not implemented yet/ to do: third parameter (here: true) in above line
+      should be a real value, either from checkbox or previous object.*/
     //update catalogue
     addObjectRecordToCatalogue(std::string(id_edit->getText().c_str()), std::string(mesh_edit->getText().c_str()));
     //destroy window
@@ -636,7 +643,10 @@ bool EditorApplicationObject::ObjectEditFrameSaveClicked(const CEGUI::EventArgs 
 
   //save it
   ObjectBase::getSingleton().addObject(std::string(id_edit->getText().c_str()),
-                                     std::string(mesh_edit->getText().c_str()));
+                                     std::string(mesh_edit->getText().c_str()),
+                                     true);
+  /*not implemented yet/ to do: third parameter (here: true) in above line
+      should be a real value, either from checkbox or previous object.*/
   //update list
   RefreshObjectList();
   //update shown objects

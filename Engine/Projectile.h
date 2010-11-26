@@ -36,6 +36,7 @@
      - 2010-11-13 (rev 254) - update due to renaming of some functions in
                               Landscape class
      - 2010-11-20 (rev 255) - rotation is now stored as Quaternion
+     - 2010-11-26 (rev 260) - canCollide() added (always returns true)
 
  ToDo list:
      - Improve collision detection for projectile. Currently only collisions
@@ -68,6 +69,14 @@ class Projectile: public UniformMotionObject
 
     /* retrieves the object type as an enumeration value, which is useful for derived classes.*/
     virtual ObjectTypes getDuskType() const;
+
+    /* returns true, if the object shall be considered during collision
+       detection
+
+       remarks:
+           Will always return true for projectiles.
+    */
+    virtual bool canCollide() const;
 
     /* Sets the time to live (TTL), i.e. the amount of seconds before the
        projectile will be destroyed automatically

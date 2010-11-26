@@ -62,6 +62,7 @@
      - 2010-11-13 (rev 254) - update due to renaming of some functions in
                               Landscape class
      - 2010-11-20 (rev 255) - rotation is now stored as Quaternion
+     - 2010-11-26 (rev 260) - canCollide() added (always returns true for now)
 
  ToDo list:
      - add possibility to equip weapons, clothes, armour, etc.
@@ -106,6 +107,14 @@ namespace Dusk
 
       /* returns the enumeration type indicating that this is an NPC */
       virtual ObjectTypes getDuskType() const;
+
+      /* returns true, if the object shall be considered during collision
+         detection
+
+         remarks:
+             Will always return true for NPCs.
+      */
+      virtual bool canCollide() const;
 
       /* checks if a static object is hit by a ray. If the ray hits the
            object, the function will return true and impact will be set to the

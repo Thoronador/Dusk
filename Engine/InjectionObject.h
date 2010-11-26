@@ -29,6 +29,7 @@
      - 2010-05-20 (rev 205) - initial version (by thoronador)
      - 2010-07-31 (rev 220) - GetObjectMesh() added (pure virtual here)
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
+     - 2010-11-26 (rev 260) - canCollide() added (abstract)
 
  ToDo list:
      - ???
@@ -60,6 +61,11 @@ class InjectionObject: virtual public DuskObject
        functions.*/
     /* retrieves the object type as an enumeration value, which is useful for derived classes.*/
     virtual ObjectTypes getDuskType() const = 0;
+
+    /* returns true, if the object shall be considered during collision
+       detection.
+    */
+    virtual bool canCollide() const = 0;
 
     virtual bool saveToStream(std::ofstream& OutStream) const = 0;
 

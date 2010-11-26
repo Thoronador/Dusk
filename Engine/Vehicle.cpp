@@ -53,6 +53,11 @@ ObjectTypes Vehicle::getDuskType() const
   return otVehicle;
 }
 
+bool Vehicle::canCollide() const
+{
+  return true;
+}
+
 void Vehicle::injectTime(const float SecondsPassed)
 {
   //animate vehicle

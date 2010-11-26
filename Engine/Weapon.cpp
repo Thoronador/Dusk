@@ -52,6 +52,11 @@ ObjectTypes Weapon::getDuskType() const
   return otWeapon;
 }
 
+bool Weapon::canCollide() const
+{
+  return true;
+}
+
 bool Weapon::canPickUp() const
 {
   //we don't want to pick up equipped weapons

@@ -83,6 +83,11 @@ unsigned int Container::getItemCount(const std::string& ItemID) const
   return m_Contents.getItemCount(ItemID);
 }
 
+bool Container::canCollide() const
+{
+  return true;
+}
+
 std::string Container::getObjectMesh() const
 {
   return ContainerBase::getSingleton().getContainerMesh(ID);

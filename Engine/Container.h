@@ -35,6 +35,7 @@
                             - Enable() removed (uses inherited method instead)
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-11-20 (rev 255) - rotation is now stored as quaternion
+     - 2010-11-26 (rev 260) - canCollide() added (always returns true)
 
  ToDo list:
      - ???
@@ -99,6 +100,14 @@ namespace Dusk
 
       /* Returns the number of items with ID ItemID within the container */
       unsigned int getItemCount(const std::string& ItemID) const;
+
+      /* returns true, if the object shall be considered during collision
+         detection
+
+         remarks:
+             Will always return true for containers.
+      */
+      virtual bool canCollide() const;
 
       /* returns object type (in this case otContainer) */
       virtual ObjectTypes getDuskType() const;

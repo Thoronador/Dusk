@@ -37,6 +37,7 @@
      - 2010-01-30 (rev 161) - obsolete load/save functions removed
                             - documentation updated
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
+     - 2010-11-26 (rev 260) - value for collision detection added
 
  ToDo list:
      - ???
@@ -55,6 +56,12 @@
 
 namespace Dusk
 {
+  struct ObjectRecord
+  {
+    std::string Mesh;
+    bool collide;
+  };
+
   /* class ObjectBase
            This class' purpose is to hold the IDs of all distinct static objects
            in the game and their corresponding mesh name. "Static objects" in
@@ -91,10 +98,12 @@ namespace Dusk
          nothing will be done.
 
          parameters:
-             ID   - ID of the object
-             Mesh - mesh path for the object
+             ID        - ID of the object
+             Mesh      - mesh path for the object
+             collision - boolean value that indicates whether the object will be
+                         considered for collision detection (true) or not (false)
       */
-      void addObject(const std::string& ID, const std::string& Mesh);
+      void addObject(const std::string& ID, const std::string& Mesh, const bool collision);
 
       /* tries to delete the object with the given ID and returns true if such
          an object was present (before deleting it, that is)
@@ -117,6 +126,11 @@ namespace Dusk
       */
       std::string getMeshName(const std::string& ID, const bool UseMarkerOnError=true) const;
 
+      /* returns whether an object of the given ID is considered during
+         collision detection or not
+      */
+      bool getObjectCollision(const std::string& ID) const;
+
       /* tries to save all objects to the stream and returns true on success
 
          parameters:
@@ -134,15 +148,16 @@ namespace Dusk
       /* helper functions to access internal map iterators - not used in-game,
          only used by Editor application.
       */
-      std::map<std::string, std::string>::const_iterator getFirst() const;
-      std::map<std::string, std::string>::const_iterator getEnd() const;
+      std::map<std::string, ObjectRecord>::const_iterator getFirst() const;
+      std::map<std::string, ObjectRecord>::const_iterator getEnd() const;
     private:
       /*  constuctor */
       ObjectBase();
 
       /* empty copy constructor - singleton pattern */
       ObjectBase(const ObjectBase& op){}
-      std::map<std::string, std::string> m_ObjectList;
+
+      std::map<std::string, ObjectRecord> m_ObjectList;
   };//class
 
 }//namespace

@@ -64,8 +64,11 @@
      - 2010-08-15 (rev 224) - isHitByRay() added
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-11-20 (rev 255) - rotation is now stored as quaternion
+     - 2010-11-26 (rev 260) - canCollide() added
 
  ToDo list:
+     - review implementation of canCollide() at a later stage of development
+       when there actually are pure animated objects
      - ???
 
  Bugs:
@@ -120,6 +123,16 @@ namespace Dusk
 
         /* returns the object type as enumeration */
         virtual ObjectTypes getDuskType() const;
+
+        /* returns true, if the object shall be considered during collision
+           detection
+
+           remarks:
+               Currently this function uses the data from ObjectBase. However,
+               animated objects might have their own data source in the future,
+               so we need to adjust the function implementation in that case..
+        */
+        virtual bool canCollide() const;
 
         /* checks if a static object is hit by a ray. If the ray hits the
            object, the function will return true and impact will be set to the

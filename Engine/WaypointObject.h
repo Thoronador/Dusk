@@ -31,6 +31,7 @@
                             - Enable() removed (inherited method is used instead)
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-11-20 (rev 255) - rotation is now stored as Quaternion
+     - 2010-11-26 (rev 260) - canCollide() added (always returns true)
 
  ToDo list:
      - implement possibility to make object "look" into the direction it is
@@ -105,6 +106,14 @@ class WaypointObject: public UniformMotionObject
 
     /* returns object's type as enumeration */
     virtual ObjectTypes getDuskType() const;
+
+    /* returns true, if the object shall be considered during collision
+       detection
+
+       remarks:
+           Will always return true for waypoint objects.
+    */
+    virtual bool canCollide() const;
 
     /* function to inject time for movement and perform movement
 

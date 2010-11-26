@@ -74,6 +74,9 @@
      - 2010-09-22 (rev 243) - enumeration value for Vehicle added
      - 2010-09-27 (rev 245) - minor optimization
      - 2010-11-20 (rev 255) - rotation is now stored as quaternion
+     - 2010-11-26 (rev 260) - canCollide() added to determine, whether object is
+                              considered for collision during collision
+                              detections
 
  ToDo list:
      - ???
@@ -202,6 +205,11 @@ class DuskObject: public Ogre::UserDefinedObject
                classes derived from DuskObject.
         */
         virtual bool canPickUp() const;
+
+        /* returns true, if the object shall be considered during collision
+           detection
+        */
+        virtual bool canCollide() const;
 
         /* checks if a static object is hit by a ray. If the ray hits the
            object, the function will return true and impact will be set to the

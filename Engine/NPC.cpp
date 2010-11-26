@@ -106,6 +106,11 @@ ObjectTypes NPC::getDuskType() const
   return otNPC;
 }
 
+bool NPC::canCollide() const
+{
+  return true;
+}
+
 bool NPC::isHitByRay(const Ogre::Ray& ray, Ogre::Vector3& impact) const
 {
   //just make sure we use the right one here

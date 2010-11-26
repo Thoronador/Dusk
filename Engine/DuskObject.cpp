@@ -242,6 +242,11 @@ bool DuskObject::canPickUp() const
   return false;
 }
 
+bool DuskObject::canCollide() const
+{
+  return ObjectBase::getSingleton().getObjectCollision(ID);
+}
+
 bool DuskObject::isHitByRay(const Ogre::Ray& ray, Ogre::Vector3& impact) const
 {
   //if object is not enabled, it can not be hit by a ray

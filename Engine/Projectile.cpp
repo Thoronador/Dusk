@@ -63,6 +63,11 @@ ObjectTypes Projectile::getDuskType() const
   return otProjectile;
 }
 
+bool Projectile::canCollide() const
+{
+  return true;
+}
+
 void Projectile::setTTL(const float newTTL)
 {
   m_TTL = newTTL;

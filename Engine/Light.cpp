@@ -110,6 +110,11 @@ ObjectTypes Light::getDuskType() const
   return otLight;
 }
 
+bool Light::canCollide() const
+{
+  return false;
+}
+
 void Light::setDirection(const Ogre::Vector3& dir)
 {
   if (entity != NULL)

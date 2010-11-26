@@ -129,6 +129,11 @@ ObjectTypes WaypointObject::getDuskType() const
   return otWaypoint;
 }
 
+bool WaypointObject::canCollide() const
+{
+  return true;
+}
+
 void WaypointObject::injectTime(const float SecondsPassed)
 {
   if (SecondsPassed<=0.0f)

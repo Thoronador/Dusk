@@ -27,7 +27,7 @@ namespace Dusk
 
 ObjectBase::ObjectBase()
 {
-  m_ObjectList = std::map<std::string,std::string>();
+  m_ObjectList = std::map<std::string, ObjectRecord>();
 }
 
 ObjectBase::~ObjectBase()
@@ -46,19 +46,22 @@ bool ObjectBase::hasObject(const std::string& IDOfObject) const
   return (m_ObjectList.find(IDOfObject) != m_ObjectList.end());
 }
 
-void ObjectBase::addObject(const std::string& ID, const std::string& Mesh)
+void ObjectBase::addObject(const std::string& ID, const std::string& Mesh, const bool collision)
 {
   if (ID=="" or Mesh=="")
   {
     std::cout << "ObjectBase::addObject: ERROR: ID or Mesh is empty string.\n";
     return;
   }
-  m_ObjectList[ID] = Mesh;
+  ObjectRecord temp;
+  temp.Mesh = Mesh;
+  temp.collide = collision;
+  m_ObjectList[ID] = temp;
 }
 
 bool ObjectBase::deleteObject(const std::string& ID_of_Object)
 {
-  std::map<std::string, std::string>::iterator iter;
+  std::map<std::string, ObjectRecord>::iterator iter;
   iter = m_ObjectList.find(ID_of_Object);
   if (iter==m_ObjectList.end())
   {
@@ -80,10 +83,10 @@ unsigned int ObjectBase::numberOfObjects() const
 
 std::string ObjectBase::getMeshName(const std::string& ID, const bool UseMarkerOnError) const
 {
-  std::map<std::string, std::string>::const_iterator iter = m_ObjectList.find(ID);
+  std::map<std::string, ObjectRecord>::const_iterator iter = m_ObjectList.find(ID);
   if (iter!=m_ObjectList.end())
   {
-    return iter->second;
+    return iter->second.Mesh;
   }
   //if we get to this point, object is not present in list
   if (UseMarkerOnError)
@@ -93,21 +96,38 @@ std::string ObjectBase::getMeshName(const std::string& ID, const bool UseMarkerO
   return "";
 }
 
+bool ObjectBase::getObjectCollision(const std::string& ID) const
+{
+  const std::map<std::string, ObjectRecord>::const_iterator iter = m_ObjectList.find(ID);
+  if (iter!=m_ObjectList.end())
+  {
+    return iter->second.collide;
+  }
+  //nothing found here, so throw?
+  throw 42;
+  return true;
+}
+
 bool ObjectBase::saveToStream(std::ofstream& Stream) const
 {
-  std::map<std::string, std::string>::const_iterator iter;
+  std::map<std::string, ObjectRecord>::const_iterator iter;
   unsigned int len;
 
   for (iter = m_ObjectList.begin(); iter != m_ObjectList.end(); iter++)
   {
     //write header "ObjS"
     Stream.write((char*) &cHeaderObjS, sizeof(unsigned int)); //Object, Static
+    //write ID
     len = iter->first.length();
     Stream.write((char*) &len, sizeof(unsigned int));
     Stream.write(iter->first.c_str(), len);
-    len = iter->second.length();
+    //write mesh
+    len = iter->second.Mesh.length();
     Stream.write((char*) &len, sizeof(unsigned int));
-    Stream.write(iter->second.c_str(), len);
+    Stream.write(iter->second.Mesh.c_str(), len);
+    //write collision flag
+    Stream.write((char*) &(iter->second.collide), sizeof(bool));
+    //check
     if (!Stream.good())
     {
       std::cout << "ObjectBase::SaveToStream: Error while writing data to stream.\n";
@@ -155,25 +175,28 @@ bool ObjectBase::loadFromStream(std::ifstream& Stream)
               << "longer than 255 characters.\n";
     return false;
   }
-  //read ID
+  //read mesh
   Stream.read(Mesh_Buffer, len);
   Mesh_Buffer[len] = '\0'; //add terminating null character
+  //read collision flag
+  bool collision_flag = true;
+  Stream.read((char*) &collision_flag, sizeof(bool));
   if (!(Stream.good()))
   {
     std::cout << "ObjectBase::LoadFromStream: ERROR while reading data.\n";
     return false;
   }
   //now add it to the data
-  addObject(std::string(ID_Buffer), std::string(Mesh_Buffer));
+  addObject(std::string(ID_Buffer), std::string(Mesh_Buffer), collision_flag);
   return true;
 }
 
-std::map<std::string, std::string>::const_iterator ObjectBase::getFirst() const
+std::map<std::string, ObjectRecord>::const_iterator ObjectBase::getFirst() const
 {
   return m_ObjectList.begin();
 }
 
-std::map<std::string, std::string>::const_iterator ObjectBase::getEnd() const
+std::map<std::string, ObjectRecord>::const_iterator ObjectBase::getEnd() const
 {
   return m_ObjectList.end();
 }

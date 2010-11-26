@@ -114,6 +114,11 @@ ObjectTypes Item::getDuskType() const
   return otItem;
 }
 
+bool Item::canCollide() const
+{
+  return true;
+}
+
 bool Item::canPickUp() const
 {
   return !m_Equipped;

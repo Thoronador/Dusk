@@ -33,6 +33,7 @@
      - 2010-10-17 (rev 246) - error in calculation of position of passengers
                               fixed
      - 2010-11-20 (rev 255) - rotation is now stored as Quaternion
+     - 2010-11-26 (rev 260) - canCollide() added (always returns true)
 
  ToDo list:
      - position and orientation of passengers has to be adjusted during
@@ -70,6 +71,14 @@ class Vehicle: public AnimatedObject, public WaypointObject
 
     /* returns the enumeration type indicating that this is a vehicle */
     virtual ObjectTypes getDuskType() const;
+
+    /* returns true, if the object shall be considered during collision
+       detection
+
+       remarks:
+           Will always return true for vehicles.
+    */
+    virtual bool canCollide() const;
 
     /* animate and move the vehicle according to the passed time
 
