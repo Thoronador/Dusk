@@ -33,12 +33,11 @@
      - 2010-08-31 (rev 239)  - naming conventions (engine) enforced
      - 2010-11-26 (rev 260)  - "compatibility update" for collision flag
                                (setting that flag still needs to be implemented)
+     - 2010-11-27 (rev 261)  - closeEditWindowsObject() added
+                             - collision flag of objects can now be set and is
+                               displayed in catalogue, too
 
  ToDo list:
-     - allow user to set collision flag for static objects via Editor.
-       Currently, we only use true in every case.
-       Check for occurences of ObjectBase::getSingleton().addObject() when you
-       are trying to implement that.
      - ???
 
  Bugs:
@@ -73,6 +72,12 @@ class EditorApplicationObject
 	bool ObjectEditClicked(const CEGUI::EventArgs &e);
 	bool ObjectDeleteClicked(const CEGUI::EventArgs &e);
 
+
+    /* destroys all windows that might currently be open, because they were
+       created by this class
+    */
+    void closeEditWindowsObject(void);
+
     /* clears object list in catalogue and redisplays every present object */
     void RefreshObjectList(void);
 
@@ -84,7 +89,7 @@ class EditorApplicationObject
 
 	//methods to visually add Items or Objects to catalogue
     //  (real data is not effected, methods only show new row in catalogue)
-	void addObjectRecordToCatalogue(const std::string& ID, const std::string& Mesh);
+	void addObjectRecordToCatalogue(const std::string& ID, const std::string& Mesh, const bool collision);
 
 	//callbacks of window for creating new objects
 	bool ObjectNewFrameCancelClicked(const CEGUI::EventArgs &e);

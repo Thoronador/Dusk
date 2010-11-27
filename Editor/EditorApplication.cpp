@@ -31,6 +31,7 @@
 #include "../Engine/ItemBase.h"
 #include "../Engine/Weather.h"
 #include "../Engine/InjectionManager.h"
+#include <OgreConfigFile.h>
 #include <OgreVector3.h>
 
 namespace Dusk
@@ -464,15 +465,16 @@ void EditorApplication::CreateCEGUICatalogue(void)
   mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.createWindow("TaharezLook/MultiColumnList", "Editor/Catalogue/Tab/Object/List"));
   mcl->setSize(CEGUI::UVector2(CEGUI::UDim(0.9, 0), CEGUI::UDim(0.9, 0)));
   mcl->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.05, 0)));
-  mcl->addColumn("ID", 0, CEGUI::UDim(0.48, 0));
-  mcl->addColumn("Mesh", 1, CEGUI::UDim(0.48, 0));
+  mcl->addColumn("ID", 0, CEGUI::UDim(0.38, 0));
+  mcl->addColumn("Mesh", 1, CEGUI::UDim(0.38, 0));
+  mcl->addColumn("Collision", 2, CEGUI::UDim(0.2, 0));
   mcl->setUserColumnDraggingEnabled(false);
   pane->addChildWindow(mcl);
   mcl->subscribeEvent(CEGUI::Window::EventMouseButtonUp, CEGUI::Event::Subscriber(&EditorApplication::ObjectTabClicked, this));
 
   //add some random data
-  addObjectRecordToCatalogue("The_ID", "flora/Oak.mesh");
-  addObjectRecordToCatalogue("static_seat", "YetAnother.mesh");
+  addObjectRecordToCatalogue("The_ID", "flora/Oak.mesh", false);
+  addObjectRecordToCatalogue("static_seat", "YetAnother.mesh", true);
 
   //Item tab
   pane = winmgr.createWindow("TaharezLook/TabContentPane", "Editor/Catalogue/Tab/Item");
@@ -941,11 +943,6 @@ void EditorApplication::closeAllEditWindows(void)
   {
     winmgr.destroyWindow("Editor/ItemNewFrame");
   }
-  //frame window for new objects
-  if (winmgr.isWindowPresent("Editor/ObjectNewFrame"))
-  {
-    winmgr.destroyWindow("Editor/ObjectNewFrame");
-  }
   //frame window for editing lights
   if (winmgr.isWindowPresent("Editor/LightEditFrame"))
   {
@@ -956,11 +953,6 @@ void EditorApplication::closeAllEditWindows(void)
   {
     winmgr.destroyWindow("Editor/ItemEditFrame");
   }
-  //frame window for editing objects
-  if (winmgr.isWindowPresent("Editor/ObjectEditFrame"))
-  {
-    winmgr.destroyWindow("Editor/ObjectEditFrame");
-  }
   //frame for deleting items
   if (winmgr.isWindowPresent("Editor/ItemDeleteFrame"))
   {
@@ -970,16 +962,6 @@ void EditorApplication::closeAllEditWindows(void)
   if (winmgr.isWindowPresent("Editor/LightDeleteFrame"))
   {
     winmgr.destroyWindow("Editor/LightDeleteFrame");
-  }
-  //frame for deleting objects
-  if (winmgr.isWindowPresent("Editor/ObjectDeleteFrame"))
-  {
-    winmgr.destroyWindow("Editor/ObjectDeleteFrame");
-  }
-  //frame to change ID of objects
-  if (winmgr.isWindowPresent("Editor/ConfirmObjectIDChangeFrame"))
-  {
-    winmgr.destroyWindow("Editor/ConfirmObjectIDChangeFrame");
   }
   //frame to change ID of items
   if (winmgr.isWindowPresent("Editor/ConfirmItemIDChangeFrame"))
@@ -1022,7 +1004,9 @@ void EditorApplication::closeAllEditWindows(void)
     winmgr.destroyWindow("Editor/QuestRenameFrame");
     ID_of_quest_to_rename = "";
   }
-  //frame for NPCs
+  //frames for Objects
+  closeEditWindowsObject();
+  //frames for NPCs
   closeEditWindowsNPC();
 }
 
@@ -1417,6 +1401,18 @@ void EditorApplication::showObjectReferenceEditWindow(const CEGUI::Point& pt)
            frame->setText("Container"); break;
       case otItem:
            frame->setText("Item"); break;
+      case otWeapon:
+           frame->setText("Weapon"); break;
+      case otProjectile:
+           frame->setText("Projectile"); break;
+      case otAnimated:
+           frame->setText("Animated Object"); break;
+      case otNPC:
+           frame->setText("NPC"); break;
+      case otWaypoint:
+           frame->setText("WaypointObject"); break;
+      case otVehicle:
+           frame->setText("Vehicle"); break;
       default:
            frame->setText("Object (undefined type)"); break;
     }//swi

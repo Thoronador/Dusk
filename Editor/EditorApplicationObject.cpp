@@ -65,6 +65,34 @@ void EditorApplicationObject::CreatePopupMenuObjectTab(void)
   popup->closePopupMenu();
 }
 
+void EditorApplicationObject::closeEditWindowsObject(void)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  //frame window for new objects
+  if (winmgr.isWindowPresent("Editor/ObjectNewFrame"))
+  {
+    winmgr.destroyWindow("Editor/ObjectNewFrame");
+  }
+  //frame window for editing objects
+  if (winmgr.isWindowPresent("Editor/ObjectEditFrame"))
+  {
+    winmgr.destroyWindow("Editor/ObjectEditFrame");
+  }
+  //frame for deleting objects
+  if (winmgr.isWindowPresent("Editor/ObjectDeleteFrame"))
+  {
+    winmgr.destroyWindow("Editor/ObjectDeleteFrame");
+  }
+  //frame to change ID of objects
+  if (winmgr.isWindowPresent("Editor/ConfirmObjectIDChangeFrame"))
+  {
+    winmgr.destroyWindow("Editor/ConfirmObjectIDChangeFrame");
+  }
+  //reset IDs for windows
+  ID_of_object_to_delete = "";
+  ID_of_object_to_edit = "";
+}
+
 void EditorApplicationObject::RefreshObjectList(void)
 {
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
@@ -78,12 +106,11 @@ void EditorApplicationObject::RefreshObjectList(void)
   mcl->resetList();
 
   std::map<std::string, ObjectRecord>::const_iterator first;
-  std::map<std::string, ObjectRecord>::const_iterator end;
   first = ObjectBase::getSingleton().getFirst();
-  end = ObjectBase::getSingleton().getEnd();
+  const std::map<std::string, ObjectRecord>::const_iterator end = ObjectBase::getSingleton().getEnd();
   while (first != end)
   {
-    addObjectRecordToCatalogue(first->first, first->second.Mesh);
+    addObjectRecordToCatalogue(first->first, first->second.Mesh, first->second.collide);
     ++first;
   }//while
   return;
@@ -120,7 +147,7 @@ void EditorApplicationObject::showObjectNewWindow(void)
     //static text for mesh
     button = winmgr.createWindow("TaharezLook/StaticText", "Editor/ObjectNewFrame/Mesh_Label");
     button->setText("Mesh:");
-    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.5, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.4, 0)));
     button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.1, 0)));
     frame->addChildWindow(button);
 
@@ -134,11 +161,19 @@ void EditorApplicationObject::showObjectNewWindow(void)
     //editbox for mesh path
     button = winmgr.createWindow("TaharezLook/Editbox", "Editor/ObjectNewFrame/Mesh_Edit");
     button->setText("");
-    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.5, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.4, 0)));
     button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.1, 0)));
     frame->addChildWindow(button);
 
-    //buttons at bottom
+    //checkbox for collision flag
+    button = winmgr.createWindow("TaharezLook/Checkbox", "Editor/ObjectNewFrame/CollisionCheck");
+    button->setText("Activate collision detection");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.6, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.9, 0), CEGUI::UDim(0.1, 0)));
+    frame->addChildWindow(button);
+
+    // ---- buttons at bottom ----
+    // OK button
     button = winmgr.createWindow("TaharezLook/Button", "Editor/ObjectNewFrame/OK");
     button->setText("OK");
     button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.8, 0)));
@@ -147,6 +182,7 @@ void EditorApplicationObject::showObjectNewWindow(void)
             CEGUI::Event::Subscriber(&EditorApplicationObject::ObjectNewFrameOKClicked, this));
     frame->addChildWindow(button);
 
+    //cancel button
     button = winmgr.createWindow("TaharezLook/Button", "Editor/ObjectNewFrame/Cancel");
     button->setText("Cancel");
     button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.8, 0)));
@@ -158,6 +194,7 @@ void EditorApplicationObject::showObjectNewWindow(void)
   frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.5, 0), CEGUI::UDim(0.2, 0)));
   frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.4, 0)));
   frame->moveToFront();
+  static_cast<CEGUI::Checkbox*>(winmgr.getWindow("Editor/ObjectNewFrame/CollisionCheck"))->setSelected(true);
 }
 
 void EditorApplicationObject::showObjectEditWindow(void)
@@ -205,7 +242,7 @@ void EditorApplicationObject::showObjectEditWindow(void)
     //static text for mesh
     button = winmgr.createWindow("TaharezLook/StaticText", "Editor/ObjectEditFrame/Mesh_Label");
     button->setText("Mesh:");
-    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.5, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.4, 0)));
     button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.1, 0)));
     frame->addChildWindow(button);
 
@@ -219,8 +256,15 @@ void EditorApplicationObject::showObjectEditWindow(void)
     //editbox for mesh path
     button = winmgr.createWindow("TaharezLook/Editbox", "Editor/ObjectEditFrame/Mesh_Edit");
     button->setText(ObjectBase::getSingleton().getMeshName(ID_of_object_to_edit,false));
-    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.5, 0)));
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.4, 0)));
     button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.1, 0)));
+    frame->addChildWindow(button);
+
+    //checkbox for collision flag
+    button = winmgr.createWindow("TaharezLook/Checkbox", "Editor/ObjectEditFrame/CollisionCheck");
+    button->setText("Activate collision detection");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.6, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.9, 0), CEGUI::UDim(0.1, 0)));
     frame->addChildWindow(button);
 
     //buttons at bottom
@@ -243,6 +287,13 @@ void EditorApplicationObject::showObjectEditWindow(void)
   frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.5, 0), CEGUI::UDim(0.2, 0)));
   frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.4, 0)));
   frame->moveToFront();
+  //set data
+  winmgr.getWindow("Editor/ObjectEditFrame/ID_Edit")->setText(ID_of_object_to_edit);
+  winmgr.getWindow("Editor/ObjectEditFrame/Mesh_Edit")->setText(
+      ObjectBase::getSingleton().getMeshName(ID_of_object_to_edit,false));
+  static_cast<CEGUI::Checkbox*>(winmgr.getWindow(
+      "Editor/ObjectEditFrame/CollisionCheck"))->setSelected(
+          ObjectBase::getSingleton().getObjectCollision(ID_of_object_to_edit));
 }
 
 void EditorApplicationObject::showObjectConfirmDeleteWindow(void)
@@ -333,14 +384,6 @@ void EditorApplicationObject::showObjectEditConfirmIDChangeWindow(void)
                      +ID_of_object_to_edit+"\" to \">insert new ID here<\" or create a new one?");
     frame->addChildWindow(textbox);
 
-    if (winmgr.isWindowPresent("Editor/ObjectEditFrame/ID_Edit"))
-    {
-      textbox->setText("The ID of this object has changed.\nDo you want to rename the object \""
-                   +ID_of_object_to_edit+"\" to \""
-                   +winmgr.getWindow("Editor/ObjectEditFrame/ID_Edit")->getText()
-                   +"\" or create a new one?");
-    }
-
     //buttons: New, Rename, Cancel
     CEGUI::Window* button = winmgr.createWindow("TaharezLook/Button", "Editor/ConfirmObjectIDChangeFrame/New");
     button->setText("New Object");
@@ -369,11 +412,23 @@ void EditorApplicationObject::showObjectEditConfirmIDChangeWindow(void)
   frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.18, 0)));
   frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.4, 0)));
   frame->moveToFront();
+  //adjust text
+  CEGUI::Window* tb = winmgr.getWindow("Editor/ConfirmObjectIDChangeFrame/Text");
+  tb->setText("The ID of this object has changed.\nDo you want to rename the object \""
+             +ID_of_object_to_edit+"\" to \">insert new ID here<\" or create a new one?");
+
+  if (winmgr.isWindowPresent("Editor/ObjectEditFrame/ID_Edit"))
+  {
+    tb->setText("The ID of this object has changed.\nDo you want to rename the object \""
+               +ID_of_object_to_edit+"\" to \""
+               +winmgr.getWindow("Editor/ObjectEditFrame/ID_Edit")->getText()
+               +"\" or create a new one?");
+  }
 }
 
 //for catalogue:
 
-void EditorApplicationObject::addObjectRecordToCatalogue(const std::string& ID, const std::string& Mesh)
+void EditorApplicationObject::addObjectRecordToCatalogue(const std::string& ID, const std::string& Mesh, const bool collision)
 {
   CEGUI::MultiColumnList* mcl = NULL;
   if (!CEGUI::WindowManager::getSingleton().isWindowPresent("Editor/Catalogue/Tab/Object/List"))
@@ -389,6 +444,9 @@ void EditorApplicationObject::addObjectRecordToCatalogue(const std::string& ID, 
   lbi = new CEGUI::ListboxTextItem(Mesh);
   lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
   mcl->setItem(lbi, 1, row);
+  lbi = new CEGUI::ListboxTextItem(BoolToString(collision));
+  lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
+  mcl->setItem(lbi, 2, row);
 }
 
 bool EditorApplicationObject::ObjectConfirmIDChangeRenameClicked(const CEGUI::EventArgs &e)
@@ -402,6 +460,8 @@ bool EditorApplicationObject::ObjectConfirmIDChangeRenameClicked(const CEGUI::Ev
     std::string ObjectID, ObjectMesh;
     ObjectID = std::string(winmgr.getWindow("Editor/ObjectEditFrame/ID_Edit")->getText().c_str());
     ObjectMesh = std::string(winmgr.getWindow("Editor/ObjectEditFrame/Mesh_Edit")->getText().c_str());
+    const bool collision_flag = static_cast<CEGUI::Checkbox*>(winmgr.getWindow(
+        "Editor/ObjectEditFrame/CollisionCheck"))->isSelected();
 
     if (ObjectBase::getSingleton().hasObject(ObjectID))
     {
@@ -412,14 +472,12 @@ bool EditorApplicationObject::ObjectConfirmIDChangeRenameClicked(const CEGUI::Ev
     }//if
 
     //"rename", i.e. create object with new ID and delete object with old ID
-    ObjectBase::getSingleton().addObject(ObjectID, ObjectMesh, true);
-    /*not implemented yet/ to do: third parameter (here: true) in above line
-      should be a real value, either from checkbox or previous object.*/
+    ObjectBase::getSingleton().addObject(ObjectID, ObjectMesh, collision_flag);
     ObjectBase::getSingleton().deleteObject(ID_of_object_to_edit);
     //update all objects
-    ObjectManager::getSingleton().updateReferencesAfterIDChange( ID_of_object_to_edit, ObjectID, getAPI().getOgreSceneManager()/*mSceneMgr*/);
+    ObjectManager::getSingleton().updateReferencesAfterIDChange(ID_of_object_to_edit, ObjectID, getAPI().getOgreSceneManager()/*mSceneMgr*/);
     //add row for new object to catalogue
-    addObjectRecordToCatalogue(ObjectID, ObjectMesh);
+    addObjectRecordToCatalogue(ObjectID, ObjectMesh, collision_flag);
     //remove row of old ID
     CEGUI::MultiColumnList * mcl;
     CEGUI::ListboxItem * lb_item = NULL;
@@ -453,12 +511,12 @@ bool EditorApplicationObject::ObjectConfirmIDChangeNewClicked(const CEGUI::Event
                   +" object the same ID.");
       return true;
     }//if
+    const bool collision_flag = static_cast<CEGUI::Checkbox*>(winmgr.getWindow(
+        "Editor/ObjectEditFrame/CollisionCheck"))->isSelected();
     //add new row to catalogue
-    addObjectRecordToCatalogue(ObjectID, ObjectMesh);
+    addObjectRecordToCatalogue(ObjectID, ObjectMesh, collision_flag);
     //add new object to database (ObjectBase)
-    ObjectBase::getSingleton().addObject(ObjectID, ObjectMesh, true);
-    /*not implemented yet/ to do: third parameter (here: true) in above line
-      should be a real value, either from checkbox or previous object.*/
+    ObjectBase::getSingleton().addObject(ObjectID, ObjectMesh, collision_flag);
     //close edit window
     winmgr.destroyWindow("Editor/ObjectEditFrame");
     ID_of_object_to_edit = "";
@@ -559,34 +617,33 @@ bool EditorApplicationObject::ObjectNewFrameOKClicked(const CEGUI::EventArgs &e)
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
   if (winmgr.isWindowPresent("Editor/ObjectNewFrame"))
   {
-    CEGUI::Editbox* id_edit = static_cast<CEGUI::Editbox*> (winmgr.getWindow("Editor/ObjectNewFrame/ID_Edit"));
-    CEGUI::Editbox* mesh_edit = static_cast<CEGUI::Editbox*> (winmgr.getWindow("Editor/ObjectNewFrame/Mesh_Edit"));
+    const std::string id_edit_str = winmgr.getWindow("Editor/ObjectNewFrame/ID_Edit")->getText().c_str();
+    const std::string mesh_edit_str = winmgr.getWindow("Editor/ObjectNewFrame/Mesh_Edit")->getText().c_str();
     //make sure we have some data
-    if (id_edit->getText()=="")
+    if (id_edit_str=="")
     {
       showWarning("You have to enter an ID string to create a new object!");
       return true;
     }
-    if (mesh_edit->getText()=="")
+    if (mesh_edit_str=="")
     {
       showWarning("You have to enter a mesh path to create a new object!");
       return true;
     }
 
     //check for presence of object with same ID
-    if (ObjectBase::getSingleton().hasObject(std::string(id_edit->getText().c_str())))
+    if (ObjectBase::getSingleton().hasObject(id_edit_str))
     {
       showWarning("An Object with the given ID already exists.");
       return true;
     }
-
+    const bool collision_flag = static_cast<CEGUI::Checkbox*>(winmgr.getWindow(
+        "Editor/ObjectNewFrame/CollisionCheck"))->isSelected();
     //finally add it to ObjectBase
-    ObjectBase::getSingleton().addObject(std::string(id_edit->getText().c_str()), std::string(mesh_edit->getText().c_str()),
-                   true);
-    /*not implemented yet/ to do: third parameter (here: true) in above line
-      should be a real value, either from checkbox or previous object.*/
+    ObjectBase::getSingleton().addObject(id_edit_str, mesh_edit_str,
+                                         collision_flag);
     //update catalogue
-    addObjectRecordToCatalogue(std::string(id_edit->getText().c_str()), std::string(mesh_edit->getText().c_str()));
+    addObjectRecordToCatalogue(id_edit_str, mesh_edit_str, collision_flag);
     //destroy window
     winmgr.destroyWindow("Editor/ObjectNewFrame");
   }
@@ -596,9 +653,15 @@ bool EditorApplicationObject::ObjectNewFrameOKClicked(const CEGUI::EventArgs &e)
 bool EditorApplicationObject::ObjectEditFrameCancelClicked(const CEGUI::EventArgs &e)
 {
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  //destroy the edit window
   if (winmgr.isWindowPresent("Editor/ObjectEditFrame"))
   {
     winmgr.destroyWindow("Editor/ObjectEditFrame");
+  }
+  //...and also destroy the window that is used to confirm ID change
+  if (winmgr.isWindowPresent("Editor/ConfirmObjectIDChangeFrame"))
+  {
+    winmgr.destroyWindow("Editor/ConfirmObjectIDChangeFrame");
   }
   return true;
 }
@@ -606,47 +669,46 @@ bool EditorApplicationObject::ObjectEditFrameCancelClicked(const CEGUI::EventArg
 bool EditorApplicationObject::ObjectEditFrameSaveClicked(const CEGUI::EventArgs &e)
 {
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
-  CEGUI::Editbox* id_edit;
-  CEGUI::Editbox* mesh_edit;
 
   if (!winmgr.isWindowPresent("Editor/ObjectEditFrame/ID_Edit") ||
-      !winmgr.isWindowPresent("Editor/ObjectEditFrame/Mesh_Edit"))
+      !winmgr.isWindowPresent("Editor/ObjectEditFrame/Mesh_Edit") ||
+      !winmgr.isWindowPresent("Editor/ObjectEditFrame/CollisionCheck"))
   {
     showWarning("Error: Editbox(es) for ID and/or mesh is/are not registered at window manager!");
     return true;
   }//if
-  id_edit = static_cast<CEGUI::Editbox*> (winmgr.getWindow("Editor/ObjectEditFrame/ID_Edit"));
-  mesh_edit = static_cast<CEGUI::Editbox*> (winmgr.getWindow("Editor/ObjectEditFrame/Mesh_Edit"));
 
-  if (std::string(id_edit->getText().c_str())=="")
+  const std::string id_edit_str = winmgr.getWindow("Editor/ObjectEditFrame/ID_Edit")->getText().c_str();
+  const std::string mesh_edit_str = winmgr.getWindow("Editor/ObjectEditFrame/Mesh_Edit")->getText().c_str();
+
+  if (id_edit_str=="")
   {
     showHint("You have to enter an ID for this object!");
     return true;
   }
-  if (std::string(mesh_edit->getText().c_str())=="")
+  if (mesh_edit_str=="")
   {
     showHint("You have to enter a mesh path for this object!");
     return true;
   }
-  if (std::string(id_edit->getText().c_str())!=ID_of_object_to_edit)
+  if (id_edit_str!=ID_of_object_to_edit)
   {
     //ID was changed
    showObjectEditConfirmIDChangeWindow();
    return true;
   }
+  const bool collision_flag = static_cast<CEGUI::Checkbox*>(winmgr.getWindow(
+      "Editor/ObjectEditFrame/CollisionCheck"))->isSelected();
   //check if mesh has remained the same
-  if (std::string(mesh_edit->getText().c_str())==ObjectBase::getSingleton().getMeshName(ID_of_object_to_edit))
+  if (mesh_edit_str==ObjectBase::getSingleton().getMeshName(ID_of_object_to_edit) and
+     (collision_flag==ObjectBase::getSingleton().getObjectCollision(ID_of_object_to_edit)))
   {
     showHint("You have not changed the data of this object, thus there are no changes to be saved.");
     return true;
   }
 
   //save it
-  ObjectBase::getSingleton().addObject(std::string(id_edit->getText().c_str()),
-                                     std::string(mesh_edit->getText().c_str()),
-                                     true);
-  /*not implemented yet/ to do: third parameter (here: true) in above line
-      should be a real value, either from checkbox or previous object.*/
+  ObjectBase::getSingleton().addObject(id_edit_str, mesh_edit_str, collision_flag);
   //update list
   RefreshObjectList();
   //update shown objects

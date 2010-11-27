@@ -21,8 +21,9 @@
 #ifndef EditorApplication_h
 #define EditorApplication_h
 
-#include <Ogre.h>
-#include <OgreConfigFile.h>
+#include <OgreRenderWindow.h>
+#include <OgreRoot.h>
+#include <OgreSceneManager.h>
 #include "EditorApplicationNPC.h"
 #include "EditorApplicationJournal.h"
 #include "EditorApplicationLight.h"
