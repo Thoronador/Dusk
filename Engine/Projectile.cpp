@@ -100,8 +100,14 @@ void Projectile::injectTime(const float SecondsPassed)
     Ogre::RaySceneQueryResult& result = rsq->execute();
     unsigned int i;
 
+    DuskObject* hit_object = NULL;
+    LandscapeRecord* hit_land = NULL;
+    Ogre::Real hit_squareDistance = -1.0f;
+
     for (i=0; i<result.size(); ++i)
     {
+      //If distance is greater then projectile would travel in this frame,
+      // then quit here.
       if (result.at(i).distance>SecondsPassed*m_Speed) break;
       if (result.at(i).movable!=NULL and result.at(i).movable!=entity)
       {
@@ -109,90 +115,116 @@ void Projectile::injectTime(const float SecondsPassed)
         if (LandscapeRecord::isLandscapeRecordName(result.at(i).movable->getName()))
         {
           Ogre::Vector3 vec_i = ray.getPoint(result.at(i).distance);
-          const LandscapeRecord* land_rec = Landscape::getSingleton().getRecordAtXZ(vec_i.x, vec_i.z);
+          LandscapeRecord* land_rec = Landscape::getSingleton().getRecordAtXZ(vec_i.x, vec_i.z);
           if (land_rec!=NULL)
           {
+            //Is landscape really hit by this ray?
             if (land_rec->isHitByRay(ray, vec_i))
             {
-              if (vec_i.squaredDistance(position)<=Ogre::Math::Sqr(SecondsPassed*m_Speed))
+              //Is it near enough to be hit in this frame?
+              const Ogre::Real sq_dist = vec_i.squaredDistance(position);
+              if (sq_dist<=Ogre::Math::Sqr(SecondsPassed*m_Speed))
               {
-                //projectile will hit the landscape within this frame
-                // --> request deletetion of projectile
-                InjectionManager::getSingleton().requestDeletion(this);
-                return;
+                //Is the distance the shortest so far?
+                if ((sq_dist<hit_squareDistance) or (hit_squareDistance<0.0f))
+                {
+                  hit_squareDistance = sq_dist; //new shortest square distance
+                  hit_land = land_rec; //set land to new nearest landscape record
+                  hit_object = NULL; //set to NULL, because any previously set
+                                     // object is not the nearest any more
+                }//if shortest distance
               }
-            }//If hit by ray
-          }//if
-        }//landscape record
+            }//if hit by ray
+          }//land!=NULL
+        }//if movalbe is landscape record
         else
         { //no landscape, so it must be a DuskObject (or derived type)
           DuskObject* obj = static_cast<DuskObject*>(result.at(i).movable->getUserObject());
-          if (obj!=NULL and obj!=m_Emitter)
+          if (obj!=NULL and obj!=m_Emitter and obj->canCollide())
           {
-            //hit a static object (or item or weapon)?
-            if ((obj->getDuskType()==otStatic or obj->getDuskType()==otAnimated
-                 or obj->getDuskType()==otWaypoint or obj->getDuskType()==otContainer)
-               or ((obj->getDuskType()==otItem or obj->getDuskType()==otWeapon)
-                   and !(static_cast<Item*>(obj))->isEquipped()))
+            Ogre::Vector3 vec_i(0.0, 0.0, 0.0);
+            //Is object really hit by this ray?
+            if (obj->isHitByRay(ray, vec_i))
             {
-              Ogre::Vector3 vec_i(0.0, 0.0, 0.0);
-              if (obj->isHitByRay(ray, vec_i))
+              const Ogre::Real sq_dist = vec_i.squaredDistance(position);
+              //Will it still be hit in this frame?
+              if (sq_dist <= Ogre::Math::Sqr(SecondsPassed*m_Speed))
               {
-                if (vec_i.squaredDistance(position)<=Ogre::Math::Sqr(SecondsPassed*m_Speed))
+                //Is it the shortest distance so far?
+                if ((sq_dist<hit_squareDistance) or (hit_squareDistance<0.0f))
                 {
-                  //projectile will hit the static object within this frame
-                  // --> request projectile deletetion
-                  InjectionManager::getSingleton().requestDeletion(this);
-                  return;
-                }//if distance shot enough
-              }//hit?
-            }//static?
-            else if (obj->getDuskType()==otNPC and obj!=m_Emitter)
-            {
-              Ogre::Vector3 vec_i(0.0, 0.0, 0.0);
-              if (obj->isHitByRay(ray, vec_i))
-              {
-                if (vec_i.squaredDistance(position)<=Ogre::Math::Sqr(SecondsPassed*m_Speed))
-                {
-                  //projectile will hit the NPC within this frame
-                  // --> inflict damage
-                  Dusk::NPC* npc_ptr = dynamic_cast<NPC*> (obj);
-                  const ProjectileRecord pr = ProjectileBase::getSingleton().getProjectileData(this->ID);
-                  switch (pr.dice)
-                  {
-                    case 4:
-                         npc_ptr->inflictDamage(DiceBox::getSingleton().d4(pr.times));
-                         break;
-                    case 6:
-                         npc_ptr->inflictDamage(DiceBox::getSingleton().d6(pr.times));
-                         break;
-                    case 8:
-                         npc_ptr->inflictDamage(DiceBox::getSingleton().d8(pr.times));
-                         break;
-                    case 10:
-                         npc_ptr->inflictDamage(DiceBox::getSingleton().d10(pr.times));
-                         break;
-                    case 20:
-                         npc_ptr->inflictDamage(DiceBox::getSingleton().d20(pr.times));
-                         break;
-                    default:
-                         std::cout << "Projectile::injectTime: ERROR: projectile \""
-                                   << ID << "\" has invalid die number ("<<pr.dice
-                                   <<").\n";
-                         break;
-                  }//switch
-                  // --> request projectile deletetion
-                  InjectionManager::getSingleton().requestDeletion(this);
-                  return;
-                }//if distance shot enough
-              }//hit?
-            }//NPC?
-          }//not NULL and not equal to emitter
-        }//else branch
-      }//if movable != NULL
+                  hit_squareDistance = sq_dist; //set new shortest distance
+                  hit_object = obj; //set new nearest object
+                  hit_land = NULL; //Set landscape record to NULL, because it is
+                                   //not the nearest object on the ray any more.
+                }//if shortest
+              }
+            }//if object is hit by ray
+
+          }//if object not NULL and eligible for collision
+        }//else
+      }//if movable not NULL
     }//for i
+
+    //now delete the scene query
     scm->destroyQuery(rsq);
     rsq = NULL;
+
+    if (hit_land!=NULL)
+    {
+      //Landscape is the nearest object, thus projectile will just vanish.
+      // --> request deletetion of projectile
+      InjectionManager::getSingleton().requestDeletion(this);
+      return;
+    }
+
+    if (hit_object!=NULL)
+    {
+      const ObjectTypes ho_type = hit_object->getDuskType();
+      //hit a static object (or unequipped item or weapon)?
+      if ((ho_type==otStatic or ho_type==otAnimated or ho_type==otWaypoint
+          or ho_type==otContainer)
+          or ((ho_type==otItem or ho_type==otWeapon)
+               and !(static_cast<Item*>(hit_object))->isEquipped()))
+      {
+        //request deletion of object
+        InjectionManager::getSingleton().requestDeletion(this);
+        return;
+      }
+      //Is object an NPC nad not the one who shot the projectile?
+      else if (ho_type==otNPC and hit_object!=m_Emitter)
+      {
+        //projectile will hit the NPC within this frame
+        // --> inflict damage
+        Dusk::NPC* npc_ptr = dynamic_cast<NPC*> (hit_object);
+        const ProjectileRecord pr = ProjectileBase::getSingleton().getProjectileData(this->ID);
+        switch (pr.dice)
+        {
+          case 4:
+               npc_ptr->inflictDamage(DiceBox::getSingleton().d4(pr.times));
+               break;
+          case 6:
+               npc_ptr->inflictDamage(DiceBox::getSingleton().d6(pr.times));
+               break;
+          case 8:
+               npc_ptr->inflictDamage(DiceBox::getSingleton().d8(pr.times));
+               break;
+          case 10:
+               npc_ptr->inflictDamage(DiceBox::getSingleton().d10(pr.times));
+               break;
+          case 20:
+               npc_ptr->inflictDamage(DiceBox::getSingleton().d20(pr.times));
+               break;
+          default:
+               std::cout << "Projectile::injectTime: ERROR: projectile \""<<ID
+                         << "\" has invalid die number ("<<pr.dice<<").\n";
+                         break;
+        }//switch
+        // --> request projectile deletetion
+        InjectionManager::getSingleton().requestDeletion(this);
+        return;
+      }//if object is NPC
+    }//if an object was hit
   }//if moving
 
   //perform movement
