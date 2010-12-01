@@ -63,6 +63,8 @@
                               Landscape class
      - 2010-11-20 (rev 255) - rotation is now stored as Quaternion
      - 2010-11-26 (rev 260) - canCollide() added (always returns true for now)
+     - 2010-12-01 (rev 263) - other objects than landscape are now considered
+                              during movement, too
 
  ToDo list:
      - add possibility to equip weapons, clothes, armour, etc.

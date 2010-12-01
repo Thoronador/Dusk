@@ -33,6 +33,7 @@
 #include "WeaponBase.h"
 #include "ProjectileBase.h"
 #include "QuestLog.h"
+//#include "ObjectBase.h"
 
 namespace Dusk
 {
@@ -52,6 +53,35 @@ Scene& Scene::get()
     static Scene Instance;
     return Instance;
 }
+
+/*void createArcMesh()
+{
+  Ogre::ManualObject man_ob("ArcObject");
+
+  Ogre::Quaternion quat;
+  man_ob.begin("", Ogre::RenderOperation::OT_TRIANGLE_LIST);
+  const unsigned int arc_steps = 16;
+
+
+  unsigned int i;
+  for (i=0; i<=arc_steps; ++i)
+  {
+    quat.FromAngleAxis(Ogre::Degree(i*180.0f/arc_steps), Ogre::Vector3::UNIT_Y);
+    man_ob.position(quat*Ogre::Vector3(100, 20, 0));
+    man_ob.position(quat*Ogre::Vector3(100, -20, 0));
+  }
+  //now to indices
+  for (i=0; i<arc_steps; ++i)
+  {
+    man_ob.quad(i*2, i*2+1, i*2+3, i*2+2);
+    //man_ob.triangle(i*2, i*2+1, i*2+2);
+    //man_ob.triangle(i*2+2,i*2+1, i*2+3);
+  }
+
+  man_ob.end();
+  man_ob.convertToMesh("Arc.mesh");
+}*/
+
 void Scene::createGrassMesh()
     {
         const float width = 25;
@@ -229,6 +259,7 @@ void Scene::createGrassMesh()
         Player::getSingleton().getInventory().addItem("sword_gun", 5);
         std::cout << "Player now has "<<Player::getSingleton().getConstInventory().getItemCount("sword_gun")
                   << " sword guns in inventory.\n";
+        Player::getSingleton().setScale(5.0f);
         Player::getSingleton().enable(m_SceneManager);
         Player::getSingleton().setRotation(Ogre::Quaternion(Ogre::Degree(180.0), Ogre::Vector3::UNIT_Y));
         if (Player::getSingleton().equip("sword"))
@@ -249,6 +280,14 @@ void Scene::createGrassMesh()
         QuestLog::getSingleton().addQuestEntry("test_quest", 2);
         QuestLog::getSingleton().addQuestEntry("test_quest", 3);
         // ---- end of questlog test
+        /*
+        //object test
+        createArcMesh();
+        ObjectBase::getSingleton().addObject("Arc", "Arc.mesh", true);
+        DuskObject* obj=
+        ObjectManager::getSingleton().addObjectReference("Arc", Ogre::Vector3(50, 0, -200),
+                              Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3::UNIT_X), 1.0f);
+        obj->enable(m_SceneManager);*/
     }
 
     void Scene::destroyScene()

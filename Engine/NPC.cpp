@@ -151,10 +151,57 @@ void NPC::move(const float SecondsPassed)
   //now check for height
   const float land_height = Landscape::getSingleton().getHeightAtPosition(position.x, position.z)
                                     /*+cAboveGroundLevel*/;
+  //check for static objects below entity and above landscape
+  Ogre::SceneManager* scm = entity->getParentSceneNode()->getCreator();
+  /*Add 15% of NPC's height to current position for ray scene query to allow NPC
+    to step onto smaller, not too high objects. */
+  const Ogre::Ray ray = Ogre::Ray(position+Ogre::Vector3(0.0,
+          entity->getBoundingBox().getSize().y*0.15, 0.0),
+          Ogre::Vector3(0.0, -1.0, 0.0)); //straight down
+  Ogre::RaySceneQuery* rsq = scm->createRayQuery(ray);
+  rsq->setSortByDistance(true);
+  Ogre::RaySceneQueryResult& result = rsq->execute();
+  Ogre::Real hit_level = land_height;
+  const Ogre::Real max_distance = ray.getOrigin().y-land_height;
+  unsigned int i;
+  for (i=0; i<result.size(); ++i)
+  {
+    //If distance is greater the distance to the ground (landscape),
+    // then quit here.
+    if (result.at(i).distance>max_distance) break;
+    if (result.at(i).movable!=NULL and result.at(i).movable!=entity)
+    {
+      //No need to check for landscape here, that has been handled by Landscape's
+      // getHeightAtPosition() already.
+      DuskObject* obj = static_cast<DuskObject*>(result.at(i).movable->getUserObject());
+      if (obj!=NULL and obj!=this and obj->canCollide()
+         and ((obj->getDuskType()!=otWeapon and obj->getDuskType()!=otItem)
+              or !static_cast<Item*>(obj)->isEquipped())
+         )
+      {
+        Ogre::Vector3 vec_i(0.0, 0.0, 0.0);
+        //Is object really hit by this ray?
+        if (obj->isHitByRay(ray, vec_i))
+        {
+          //Is it the highest value so far?
+          if (vec_i.y>hit_level)
+          {
+            hit_level = vec_i.y; //set new highest y-value
+          }//if highest
+        }//if object is hit by ray
+      }//if object not NULL and eligible for collision
+    }//if movable not NULL
+  }//for i
+
+  //now delete the scene query
+  scm->destroyQuery(rsq);
+  rsq = NULL;
+
+  //adjust position
   if (m_Jump)
   {
     const float jump_height = position.y+m_JumpVelocity*SecondsPassed;
-    if (jump_height>=land_height)
+    if (jump_height>=hit_level)
     {
       const float gravity = -9.81*2.25; //maybe we need to adjust this later
       position = Ogre::Vector3(position.x, jump_height, position.z);
@@ -163,13 +210,13 @@ void NPC::move(const float SecondsPassed)
     else
     {
       m_Jump = false;
-      position = Ogre::Vector3(position.x, land_height, position.z);
+      position = Ogre::Vector3(position.x, hit_level, position.z);
       stopJumpAnimation();
     }
   }//if jumping
   else
   {
-    position = Ogre::Vector3(position.x, land_height, position.z);
+    position = Ogre::Vector3(position.x, hit_level, position.z);
   }
   //adjust position of scene node/ entity in Ogre
   if (isEnabled())
