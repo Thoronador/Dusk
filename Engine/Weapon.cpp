@@ -21,6 +21,7 @@
 #include "Weapon.h"
 #include "WeaponBase.h"
 #include "DuskConstants.h"
+#include "Messages.h"
 
 namespace Dusk
 {
@@ -67,7 +68,7 @@ bool Weapon::saveToStream(std::ofstream& OutStream) const
 {
   if (!OutStream.good())
   {
-    std::cout << "Weapon::SaveToStream: ERROR: Stream contains errors!\n";
+    DuskLog() << "Weapon::saveToStream: ERROR: Stream contains errors!\n";
     return false;
   }
   //write header "RfWe" (reference of Weapon)
@@ -75,14 +76,14 @@ bool Weapon::saveToStream(std::ofstream& OutStream) const
   //write all data inherited from DuskObject
   if (!saveDuskObjectPart(OutStream))
   {
-    std::cout << "Weapon::SaveToStream: ERROR while writing basic "
+    DuskLog() << "Weapon::saveToStream: ERROR while writing basic "
               << "data!\n";
     return false;
   }
   //write all data inherited from Item
   if (!saveItemPart(OutStream))
   {
-    std::cout << "Weapon::SaveToStream: ERROR while writing item data!\n";
+    DuskLog() << "Weapon::saveToStream: ERROR while writing item data!\n";
     return false;
   }
   //Weapon has no new data members, so return here
@@ -93,13 +94,13 @@ bool Weapon::loadFromStream(std::ifstream& InStream)
 {
   if (entity!=NULL)
   {
-    std::cout << "Weapon::LoadFromStream: ERROR: Cannot load from stream while"
+    DuskLog() << "Weapon::loadFromStream: ERROR: Cannot load from stream while"
               << " weapon is enabled.\n";
     return false;
   }
   if (!InStream.good())
   {
-    std::cout << "Weapon::LoadFromStream: ERROR: Stream contains errors!\n";
+    DuskLog() << "Weapon::loadFromStream: ERROR: Stream contains errors!\n";
     return false;
   }
   //read header "RfWe"
@@ -107,21 +108,21 @@ bool Weapon::loadFromStream(std::ifstream& InStream)
   InStream.read((char*) &Header, sizeof(unsigned int));
   if (Header!=cHeaderRfWe)
   {
-    std::cout << "Weapon::LoadFromStream: ERROR: Stream contains invalid "
+    DuskLog() << "Weapon::loadFromStream: ERROR: Stream contains invalid "
               << "reference header.\n";
     return false;
   }
   //read all stuff inherited from DuskObject
   if (!loadDuskObjectPart(InStream))
   {
-    std::cout << "Weapon::LoadFromStream: ERROR while reading basic object "
+    DuskLog() << "Weapon::loadFromStream: ERROR while reading basic object "
               << "data.\n";
     return false;
   }//if
   //read all stuff inherited from item
   if (!loadItemPart(InStream))
   {
-    std::cout << "Weapon::LoadFromStream: ERROR while reading item data.\n";
+    DuskLog() << "Weapon::loadFromStream: ERROR while reading item data.\n";
     return false;
   }//if
   //class Weapon has no new data members, so return here

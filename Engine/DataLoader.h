@@ -53,6 +53,7 @@
      - 2010-09-22 (rev 243) - update for Vehicle and VehicleBase classes
      - 2010-11-13 (rev 254) - update due to renaming of some functions in
                               Landscape class
+     - 2010-12-01 (rev 265) - use DuskLog/Messages class for logging
 
  ToDo list:
      - extend class when further classes for data management are added

@@ -18,6 +18,26 @@
  -----------------------------------------------------------------------------
 */
 
+/*---------------------------------------------------------------------------
+ Author:  thoronador
+ Date:    2010-02-06
+ Purpose: Messages Singleton class
+          represents a class to write log messages to a file
+
+ History:
+     - 2010-03-13 (rev 184) - initial version (by thoronador)
+     - 2010-12-01 (rev 265) - documentation updated
+                            - unneccessary member functions removed
+                            - operator << overloaded for use with Messages
+
+ ToDo list:
+     - ???
+
+ Bugs:
+     - No known bugs. If you find one (or more), then tell me please.
+ --------------------------------------------------------------------------*/
+
+
 #ifndef MESSAGES_H
 #define MESSAGES_H
 
@@ -31,25 +51,65 @@ namespace Dusk
 class Messages
 {
   public:
+    /* destructor */
     ~Messages();
-    static Messages& GetSingleton();
+
+    /* singleton access method */
+    static Messages& getSingleton();
+
+    /* writes a string to the logfile
+
+       parameters:
+           msg - the string that has to be written to the file
+    */
     void Log(const std::string& msg);
+
+    /* sets whether logged messages are also written to standard output or not
+
+       parameters:
+           b - If set to true, messages will be written to standard output, too.
+               Otherwise they won't.
+    */
     void setOutput(const bool b);
+
+    /* returns true, if logged messages are also written to standard output */
     bool isOutput() const;
-    size_t getTailSize() const;
-    std::string getTailEntry(const unsigned int pos) const;
+
+    Messages& operator<<(const unsigned int n);
+    Messages& operator<<(const int n);
+    Messages& operator<<(const unsigned long int n);
+    Messages& operator<<(const long int n);
+    Messages& operator<<(const int64_t n);
+    Messages& operator<<(const float f);
+    Messages& operator<<(const double d);
+    Messages& operator<<(const std::string& str);
+    Messages& operator<<(const char* c_str);
+
   private:
-    static const size_t cMaxTailLength;
     std::ofstream mStream;
-    std::deque<std::string> mTail;
     bool mOutput;
+
+    /* constructor
+
+       parameters:
+           LogFile - file to which the logs will be written
+           out     - if set to true, messages will be displayed at standard
+                     output, too.
+    */
     Messages(const std::string& LogFile="Dusk.log", const bool out=true);
+
+    /* empty copy constructor due to singleton pattern */
     Messages(const Messages& op) {}
 };//class
 
 inline void DuskLog(const std::string& text)
 {
-  Messages::GetSingleton().Log(text);
+  Messages::getSingleton().Log(text);
+}
+
+inline Messages& DuskLog()
+{
+  return Messages::getSingleton();
 }
 
 } //namespace

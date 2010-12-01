@@ -20,7 +20,7 @@
 
 #include "ContainerBase.h"
 #include "DuskConstants.h"
-#include <iostream>
+#include "Messages.h"
 
 namespace Dusk{
 
@@ -45,7 +45,7 @@ void ContainerBase::addContainer(const std::string& ID, const std::string& _mesh
 {
   if (ID=="" or _mesh=="")
   {
-    std::cout << "ContainerBase::AddContainer: ERROR: ID or Mesh is empty string!\n";
+    DuskLog() << "ContainerBase::AddContainer: ERROR: ID or Mesh is empty string!\n";
     return;
   }
   std::map<std::string, ContainerRecord>::iterator iter;
@@ -130,7 +130,7 @@ bool ContainerBase::saveAllToStream(std::ofstream& OutStream) const
 {
   if (!OutStream.good())
   {
-    std::cout << "ContainerBase::SaveAllToStream: ERROR: stream contains errors!\n";
+    DuskLog() << "ContainerBase::saveAllToStream: ERROR: stream contains errors!\n";
     return false;
   }
   unsigned int len = 0;
@@ -151,7 +151,7 @@ bool ContainerBase::saveAllToStream(std::ofstream& OutStream) const
     //Inventory
     if (!(traverse->second.ContainerInventory.saveToStream(OutStream)))
     {
-      std::cout << "ContainerBase::SaveAllToStream: ERROR while writing "
+      DuskLog() << "ContainerBase::saveAllToStream: ERROR while writing "
                 << "container's inventory.\n";
       return false;
     }//if
@@ -164,7 +164,7 @@ bool ContainerBase::loadNextContainerFromStream(std::ifstream& InStream)
 {
   if (!InStream.good())
   {
-    std::cout << "ContainerBase::LoadNextContainerFromStream: ERROR: stream "
+    DuskLog() << "ContainerBase::loadNextContainerFromStream: ERROR: stream "
               << "contains errors!\n";
     return false;
   }
@@ -172,7 +172,7 @@ bool ContainerBase::loadNextContainerFromStream(std::ifstream& InStream)
   InStream.read((char*) &len, sizeof(unsigned int));
   if (len != cHeaderCont)
   {
-    std::cout << "ContainerBase::LoadNextContainerFromStream: ERROR: stream "
+    DuskLog() << "ContainerBase::loadNextContainerFromStream: ERROR: stream "
               << "contains unexpected header!\n";
     return false;
   }
@@ -183,14 +183,14 @@ bool ContainerBase::loadNextContainerFromStream(std::ifstream& InStream)
   InStream.read((char*) &len, sizeof(unsigned int));
   if (len>255)
   {
-    std::cout << "ContainerBase::LoadNextContainerFromStream: ERROR: ID is "
+    DuskLog() << "ContainerBase::loadNextContainerFromStream: ERROR: ID is "
               << "longer than 255 characters!\n";
     return false;
   }
   InStream.read(ID_Buffer, len);
   if (!InStream.good())
   {
-    std::cout << "ContainerBase::LoadNextContainerFromStream: ERROR while "
+    DuskLog() << "ContainerBase::loadNextContainerFromStream: ERROR while "
               << "reading ID from stream!\n";
     return false;
   }
@@ -201,21 +201,21 @@ bool ContainerBase::loadNextContainerFromStream(std::ifstream& InStream)
   InStream.read((char*) &len, sizeof(unsigned int));
   if (len>255)
   {
-    std::cout << "ContainerBase::LoadNextContainerFromStream: ERROR: mesh path "
+    DuskLog() << "ContainerBase::loadNextContainerFromStream: ERROR: mesh path "
               << "is longer than 255 characters!\n";
     return false;
   }
   InStream.read(Mesh_Buffer, len);
   if (!InStream.good())
   {
-    std::cout << "ContainerBase::LoadNextContainerFromStream: ERROR while "
+    DuskLog() << "ContainerBase::loadNextContainerFromStream: ERROR while "
               << "reading mesh path from stream!\n";
     return false;
   }
   Inventory temp;
   if (!temp.loadFromStream(InStream))
   {
-    std::cout << "ContainerBase::LoadNextContainerFromStream: ERROR while "
+    DuskLog() << "ContainerBase::loadNextContainerFromStream: ERROR while "
               << "reading inventory contens from stream!\n";
     return false;
   }

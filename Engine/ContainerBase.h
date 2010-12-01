@@ -33,6 +33,7 @@
      - 2010-01-01 (rev 148) - documentation update
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-11-21 (rev 257) - minor optimization
+     - 2010-12-01 (rev 265) - use DuskLog/Messages class for logging
 
  ToDo list:
      - ???

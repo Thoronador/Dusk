@@ -36,6 +36,7 @@
                               and so on.
      - 2010-05-06 (rev 197) - documentation update
      - 2010-11-10 (rev 250) - update for corrected function names in Sound
+     - 2010-12-01 (rev 265) - use DuskLog/Messages class for error logging
 
  ToDo list:
      - ???

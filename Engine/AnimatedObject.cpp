@@ -23,6 +23,7 @@
 #include <OgreAnimationState.h>
 #include "DuskConstants.h"
 #include "VertexDataFunc.h"
+#include "Messages.h"
 
 namespace Dusk
 {
@@ -85,7 +86,7 @@ bool AnimatedObject::enable(Ogre::SceneManager* scm)
   }
   if (scm==NULL)
   {
-    std::cout << "AnimatedObject::Enable: ERROR: no scene manager present.\n";
+    DuskLog("AnimatedObject::Enable: ERROR: no scene manager present.\n");
     return false;
   }
   //generate unique entity name
@@ -150,7 +151,7 @@ bool AnimatedObject::disable()
   scm = ent_node->getCreator();
   if (scm==NULL)
   {
-    std::cout << "AnimatedObject::Disable: ERROR: got NULL for scene manager.\n";
+    DuskLog("AnimatedObject::Disable: ERROR: got NULL for scene manager.\n");
     return false;
   }
   ent_node->detachObject(entity);
@@ -259,7 +260,7 @@ bool AnimatedObject::startAnimation(const std::string& AnimName, const bool DoLo
     {
       if (!anim_set->hasAnimationState(AnimName))
       {
-        std::cout << "AnimatedObject::EnableAnimation: Error: mesh has no "
+        DuskLog() << "AnimatedObject::EnableAnimation: Error: mesh has no "
                   << "animation named \"" <<AnimName<<"\"!\n";
         return false;
       }
@@ -286,7 +287,7 @@ bool AnimatedObject::stopAnimation(const std::string& AnimName)
   {
     if (!anim_set->hasAnimationState(AnimName))
     {
-      std::cout << "AnimatedObject::StopAnimation: Error: mesh has no "
+      DuskLog() <<"AnimatedObject::StopAnimation: Error: mesh has no "
                 << "animation named \"" <<AnimName<<"\"!\n";
       return false;
     }
@@ -340,7 +341,7 @@ bool AnimatedObject::isAnimationActive(const std::string& AnimName) const
   {
     if (!anim_set->hasAnimationState(AnimName))
     {
-      std::cout << "AnimatedObject::IsAnimationActive: Error: mesh has no "
+      DuskLog() << "AnimatedObject::IsAnimationActive: Error: mesh has no "
                 << "animation named \"" <<AnimName<<"\"!\n";
       return false;
     }
@@ -463,7 +464,7 @@ bool AnimatedObject::saveToStream(std::ofstream& OutStream) const
 {
   if (!OutStream.good())
   {
-    std::cout << "AnimatedObject::SaveToStream: ERROR: Stream contains errors!\n";
+    DuskLog() << "AnimatedObject::saveToStream: ERROR: Stream contains errors!\n";
     return false;
   }
   //write header "RefA" (reference of AnimatedObject)
@@ -471,7 +472,7 @@ bool AnimatedObject::saveToStream(std::ofstream& OutStream) const
   //write all data inherited from DuskObject
   if (!saveDuskObjectPart(OutStream))
   {
-    std::cout << "AnimatedObject::SaveToStream: ERROR while writing basic "
+    DuskLog() << "AnimatedObject::saveToStream: ERROR while writing basic "
               << "data!\n";
     return false;
   }
@@ -506,13 +507,13 @@ bool AnimatedObject::loadFromStream(std::ifstream& InStream)
 {
   if (entity!=NULL)
   {
-    std::cout << "AnimatedObject::LoadFromStream: ERROR: Cannot load from "
+    DuskLog() << "AnimatedObject::loadFromStream: ERROR: Cannot load from "
               << "stream while object is enabled.\n";
     return false;
   }
   if (!InStream.good())
   {
-    std::cout << "AnimatedObject::LoadFromStream: ERROR: Stream contains errors!\n";
+    DuskLog() << "AnimatedObject::loadFromStream: ERROR: Stream contains errors!\n";
     return false;
   }
   //read header "RefA"
@@ -520,14 +521,14 @@ bool AnimatedObject::loadFromStream(std::ifstream& InStream)
   InStream.read((char*) &Header, sizeof(unsigned int));
   if (Header!=cHeaderRefA)
   {
-    std::cout << "AnimatedObject::LoadFromStream: ERROR: Stream contains "
+    DuskLog() << "AnimatedObject::loadFromStream: ERROR: Stream contains "
               << "invalid reference header.\n";
     return false;
   }
   //read all stuff inherited from DuskObject
   if (!loadDuskObjectPart(InStream))
   {
-    std::cout << "AnimatedObject::LoadFromStream: ERROR while reading basic "
+    DuskLog() << "AnimatedObject::loadFromStream: ERROR while reading basic "
               << "object data.\n";
     return false;
   }//if
@@ -544,7 +545,7 @@ bool AnimatedObject::loadAnimatedObjectPart(std::ifstream& InStream)
   InStream.read((char*) &count, sizeof(unsigned int));
   if (count>100)
   {
-    std::cout << "AnimatedObject::LoadAnimatedObjectPart: ERROR: object seems "
+    DuskLog() << "AnimatedObject::loadAnimatedObjectPart: ERROR: object seems "
               << "to have more than 100 active animations. Aborted.\n";
     return false;
   }
@@ -559,7 +560,7 @@ bool AnimatedObject::loadAnimatedObjectPart(std::ifstream& InStream)
     InStream.read((char*) &len, sizeof(unsigned int));
     if (len>255)
     {
-      std::cout << "AnimatedObject::LoadAnimatedObjectPart: ERROR: animation "
+      DuskLog() << "AnimatedObject::loadAnimatedObjectPart: ERROR: animation "
                 << "name cannot be longer than 255 characters.\n";
       return false;
     }
@@ -567,7 +568,7 @@ bool AnimatedObject::loadAnimatedObjectPart(std::ifstream& InStream)
     ID_Buffer[len] = '\0';
     if (!InStream.good())
     {
-      std::cout << "AnimatedObject::LoadAnimatedObjectPart: ERROR while reading "
+      DuskLog() << "AnimatedObject::loadAnimatedObjectPart: ERROR while reading "
                 << "animation name.\n";
       return false;
     }
@@ -577,7 +578,7 @@ bool AnimatedObject::loadAnimatedObjectPart(std::ifstream& InStream)
     InStream.read((char*) &(tempRec.DoLoop), sizeof(bool));
     if (!InStream.good())
     {
-      std::cout << "AnimatedObject::LoadAnimatedObjectPart: ERROR while reading"
+      DuskLog() << "AnimatedObject::loadAnimatedObjectPart: ERROR while reading"
                 << " animation data.\n";
       return false;
     }

@@ -23,6 +23,10 @@
 #include <cmath> //needed for rotation calculations
 #include <cstdio> //required for opening files for Ogg (since it's a C lib)
 #include <fstream>
+#include "Messages.h"
+
+namespace Dusk
+{
 
 //functions for class Sound:
 //constructor
@@ -62,8 +66,8 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
 {
   if (AL_Ready || InitInProgress)
   {
-    std::cout << "Sound::Init: Warning: Cannot start initialization of OpenAL ";
-    std::cout <<" since it is already initialized or init. is in progress.\n";
+    DuskLog() << "Sound::Init: Warning: Cannot start initialization of OpenAL ";
+    DuskLog() <<" since it is already initialized or init. is in progress.\n";
     return false;
   }
   InitInProgress = true;
@@ -85,7 +89,7 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
   #endif
   if (libHandleAL == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not open OpenAL dynamic library in \""
+    DuskLog() << "Sound::Init: ERROR: Could not open OpenAL dynamic library in \""
               << PathToLib_AL << "\". Exiting.\n";
     InitInProgress = false;
     return false;
@@ -112,43 +116,43 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
   #endif
   if (alcCreateContext == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alcCreateContext\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alcCreateContext\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alcMakeContextCurrent == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alcMakeContextCurrent\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alcMakeContextCurrent\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alcProcessContext == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alcProcessContext\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alcProcessContext\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alcSuspendContext == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alcSuspendContext\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alcSuspendContext\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alcDestroyContext == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alcDestroyContext\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alcDestroyContext\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alcGetCurrentContext == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alcGetCurrentContext\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alcGetCurrentContext\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alcGetContextsDevice == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alcGetContextsDevice\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alcGetContextsDevice\" address.\n";
     InitInProgress = false;
     return false;
   }
@@ -171,31 +175,31 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
 
   if (alcOpenDevice == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alcOpenDevice\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alcOpenDevice\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alcCloseDevice == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alcCloseDevice\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alcCloseDevice\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alcGetError == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alcGetError\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alcGetError\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alcGetString == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alcGetString\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alcGetString\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alcGetIntegerv == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alcGetIntegerv\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alcGetIntegerv\" address.\n";
     InitInProgress = false;
     return false;
   }
@@ -213,19 +217,19 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
   #endif
   if (alEnable == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alEnable\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alEnable\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alDisable == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alDisable\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alDisable\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alIsEnabled == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alIsEnabled\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alIsEnabled\" address.\n";
     InitInProgress = false;
     return false;
   }
@@ -254,55 +258,55 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
   #endif
   if (alGetString == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetString\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGetString\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alGetBooleanv == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetBooleanv\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGetBooleanv\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alGetIntegerv == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetIntegerv\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGetIntegerv\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alGetFloatv == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetFloatv\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGetFloatv\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alGetDoublev == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetDoublev\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGetDoublev\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alGetBoolean == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetBoolean\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGetBoolean\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alGetInteger == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetInteger\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGetInteger\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alGetFloat == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetFloat\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGetFloat\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alGetDouble == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetDouble\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGetDouble\" address.\n";
     InitInProgress = false;
     return false;
   }
@@ -315,7 +319,7 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
   #endif
   if (alGetError == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetError\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGetError\" address.\n";
     InitInProgress = false;
     return false;
   }
@@ -332,19 +336,19 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
   #endif
   if (alIsExtensionPresent == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alIsExtensionPresent\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alIsExtensionPresent\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alGetProcAddress == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetProcAddress\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGetProcAddress\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alGetEnumValue == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetEnumValue\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGetEnumValue\" address.\n";
     InitInProgress = false;
     return false;
   }
@@ -367,37 +371,37 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
   #endif
   if (alListenerf == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alListenerf\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alListenerf\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alListener3f == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alListener3f\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alListener3f\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alListenerfv == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alListenerfv\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alListenerfv\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alListeneri == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alListeneri\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alListeneri\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alListener3i == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alListener3i\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alListener3i\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alListeneriv == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alListeneriv\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alListeneriv\" address.\n";
     InitInProgress = false;
     return false;
   }
@@ -420,37 +424,37 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
   #endif
   if (alGetListenerf == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetListenerf\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGetListenerf\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alGetListener3f == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetListener3f\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGetListener3f\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alGetListenerfv == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetListenerfv\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGetListenerfv\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alGetListeneri == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetListeneri\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGetListeneri\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alGetListener3i == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetListener3i\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGetListener3i\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alGetListeneriv == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetListeneriv\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGetListeneriv\" address.\n";
     InitInProgress = false;
     return false;
   }
@@ -468,19 +472,19 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
   #endif
   if (alGenSources == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGenSources\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGenSources\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alDeleteSources == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alDeleteSources\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alDeleteSources\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alIsSource == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alIsSource\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alIsSource\" address.\n";
     InitInProgress = false;
     return false;
   }
@@ -503,37 +507,37 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
   #endif
   if (alSourcef == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alSourcef\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alSourcef\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alSource3f == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alSource3f\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alSource3f\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alSourcefv == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alSourcefv\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alSourcefv\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alSourcei == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alSourcei\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alSourcei\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alSource3i == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alSource3i\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alSource3i\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alSourceiv == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alSourceiv\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alSourceiv\" address.\n";
     InitInProgress = false;
     return false;
   }
@@ -556,37 +560,37 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
   #endif
   if (alGetSourcef == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetSourcef\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGetSourcef\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alGetSource3f == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetSource3f\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGetSource3f\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alGetSourcefv == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetSourcefv\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGetSourcefv\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alGetSourcei == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetSourcei\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGetSourcei\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alGetSource3i == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetSource3i\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGetSource3i\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alGetSourceiv == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetSourceiv\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGetSourceiv\" address.\n";
     InitInProgress = false;
     return false;
   }
@@ -606,25 +610,25 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
   #endif
   if (alSourcePlayv == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alSourcePlayv\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alSourcePlayv\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alSourceStopv == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alSourceStopv\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alSourceStopv\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alSourceRewindv == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alSourceRewindv\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alSourceRewindv\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alSourcePausev == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alSourcePausev\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alSourcePausev\" address.\n";
     InitInProgress = false;
     return false;
   }
@@ -643,25 +647,25 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
   #endif
   if (alSourcePlay == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alSourcePlay\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alSourcePlay\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alSourceStop == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alSourceStop\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alSourceStop\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alSourceRewind == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alSourceRewind\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alSourceRewind\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alSourcePause == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alSourcePause\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alSourcePause\" address.\n";
     InitInProgress = false;
     return false;
   }
@@ -676,13 +680,13 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
   #endif
   if (alSourceQueueBuffers == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alSourceQueueBuffers\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alSourceQueueBuffers\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alSourceUnqueueBuffers == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alSourceUnqueueBuffers\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alSourceUnqueueBuffers\" address.\n";
     InitInProgress = false;
     return false;
   }
@@ -702,25 +706,25 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
   #endif
   if (alGenBuffers == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGenBuffers\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGenBuffers\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alDeleteBuffers == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alDeleteBuffers\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alDeleteBuffers\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alIsBuffer == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alIsBuffer\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alIsBuffer\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alBufferData == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alBufferData\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alBufferData\" address.\n";
     InitInProgress = false;
     return false;
   }
@@ -743,37 +747,37 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
   #endif
   if (alBufferf == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alBufferf\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alBufferf\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alBuffer3f == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alBuffer3f\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alBuffer3f\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alBufferfv == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alBufferfv\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alBufferfv\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alBufferi == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alBufferi\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alBufferi\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alBuffer3i == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alBuffer3i\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alBuffer3i\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alBufferiv == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alBufferiv\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alBufferiv\" address.\n";
     InitInProgress = false;
     return false;
   }
@@ -796,37 +800,37 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
   #endif
   if (alGetBufferf == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetBufferf\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGetBufferf\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alGetBuffer3f == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetBuffer3f\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGetBuffer3f\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alGetBufferfv == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetBufferfv\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGetBufferfv\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alGetBufferi == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetBufferi\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGetBufferi\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alGetBuffer3i == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetBuffer3i\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGetBuffer3i\" address.\n";
     InitInProgress = false;
     return false;
   }
   if (alGetBufferiv == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alGetBufferiv\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alGetBufferiv\" address.\n";
     InitInProgress = false;
     return false;
   }
@@ -840,7 +844,7 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
   #endif
   if (alSpeedOfSound == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"alSpeedOfSound\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alSpeedOfSound\" address.\n";
     InitInProgress = false;
     return false;
   }
@@ -850,7 +854,7 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
   //later: should possibly be modified to open a selected device instead of default
   if (pDevice == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not open default device.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not open default device.\n";
     InitInProgress = false;
     return false;
   }
@@ -859,20 +863,20 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
   if (pContext == NULL)
   {
     ALCenum error;
-    std::cout << "Sound::Init: ERROR: ";
+    DuskLog() << "Sound::Init: ERROR: ";
     error = alcGetError(pDevice);
     switch (error) {
       case ALC_INVALID_DEVICE:
-             std::cout << "Specified device is not valid for output.\n";
+             DuskLog() << "Specified device is not valid for output.\n";
              break;
       case ALC_INVALID_VALUE:
-             std::cout << "Additional context cannot be created for this device.\n";
+             DuskLog() << "Additional context cannot be created for this device.\n";
              break;
       case ALC_NO_ERROR: //should not happen here
-             std::cout << "There is (or better should be) no error here.\n";
+             DuskLog() << "There is (or better should be) no error here.\n";
              break;
       default:
-             std::cout << "Unknown error while creating context. Error code: " << error << "\n";
+             DuskLog() << "Unknown error while creating context. Error code: " << error << "\n";
              break;
     }//swi
     InitInProgress = false;
@@ -882,18 +886,18 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
   if (alcMakeContextCurrent(pContext) == ALC_FALSE)
   {
     ALCenum error;
-    std::cout << "Sound::Init: ERROR: Could not set current context.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not set current context.\n";
     error = alcGetError(pDevice);
     switch (error)
     {
       case ALC_NO_ERROR:
-           std::cout << " There should be no error. (Funny thing, isn\'t it?)\n";
+           DuskLog() << " There should be no error. (Funny thing, isn\'t it?)\n";
            break;
       case ALC_INVALID_CONTEXT:
-           std::cout << " The given context pointer is invalid.\n";
+           DuskLog() << " The given context pointer is invalid.\n";
            break;
       default:
-           std::cout << " Unknown error. Error code: " << error << "\n";
+           DuskLog() << " Unknown error. Error code: " << error << "\n";
            break;
     }//swi
     InitInProgress = false;
@@ -902,7 +906,7 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
   //the AL part is done here, so we can already set AL_Ready to true
   AL_Ready = true;
 
-  std::cout << "Sound::Init: Info: OpenAL functions loaded, device opened, "
+  DuskLog() << "Sound::Init: Info: OpenAL functions loaded, device opened, "
             << "and context created successfully.\n";
 
   //however, the OggVorbis part still needs to be done
@@ -929,7 +933,7 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
   #endif
   if (libHandleOV == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not open OggVorbis dynamic library in \""
+    DuskLog() << "Sound::Init: ERROR: Could not open OggVorbis dynamic library in \""
               << PathToLib_Vorbisfile << "\". Exiting.\n";
     InitInProgress = false;
     return (!needVorbis);
@@ -961,54 +965,54 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
   #endif
   if (ov_clear == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"ov_clear\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"ov_clear\" address.\n";
     InitInProgress = false;
     return (!needVorbis);
   }
   if (ov_comment == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"ov_comment\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"ov_comment\" address.\n";
     InitInProgress = false;
     return (!needVorbis);
   }
   if (ov_info == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"ov_info\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"ov_info\" address.\n";
     InitInProgress = false;
     return (!needVorbis);
   }
   if (ov_open_callbacks == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"ov_open_callbacks\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"ov_open_callbacks\" address.\n";
     InitInProgress = false;
     return (!needVorbis);
   }
   if (ov_pcm_total == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"ov_pcm_total\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"ov_pcm_total\" address.\n";
     InitInProgress = false;
     return (!needVorbis);
   }
   if (ov_read == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"ov_read\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"ov_read\" address.\n";
     InitInProgress = false;
     return (!needVorbis);
   }
   if (ov_streams == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"ov_streams\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"ov_streams\" address.\n";
     InitInProgress = false;
     return (!needVorbis);
   }
   if (ov_time_total == NULL)
   {
-    std::cout << "Sound::Init: ERROR: Could not retrieve \"ov_time_total\" address.\n";
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"ov_time_total\" address.\n";
     InitInProgress = false;
     return (!needVorbis);
   }
   //just for curiosity/ debug reasons: get extension string
-  std::cout << "Debug: Available AL extensions are:\n"
+  DuskLog() << "Debug: Available AL extensions are:\n"
             << alGetString(AL_EXTENSIONS) << "\nEnd of extension list.\n"
             <<"IsExtPresent(AL_EXT_VORBIS): "<<(int)alIsExtensionPresent("AL_EXT_VORBIS")
             << "\nEnum of AL_FORMAT_VORBIS_EXT: "<<alGetEnumValue("AL_FORMAT_VORBIS_EXT")
@@ -1026,13 +1030,13 @@ bool Sound::exit()
 {
   if (!AL_Ready)
   {
-    std::cout << "Sound::Exit: Warning: OpenAL is not initialized, thus we can "
+    DuskLog() << "Sound::Exit: Warning: OpenAL is not initialized, thus we can "
               << "not deinitialize it.\n";
     return false;
   }
   if (InitInProgress)
   {
-    std::cout << "Sound::Exit: Warning: (De-)Initialization of OpenAL is "
+    DuskLog() << "Sound::Exit: Warning: (De-)Initialization of OpenAL is "
               << "already in progress, thus we quit here.\n";
     return false;
   }
@@ -1067,7 +1071,7 @@ bool Sound::exit()
   {
     if (!FreeLibrary(libHandleAL))
     {
-      std::cout << "Sound::Exit: Error while closing OpenAL library object.\n"
+      DuskLog() << "Sound::Exit: Error while closing OpenAL library object.\n"
                 << "Error code is " << GetLastError() <<".\n";
     }
   }
@@ -1078,11 +1082,11 @@ bool Sound::exit()
   {
     if (dlclose(libHandleAL) != 0)
     {
-      std::cout << "\nSound::Exit: Error while closing OpenAL library object.\n";
+      DuskLog() << "\nSound::Exit: Error while closing OpenAL library object.\n";
       err_str = dlerror();
       if (err_str!=NULL)
       {
-        std::cout << "Error description: " << err_str <<"\n";
+        DuskLog() << "Error description: " << err_str <<"\n";
       }
     }
   }
@@ -1095,7 +1099,7 @@ bool Sound::exit()
   {
     if (!FreeLibrary(libHandleOV))
     {
-      std::cout << "Sound::Exit: Error while closing Vorbis library object.\n"
+      DuskLog() << "Sound::Exit: Error while closing Vorbis library object.\n"
                 << "Error code is " << GetLastError() <<".\n";
     }
   }
@@ -1105,11 +1109,11 @@ bool Sound::exit()
   {
     if (dlclose(libHandleOV) != 0)
     {
-      std::cout << "\nSound::Exit: Error while closing Vorbis library object.\n";
+      DuskLog() << "\nSound::Exit: Error while closing Vorbis library object.\n";
       err_str = dlerror();
       if (err_str!=NULL)
       {
-        std::cout << "Error description: " << err_str <<"\n";
+        DuskLog() << "Error description: " << err_str <<"\n";
       }
     }
   }
@@ -1232,7 +1236,7 @@ bool Sound::createNoise(const std::string& NoiseIdentifier)
 {
   if (!AL_Ready || InitInProgress)
   {
-    std::cout << "Sound::CreateNoise: ERROR: OpenAL is not initialized, or"
+    DuskLog() << "Sound::CreateNoise: ERROR: OpenAL is not initialized, or"
               << "(de-)initialization is in progress; thus we can not create a "
               << "noise (yet).\n";
     return false;
@@ -1240,7 +1244,7 @@ bool Sound::createNoise(const std::string& NoiseIdentifier)
 
   if (isNoisePresent(NoiseIdentifier))
   {
-    std::cout << "Sound::CreateNoise: ERROR: A noise named\""<<NoiseIdentifier
+    DuskLog() << "Sound::CreateNoise: ERROR: A noise named\""<<NoiseIdentifier
               <<"\" already exists. Creation stopped.\n";
     return false;
   }
@@ -1258,20 +1262,20 @@ bool Sound::createNoise(const std::string& NoiseIdentifier)
   error_state = alGetError();
   if (error_state != AL_NO_ERROR)
   {
-    std::cout << "Sound::CreateNoise: Error while creating AL source.\n";
+    DuskLog() << "Sound::CreateNoise: Error while creating AL source.\n";
     switch (error_state)
     {
       case AL_INVALID_VALUE:
-           std::cout << "    The provided array pointer is not valid.\n";
+           DuskLog() << "    The provided array pointer is not valid.\n";
            break;
       case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n";
+           DuskLog() << "    There is no current context.\n";
            break;
       case AL_OUT_OF_MEMORY:
-           std::cout << "    Not enough memory to generate the source.\n";
+           DuskLog() << "    Not enough memory to generate the source.\n";
            break;
       default:
-           std::cout<<"    Unknown error occured. Error code: "
+           DuskLog()<<"    Unknown error occured. Error code: "
                     <<(int)error_state<<".\n"; break;
     }//swi
     delete temp;
@@ -1287,7 +1291,7 @@ bool Sound::destroyNoise(const std::string& NoiseIdentifier)
 {
   if (!AL_Ready)
   {
-    std::cout << "Sound::DestroyNoise: ERROR: OpenAL is not initialized, thus "
+    DuskLog() << "Sound::DestroyNoise: ERROR: OpenAL is not initialized, thus "
               << "we can not destroy a noise (yet).\n";
     return false;
   }
@@ -1296,7 +1300,7 @@ bool Sound::destroyNoise(const std::string& NoiseIdentifier)
   //would prevent proper exit.
   if (!isNoisePresent(NoiseIdentifier))
   {
-    std::cout << "Sound::DestroyNoise: ERROR: A noise named \""<<NoiseIdentifier
+    DuskLog() << "Sound::DestroyNoise: ERROR: A noise named \""<<NoiseIdentifier
               <<"\" does not exist, hence we cannot destroy it.\n";
     return false;
   }
@@ -1315,16 +1319,16 @@ bool Sound::destroyNoise(const std::string& NoiseIdentifier)
     error_state = alGetError();
     if (error_state != AL_NO_ERROR)
     {
-      std::cout << "Sound::DestroyNoise: ERROR: could not delete source.\n";
+      DuskLog() << "Sound::DestroyNoise: ERROR: could not delete source.\n";
       switch(error_state)
       {
         case AL_INVALID_OPERATION:
-             std::cout << "    There is no current context.\n"; break;
+             DuskLog() << "    There is no current context.\n"; break;
         case AL_INVALID_NAME:
-             std::cout << "    Invalid source name. Corrupt structure?\n";
+             DuskLog() << "    Invalid source name. Corrupt structure?\n";
              break;
         default:
-             std::cout<<"    Unknown error occured. Error code: "
+             DuskLog()<<"    Unknown error occured. Error code: "
                       <<(int)error_state<<".\n"; break;
       }//swi
       return false;
@@ -1343,7 +1347,7 @@ bool Sound::destroyNoise(const std::string& NoiseIdentifier)
   //check sanity
   if (temp->next==NULL)
   {
-    std::cout << "Sound::DestroyNoise: ERROR: Could not find noise \""
+    DuskLog() << "Sound::DestroyNoise: ERROR: Could not find noise \""
               <<NoiseIdentifier<<"\", thus nothing's destroyed.\n";
     return false;
   }
@@ -1359,16 +1363,16 @@ bool Sound::destroyNoise(const std::string& NoiseIdentifier)
   error_state = alGetError();
   if (error_state != AL_NO_ERROR)
   {
-    std::cout << "Sound::DestroyNoise: ERROR: could not delete source.\n";
+    DuskLog() << "Sound::DestroyNoise: ERROR: could not delete source.\n";
     switch(error_state)
     {
       case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n"; break;
+           DuskLog() << "    There is no current context.\n"; break;
       case AL_INVALID_NAME:
-           std::cout << "    Invalid source name. Corrupt structure?\n";
+           DuskLog() << "    Invalid source name. Corrupt structure?\n";
            break;
       default:
-           std::cout<<"    Unknown error occured. Error code: "
+           DuskLog()<<"    Unknown error occured. Error code: "
                     <<(int)error_state<<".\n"; break;
     }//swi
     return false;
@@ -1388,19 +1392,19 @@ bool Sound::createMedia(const std::string& MediaIdentifier, const std::string& P
 {
   if (!AL_Ready)
   {
-    std::cout << "Sound::CreateMedia: Warning: OpenAL is not initialized, thus "
+    DuskLog() << "Sound::CreateMedia: Warning: OpenAL is not initialized, thus "
               << "we cannot load a media file yet.\n";
     return false;
   }
   if (InitInProgress)
   {
-    std::cout << "Sound::CreateMedia: Warning: (De-)Initialization of OpenAL is in "
+    DuskLog() << "Sound::CreateMedia: Warning: (De-)Initialization of OpenAL is in "
               << "progress, thus we cannot load a media file.\n";
     return false;
   }
   if (isMediaPresent(MediaIdentifier))
   {
-    std::cout << "Sound::CreateMedia: ERROR: A media named\""<<MediaIdentifier
+    DuskLog() << "Sound::CreateMedia: ERROR: A media named\""<<MediaIdentifier
               <<"\" already exists. Creation stopped.\n";
     return false;
   }
@@ -1419,7 +1423,7 @@ bool Sound::createMedia(const std::string& MediaIdentifier, const std::string& P
   }
   else
   {
-    std::cout << "Sound::CreateMedia: Error: File \""<<PathToMedia<<"\" does "
+    DuskLog() << "Sound::CreateMedia: Error: File \""<<PathToMedia<<"\" does "
               << "not seem to be a Wave or a Ogg-Vorbis file. File cannot be "
               << "loaded.\n";
     return false;
@@ -1439,7 +1443,7 @@ bool Sound::createWAVMedia(const std::string& MediaIdentifier, const std::string
   dat.open(PathToMedia.c_str(), std::ios::in | std::ios::binary);
   if(!dat)
   {
-    std::cout << "Sound::CreateWAVMedia: ERROR: Unable to open stream for reading.\n"
+    DuskLog() << "Sound::CreateWAVMedia: ERROR: Unable to open stream for reading.\n"
               << "       File: \"" <<PathToMedia<<"\".\n\n";
     return false;
   }
@@ -1447,7 +1451,7 @@ bool Sound::createWAVMedia(const std::string& MediaIdentifier, const std::string
   if ((riff_c.Riff[0]!='R') || (riff_c.Riff[1]!='I') || (riff_c.Riff[2]!='F')
        || (riff_c.Riff[3]!='F'))
   {
-    std::cout << "Sound::CreateWAVMedia: ERROR: File \""<<PathToMedia<<"\" has incorrect"
+    DuskLog() << "Sound::CreateWAVMedia: ERROR: File \""<<PathToMedia<<"\" has incorrect"
               <<" RIFF header.\n";
     dat.close();
     return false;
@@ -1457,7 +1461,7 @@ bool Sound::createWAVMedia(const std::string& MediaIdentifier, const std::string
   if ((riff_c.Wave[0]!='W') || (riff_c.Wave[1]!='A') || (riff_c.Wave[2]!='V')
        || (riff_c.Wave[3]!='E'))
   {
-    std::cout << "Sound::CreateWAVMedia: ERROR: File \""<<PathToMedia<<"\" has incorrect"
+    DuskLog() << "Sound::CreateWAVMedia: ERROR: File \""<<PathToMedia<<"\" has incorrect"
               <<" WAVE header.\n";
     dat.close();
     return false;
@@ -1467,7 +1471,7 @@ bool Sound::createWAVMedia(const std::string& MediaIdentifier, const std::string
   if ((fmt_c.fmt_[0]!='f') || (fmt_c.fmt_[1]!='m') || (fmt_c.fmt_[2]!='t')
        || (fmt_c.fmt_[3]!=' '))
   {
-    std::cout << "Sound::CreateWAVMedia: ERROR: File \""<<PathToMedia<<"\" has incorrect"
+    DuskLog() << "Sound::CreateWAVMedia: ERROR: File \""<<PathToMedia<<"\" has incorrect"
               <<" format chunk header signature.\n";
     dat.close();
     return false;
@@ -1477,7 +1481,7 @@ bool Sound::createWAVMedia(const std::string& MediaIdentifier, const std::string
   // will be ignored.
   if (fmt_c.chunk_size<16)
   {
-    std::cout << "Sound::CreateWAVMedia: ERROR: Format chunk of file \""
+    DuskLog() << "Sound::CreateWAVMedia: ERROR: Format chunk of file \""
               <<PathToMedia<<"\" has incorrect size of "<<fmt_c.chunk_size
               <<" bytes. (Should be 16 instead.)\n";
     dat.close();
@@ -1485,7 +1489,7 @@ bool Sound::createWAVMedia(const std::string& MediaIdentifier, const std::string
   }
   else if (fmt_c.chunk_size>16)
   {
-    std::cout << "Sound::CreateWAVMedia: Warning: Format chunk of file \""
+    DuskLog() << "Sound::CreateWAVMedia: Warning: Format chunk of file \""
               <<PathToMedia<<"\" is larger than 16 bytes. Actual size is "
               <<fmt_c.chunk_size<<" bytes. Everything after 16th byte will be "
               <<"ignored.\n";
@@ -1494,7 +1498,7 @@ bool Sound::createWAVMedia(const std::string& MediaIdentifier, const std::string
                                         //(this is what we have for typical .wav)
   if (fmt_c.FormatTag!=1)
   {
-    std::cout << "Sound::CreateWAVMedia: ERROR: File \""<<PathToMedia<<"\" is "
+    DuskLog() << "Sound::CreateWAVMedia: ERROR: File \""<<PathToMedia<<"\" is "
               << "not of PCM format. Format index: " <<fmt_c.FormatTag<<".\n";
     dat.close();
   }
@@ -1516,7 +1520,7 @@ bool Sound::createWAVMedia(const std::string& MediaIdentifier, const std::string
     }
     else //chunk is larger than 1 KB; quite unnormal
     {
-      std::cout << "Sound::CreateWAVMedia: ERROR: Format chunk is much too big "
+      DuskLog() << "Sound::CreateWAVMedia: ERROR: Format chunk is much too big "
                 << "("<<fmt_c.chunk_size << " bytes). Exiting.\n";
       dat.close();
       return false;
@@ -1528,7 +1532,7 @@ bool Sound::createWAVMedia(const std::string& MediaIdentifier, const std::string
   if ((data_c.data[0]!='d') || (data_c.data[1]!='a') || (data_c.data[2]!='t')
        || (data_c.data[3]!='a'))
   {
-    std::cout << "Sound::PlayWAV: ERROR: File \""<<PathToMedia<<"\" has incorrect"
+    DuskLog() << "Sound::PlayWAV: ERROR: File \""<<PathToMedia<<"\" has incorrect"
               <<" data chunk header signature.\n";
     dat.close();
     return false;
@@ -1539,7 +1543,7 @@ bool Sound::createWAVMedia(const std::string& MediaIdentifier, const std::string
   //check if data length is valid
   if (data_c.length_of_data<fmt_c.BlockAlign)
   {
-    std::cout << "Sound::CreateWAVMedia: ERROR: Data chunk of file \""<<PathToMedia
+    DuskLog() << "Sound::CreateWAVMedia: ERROR: Data chunk of file \""<<PathToMedia
               << "\" is to short to contain valid data. Exiting.\n";
     dat.close();
     return false;
@@ -1548,7 +1552,7 @@ bool Sound::createWAVMedia(const std::string& MediaIdentifier, const std::string
   //length check for high bound
   if (data_c.length_of_data>MaxMediaSize_MB*1024*1024)
   {
-    std::cout << "Sound::CreateWAVMedia: ERROR: Size of PCM data from file \""
+    DuskLog() << "Sound::CreateWAVMedia: ERROR: Size of PCM data from file \""
               <<PathToMedia<<"\" would be larger than "<< MaxMediaSize_MB
               << " MB. Aborting to avoid abusive memory allocation.\n";
     dat.close();
@@ -1606,19 +1610,19 @@ bool Sound::createWAVMedia(const std::string& MediaIdentifier, const std::string
   error_state = alGetError();
   if (error_state !=AL_NO_ERROR) //error occured
   {
-    std::cout << "Sound::CreateWavMedia: ERROR while generating buffers for \""
+    DuskLog() << "Sound::CreateWavMedia: ERROR while generating buffers for \""
               <<PathToMedia<<"\".\n";
     switch (error_state)
     {
       case AL_INVALID_VALUE:
-           std::cout << "    The provided buffer array is not large enough to "
+           DuskLog() << "    The provided buffer array is not large enough to "
                      << "hold the requested number of buffers.\n";
            break;
       case AL_OUT_OF_MEMORY:
-           std::cout << "    Not enough memory to generate the buffers.\n";
+           DuskLog() << "    Not enough memory to generate the buffers.\n";
            break;
       default:
-           std::cout<<"    Unknown error occured. Error code: "
+           DuskLog()<<"    Unknown error occured. Error code: "
                     <<(int)error_state<<".\n"; break;
     }//swi
     dat.close();
@@ -1639,7 +1643,7 @@ bool Sound::createWAVMedia(const std::string& MediaIdentifier, const std::string
       case 1:
         format_type = AL_FORMAT_MONO16; break;
       default:
-        std::cout << "Sound::CreateWavMedia: ERROR: File \"" <<PathToMedia
+        DuskLog() << "Sound::CreateWavMedia: ERROR: File \"" <<PathToMedia
                   <<"\" seems to have "<<fmt_c.Channels<<" channels. However, "
                   <<"only four, two (stereo) or one (mono) channels are "
                   <<"supported.\n";
@@ -1661,7 +1665,7 @@ bool Sound::createWAVMedia(const std::string& MediaIdentifier, const std::string
       case 1:
         format_type = AL_FORMAT_MONO8;
       default:
-        std::cout << "Sound::CreateWavMedia: ERROR: File \"" <<PathToMedia
+        DuskLog() << "Sound::CreateWavMedia: ERROR: File \"" <<PathToMedia
                   <<"\" seems to have "<<fmt_c.Channels<<" channels. However, "
                   <<"only four, two (stereo) or one (mono) channels are "
                   <<"supported. Creation aborted.\n";
@@ -1673,7 +1677,7 @@ bool Sound::createWAVMedia(const std::string& MediaIdentifier, const std::string
   }
   else //Bits per Sample neither 16 nor 8, thus unsupported by OpenAL
   {
-    std::cout << "Sound::CreateWavMedia: ERROR: The sample rate of \""
+    DuskLog() << "Sound::CreateWavMedia: ERROR: The sample rate of \""
               <<PathToMedia<<"\" ("<<fmt_c.BitsPerSample<< " bits per sample) "
               <<"is not supported. OpenAL supports only 8 and 16 bit samples.\n";
     dat.close();
@@ -1684,7 +1688,7 @@ bool Sound::createWAVMedia(const std::string& MediaIdentifier, const std::string
   //check for valid format enumeration value
   if (format_type == 0) //call to alGetEnumValue could not get a proper result
   {
-    std::cout << "Sound::CreateWavMedia: ERROR: Could not find a valid OpenAL "
+    DuskLog() << "Sound::CreateWavMedia: ERROR: Could not find a valid OpenAL "
               << "format enumeration value. Most likely the format of \""
               <<PathToMedia<<"\" (channels: "<<fmt_c.Channels<<"; bits per sample: "
               <<fmt_c.BitsPerSample<<") is not supported.\n";
@@ -1704,18 +1708,18 @@ bool Sound::createWAVMedia(const std::string& MediaIdentifier, const std::string
     error_state = alGetError();
     if (error_state!= AL_NO_ERROR)
     {
-      std::cout << "Sound::CreateWavMedia: ERROR while buffering data.\n";
+      DuskLog() << "Sound::CreateWavMedia: ERROR while buffering data.\n";
       switch (error_state)
       {
         case AL_INVALID_ENUM:
-             std::cout <<"    The specified format does not exist.\n"; break;
+             DuskLog() <<"    The specified format does not exist.\n"; break;
         case AL_INVALID_VALUE:
-             std::cout <<"    The size parameter is not valid for the given format"
+             DuskLog() <<"    The size parameter is not valid for the given format"
                        <<" or the buffer is already in use.\n"; break;
         case AL_OUT_OF_MEMORY:
-             std::cout <<"    Not enough memory to create the buffer.\n"; break;
+             DuskLog() <<"    Not enough memory to create the buffer.\n"; break;
         default:
-             std::cout <<"    Unknown error. Error code: "<<(int)error_state
+             DuskLog() <<"    Unknown error. Error code: "<<(int)error_state
              <<".\n"; break;
       }//swi
       dat.close();
@@ -1734,18 +1738,18 @@ bool Sound::createWAVMedia(const std::string& MediaIdentifier, const std::string
   error_state = alGetError();
   if (error_state!= AL_NO_ERROR)
   {
-    std::cout << "Sound::CreateWavMedia: ERROR while buffering data.\n";
+    DuskLog() << "Sound::CreateWavMedia: ERROR while buffering data.\n";
     switch (error_state)
     {
       case AL_INVALID_ENUM:
-           std::cout <<"    The specified format does not exist.\n"; break;
+           DuskLog() <<"    The specified format does not exist.\n"; break;
       case AL_INVALID_VALUE:
-           std::cout <<"    The size parameter is not valid for the given format"
+           DuskLog() <<"    The size parameter is not valid for the given format"
                      <<" or the buffer is already in use.\n"; break;
       case AL_OUT_OF_MEMORY:
-           std::cout <<"    Not enough memory to create the buffer.\n"; break;
+           DuskLog() <<"    Not enough memory to create the buffer.\n"; break;
       default:
-           std::cout <<"    Unknown error. Error code: "<<(int)error_state<<".\n";
+           DuskLog() <<"    Unknown error. Error code: "<<(int)error_state<<".\n";
            break;
     }//swi
     dat.close();
@@ -1771,7 +1775,7 @@ bool Sound::createOggMedia(const std::string& MediaIdentifier, const std::string
 {
   if (!Vorbis_Ready)
   {
-    std::cout << "Sound::CreateOggMedia: ERROR: OggVorbis was not initialized, "
+    DuskLog() << "Sound::CreateOggMedia: ERROR: OggVorbis was not initialized, "
               << "so we cannot load an OggVorbis file here.\n";
     return false;
   }
@@ -1786,7 +1790,7 @@ bool Sound::createOggMedia(const std::string& MediaIdentifier, const std::string
   dat = fopen(PathToMedia.c_str(), "rb");
   if (dat==NULL)
   {
-    std::cout << "Sound::CreateOggMedia: ERROR: Could not open file \""
+    DuskLog() << "Sound::CreateOggMedia: ERROR: Could not open file \""
               << PathToMedia << "\" via fopen properly.\n";
     return false;
   }//if
@@ -1794,51 +1798,51 @@ bool Sound::createOggMedia(const std::string& MediaIdentifier, const std::string
   ret = ov_open_callbacks(dat, &ov, NULL, 0, OV_CALLBACKS_DEFAULT);
   if (ret<0)
   {
-    std::cout << "Sound::CreateOggMedia: ERROR: Could not open file \""
+    DuskLog() << "Sound::CreateOggMedia: ERROR: Could not open file \""
               << PathToMedia << "\" via callbacks properly.\n";
     switch(ret)
     {
       case OV_EREAD:
-           std::cout << "    A read from the media returned an error.\n"; break;
+           DuskLog() << "    A read from the media returned an error.\n"; break;
       case OV_ENOTVORBIS:
-           std::cout << "    Bitstream does not contain any Vorbis data.\n";
+           DuskLog() << "    Bitstream does not contain any Vorbis data.\n";
            break;
       case OV_EVERSION:
-           std::cout << "    Version mismatch.\n"; break;
+           DuskLog() << "    Version mismatch.\n"; break;
       case OV_EBADHEADER:
-           std::cout << "    Invalid Vorbis header.\n"; break;
+           DuskLog() << "    Invalid Vorbis header.\n"; break;
       case OV_EFAULT:
-           std::cout << "    Internal logic error/ bug.\n"; break;
+           DuskLog() << "    Internal logic error/ bug.\n"; break;
       default:
-           std::cout << "    Unknown error. Code: " << ret <<".\n"; break;
+           DuskLog() << "    Unknown error. Code: " << ret <<".\n"; break;
     }//switch
     ov_clear(&ov);
     return false;
   }//if
-  std::cout << "Sound::CreateOggMedia: Debug info: File \""<< PathToMedia
+  DuskLog() << "Sound::CreateOggMedia: Debug info: File \""<< PathToMedia
              << "\" opened properly.\n";
 
   vinfo = ov_info(&ov, -1);
-  std::cout <<"Sound::CreateOggMedia: Information for \""<<PathToMedia<<"\":\n";
+  DuskLog() <<"Sound::CreateOggMedia: Information for \""<<PathToMedia<<"\":\n";
   if (vinfo == NULL)
   {
-    std::cout << "Sound::CreateOggMedia: Warning: Could not get file "
+    DuskLog() << "Sound::CreateOggMedia: Warning: Could not get file "
               << "information for \"" << PathToMedia << "\".\n";
     ov_clear(&ov);
     return false;
   }
 
-  std::cout << "    Vorbis encoder version: " << vinfo->version <<"\n"
+  DuskLog() << "    Vorbis encoder version: " << vinfo->version <<"\n"
             << "    Channels: " << vinfo->channels << "\n"
             << "    Sampling rate: " << vinfo->rate <<"\n    Bitrate:\n"
             << "    Nominal: " << vinfo->bitrate_nominal <<"\n"
             << "    Upper: " << vinfo->bitrate_upper <<"\n"
             << "    Lower: " << vinfo->bitrate_lower <<"\n";
-  std::cout << "\n    Number of streams: "<< ov_streams(&ov) <<"\n";
+  DuskLog() << "\n    Number of streams: "<< ov_streams(&ov) <<"\n";
 
   if ((vinfo->channels!=1) && (vinfo->channels!=2))
   {
-    std::cout << "Sound::CreateOggMedia: ERROR: File \""<<PathToMedia<<"\" has "
+    DuskLog() << "Sound::CreateOggMedia: ERROR: File \""<<PathToMedia<<"\" has "
               <<vinfo->channels<< " audio channels, however only one (mono) or "
               << "two (stereo) are supported.\n";
     ov_clear(&ov);
@@ -1847,22 +1851,22 @@ bool Sound::createOggMedia(const std::string& MediaIdentifier, const std::string
   time_total = ov_time_total(&ov, -1);
   if (time_total == OV_EINVAL)
   {
-    std::cout << "Couldn't get total time for stream. Stream does not exist or "
+    DuskLog() << "Couldn't get total time for stream. Stream does not exist or "
               << "is unseekable.\n";
   }
   else
   {
-    std::cout << "    Total time: "<<time_total<<" seconds.\n";
+    DuskLog() << "    Total time: "<<time_total<<" seconds.\n";
   }
   pcm_samples = ov_pcm_total(&ov, -1);
   if (pcm_samples == OV_EINVAL)
   {
-    std::cout << "Sound::CreateOggMedia: ERROR: Couldn't get total sample count"
+    DuskLog() << "Sound::CreateOggMedia: ERROR: Couldn't get total sample count"
               <<" for stream. Stream does not exist or is unseekable.\n";
     ov_clear(&ov);
     return false;
   }
-  std::cout << "    PCM samples: "<<pcm_samples<<" samples.\n";
+  DuskLog() << "    PCM samples: "<<pcm_samples<<" samples.\n";
 
   long int bytes_read, total_read;
   long int data_size;
@@ -1872,7 +1876,7 @@ bool Sound::createOggMedia(const std::string& MediaIdentifier, const std::string
 
   if ((data_size>MaxMediaSize_MB*1024*1024)/*MaxMediaSize_MB MB (currently 30 MB)*/ || (data_size<=0))
   {
-    std::cout << "Sound::CreateOggMedia: ERROR: Size of uncompressed stream "
+    DuskLog() << "Sound::CreateOggMedia: ERROR: Size of uncompressed stream "
               << "from file \""<<PathToMedia<<"\" would be larger than "
               << MaxMediaSize_MB << " MB. Aborting to avoid abusive memory "
               << "allocation.\n";
@@ -1881,7 +1885,7 @@ bool Sound::createOggMedia(const std::string& MediaIdentifier, const std::string
   }
 
   buffer = new char[data_size];
-  std::cout << "Sound::CreateOggMedia: Debug: "<<data_size<<" bytes allocated "
+  DuskLog() << "Sound::CreateOggMedia: Debug: "<<data_size<<" bytes allocated "
               <<"for uncompressed data from file \""<<PathToMedia<<"\".\n";
   section = 0;
   total_read = 0;
@@ -1893,19 +1897,19 @@ bool Sound::createOggMedia(const std::string& MediaIdentifier, const std::string
                          1 /*signed data*/, &section);
     if (bytes_read<0)
     {
-      std::cout << "Sound::CreateOggMedia: ERROR while reading from file \""
+      DuskLog() << "Sound::CreateOggMedia: ERROR while reading from file \""
                 << PathToMedia << "\".\n";
       switch(bytes_read)
       {
         case OV_HOLE:
-             std::cout << "    Interruption in data stream.\n"; break;
+             DuskLog() << "    Interruption in data stream.\n"; break;
         case OV_EBADLINK:
-             std::cout << "    Invalid stream section supplied.\n"; break;
+             DuskLog() << "    Invalid stream section supplied.\n"; break;
         case OV_EINVAL:
-             std::cout << "    File headers couldn't be read or are corrupt; or"
+             DuskLog() << "    File headers couldn't be read or are corrupt; or"
                        << " open call for supplied file failed.\n"; break;
         default:
-             std::cout << "    Unknown error code: "<<bytes_read<<".\n"; break;
+             DuskLog() << "    Unknown error code: "<<bytes_read<<".\n"; break;
       }//switch
     }//if
     else
@@ -1920,11 +1924,11 @@ bool Sound::createOggMedia(const std::string& MediaIdentifier, const std::string
     ov_clear(&ov);
     return false;
   }
-  std::cout << "Sound::CreateOggMedia: Debug: "<<total_read<<" bytes read, "
+  DuskLog() << "Sound::CreateOggMedia: Debug: "<<total_read<<" bytes read, "
             <<data_size<<" bytes were assumed.\n";
   if (total_read!=data_size)
   {
-    std::cout << "Sound::CreateOggMedia: ERROR: Size miscalculations in file \""
+    DuskLog() << "Sound::CreateOggMedia: ERROR: Size miscalculations in file \""
                 << PathToMedia << "\". Read "<<total_read<<" bytes, but assumed"
                 <<" "<<data_size<<" bytes. Aborting.\n";
     delete buffer;
@@ -1960,19 +1964,19 @@ bool Sound::createOggMedia(const std::string& MediaIdentifier, const std::string
   error_state = alGetError();
   if (error_state !=AL_NO_ERROR) //error occured
   {
-    std::cout << "Sound::CreateOggMedia: ERROR while generating buffers for \""
+    DuskLog() << "Sound::CreateOggMedia: ERROR while generating buffers for \""
               <<PathToMedia<<"\".\n";
     switch (error_state)
     {
       case AL_INVALID_VALUE:
-           std::cout << "    The provided buffer array is not large enough to "
+           DuskLog() << "    The provided buffer array is not large enough to "
                      << "hold the requested number of buffers.\n";
            break;
       case AL_OUT_OF_MEMORY:
-           std::cout << "    Not enough memory to generate the buffers.\n";
+           DuskLog() << "    Not enough memory to generate the buffers.\n";
            break;
       default:
-           std::cout<<"    Unknown error occured. Error code: "
+           DuskLog()<<"    Unknown error occured. Error code: "
                     <<(int)error_state<<".\n"; break;
     }//swi
     ov_clear(&ov);
@@ -1987,21 +1991,21 @@ bool Sound::createOggMedia(const std::string& MediaIdentifier, const std::string
   error_state = alGetError();
   if (error_state !=AL_NO_ERROR) //error occured
   {
-    std::cout << "Sound::CreateOggMedia: ERROR while filling buffers for \""
+    DuskLog() << "Sound::CreateOggMedia: ERROR while filling buffers for \""
               <<PathToMedia<<"\".\n";
     switch (error_state)
     {
       case AL_INVALID_VALUE:
-           std::cout << "    The provided buffer array size is not valid for "
+           DuskLog() << "    The provided buffer array size is not valid for "
                      << "the given format, or the data pointer is NULL.\n";
            break;
       case AL_OUT_OF_MEMORY:
-           std::cout << "    Not enough memory to generate the buffers.\n";
+           DuskLog() << "    Not enough memory to generate the buffers.\n";
            break;
       case AL_INVALID_ENUM:
-           std::cout << "    The specified format does not exist.\n"; break;
+           DuskLog() << "    The specified format does not exist.\n"; break;
       default:
-           std::cout<<"    Unknown error occured. Error code: "
+           DuskLog()<<"    Unknown error occured. Error code: "
                     <<(int)error_state<<".\n"; break;
     }//swi
     ov_clear(&ov);
@@ -2024,7 +2028,7 @@ bool Sound::destroyMedia(const std::string& MediaIdentifier)
 {
   if (!AL_Ready)
   {
-    std::cout << "Sound::DestroyMedia: ERROR: OpenAL is not initialized, thus "
+    DuskLog() << "Sound::DestroyMedia: ERROR: OpenAL is not initialized, thus "
               << "we can not destroy any media (yet).\n";
     return false;
   }
@@ -2033,7 +2037,7 @@ bool Sound::destroyMedia(const std::string& MediaIdentifier)
   //would prevent proper exit.
   if (!isMediaPresent(MediaIdentifier))
   {
-    std::cout << "Sound::DestroyMedia: ERROR: A noise named \""<<MediaIdentifier
+    DuskLog() << "Sound::DestroyMedia: ERROR: A noise named \""<<MediaIdentifier
               <<"\" does not exist, hence we cannot destroy it.\n";
     return false;
   }
@@ -2060,20 +2064,20 @@ bool Sound::destroyMedia(const std::string& MediaIdentifier)
     error_state = alGetError();
     if (error_state != AL_NO_ERROR)
     {
-      std::cout << "Sound::DestroyMedia: ERROR: could not delete buffers.\n";
+      DuskLog() << "Sound::DestroyMedia: ERROR: could not delete buffers.\n";
       switch(error_state)
       {
         case AL_INVALID_OPERATION:
-             std::cout << "    At least one buffer is still in use and can't be"
+             DuskLog() << "    At least one buffer is still in use and can't be"
                        <<" deleted.\n"; break;
         case AL_INVALID_NAME:
-             std::cout << "    Invalid buffer name. Corrupt structure?\n";
+             DuskLog() << "    Invalid buffer name. Corrupt structure?\n";
              break;
         case AL_INVALID_VALUE:
-             std::cout << "    The requested number of buffers cannot be "
+             DuskLog() << "    The requested number of buffers cannot be "
                        <<"deleted.\n"; break;
         default:
-             std::cout<<"    Unknown error occured. Error code: "
+             DuskLog()<<"    Unknown error occured. Error code: "
                       <<(int)error_state<<".\n"; break;
       }//swi
       return false;
@@ -2093,7 +2097,7 @@ bool Sound::destroyMedia(const std::string& MediaIdentifier)
   //check sanity
   if (temp->next==NULL)
   {
-    std::cout << "Sound::DestroyMedia: ERROR: Could not find media \""
+    DuskLog() << "Sound::DestroyMedia: ERROR: Could not find media \""
               <<MediaIdentifier<<"\", thus nothing's destroyed.\n";
     return false;
   }
@@ -2114,19 +2118,19 @@ bool Sound::destroyMedia(const std::string& MediaIdentifier)
   error_state = alGetError();
   if (error_state != AL_NO_ERROR)
   {
-    std::cout << "Sound::DestroyMedia: ERROR: could not delete buffers.\n";
+    DuskLog() << "Sound::DestroyMedia: ERROR: could not delete buffers.\n";
     switch(error_state)
     {
       case AL_INVALID_OPERATION:
-           std::cout << "    At least one buffer is still in use and can't be"
+           DuskLog() << "    At least one buffer is still in use and can't be"
                      <<" deleted.\n"; break;
       case AL_INVALID_NAME:
-           std::cout << "    Invalid buffer name. Corrupt structure?\n"; break;
+           DuskLog() << "    Invalid buffer name. Corrupt structure?\n"; break;
       case AL_INVALID_VALUE:
-           std::cout << "    The requested number of buffers cannot be "
+           DuskLog() << "    The requested number of buffers cannot be "
                      << "deleted.\n"; break;
       default:
-           std::cout<<"    Unknown error occured. Error code: "
+           DuskLog()<<"    Unknown error occured. Error code: "
                     <<(int)error_state<<".\n"; break;
     }//swi
     return false;
@@ -2143,25 +2147,25 @@ bool Sound::attach(const std::string& NoiseIdentifier, const std::string& MediaI
 {
   if (!AL_Ready)
   {
-    std::cout << "Sound::Attach: Warning: OpenAL is not initialized, thus we "
+    DuskLog() << "Sound::Attach: Warning: OpenAL is not initialized, thus we "
               << "cannot attach media to noise yet.\n";
     return false;
   }
   if (InitInProgress)
   {
-    std::cout << "Sound::Attach: Warning: (De-)Initialization of OpenAL is in "
+    DuskLog() << "Sound::Attach: Warning: (De-)Initialization of OpenAL is in "
               << "progress, thus we cannot attach media to noise here.\n";
     return false;
   }
   if (!isNoisePresent(NoiseIdentifier))
   {
-    std::cout << "Sound::Attach: ERROR: there is no noise named \""
+    DuskLog() << "Sound::Attach: ERROR: there is no noise named \""
               <<NoiseIdentifier<<"\", thus we cannot attach anything to it.\n";
     return false;
   }
   if (!isMediaPresent(MediaIdentifier))
   {
-    std::cout << "Sound::Attach: ERROR: there is no media named \""
+    DuskLog() << "Sound::Attach: ERROR: there is no media named \""
               <<MediaIdentifier<<"\", thus we cannot attach anything to it.\n";
     return false;
   }
@@ -2183,7 +2187,7 @@ bool Sound::attach(const std::string& NoiseIdentifier, const std::string& MediaI
   //check for sanity
   if (noise_ptr==NULL || media_ptr==NULL)
   {
-    std::cout << "Sound::Attach: ERROR: Noise or media not found. Corrupt list?\n";
+    DuskLog() << "Sound::Attach: ERROR: Noise or media not found. Corrupt list?\n";
     return false;
   }
 
@@ -2193,7 +2197,7 @@ bool Sound::attach(const std::string& NoiseIdentifier, const std::string& MediaI
     //there is already a attached media; detach it
     if (!detach(NoiseIdentifier))
     {
-      std::cout << "Sound::Attach: ERROR: Noise \""<<NoiseIdentifier
+      DuskLog() << "Sound::Attach: ERROR: Noise \""<<NoiseIdentifier
                 <<"\" already has a attached noise and Detach() failed.\n";
       return false;
     }
@@ -2207,18 +2211,18 @@ bool Sound::attach(const std::string& NoiseIdentifier, const std::string& MediaI
   error_state = alGetError();
   if (error_state!= AL_NO_ERROR)
   {
-    std::cout << "Sound::Attach: ERROR while queueing buffers to source.\n";
+    DuskLog() << "Sound::Attach: ERROR while queueing buffers to source.\n";
     switch (error_state)
     {
       case AL_INVALID_NAME:
-           std::cout <<"    The source name or one of the buffer names is not "
+           DuskLog() <<"    The source name or one of the buffer names is not "
                      <<"valid.\n"; break;
       case AL_INVALID_OPERATION:
-           std::cout <<"    There is no context, the source has already a static"
+           DuskLog() <<"    There is no context, the source has already a static"
                      <<" buffer attached or the new buffer has not the same "
                      <<"format as the other buffers in the queue.\n"; break;
       default:
-           std::cout <<"    Unknown error. Error code: "<<(int)error_state<<".\n";
+           DuskLog() <<"    Unknown error. Error code: "<<(int)error_state<<".\n";
            break;
     }//swi
     return false;
@@ -2232,7 +2236,7 @@ bool Sound::detach(const std::string& NoiseIdentifier)
 {
   if (!AL_Ready)
   {
-    std::cout << "Sound::Detach: Warning: OpenAL is not initialized, thus we "
+    DuskLog() << "Sound::Detach: Warning: OpenAL is not initialized, thus we "
               << "cannot detach media from noise yet.\n";
     return false;
   }
@@ -2241,7 +2245,7 @@ bool Sound::detach(const std::string& NoiseIdentifier)
   //would prevent proper exit.
   if (!isNoisePresent(NoiseIdentifier))
   {
-    std::cout << "Sound::Detach: ERROR: there is no noise named \""
+    DuskLog() << "Sound::Detach: ERROR: there is no noise named \""
               <<NoiseIdentifier<<"\", thus we cannot detach anything from it.\n";
     return false;
   }
@@ -2256,7 +2260,7 @@ bool Sound::detach(const std::string& NoiseIdentifier)
   //check for sanity
   if (noise_ptr==NULL)
   {
-    std::cout << "Sound::Detach: ERROR: Noise \""<<NoiseIdentifier
+    DuskLog() << "Sound::Detach: ERROR: Noise \""<<NoiseIdentifier
               <<"\" not found. Corrupt list?\n";
     return false;
   }
@@ -2276,21 +2280,21 @@ bool Sound::detach(const std::string& NoiseIdentifier)
   error_state = alGetError();
   if (error_state != AL_NO_ERROR)
   {
-    std::cout << "Sound::Detach: ERROR: couldn't detach buffers from source ("
+    DuskLog() << "Sound::Detach: ERROR: couldn't detach buffers from source ("
               <<"noise: \""<<NoiseIdentifier<<"\", attached media: \""
               <<noise_ptr->attachedMedia->MediaName<<"\").\n";
     switch(error_state)
     {
       case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n"; break;
+           DuskLog() << "    There is no current context.\n"; break;
       case AL_INVALID_NAME:
-           std::cout << "    Invalid source name ("<<noise_ptr->sourceID
+           DuskLog() << "    Invalid source name ("<<noise_ptr->sourceID
                      << "). Corrupt data structure?\n"; break;
       case AL_INVALID_VALUE:
-           std::cout << "    At least one buffer is still being processed and "
+           DuskLog() << "    At least one buffer is still being processed and "
                      << "could not be detached.\n"; break;
       default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
+           DuskLog() << "    Unknown error. Error code: "<<(int)error_state
                      << ".\n"; break;
     }//swi
     return false;
@@ -2315,13 +2319,13 @@ bool Sound::playNoise(const std::string& NoiseIdentifier)
 {
   if (!AL_Ready)
   {
-    std::cout << "Sound::PlayNoise: Warning: OpenAL is not initialized, thus we"
+    DuskLog() << "Sound::PlayNoise: Warning: OpenAL is not initialized, thus we"
               << "cannot play anything yet.\n";
     return false;
   }
   if (InitInProgress)
   {
-    std::cout << "Sound::PlayNoise: Warning: (De-)Initialization of OpenAL is "
+    DuskLog() << "Sound::PlayNoise: Warning: (De-)Initialization of OpenAL is "
               << "in progress, thus we cannot play anything here.\n";
     return false;
   }
@@ -2335,7 +2339,7 @@ bool Sound::playNoise(const std::string& NoiseIdentifier)
   }//while
   if (temp==NULL)
   {
-    std::cout << "Sound::PlayNoise: ERROR: Noise named \""<<NoiseIdentifier
+    DuskLog() << "Sound::PlayNoise: ERROR: Noise named \""<<NoiseIdentifier
               << "\" was not found.\n";
     return false;
   }//if
@@ -2347,15 +2351,15 @@ bool Sound::playNoise(const std::string& NoiseIdentifier)
   error_state = alGetError();
   if (error_state != AL_NO_ERROR)
   {
-    std::cout << "Sound::PlayNoise: ERROR: could not play source.\n";
+    DuskLog() << "Sound::PlayNoise: ERROR: could not play source.\n";
     switch(error_state)
     {
       case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n"; break;
+           DuskLog() << "    There is no current context.\n"; break;
       case AL_INVALID_NAME:
-           std::cout << "    Invalid source name. Corrupt data?\n"; break;
+           DuskLog() << "    Invalid source name. Corrupt data?\n"; break;
       default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
+           DuskLog() << "    Unknown error. Error code: "<<(int)error_state
                      << ".\n"; break;
     }//swi
     return false;
@@ -2372,13 +2376,13 @@ bool Sound::pauseNoise(const std::string& NoiseIdentifier)
 {
   if (!AL_Ready)
   {
-    std::cout << "Sound::PauseNoise: Warning: OpenAL is not initialized, thus we"
+    DuskLog() << "Sound::PauseNoise: Warning: OpenAL is not initialized, thus we"
               << "cannot pause anything yet.\n";
     return false;
   }
   if (InitInProgress)
   {
-    std::cout << "Sound::PauseNoise: Warning: (De-)Initialization of OpenAL is "
+    DuskLog() << "Sound::PauseNoise: Warning: (De-)Initialization of OpenAL is "
               << "in progress, thus we cannot pause anything here.\n";
     return false;
   }
@@ -2392,7 +2396,7 @@ bool Sound::pauseNoise(const std::string& NoiseIdentifier)
   }//while
   if (temp==NULL)
   {
-    std::cout << "Sound::PauseNoise: ERROR: Noise named \""<<NoiseIdentifier
+    DuskLog() << "Sound::PauseNoise: ERROR: Noise named \""<<NoiseIdentifier
               << "\" was not found.\n";
     return false;
   }//if
@@ -2404,15 +2408,15 @@ bool Sound::pauseNoise(const std::string& NoiseIdentifier)
   error_state = alGetError();
   if (error_state != AL_NO_ERROR)
   {
-    std::cout << "Sound::PauseNoise: could not pause source object.\n";
+    DuskLog() << "Sound::PauseNoise: could not pause source object.\n";
     switch(error_state)
     {
       case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n"; break;
+           DuskLog() << "    There is no current context.\n"; break;
       case AL_INVALID_NAME:
-           std::cout << "    Invalid source name. Corrupt data?\n"; break;
+           DuskLog() << "    Invalid source name. Corrupt data?\n"; break;
       default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
+           DuskLog() << "    Unknown error. Error code: "<<(int)error_state
                      << ".\n"; break;
     }//swi
     return false;
@@ -2426,13 +2430,13 @@ bool Sound::unPauseNoise(const std::string& NoiseIdentifier)
 {
   if (!AL_Ready)
   {
-    std::cout << "Sound::UnPauseNoise: Warning: OpenAL is not initialized, thus we"
+    DuskLog() << "Sound::UnPauseNoise: Warning: OpenAL is not initialized, thus we"
               << "cannot unpause anything yet.\n";
     return false;
   }
   if (InitInProgress)
   {
-    std::cout << "Sound::UnPauseNoise: Warning: (De-)Initialization of OpenAL is "
+    DuskLog() << "Sound::UnPauseNoise: Warning: (De-)Initialization of OpenAL is "
               << "in progress, thus we cannot unpause anything here.\n";
     return false;
   }
@@ -2446,7 +2450,7 @@ bool Sound::unPauseNoise(const std::string& NoiseIdentifier)
   }//while
   if (temp==NULL)
   {
-    std::cout << "Sound::UnPauseNoise: ERROR: Noise named \""<<NoiseIdentifier
+    DuskLog() << "Sound::UnPauseNoise: ERROR: Noise named \""<<NoiseIdentifier
               << "\" was not found.\n";
     return false;
   }//if
@@ -2459,19 +2463,19 @@ bool Sound::unPauseNoise(const std::string& NoiseIdentifier)
   error_state = alGetError();
   if (error_state != AL_NO_ERROR)
   {
-    std::cout << "Sound::UnPauseNoise: ERROR unable to check source state.\n";
+    DuskLog() << "Sound::UnPauseNoise: ERROR unable to check source state.\n";
     switch(error_state)
     {
       case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n"; break;
+           DuskLog() << "    There is no current context.\n"; break;
       case AL_INVALID_ENUM: //should never occur, since AL_SOURCE_STATE is hardcoded
-           std::cout << "    Specified parameter is not valid.\n"; break;
+           DuskLog() << "    Specified parameter is not valid.\n"; break;
       case AL_INVALID_NAME:
-           std::cout << "    Invalid source name. Corrupt data?\n"; break;
+           DuskLog() << "    Invalid source name. Corrupt data?\n"; break;
       case AL_INVALID_VALUE:
-           std::cout << "    Invalid pointer value.\n"; break;
+           DuskLog() << "    Invalid pointer value.\n"; break;
       default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
+           DuskLog() << "    Unknown error. Error code: "<<(int)error_state
                      << ".\n"; break;
     }//swi
     return false;
@@ -2480,7 +2484,7 @@ bool Sound::unPauseNoise(const std::string& NoiseIdentifier)
   //check state
   if (source_state == AL_PLAYING)
   {
-    std::cout << "Sound::UnPauseNoise: Hint: Noise \""<<NoiseIdentifier
+    DuskLog() << "Sound::UnPauseNoise: Hint: Noise \""<<NoiseIdentifier
               <<"\" is already playing.\n";
   }
   else if (source_state == AL_PAUSED)
@@ -2489,15 +2493,15 @@ bool Sound::unPauseNoise(const std::string& NoiseIdentifier)
     error_state = alGetError();
     if (error_state != AL_NO_ERROR)
     {
-      std::cout << "Sound::UnPauseNoise: ERROR: unable to play source.\n";
+      DuskLog() << "Sound::UnPauseNoise: ERROR: unable to play source.\n";
       switch(error_state)
       {
         case AL_INVALID_OPERATION:
-             std::cout << "    There is no current context.\n"; break;
+             DuskLog() << "    There is no current context.\n"; break;
         case AL_INVALID_NAME:
-             std::cout << "    Invalid source name. Data corruption?\n"; break;
+             DuskLog() << "    Invalid source name. Data corruption?\n"; break;
         default:
-             std::cout << "    Unknown error. Error code: "<<(int)error_state
+             DuskLog() << "    Unknown error. Error code: "<<(int)error_state
                        << ".\n"; break;
       }//swi
       return false;
@@ -2505,7 +2509,7 @@ bool Sound::unPauseNoise(const std::string& NoiseIdentifier)
   }//else if AL_PAUSED
   else
   {
-    std::cout << "Sound::UnPauseNoise: Hint: Noise \""<<NoiseIdentifier
+    DuskLog() << "Sound::UnPauseNoise: Hint: Noise \""<<NoiseIdentifier
               << "\" was not paused yet, thus we do nothing here.\n";
   }//else
   return true;
@@ -2517,13 +2521,13 @@ bool Sound::stopNoise(const std::string& NoiseIdentifier)
 {
   if (!AL_Ready)
   {
-    std::cout << "Sound::StopNoise: Warning: OpenAL is not initialized, thus we"
+    DuskLog() << "Sound::StopNoise: Warning: OpenAL is not initialized, thus we"
               << "cannot stop anything yet.\n";
     return false;
   }
   if (InitInProgress)
   {
-    std::cout << "Sound::StopNoise: Warning: (De-)Initialization of OpenAL is "
+    DuskLog() << "Sound::StopNoise: Warning: (De-)Initialization of OpenAL is "
               << "in progress, thus we cannot stop anything here.\n";
     return false;
   }
@@ -2537,7 +2541,7 @@ bool Sound::stopNoise(const std::string& NoiseIdentifier)
   }//while
   if (temp==NULL)
   {
-    std::cout << "Sound::StopNoise: ERROR: Noise named \""<<NoiseIdentifier
+    DuskLog() << "Sound::StopNoise: ERROR: Noise named \""<<NoiseIdentifier
               << "\" was not found.\n";
     return false;
   }//if
@@ -2549,15 +2553,15 @@ bool Sound::stopNoise(const std::string& NoiseIdentifier)
   error_state = alGetError();
   if (error_state != AL_NO_ERROR)
   {
-    std::cout << "Sound::StopNoise: could not stop source object.\n";
+    DuskLog() << "Sound::StopNoise: could not stop source object.\n";
     switch(error_state)
     {
       case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n"; break;
+           DuskLog() << "    There is no current context.\n"; break;
       case AL_INVALID_NAME:
-           std::cout << "    Invalid source name. Corrupt data?\n"; break;
+           DuskLog() << "    Invalid source name. Corrupt data?\n"; break;
       default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
+           DuskLog() << "    Unknown error. Error code: "<<(int)error_state
                      << ".\n"; break;
     }//swi
     return false;
@@ -2571,13 +2575,13 @@ bool Sound::loopNoise(const std::string& NoiseIdentifier, const bool DoLoop)
 {
   if (!AL_Ready)
   {
-    std::cout << "Sound::LoopNoise: Warning: OpenAL is not initialized, thus we"
+    DuskLog() << "Sound::LoopNoise: Warning: OpenAL is not initialized, thus we"
               << "cannot loop anything yet.\n";
     return false;
   }
   if (InitInProgress)
   {
-    std::cout << "Sound::LoopNoise: Warning: (De-)Initialization of OpenAL is "
+    DuskLog() << "Sound::LoopNoise: Warning: (De-)Initialization of OpenAL is "
               << "in progress, thus we cannot loop anything here.\n";
     return false;
   }
@@ -2591,7 +2595,7 @@ bool Sound::loopNoise(const std::string& NoiseIdentifier, const bool DoLoop)
   }//while
   if (temp==NULL)
   {
-    std::cout << "Sound::LoopNoise: ERROR: Noise named \""<<NoiseIdentifier
+    DuskLog() << "Sound::LoopNoise: ERROR: Noise named \""<<NoiseIdentifier
               << "\" was not found.\n";
     return false;
   }//if
@@ -2609,20 +2613,20 @@ bool Sound::loopNoise(const std::string& NoiseIdentifier, const bool DoLoop)
   error_state = alGetError();
   if (error_state != AL_NO_ERROR)
   {
-    std::cout << "Sound::LoopNoise: ERROR: unable to set loop mode for noise \""
+    DuskLog() << "Sound::LoopNoise: ERROR: unable to set loop mode for noise \""
               << NoiseIdentifier << "\".\n";
     switch(error_state)
     {
       case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n"; break;
+           DuskLog() << "    There is no current context.\n"; break;
       case AL_INVALID_NAME:
-           std::cout << "    Invalid source name. Data corruption?\n"; break;
+           DuskLog() << "    Invalid source name. Data corruption?\n"; break;
       case AL_INVALID_ENUM: //should never occur, AL_LOOPING is allowed enum type
-           std::cout << "    Invalid enumeration parameter.\n"; break;
+           DuskLog() << "    Invalid enumeration parameter.\n"; break;
       case AL_INVALID_VALUE: //should never occur, since AL_TRUE/AL_FALSE is valid
-           std::cout << "    Given value is out of range.\n"; break;
+           DuskLog() << "    Given value is out of range.\n"; break;
       default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
+           DuskLog() << "    Unknown error. Error code: "<<(int)error_state
                      << ".\n"; break;
     }//swi
     return false;
@@ -2634,19 +2638,19 @@ bool Sound::setNoiseOffset(const std::string& NoiseIdentifier, const float secon
 {
   if (!AL_Ready)
   {
-    std::cout << "Sound::SetNoiseOffset: Warning: OpenAL is not initialized, "
+    DuskLog() << "Sound::SetNoiseOffset: Warning: OpenAL is not initialized, "
               << "thus we cannot set anything yet.\n";
     return false;
   }
   if (InitInProgress)
   {
-    std::cout << "Sound::SetNoiseOffset: Warning: (De-)Initialization of OpenAL"
+    DuskLog() << "Sound::SetNoiseOffset: Warning: (De-)Initialization of OpenAL"
               << " is in progress, thus we cannot set anything here.\n";
     return false;
   }
   if (seconds<0.0f)
   {
-    std::cout << "Sound::SetNoiseOffset: ERROR: Cannot set negative value for "
+    DuskLog() << "Sound::SetNoiseOffset: ERROR: Cannot set negative value for "
               << "offset. Aborting.\n";
     return false;
   }
@@ -2660,7 +2664,7 @@ bool Sound::setNoiseOffset(const std::string& NoiseIdentifier, const float secon
   }//while
   if (temp==NULL)
   {
-    std::cout << "Sound::SetNoiseOffset: ERROR: Noise \""<<NoiseIdentifier
+    DuskLog() << "Sound::SetNoiseOffset: ERROR: Noise \""<<NoiseIdentifier
               << "\" was not found.\n";
     return false;
   }//if
@@ -2671,22 +2675,22 @@ bool Sound::setNoiseOffset(const std::string& NoiseIdentifier, const float secon
   error_state = alGetError();
   if (error_state!=AL_NO_ERROR)
   {
-    std::cout << "Sound::SetNoiseOffset: ERROR: Unable to set offset for \""
+    DuskLog() << "Sound::SetNoiseOffset: ERROR: Unable to set offset for \""
               << NoiseIdentifier << "\" to "<<seconds<<" seconds.\n";
     switch(error_state)
     {
       case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n"; break;
+           DuskLog() << "    There is no current context.\n"; break;
       case AL_INVALID_ENUM: //shouldn't happen, at least not with OpenAL 1.1
-           std::cout << "    Invalid enumeration parameter. Make sure you have"
+           DuskLog() << "    Invalid enumeration parameter. Make sure you have"
                      << " OpenAL 1.1 or higher installed.\n"; break;
       case AL_INVALID_VALUE:
-           std::cout << "    The given offset value is out of range.\n"; break;
+           DuskLog() << "    The given offset value is out of range.\n"; break;
       case AL_INVALID_NAME:
-           std::cout << "    Invalid source name. Internal data corruption?\n";
+           DuskLog() << "    Invalid source name. Internal data corruption?\n";
            break;
       default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
+           DuskLog() << "    Unknown error. Error code: "<<(int)error_state
                      << ".\n"; break;
     }//switch
     return false;
@@ -2699,13 +2703,13 @@ float Sound::getNoiseOffset(const std::string& NoiseIdentifier) const
 {
   if (!AL_Ready)
   {
-    std::cout << "Sound::GetNoiseOffset: Warning: OpenAL is not initialized, "
+    DuskLog() << "Sound::GetNoiseOffset: Warning: OpenAL is not initialized, "
               << "thus we cannot get any values yet.\n";
     return -1.0f;
   }
   if (InitInProgress)
   {
-    std::cout << "Sound::GetNoiseOffset: Warning: (De-)Initialization of OpenAL"
+    DuskLog() << "Sound::GetNoiseOffset: Warning: (De-)Initialization of OpenAL"
               << " is in progress, thus we cannot get anything here.\n";
     return -1.0f;
   }
@@ -2719,7 +2723,7 @@ float Sound::getNoiseOffset(const std::string& NoiseIdentifier) const
   }//while
   if (temp==NULL)
   {
-    std::cout << "Sound::GetNoiseOffset: ERROR: Noise \""<<NoiseIdentifier
+    DuskLog() << "Sound::GetNoiseOffset: ERROR: Noise \""<<NoiseIdentifier
               << "\" was not found.\n";
     return -1.0f;
   }//if
@@ -2731,22 +2735,22 @@ float Sound::getNoiseOffset(const std::string& NoiseIdentifier) const
   error_state = alGetError();
   if (error_state!=AL_NO_ERROR)
   {
-    std::cout << "Sound::GetNoiseOffset: ERROR: Unable to get offset for \""
+    DuskLog() << "Sound::GetNoiseOffset: ERROR: Unable to get offset for \""
               << NoiseIdentifier << "\".\n";
     switch(error_state)
     {
       case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n"; break;
+           DuskLog() << "    There is no current context.\n"; break;
       case AL_INVALID_ENUM: //shouldn't happen, at least not with OpenAL 1.1
-           std::cout << "    Invalid enumeration parameter. Make sure you have"
+           DuskLog() << "    Invalid enumeration parameter. Make sure you have"
                      << " OpenAL 1.1 or higher.\n"; break;
       case AL_INVALID_VALUE:
-           std::cout << "    Invalid pointer value.\n"; break;
+           DuskLog() << "    Invalid pointer value.\n"; break;
       case AL_INVALID_NAME:
-           std::cout << "    Invalid source name. Internal data corruption?\n";
+           DuskLog() << "    Invalid source name. Internal data corruption?\n";
            break;
       default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
+           DuskLog() << "    Unknown error. Error code: "<<(int)error_state
                      << ".\n"; break;
     }//switch
     return -1.0;
@@ -2760,7 +2764,7 @@ bool Sound::isPlayingNoise(const std::string& NoiseIdentifier) const
 {
   if (!AL_Ready || InitInProgress)
   {
-    std::cout << "Sound::IsPlayingNoise: Warning: OpenAL is not initialized, or"
+    DuskLog() << "Sound::IsPlayingNoise: Warning: OpenAL is not initialized, or"
               << " (de-)initialisation is in progress. Thus we cannot check for"
               << " playback state.\n";
     return false;
@@ -2775,7 +2779,7 @@ bool Sound::isPlayingNoise(const std::string& NoiseIdentifier) const
   }//while
   if (temp==NULL)
   {
-    std::cout << "Sound::IsPlayingNoise: ERROR: Noise named \""<<NoiseIdentifier
+    DuskLog() << "Sound::IsPlayingNoise: ERROR: Noise named \""<<NoiseIdentifier
               << "\" was not found.\n";
     return false;
   }//if
@@ -2788,19 +2792,19 @@ bool Sound::isPlayingNoise(const std::string& NoiseIdentifier) const
   error_state = alGetError();
   if (error_state != AL_NO_ERROR)
   {
-    std::cout << "Sound::IsPlayingNoise: ERROR: unable to retrieve source state.\n";
+    DuskLog() << "Sound::IsPlayingNoise: ERROR: unable to retrieve source state.\n";
     switch(error_state)
     {
       case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n"; break;
+           DuskLog() << "    There is no current context.\n"; break;
       case AL_INVALID_NAME:
-           std::cout << "    Invalid source name. Data corruption?\n"; break;
+           DuskLog() << "    Invalid source name. Data corruption?\n"; break;
       case AL_INVALID_ENUM: //should never occur, AL_SOURCE_STATE is valid enum
-           std::cout << "    Invalid enumeration parameter.\n"; break;
+           DuskLog() << "    Invalid enumeration parameter.\n"; break;
       case AL_INVALID_VALUE:
-           std::cout << "    Invalid pointer value.\n"; break;
+           DuskLog() << "    Invalid pointer value.\n"; break;
       default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
+           DuskLog() << "    Unknown error. Error code: "<<(int)error_state
                      << ".\n"; break;
     }//swi
     return false;
@@ -2815,7 +2819,7 @@ bool Sound::isLoopingNoise(const std::string& NoiseIdentifier) const
 {
   if (!AL_Ready || InitInProgress)
   {
-    std::cout << "Sound::IsLoopingNoise: Warning: OpenAL is not initialized, or"
+    DuskLog() << "Sound::IsLoopingNoise: Warning: OpenAL is not initialized, or"
               << " (de-)initialisation is in progress. Thus we cannot check for"
               << " looping state.\n";
     return false;
@@ -2830,7 +2834,7 @@ bool Sound::isLoopingNoise(const std::string& NoiseIdentifier) const
   }//while
   if (temp==NULL)
   {
-    std::cout << "Sound::IsLoopingNoise: ERROR: Noise named \""<<NoiseIdentifier
+    DuskLog() << "Sound::IsLoopingNoise: ERROR: Noise named \""<<NoiseIdentifier
               << "\" was not found.\n";
     return false;
   }//if
@@ -2843,19 +2847,19 @@ bool Sound::isLoopingNoise(const std::string& NoiseIdentifier) const
   error_state = alGetError();
   if (error_state != AL_NO_ERROR)
   {
-    std::cout << "Sound::IsLoopingNoise: ERROR: unable to retrieve source state.\n";
+    DuskLog() << "Sound::IsLoopingNoise: ERROR: unable to retrieve source state.\n";
     switch(error_state)
     {
       case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n"; break;
+           DuskLog() << "    There is no current context.\n"; break;
       case AL_INVALID_NAME:
-           std::cout << "    Invalid source name. Data corruption?\n"; break;
+           DuskLog() << "    Invalid source name. Data corruption?\n"; break;
       case AL_INVALID_ENUM: //should never occur, AL_LOOPING is valid enum
-           std::cout << "    Invalid enumeration parameter.\n"; break;
+           DuskLog() << "    Invalid enumeration parameter.\n"; break;
       case AL_INVALID_VALUE:
-           std::cout << "    Invalid pointer value.\n"; break;
+           DuskLog() << "    Invalid pointer value.\n"; break;
       default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
+           DuskLog() << "    Unknown error. Error code: "<<(int)error_state
                      << ".\n"; break;
     }//swi
     return false;
@@ -2871,19 +2875,19 @@ bool Sound::setNoiseVolume(const std::string& NoiseIdentifier, const float volum
 {
   if (!AL_Ready)
   {
-    std::cout << "Sound::SetNoiseVolume: Warning: OpenAL is not initialized, "
+    DuskLog() << "Sound::SetNoiseVolume: Warning: OpenAL is not initialized, "
               << "thus we cannot set any files volumes yet.\n";
     return false;
   }
   if (InitInProgress)
   {
-    std::cout << "Sound::SetNoiseVolume: ERROR: (De-)Initialization of OpenAL "
+    DuskLog() << "Sound::SetNoiseVolume: ERROR: (De-)Initialization of OpenAL "
               << "is in progress, thus we cannot have a file here.\n";
     return false;
   }
   if (volume<0.0f)
   {
-    std::cout << "Sound::SetNoiseVolume: ERROR: No volume values below zero "
+    DuskLog() << "Sound::SetNoiseVolume: ERROR: No volume values below zero "
               << "allowed. Skipping command.\n";
     return false;
   }
@@ -2900,28 +2904,28 @@ bool Sound::setNoiseVolume(const std::string& NoiseIdentifier, const float volum
       error_state = alGetError();
       if (error_state != AL_NO_ERROR)
       {
-        std::cout << "Sound::SetNoiseVolume: ERROR: Could not set volume for "
+        DuskLog() << "Sound::SetNoiseVolume: ERROR: Could not set volume for "
                   <<"noise \""<<NoiseIdentifier<<"\".\n";
         switch(error_state)
         {
           case AL_INVALID_VALUE:
-               std::cout << "    Value out of range.\n"; break;
+               DuskLog() << "    Value out of range.\n"; break;
           case AL_INVALID_ENUM: //should never occur, because AL_GAIN is valid
-               std::cout << "    Invalid parameter.\n"; break;
+               DuskLog() << "    Invalid parameter.\n"; break;
           case AL_INVALID_NAME:
-               std::cout << "    Invalid source("<<temp->sourceID<<"). Corrupt "
+               DuskLog() << "    Invalid source("<<temp->sourceID<<"). Corrupt "
                          << "noise list?\n"; break;
           case AL_INVALID_OPERATION:
-               std::cout << "    There is no current context.\n"; break;
+               DuskLog() << "    There is no current context.\n"; break;
           default:
-               std::cout << "    Unknown error. Error code: "<<(int)error_state
+               DuskLog() << "    Unknown error. Error code: "<<(int)error_state
                          << ".\n"; break;
         }//swi
         return false;
       }//if
       if (volume >1.0f)
       {
-        std::cout << "Sound::SetNoiseVolume: Warning: Some OpenAL "
+        DuskLog() << "Sound::SetNoiseVolume: Warning: Some OpenAL "
                   << "implementations cut volume values larger than 1.0 down to"
                   << " 1.0.\n";
       }//if
@@ -2930,7 +2934,7 @@ bool Sound::setNoiseVolume(const std::string& NoiseIdentifier, const float volum
     temp = temp->next;
   }//while
   //file not found
-  std::cout << "Sound::SetNoiseVolume: Warning: Noise \""<<NoiseIdentifier
+  DuskLog() << "Sound::SetNoiseVolume: Warning: Noise \""<<NoiseIdentifier
             <<"\" was not found.\n";
   return false;
 }//func
@@ -2951,7 +2955,7 @@ float Sound::getNoiseVolume(const std::string& NoiseIdentifier, const bool consi
 {
   if (!AL_Ready || InitInProgress)
   {
-    std::cout << "Sound::GetNoiseVolume: Warning: OpenAL is not initialized, or"
+    DuskLog() << "Sound::GetNoiseVolume: Warning: OpenAL is not initialized, or"
               << "(de-)initialisation of OpenAL is in progress. Thus we cannot "
               << "retrieve any noise volumes yet.\n";
     return 0.0;
@@ -2970,21 +2974,21 @@ float Sound::getNoiseVolume(const std::string& NoiseIdentifier, const bool consi
       error_state = alGetError();
       if (error_state != AL_NO_ERROR)
       {
-        std::cout << "Sound::GetNoiseVolume: ERROR: Could not retrieve source state "
+        DuskLog() << "Sound::GetNoiseVolume: ERROR: Could not retrieve source state "
                   << "for noise \""<<NoiseIdentifier<<"\".\n";
         switch(error_state)
         {
           case AL_INVALID_VALUE:
-               std::cout << "    Invalid value pointer.\n"; break;
+               DuskLog() << "    Invalid value pointer.\n"; break;
           case AL_INVALID_ENUM: //should never occur here, AL_GAIN is valid
-               std::cout << "    Invalid enumeration parameter.\n"; break;
+               DuskLog() << "    Invalid enumeration parameter.\n"; break;
           case AL_INVALID_NAME:
-               std::cout << "    The specified source ("<<temp->sourceID<<") is"
+               DuskLog() << "    The specified source ("<<temp->sourceID<<") is"
                          << " not valid. Corrupt noise list?\n"; break;
           case AL_INVALID_OPERATION:
-               std::cout << "    There is no current context.\n"; break;
+               DuskLog() << "    There is no current context.\n"; break;
           default:
-               std::cout << "    Unknown error. Error code: "<<(int)error_state
+               DuskLog() << "    Unknown error. Error code: "<<(int)error_state
                          << ".\n"; break;
         }//swi
         return 0.0f; //assume something
@@ -2999,19 +3003,19 @@ float Sound::getNoiseVolume(const std::string& NoiseIdentifier, const bool consi
       error_state = alGetError();
       if (error_state != AL_NO_ERROR)
       {
-        std::cout << "Sound::GetNoiseVolume: ERROR: Could not retrieve minimum "
+        DuskLog() << "Sound::GetNoiseVolume: ERROR: Could not retrieve minimum "
                   << "bound on volume for noise \"" <<NoiseIdentifier<<"\".\n";
         switch(error_state)
         {
           case AL_INVALID_VALUE:
-               std::cout << "    Invalid value pointer.\n"; break;
+               DuskLog() << "    Invalid value pointer.\n"; break;
           case AL_INVALID_ENUM: //should never occur here
-               std::cout << "    Invalid enumeration parameter.\n"; break;
+               DuskLog() << "    Invalid enumeration parameter.\n"; break;
           /*AL_INVALID_NAME or AL_INVALID_OPERATION should not occur here, cause
             they would have already occured on the last call to alGetSourcef and
             we would not even get this far. ;)*/
           default:
-               std::cout << "    Unknown error. Error code: "<<(int)error_state
+               DuskLog() << "    Unknown error. Error code: "<<(int)error_state
                          << ".\n"; break;
         }//swi
         return volume_info; //return the gain value, though it might be beyond
@@ -3026,19 +3030,19 @@ float Sound::getNoiseVolume(const std::string& NoiseIdentifier, const bool consi
       error_state = alGetError();
       if (error_state != AL_NO_ERROR)
       {
-        std::cout << "Sound::GetNoiseVolume: ERROR: Could not retrieve maximum "
+        DuskLog() << "Sound::GetNoiseVolume: ERROR: Could not retrieve maximum "
                   << "bound on volume for noise \"" <<NoiseIdentifier<<"\".\n";
         switch(error_state)
         {
           case AL_INVALID_VALUE:
-               std::cout << "    Invalid value pointer.\n"; break;
+               DuskLog() << "    Invalid value pointer.\n"; break;
           case AL_INVALID_ENUM: //should never occur here
-               std::cout << "    Invalid enumeration parameter.\n"; break;
+               DuskLog() << "    Invalid enumeration parameter.\n"; break;
           /*AL_INVALID_NAME or AL_INVALID_OPERATION should not occur here, cause
             they would have already occured on the last call to alGetSourcef and
             we would not even get this far. ;)*/
           default:
-               std::cout << "    Unknown error. Error code: "<<(int)error_state
+               DuskLog() << "    Unknown error. Error code: "<<(int)error_state
                          << ".\n"; break;
         }//swi
         return volume_info; //return the gain value, though it might be beyond
@@ -3053,7 +3057,7 @@ float Sound::getNoiseVolume(const std::string& NoiseIdentifier, const bool consi
     }//if
     temp = temp->next;
   }//while
-  std::cout << "Sound::GetNoiseVolume: Warning: Noise \""<<NoiseIdentifier
+  DuskLog() << "Sound::GetNoiseVolume: Warning: Noise \""<<NoiseIdentifier
            <<"\" was not found. Assuming zero volume.\n";
   return 0.0f; //no file found, hence it is "muted", i.e. volume zero
 }
@@ -3063,13 +3067,13 @@ bool Sound::setNoisePosition(const std::string& NoiseIdentifier, const float x, 
 {
   if (!AL_Ready)
   {
-    std::cout << "Sound::SetNoisePosition: Warning: OpenAL is not initialized, "
+    DuskLog() << "Sound::SetNoisePosition: Warning: OpenAL is not initialized, "
               << "thus we cannot set the noise position yet.\n";
     return false;
   }
   if (InitInProgress)
   {
-    std::cout << "Sound::SetNoisePosition: ERROR: (De-)Initialization of OpenAL"
+    DuskLog() << "Sound::SetNoisePosition: ERROR: (De-)Initialization of OpenAL"
               << " is in progress, thus we cannot set a position here.\n";
     return false;
   }
@@ -3083,7 +3087,7 @@ bool Sound::setNoisePosition(const std::string& NoiseIdentifier, const float x, 
   //check for sanity/ presence
   if (temp == NULL)
   {
-    std::cout << "Sound::SetNoisePosition: ERROR: Could not find noise \""
+    DuskLog() << "Sound::SetNoisePosition: ERROR: Could not find noise \""
               <<NoiseIdentifier<<"\".\n";
     return false;
   }
@@ -3094,20 +3098,20 @@ bool Sound::setNoisePosition(const std::string& NoiseIdentifier, const float x, 
   error_state = alGetError();
   if (error_state != AL_NO_ERROR)
   {
-    std::cout << "Sound::SetNoisePosition: ERROR: could not set position.\n";
+    DuskLog() << "Sound::SetNoisePosition: ERROR: could not set position.\n";
     switch(error_state)
     {
       case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n"; break;
+           DuskLog() << "    There is no current context.\n"; break;
       case AL_INVALID_NAME:
-           std::cout << "    Invalid source name. Data corruption?\n"; break;
+           DuskLog() << "    Invalid source name. Data corruption?\n"; break;
       case AL_INVALID_ENUM: //should never happen, since AL_POSITION is valid
-           std::cout << "    Invalid enumeration parameter.\n"; break;
+           DuskLog() << "    Invalid enumeration parameter.\n"; break;
       case AL_INVALID_VALUE:
-           std::cout << "    Given values are out of range (x: "<<x<<"; y: "<<y
+           DuskLog() << "    Given values are out of range (x: "<<x<<"; y: "<<y
                      << "; z: "<<z<<").\n"; break;
       default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
+           DuskLog() << "    Unknown error. Error code: "<<(int)error_state
                      << ".\n"; break;
     }//switch
     return false;
@@ -3122,7 +3126,7 @@ std::vector<float> Sound::getNoisePosition(const std::string& NoiseIdentifier) c
 {
   if (!AL_Ready || InitInProgress)
   {
-    std::cout << "Sound::GetNoisePosition: Warning: OpenAL is not initialized, "
+    DuskLog() << "Sound::GetNoisePosition: Warning: OpenAL is not initialized, "
               << "or (de-)initialisation is in progress. Thus we cannot get the"
               << " sound position yet.\n";
     return std::vector<float>(3, 0.0f);
@@ -3137,7 +3141,7 @@ std::vector<float> Sound::getNoisePosition(const std::string& NoiseIdentifier) c
   //check for presence
   if (temp==NULL)
   {
-    std::cout << "Sound::GetNoisePosition: ERROR: There is no noise named \""
+    DuskLog() << "Sound::GetNoisePosition: ERROR: There is no noise named \""
               <<NoiseIdentifier<<"\".\n";
     return std::vector<float>(3, 0.0f);
   }//if
@@ -3150,20 +3154,20 @@ std::vector<float> Sound::getNoisePosition(const std::string& NoiseIdentifier) c
   error_state = alGetError();
   if (error_state != AL_NO_ERROR)
   {
-    std::cout << "Sound::GetNoisePosition: ERROR: could not retrieve source "
+    DuskLog() << "Sound::GetNoisePosition: ERROR: could not retrieve source "
               << "state of noise \""<<NoiseIdentifier<<"\".\n";
     switch(error_state)
     {
       case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n"; break;
+           DuskLog() << "    There is no current context.\n"; break;
       case AL_INVALID_NAME:
-           std::cout << "    Invalid source name. Corrupt data?\n"; break;
+           DuskLog() << "    Invalid source name. Corrupt data?\n"; break;
       case AL_INVALID_ENUM: //should never happen, AL_POSITION is valid
-           std::cout << "    Invalid enumeration parameter.\n"; break;
+           DuskLog() << "    Invalid enumeration parameter.\n"; break;
       case AL_INVALID_VALUE:
-           std::cout << "    At least one value pointer is invalid.\n"; break;
+           DuskLog() << "    At least one value pointer is invalid.\n"; break;
       default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
+           DuskLog() << "    Unknown error. Error code: "<<(int)error_state
                      << ".\n"; break;
     }//swi
     return std::vector<float>(3, 0.0f);
@@ -3178,7 +3182,7 @@ bool Sound::SetNoiseVelocity(const std::string& NoiseIdentifier, const float x, 
 {
   if (!AL_Ready || InitInProgress)
   {
-    std::cout << "Sound::SetNoiseVelocity: Warning: OpenAL is not initialized, "
+    DuskLog() << "Sound::SetNoiseVelocity: Warning: OpenAL is not initialized, "
               << "or (de-)initialisation is in progress. Thus we cannot set the"
               << " noise position yet.\n";
     return false;
@@ -3193,7 +3197,7 @@ bool Sound::SetNoiseVelocity(const std::string& NoiseIdentifier, const float x, 
   //check for NULL
   if (temp==NULL)
   {
-    std::cout << "Sound::SetNoiseVelocity: ERROR: could not find noise \""
+    DuskLog() << "Sound::SetNoiseVelocity: ERROR: could not find noise \""
               <<NoiseIdentifier<<"\".\n";
     return false;
   }//if
@@ -3204,21 +3208,21 @@ bool Sound::SetNoiseVelocity(const std::string& NoiseIdentifier, const float x, 
   error_state = alGetError();
   if (error_state != AL_NO_ERROR)
   {
-    std::cout << "Sound::SetNoiseVelocity: ERROR: could not set position for "
+    DuskLog() << "Sound::SetNoiseVelocity: ERROR: could not set position for "
               << "noise \""<<NoiseIdentifier<<"\".\n";
     switch(error_state)
     {
       case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n"; break;
+           DuskLog() << "    There is no current context.\n"; break;
       case AL_INVALID_NAME:
-           std::cout << "    Invalid source name. Corruption of data?\n"; break;
+           DuskLog() << "    Invalid source name. Corruption of data?\n"; break;
       case AL_INVALID_ENUM: //should never occur, AL_VELOCITY is valid enum
-           std::cout << "    Invalid enumeration value given.\n"; break;
+           DuskLog() << "    Invalid enumeration value given.\n"; break;
       case AL_INVALID_VALUE:
-           std::cout << "    Given values are out of range (x: "<<x<<"; y: "<<y
+           DuskLog() << "    Given values are out of range (x: "<<x<<"; y: "<<y
                      << "; z: "<<z<<").\n"; break;
       default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
+           DuskLog() << "    Unknown error. Error code: "<<(int)error_state
                      << ".\n"; break;
     }//swi
     return false;
@@ -3234,7 +3238,7 @@ std::vector<float> Sound::GetNoiseVelocity(const std::string& NoiseIdentifier) c
 {
   if (!AL_Ready || InitInProgress)
   {
-    std::cout << "Sound::GetNoiseVelocity: Warning: OpenAL is not initialized, "
+    DuskLog() << "Sound::GetNoiseVelocity: Warning: OpenAL is not initialized, "
               << "or (de-)initialisation is in progress. Thus we cannot set the"
               << " noise position yet.\n";
     return std::vector<float>(3, 0.0);
@@ -3249,7 +3253,7 @@ std::vector<float> Sound::GetNoiseVelocity(const std::string& NoiseIdentifier) c
   //check for presence/ sanity
   if (temp==NULL)
   {
-    std::cout << "Sound::GetNoiseVelocity: ERROR: could not find noise \""
+    DuskLog() << "Sound::GetNoiseVelocity: ERROR: could not find noise \""
               <<NoiseIdentifier<<"\". Returning zero vector.\n";
     return std::vector<float>(3, 0.0);
   }//if
@@ -3262,20 +3266,20 @@ std::vector<float> Sound::GetNoiseVelocity(const std::string& NoiseIdentifier) c
   error_state = alGetError();
   if (error_state != AL_NO_ERROR)
   {
-    std::cout << "Sound::GetNoiseVelocity: ERROR: could not retrieve source "
+    DuskLog() << "Sound::GetNoiseVelocity: ERROR: could not retrieve source "
               << "velocity for noise \""<<NoiseIdentifier<<"\".\n";
     switch(error_state)
     {
       case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n"; break;
+           DuskLog() << "    There is no current context.\n"; break;
       case AL_INVALID_NAME:
-           std::cout << "    Invalid source name. Corrupt data?\n"; break;
+           DuskLog() << "    Invalid source name. Corrupt data?\n"; break;
       case AL_INVALID_ENUM: //should never occur, AL_VELOCITY is valid enum
-           std::cout << "    Invalid enumeration value.\n"; break;
+           DuskLog() << "    Invalid enumeration value.\n"; break;
       case AL_INVALID_VALUE:
-           std::cout << "    Invalid pointer values supplied.\n"; break;
+           DuskLog() << "    Invalid pointer values supplied.\n"; break;
       default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
+           DuskLog() << "    Unknown error. Error code: "<<(int)error_state
                      << ".\n"; break;
     }//switch
     return std::vector<float>(3, 0.0);
@@ -3289,13 +3293,13 @@ float Sound::getSpeedOfSound() const
 {
   if (!AL_Ready)
   {
-    std::cout << "Sound::GetSpeedOfSound: Warning: OpenAL is not initialized "
+    DuskLog() << "Sound::GetSpeedOfSound: Warning: OpenAL is not initialized "
               << "yet, hence we cannot query anything here.\n";
     return 0.0f;
   }
   if (InitInProgress)
   {
-    std::cout << "Sound::GetSpeedOfSound: ERROR: (De-)Initialization of OpenAL "
+    DuskLog() << "Sound::GetSpeedOfSound: ERROR: (De-)Initialization of OpenAL "
               << "is in progress. No state query possbile.\n";
     return 0.0f;
   }
@@ -3306,16 +3310,16 @@ float Sound::getSpeedOfSound() const
   error_state = alGetError();
   if (error_state!=AL_NO_ERROR)
   {
-    std::cout << "Sound::GetSpeedOfSound: ERROR: Could not query state var.\n";
+    DuskLog() << "Sound::GetSpeedOfSound: ERROR: Could not query state var.\n";
     switch(error_state)
     {
       case AL_INVALID_ENUM: //unlikely (as in impossible) to happen
-           std::cout << "    Invalid enumeration token.\n"; break;
+           DuskLog() << "    Invalid enumeration token.\n"; break;
       case AL_INVALID_OPERATION: //shouldn't happen, since we always have a valid
                                  // context after initialization of Sound class
-           std::cout << "    There is no current context.\n"; break;
+           DuskLog() << "    There is no current context.\n"; break;
       default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
+           DuskLog() << "    Unknown error. Error code: "<<(int)error_state
                      <<".\n"; break;
     }//swi
     return 0.0f;
@@ -3330,18 +3334,18 @@ bool Sound::setSpeedOfSound(const float new_value)
   //values equal to or lesser than zero are rated "not funny"
   if (new_value<=0.0f)
   {
-    std::cout<<"Sound::SetSpeedOfSound: ERROR: Only positive values allowed!\n";
+    DuskLog()<<"Sound::SetSpeedOfSound: ERROR: Only positive values allowed!\n";
     return false;
   }
   if (!AL_Ready)
   {
-    std::cout << "Sound::SetSpeedOfSound: Warning: OpenAL is not initialized "
+    DuskLog() << "Sound::SetSpeedOfSound: Warning: OpenAL is not initialized "
               << "yet, hence we cannot set any values here.\n";
     return false;
   }
   if (InitInProgress)
   {
-    std::cout << "Sound::SetSpeedOfSound: ERROR: (De-)Initialization of OpenAL "
+    DuskLog() << "Sound::SetSpeedOfSound: ERROR: (De-)Initialization of OpenAL "
               << "is in progress. No state changes possbile.\n";
     return false;
   }
@@ -3352,15 +3356,15 @@ bool Sound::setSpeedOfSound(const float new_value)
   error_state = alGetError();
   if (error_state!=AL_NO_ERROR)
   {
-    std::cout << "Sound::SetSpeedOfSound: ERROR: Could not set new value.\n";
+    DuskLog() << "Sound::SetSpeedOfSound: ERROR: Could not set new value.\n";
     switch(error_state)
     {
       case AL_INVALID_VALUE:
-           std::cout << "    Invalid value given ("<<new_value<<").\n"; break;
+           DuskLog() << "    Invalid value given ("<<new_value<<").\n"; break;
       case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n"; break;
+           DuskLog() << "    There is no current context.\n"; break;
       default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
+           DuskLog() << "    Unknown error. Error code: "<<(int)error_state
                      <<".\n"; break;
     }//swi
     return false;
@@ -3376,13 +3380,13 @@ bool Sound::setListenerPostion(const float x, const float y, const float z)
 {
   if (!AL_Ready)
   {
-    std::cout << "Sound::SetListenerPostion: Warning: OpenAL is not initialized"
+    DuskLog() << "Sound::SetListenerPostion: Warning: OpenAL is not initialized"
               << ", thus we cannot set the listener's position yet.\n";
     return false;
   }
   if (InitInProgress)
   {
-    std::cout << "Sound::SetListenerPostion: ERROR: (De-)Initialization of "
+    DuskLog() << "Sound::SetListenerPostion: ERROR: (De-)Initialization of "
               << "OpenAL is in progress, thus we cannot set position here.\n";
     return false;
   }
@@ -3393,18 +3397,18 @@ bool Sound::setListenerPostion(const float x, const float y, const float z)
   error_state = alGetError();
   if (error_state != AL_NO_ERROR)
   {
-    std::cout << "Sound::SetListenerPosition: ERROR: Could not set listener's "
+    DuskLog() << "Sound::SetListenerPosition: ERROR: Could not set listener's "
               << "position!\n";
     switch(error_state)
     {
       case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n"; break;
+           DuskLog() << "    There is no current context.\n"; break;
       case AL_INVALID_ENUM: //should never happen here, since param is constant
-           std::cout << "    Invalid enum parameter.\n"; break;
+           DuskLog() << "    Invalid enum parameter.\n"; break;
       case AL_INVALID_VALUE:
-           std::cout << "    Invalid value, possible NaN or Inf?\n"; break;
+           DuskLog() << "    Invalid value, possible NaN or Inf?\n"; break;
       default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
+           DuskLog() << "    Unknown error. Error code: "<<(int)error_state
                      <<".\n"; break;
     }//swi
     return false;
@@ -3418,13 +3422,13 @@ std::vector<float> Sound::getListenerPosition() const
 {
   if (!AL_Ready)
   {
-    std::cout << "Sound::GetListenerPostion: Warning: OpenAL is not initialized"
+    DuskLog() << "Sound::GetListenerPostion: Warning: OpenAL is not initialized"
               << ", thus we cannot get the listener's position yet.\n";
     return std::vector<float>(3, 0.0f);
   }
   if (InitInProgress)
   {
-    std::cout << "Sound::GetListenerPostion: ERROR: (De-)Initialization of "
+    DuskLog() << "Sound::GetListenerPostion: ERROR: (De-)Initialization of "
               << "OpenAL is in progress, thus we cannot get a position here.\n";
     return std::vector<float>(3, 0.0f);
   }
@@ -3438,18 +3442,18 @@ std::vector<float> Sound::getListenerPosition() const
   error_state = alGetError();
   if (error_state != AL_NO_ERROR)
   {
-    std::cout << "Sound::GetListenerPosition: ERROR: Could not get listener's "
+    DuskLog() << "Sound::GetListenerPosition: ERROR: Could not get listener's "
               << "position.\n";
     switch(error_state)
     {
       case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n"; break;
+           DuskLog() << "    There is no current context.\n"; break;
       case AL_INVALID_ENUM: //should not happen here
-           std::cout << "    Invalid enumeration value.\n"; break;
+           DuskLog() << "    Invalid enumeration value.\n"; break;
       case AL_INVALID_VALUE:
-           std::cout << "    Invalid pointer values.\n";
+           DuskLog() << "    Invalid pointer values.\n";
       default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
+           DuskLog() << "    Unknown error. Error code: "<<(int)error_state
                      << ".\n"; break;
     }//swi
     //Normally we would return "false" here, but since there is no bool, we can
@@ -3464,13 +3468,13 @@ bool Sound::translateListenerPostion(const float delta_x, const float delta_y, c
 {
   if (!AL_Ready)
   {
-    std::cout << "Sound::ListenerTranslatePostion: Warning: OpenAL is not init"
+    DuskLog() << "Sound::ListenerTranslatePostion: Warning: OpenAL is not init"
               << "ialized, thus we cannot set the listener's position yet.\n";
     return false;
   }
   if (InitInProgress)
   {
-    std::cout << "Sound::ListenerTranslatePostion: ERROR: (De-)Initialization "
+    DuskLog() << "Sound::ListenerTranslatePostion: ERROR: (De-)Initialization "
               << "of OpenAL is in progress, thus we cannot set position here.\n";
     return false;
   }
@@ -3483,18 +3487,18 @@ bool Sound::translateListenerPostion(const float delta_x, const float delta_y, c
   error_state = alGetError();
   if (error_state != AL_NO_ERROR)
   {
-    std::cout << "Sound::ListenerTranslatePosition: ERROR: Could not get the "
+    DuskLog() << "Sound::ListenerTranslatePosition: ERROR: Could not get the "
               << "current listener position.\n";
     switch(error_state)
     {
       case AL_INVALID_ENUM: //should never happen here
-           std::cout << "    Invalid enumeration parameter.\n"; break;
+           DuskLog() << "    Invalid enumeration parameter.\n"; break;
       case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context. :(\n"; break;
+           DuskLog() << "    There is no current context. :(\n"; break;
       case AL_INVALID_VALUE:
-           std::cout << "    Invalid pointer values.\n"; break;
+           DuskLog() << "    Invalid pointer values.\n"; break;
       default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
+           DuskLog() << "    Unknown error. Error code: "<<(int)error_state
                      << ".\n"; break;
     }//swi
     return false;
@@ -3504,18 +3508,18 @@ bool Sound::translateListenerPostion(const float delta_x, const float delta_y, c
   error_state = alGetError();
   if (error_state != AL_NO_ERROR)
   {
-    std::cout << "Sound::ListenerTranslatePosition: ERROR: Could not set new "
+    DuskLog() << "Sound::ListenerTranslatePosition: ERROR: Could not set new "
               << "listener position. :(\n";
     switch/*reloaded*/(error_state)
     {
       case AL_INVALID_ENUM: //should not happen
-           std::cout << "    Invalid enumeration parameter.\n"; break;
+           DuskLog() << "    Invalid enumeration parameter.\n"; break;
       case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context, so what?\n"; break;
+           DuskLog() << "    There is no current context, so what?\n"; break;
       case AL_INVALID_VALUE:
-           std::cout << "    Invalid position value, maybe NaN or Inf?"; break;
+           DuskLog() << "    Invalid position value, maybe NaN or Inf?"; break;
       default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
+           DuskLog() << "    Unknown error. Error code: "<<(int)error_state
                      <<".\n"; break;
     }//swi
     return false;
@@ -3528,13 +3532,13 @@ bool Sound::setListenerVelocity(const float x, const float y, const float z)
 {
   if (!AL_Ready)
   {
-    std::cout << "Sound::SetListenerVelocity: Warning: OpenAL is not "
+    DuskLog() << "Sound::SetListenerVelocity: Warning: OpenAL is not "
               << "initialized, we cannot set the listener velocity yet.\n";
     return false;
   }
   if (InitInProgress)
   {
-    std::cout << "Sound::SetListenerVelocity: ERROR: (De-)Initialization of "
+    DuskLog() << "Sound::SetListenerVelocity: ERROR: (De-)Initialization of "
               << "OpenAL is in progress, thus we cannot set a velocity here.\n";
     return false;
   }
@@ -3546,18 +3550,18 @@ bool Sound::setListenerVelocity(const float x, const float y, const float z)
   error_state = alGetError();
   if (error_state != AL_NO_ERROR)
   {
-    std::cout << "Sound::SetListenerVelocity: ERROR: Could not set velocity!\n";
+    DuskLog() << "Sound::SetListenerVelocity: ERROR: Could not set velocity!\n";
     switch(error_state)
     {
       case AL_INVALID_ENUM: //unlikely to happen
-           std::cout << "    Invalid enumeration token.\n"; break;
+           DuskLog() << "    Invalid enumeration token.\n"; break;
       case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n"; break;
+           DuskLog() << "    There is no current context.\n"; break;
       case AL_INVALID_VALUE:
-           std::cout << "    Invalid value given, possibly NaN? (Values: x: "<<x
+           DuskLog() << "    Invalid value given, possibly NaN? (Values: x: "<<x
                      << "; y: "<<y<<"; z: "<<z<<")\n"; break;
       default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
+           DuskLog() << "    Unknown error. Error code: "<<(int)error_state
                      << ".\n"; break;
     }//swi
     return false;
@@ -3577,13 +3581,13 @@ std::vector<float> Sound::getListenerVelocity() const
 {
   if (!AL_Ready)
   {
-    std::cout << "Sound::GetListenerVelocity: Warning: OpenAL is not "
+    DuskLog() << "Sound::GetListenerVelocity: Warning: OpenAL is not "
               << "initialized, we cannot have a listener velocity yet.\n";
     return std::vector<float>(3, 0.0f);
   }
   if (InitInProgress)
   {
-    std::cout << "Sound::GetListenerVelocity: ERROR: (De-)Initialization of "
+    DuskLog() << "Sound::GetListenerVelocity: ERROR: (De-)Initialization of "
               << "OpenAL is in progress, thus we cannot get a velocity here.\n";
     return std::vector<float>(3, 0.0f);
   }
@@ -3596,18 +3600,18 @@ std::vector<float> Sound::getListenerVelocity() const
   error_state = alGetError();
   if (error_state != AL_NO_ERROR)
   {
-    std::cout << "Sound::GetListenerVelocity: ERROR: Could not retrieve "
+    DuskLog() << "Sound::GetListenerVelocity: ERROR: Could not retrieve "
               << "velocity value of listener!\n";
     switch(error_state)
     {
       case AL_INVALID_ENUM: //unlikely
-           std::cout << "    Invalid enumeration token.\n"; break;
+           DuskLog() << "    Invalid enumeration token.\n"; break;
       case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n"; break;
+           DuskLog() << "    There is no current context.\n"; break;
       case AL_INVALID_VALUE:
-           std::cout << "    Invalid pointer value(s) given.\n"; break;
+           DuskLog() << "    Invalid pointer value(s) given.\n"; break;
       default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
+           DuskLog() << "    Unknown error. Error code: "<<(int)error_state
                      << ".\n"; break;
     }//swi
     return std::vector<float>(3, 0.0f);
@@ -3621,13 +3625,13 @@ std::vector<float> Sound::getListenerOrientation() const
 {
   if (!AL_Ready)
   {
-    std::cout << "Sound::GetListenerOrientation: Warning: OpenAL is not init"
+    DuskLog() << "Sound::GetListenerOrientation: Warning: OpenAL is not init"
               << "ialized, thus we cannot set the listener's position yet.\n";
     return std::vector<float>(6, 0.0f);
   }
   if (InitInProgress)
   {
-    std::cout << "Sound::GetListenerOrientation: ERROR: (De-)Initialization "
+    DuskLog() << "Sound::GetListenerOrientation: ERROR: (De-)Initialization "
               << "of OpenAL is in progress, thus we cannot set position here.\n";
     return std::vector<float>(6, 0.0f);
   }
@@ -3641,18 +3645,18 @@ std::vector<float> Sound::getListenerOrientation() const
   error_state = alGetError();
   if (error_state != AL_NO_ERROR)
   {
-    std::cout << "Sound::GetListenerOrientation: ERROR: Could not get listener "
+    DuskLog() << "Sound::GetListenerOrientation: ERROR: Could not get listener "
               << "orientation.\n";
     switch(error_state)
     {
       case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n"; break;
+           DuskLog() << "    There is no current context.\n"; break;
       case AL_INVALID_ENUM:
-           std::cout << "    The enumeration parameter is not valid.\n"; break;
+           DuskLog() << "    The enumeration parameter is not valid.\n"; break;
       case AL_INVALID_VALUE:
-           std::cout << "    The value pointer is invalid.\n"; break;
+           DuskLog() << "    The value pointer is invalid.\n"; break;
       default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
+           DuskLog() << "    Unknown error. Error code: "<<(int)error_state
                      << ".\n"; break;
     }//swi
     return std::vector<float>(6, 0.0f); //"return false"
@@ -3671,13 +3675,13 @@ bool Sound::rotateListener(const float x_axis, const float y_axis, const float z
 {
   if (!AL_Ready)
   {
-    std::cout << "Sound::ListenerRotate: Warning: OpenAL is not initialized, "
+    DuskLog() << "Sound::ListenerRotate: Warning: OpenAL is not initialized, "
               << "thus we cannot rotate the listener position yet.\n";
     return false;
   }
   if (InitInProgress)
   {
-    std::cout << "Sound::ListenerRotate: ERROR: (De-)Initialization of OpenAL"
+    DuskLog() << "Sound::ListenerRotate: ERROR: (De-)Initialization of OpenAL"
               << " is in progress, thus we cannot rotate the listener here.\n";
     return false;
   }
@@ -3691,18 +3695,18 @@ bool Sound::rotateListener(const float x_axis, const float y_axis, const float z
   error_state = alGetError();
   if (error_state != AL_NO_ERROR)
   {
-    std::cout << "Sound::ListenerRotate: ERROR: Could not get listener's "
+    DuskLog() << "Sound::ListenerRotate: ERROR: Could not get listener's "
               << "orientation, thus we cannot rotate.\n";
     switch(error_state)
     {
       case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n"; break;
+           DuskLog() << "    There is no current context.\n"; break;
       case AL_INVALID_ENUM:
-           std::cout << "    The enum parameter is invalid.\n"; break;
+           DuskLog() << "    The enum parameter is invalid.\n"; break;
       case AL_INVALID_VALUE:
-           std::cout << "    Invalid pointer value.\n";
+           DuskLog() << "    Invalid pointer value.\n";
       default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
+           DuskLog() << "    Unknown error. Error code: "<<(int)error_state
                      << ".\n"; break;
     }//swi
     return false;
@@ -3758,18 +3762,18 @@ bool Sound::rotateListener(const float x_axis, const float y_axis, const float z
   error_state = alGetError();
   if (error_state != AL_NO_ERROR)
   {
-    std::cout << "Sound::ListenerRotate: ERROR: Could not set new orientation "
+    DuskLog() << "Sound::ListenerRotate: ERROR: Could not set new orientation "
               << "of listener.\n";
     switch(error_state)
     {
       case AL_INVALID_OPERATION:
-           std::cout << "    There is no current context.\n"; break;
+           DuskLog() << "    There is no current context.\n"; break;
       case AL_INVALID_ENUM:
-           std::cout << "    Invalid enum parameter.\n"; break;
+           DuskLog() << "    Invalid enum parameter.\n"; break;
       case AL_INVALID_VALUE:
-           std::cout << "    Invalid value pointer given.\n"; break;
+           DuskLog() << "    Invalid value pointer given.\n"; break;
       default:
-           std::cout << "    Unknown error. Error code: "<<(int)error_state
+           DuskLog() << "    Unknown error. Error code: "<<(int)error_state
                      << ".\n"; break;
     }//swi
     return false;
@@ -3920,3 +3924,5 @@ void Sound::AllFuncPointersToNULL(void)
   ov_streams = NULL;
   ov_time_total = NULL;
 }
+
+} //namespace

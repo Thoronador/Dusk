@@ -79,6 +79,13 @@ std::string FloatToString(const float value)
   return s_str.str();
 }
 
+std::string FloatToString(const double value)
+{
+  std::stringstream s_str;
+  s_str << value;
+  return s_str.str();
+}
+
 float StringToFloat(const std::string& str_input, const float default_value)
 {
   std::stringstream s_str(str_input);

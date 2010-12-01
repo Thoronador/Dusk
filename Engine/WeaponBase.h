@@ -31,6 +31,7 @@
      - 2010-06-06 (rev 215) - time between attacks/ weapon attack speed added
      - 2010-06-10 (rev 217) - tiny adjustment in getWeaponData()
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
+     - 2010-12-01 (rev 265) - use DuskLog/Messages class for logging
 
  ToDo list:
      - ???

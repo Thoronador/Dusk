@@ -20,6 +20,8 @@
 
 #include "CommandPlaySound.h"
 #include "Sound.h"
+#include "Messages.h"
+
 namespace Dusk
 {
     CommandPlaySound::CommandPlaySound(const std::string& NoiseID, const SoundOpCode op_code)
@@ -55,7 +57,7 @@ namespace Dusk
           }
           return false; break;
       }//switch
-      std::cout << "CommandPlaySound::execute: ERROR: unknown op code parameter.\n";
+      DuskLog() << "CommandPlaySound::execute: ERROR: unknown op code parameter.\n";
       return false;
     }
 }

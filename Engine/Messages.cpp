@@ -20,11 +20,10 @@
 
 #include "Messages.h"
 #include <iostream>
+#include "DuskFunctions.h"
 
 namespace Dusk
 {
-
-const size_t Messages::cMaxTailLength=30;
 
 Messages::Messages(const std::string& LogFile, const bool out)
 {
@@ -34,10 +33,11 @@ Messages::Messages(const std::string& LogFile, const bool out)
 
 Messages::~Messages()
 {
+  mStream.flush();
   mStream.close();
 }
 
-Messages& Messages::GetSingleton()
+Messages& Messages::getSingleton()
 {
   static Messages Instance;
   return Instance;
@@ -51,11 +51,6 @@ void Messages::Log(const std::string& msg)
   {
     std::cout << msg;
   }
-  mTail.push_back(msg);
-  if (mTail.size()>cMaxTailLength)
-  {
-    mTail.pop_front();
-  }
 }
 
 void Messages::setOutput(const bool b)
@@ -68,15 +63,73 @@ bool Messages::isOutput() const
   return mOutput;
 }
 
-size_t Messages::getTailSize() const
+Messages& Messages::operator<<(const unsigned int n)
 {
-  return mTail.size();
+  Log(IntToString(n));
+  return *this;
 }
 
-std::string Messages::getTailEntry(const unsigned int pos) const
+Messages& Messages::operator<<(const int n)
 {
-  if (pos>=mTail.size()) return "";
-  return mTail.at(pos);
+  Log(IntToString(n));
+  return *this;
+}
+
+Messages& Messages::operator<<(const unsigned long int n)
+{
+  mStream<<n;
+  mStream.flush();
+  if (mOutput)
+  {
+    std::cout << n;
+  }
+  return *this;
+}
+
+Messages& Messages::operator<<(const long int n)
+{
+  mStream<<n;
+  mStream.flush();
+  if (mOutput)
+  {
+    std::cout << n;
+  }
+  return *this;
+}
+
+Messages& Messages::operator<<(const int64_t n)
+{
+  mStream<<n;
+  mStream.flush();
+  if (mOutput)
+  {
+    std::cout << n;
+  }
+  return *this;
+}
+
+Messages& Messages::operator<<(const float f)
+{
+  Log(FloatToString(f));
+  return *this;
+}
+
+Messages& Messages::operator<<(const double d)
+{
+  Log(FloatToString(d));
+  return *this;
+}
+
+Messages& Messages::operator<<(const std::string& str)
+{
+  Log(str);
+  return *this;
+}
+
+Messages& Messages::operator<<(const char* c_str)
+{
+  Log(std::string(c_str));
+  return *this;
 }
 
 } //namespace

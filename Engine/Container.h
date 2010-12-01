@@ -36,6 +36,7 @@
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-11-20 (rev 255) - rotation is now stored as quaternion
      - 2010-11-26 (rev 260) - canCollide() added (always returns true)
+     - 2010-12-01 (rev 265) - use DuskLog/Messages class for logging
 
  ToDo list:
      - ???

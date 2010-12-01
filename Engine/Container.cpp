@@ -21,6 +21,7 @@
 #include "Container.h"
 #include "ContainerBase.h"
 #include "DuskConstants.h"
+#include "Messages.h"
 
 namespace Dusk
 {
@@ -102,7 +103,7 @@ bool Container::saveToStream(std::ofstream& OutStream) const
 {
   if (!OutStream.good())
   {
-    std::cout << "Container::SaveToStream: ERROR: Stream contains errors!\n";
+    DuskLog() << "Container::saveToStream: ERROR: Stream contains errors!\n";
     return false;
   }
   //write header "RefC" (reference of Container)
@@ -110,7 +111,7 @@ bool Container::saveToStream(std::ofstream& OutStream) const
   //write data inherited from DuskObject
   if (!saveDuskObjectPart(OutStream))
   {
-    std::cout << "Container::SaveToStream: ERROR while writing basic data!\n";
+    DuskLog() << "Container::saveToStream: ERROR while writing basic data!\n";
     return false;
   }
   //write inventory
@@ -121,7 +122,7 @@ bool Container::saveToStream(std::ofstream& OutStream) const
   {
     if (!m_Contents.saveToStream(OutStream))
     {
-      std::cout << "Container::SaveToStream: ERROR while writing inventory data!\n";
+      DuskLog() << "Container::saveToStream: ERROR while writing inventory data!\n";
       return false;
     }//if
   }
@@ -132,13 +133,13 @@ bool Container::loadFromStream(std::ifstream& InStream)
 {
   if (entity!=NULL)
   {
-    std::cout << "Container::LoadFromStream: ERROR: Cannot load from stream "
+    DuskLog() << "Container::loadFromStream: ERROR: Cannot load from stream "
               << "while container is enabled.\n";
     return false;
   }
   if (!InStream.good())
   {
-    std::cout << "Container::LoadFromStream: ERROR: Stream contains errors!\n";
+    DuskLog() << "Container::loadFromStream: ERROR: Stream contains errors!\n";
     return false;
   }
 
@@ -147,14 +148,14 @@ bool Container::loadFromStream(std::ifstream& InStream)
   InStream.read((char*) &Header, sizeof(unsigned int));
   if (Header!=cHeaderRefC)
   {
-    std::cout << "Container::LoadFromStream: ERROR: Stream contains invalid "
+    DuskLog() << "Container::loadFromStream: ERROR: Stream contains invalid "
               << "reference header.\n";
     return false;
   }
   //load data members inherited from DuskObject
   if (!loadDuskObjectPart(InStream))
   {
-    std::cout << "Container::LoadFromStream: ERROR while reading basic data.\n";
+    DuskLog() << "Container::loadFromStream: ERROR while reading basic data.\n";
     return false;
   }
   //Container's own stuff
@@ -165,7 +166,7 @@ bool Container::loadFromStream(std::ifstream& InStream)
   { //load it from stream, contents were changed
     if (!m_Contents.loadFromStream(InStream))
     {
-      std::cout << "Container::LoadFromStream: ERROR while reading container "
+      DuskLog() << "Container::loadFromStream: ERROR while reading container "
                 << "inventory from stream.\n";
       return false;
     }

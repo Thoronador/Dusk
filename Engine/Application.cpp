@@ -27,6 +27,7 @@
 #include "Sound.h"
 #include "Settings.h"
 #include "DuskFunctions.h"
+#include "Messages.h"
 #include <OgreTexture.h>
 #include <OgreRenderTexture.h>
 
@@ -62,7 +63,7 @@ namespace Dusk
     */
     bool Application::initialise(const std::string& pluginFileName)
     {
-        std::cout << "Plugin file: "<<pluginFileName<<"\n";
+        DuskLog() << "Plugin file: "<<pluginFileName<<"\n";
         m_Root = new Ogre::Root(pluginFileName);
 
         // add resource locations
@@ -97,11 +98,11 @@ namespace Dusk
         //Initialize Soundsystem
         if (Sound::get().init())
         {
-          std::cout << "Soundsystem successfully initialised.\n";
+          DuskLog() << "Soundsystem successfully initialised.\n";
         }
         else
         {
-          std::cout << "ERROR: Soundsystem could not be initialised properly.\n";
+          DuskLog() << "ERROR: Soundsystem could not be initialised properly.\n";
         }
 
         return true;
@@ -171,17 +172,8 @@ namespace Dusk
     void Application::createCamera()
     {
         // Create the camera
-        //m_DuskCamera = new Dusk::Camera(m_SceneManager);
         Camera::getSingleton().setupCamera(m_SceneManager);
         m_Camera = Camera::getSingleton().getOgreCamera();
-        /*
-        m_Camera = m_SceneManager->createCamera("PlayerCam");
-
-        // Position it at 500 in Z direction
-        m_Camera->setPosition(Ogre::Vector3(0,0,500));
-        // Look back along -Z
-        m_Camera->lookAt(Ogre::Vector3(0,0,-300));
-        m_Camera->setNearClipDistance(5);*/
     }
 
 //-------------------------------------------------------------------------------------

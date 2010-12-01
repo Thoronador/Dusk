@@ -51,6 +51,7 @@
      - 2010-11-10 (rev 250) - minor optimization
      - 2010-11-12 (rev 252) - screenshot can now be JPEG or PNG
      - 2010-11-12 (rev 253) - minor fix to properly display fog in screenshots
+     - 2010-12-01 (rev 265) - use DuskLog/Messages class for logging
 
  ToDo list:
      - ???

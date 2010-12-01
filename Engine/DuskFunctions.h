@@ -37,6 +37,7 @@
      - 2010-06-03 (rev 214) - CountBitsSet() added
      - 2010-08-26 (rev 235) - CSVToVector() added
      - 2010-12-01 (rev 264) - faster version of FileExists()
+     - 2010-12-01 (rev 265) - double-precision version of FloatToString()
 
  ToDo list:
      - implement a faster version of FileExists()
@@ -71,6 +72,9 @@ int StringToInt(const std::string& str_input, const int default_value);
 
 /* Returns string representation of float 'value' */
 std::string FloatToString(const float value);
+
+/* Returns string representation of double 'value' */
+std::string FloatToString(const double value);
 
 /* Tries to convert the provided string into a floating point number. If the
    string contains invalid characters (e.g. letters) and cannot be converted to

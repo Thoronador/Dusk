@@ -64,7 +64,8 @@
      - 2010-01-07 (rev 150) - documentation update
                             - IsInitialized() and HasVorbis() added
      - 2010-11-10 (rev 250) - naming guidelines enforced
-                            - seperate sub-namespace for listener functions
+     - 2010-12-01 (rev 265) - Sound is now in namespace Dusk
+                            - usage of DuskLog/Messages class
 
  ToDo list:
      - ???
@@ -145,6 +146,9 @@ typedef long (*P_ov_streams)(OggVorbis_File *vf);
 typedef double (*P_ov_time_total)(OggVorbis_File *vf,int i);
 
 const unsigned int MaxMediaSize_MB = 30;
+
+namespace Dusk
+{
 
 //Klasse Sound
 class Sound
@@ -531,6 +535,8 @@ class Sound
     P_ov_read ov_read;
     P_ov_streams ov_streams;
     P_ov_time_total ov_time_total;
-};
+};//class Sound
+
+} //namespace
 
 #endif // SOUND_H

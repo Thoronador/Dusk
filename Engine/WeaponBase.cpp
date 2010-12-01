@@ -19,8 +19,8 @@
 */
 
 #include "WeaponBase.h"
-#include <iostream>
 #include "DuskConstants.h"
+#include "Messages.h"
 
 namespace Dusk
 {
@@ -147,7 +147,7 @@ bool WeaponBase::saveAllToStream(std::ofstream& OutStream) const
 {
   if (!OutStream.good())
   {
-    std::cout << "WeaponBase::SaveAllToStream: ERROR: stream contains errors!\n";
+    DuskLog() << "WeaponBase::saveAllToStream: ERROR: stream contains errors!\n";
     return false;
   }
   std::map<std::string, WeaponRecord>::const_iterator iter;
@@ -195,7 +195,7 @@ bool WeaponBase::loadNextWeaponFromStream(std::ifstream& InStream)
 {
   if (!InStream.good())
   {
-    std::cout << "WeaponBase::LoadNextWeaponFromStream: ERROR: stream contains"
+    DuskLog() << "WeaponBase::loadNextWeaponFromStream: ERROR: stream contains"
               << " errors!\n";
     return false;
   }
@@ -203,7 +203,7 @@ bool WeaponBase::loadNextWeaponFromStream(std::ifstream& InStream)
   InStream.read((char*) &len, sizeof(unsigned int));
   if (len != cHeaderWeap)
   {
-    std::cout << "WeaponBase::LoadNextWeaponFromStream: ERROR: stream contains"
+    DuskLog() << "WeaponBase::loadNextWeaponFromStream: ERROR: stream contains"
               << " unexpected header!\n";
     return false;
   }
@@ -214,14 +214,14 @@ bool WeaponBase::loadNextWeaponFromStream(std::ifstream& InStream)
   InStream.read((char*) &len, sizeof(unsigned int));
   if (len>255)
   {
-    std::cout << "WeaponBase::LoadNextWeaponFromStream: ERROR: ID is longer "
+    DuskLog() << "WeaponBase::loadNextWeaponFromStream: ERROR: ID is longer "
               << "than 255 characters!\n";
     return false;
   }
   InStream.read(Buffer, len);
   if (!InStream.good())
   {
-    std::cout << "WeaponBase::LoadNextWeaponFromStream: ERROR while reading "
+    DuskLog() << "WeaponBase::loadNextWeaponFromStream: ERROR while reading "
               << "ID from stream!\n";
     return false;
   }
@@ -232,7 +232,7 @@ bool WeaponBase::loadNextWeaponFromStream(std::ifstream& InStream)
   InStream.read((char*) &len, sizeof(unsigned int));
   if (len>255)
   {
-    std::cout << "WeaponBase::LoadNextWeaponFromStream: ERROR: mesh path is "
+    DuskLog() << "WeaponBase::loadNextWeaponFromStream: ERROR: mesh path is "
               << "longer than 255 characters!\n";
     return false;
   }
@@ -240,7 +240,7 @@ bool WeaponBase::loadNextWeaponFromStream(std::ifstream& InStream)
   InStream.read(Buffer, len);
   if (!InStream.good())
   {
-    std::cout << "WeaponBase::LoadNextWeaponFromStream: ERROR while reading "
+    DuskLog() << "WeaponBase::loadNextWeaponFromStream: ERROR while reading "
               << "mesh path from stream!\n";
     return false;
   }
@@ -252,7 +252,7 @@ bool WeaponBase::loadNextWeaponFromStream(std::ifstream& InStream)
   InStream.read((char*) &len, sizeof(unsigned int));
   if (len>255)
   {
-    std::cout << "WeaponBase::LoadNextWeaponFromStream: ERROR: name is longer"
+    DuskLog() << "WeaponBase::loadNextWeaponFromStream: ERROR: name is longer"
               << " than 255 characters!\n";
     return false;
   }
@@ -260,7 +260,7 @@ bool WeaponBase::loadNextWeaponFromStream(std::ifstream& InStream)
   InStream.read(Buffer, len);
   if (!InStream.good())
   {
-    std::cout << "WeaponBase::LoadNextWeaponFromStream: ERROR while reading "
+    DuskLog() << "WeaponBase::loadNextWeaponFromStream: ERROR while reading "
               << "name from stream!\n";
     return false;
   }
@@ -278,13 +278,13 @@ bool WeaponBase::loadNextWeaponFromStream(std::ifstream& InStream)
   InStream.read((char*) &(wRec.TimeBetweenAttacks), sizeof(float));
   if (!InStream.good())
   {
-    std::cout << "WeaponBase::LoadNextWeaponFromStream: ERROR while reading "
+    DuskLog() << "WeaponBase::loadNextWeaponFromStream: ERROR while reading "
               << "data from stream!\n";
     return false;
   }
   if ((wRec.Range<0.0f) or (wRec.TimeBetweenAttacks<0.0f))
   {
-    std::cout << "WeaponBase::LoadNextWeaponFromStream: ERROR while reading "
+    DuskLog() << "WeaponBase::loadNextWeaponFromStream: ERROR while reading "
               << "data from stream. Weapon has invalid range or attack time.\n";
     return false;
   }
@@ -293,7 +293,7 @@ bool WeaponBase::loadNextWeaponFromStream(std::ifstream& InStream)
   InStream.read((char*) &len, sizeof(unsigned int));
   if (len>255)
   {
-    std::cout << "WeaponBase::LoadNextWeaponFromStream: ERROR: projectile ID is"
+    DuskLog() << "WeaponBase::loadNextWeaponFromStream: ERROR: projectile ID is"
               << " longer than 255 characters!\n";
     return false;
   }
@@ -301,7 +301,7 @@ bool WeaponBase::loadNextWeaponFromStream(std::ifstream& InStream)
   InStream.read(Buffer, len);
   if (!InStream.good())
   {
-    std::cout << "WeaponBase::LoadNextWeaponFromStream: ERROR while reading "
+    DuskLog() << "WeaponBase::loadNextWeaponFromStream: ERROR while reading "
               << "projectile from stream!\n";
     return false;
   }
