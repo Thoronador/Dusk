@@ -33,6 +33,7 @@
 #include "../Engine/InjectionManager.h"
 #include <OgreConfigFile.h>
 #include <OgreVector3.h>
+#include <CEGUI/CEGUI.h>
 
 namespace Dusk
 {

@@ -315,8 +315,8 @@ bool LandscapeRecord::generateByFunction( float (*func) (const float x, const fl
 
   unsigned int i,j;
 
-  m_Highest = -Infinity;
-  m_Lowest = Infinity;
+  m_Highest = -(1.0f/0.0f); //negative infinity
+  m_Lowest = 1.0f/0.0f; //positive infinity
   for (i=0; i<65; ++i)
   {
     for (j=0; j<65; ++j)

@@ -21,7 +21,6 @@
 #ifndef EDITORFRAMELISTENER_H
 #define EDITORFRAMELISTENER_H
 
-//#include <Ogre.h>
 #include <OgreFrameListener.h>
 #include <OgreLogManager.h>
 #include <OgreMaterialManager.h>
@@ -35,7 +34,10 @@
 #define OIS_DYNAMIC_LIB
 #include <OIS/OIS.h>
 
-#include <CEGUI/CEGUI.h>
+#include <CEGUI/elements/CEGUIMenuItem.h>
+#include <CEGUI/CEGUIString.h>
+#include <CEGUI/CEGUIWindowManager.h>
+
 
 #include "../Engine/API.h"
 

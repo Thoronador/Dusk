@@ -34,7 +34,9 @@
 #include "../Engine/DuskTypes.h"
 #include "../Engine/DuskFunctions.h"
 #include <OgreCEGUIRenderer.h>
-#include <CEGUI/CEGUI.h>
+#include <CEGUI/CEGUIEventArgs.h>
+#include <CEGUI/CEGUISystem.h>
+#include <CEGUI/CEGUIVector.h>
 #include <string>
 #include <vector>
 

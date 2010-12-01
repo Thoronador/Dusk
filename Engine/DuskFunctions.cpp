@@ -32,6 +32,7 @@
 #else
   #error "Unknown operating system!"
 #endif
+#include <unistd.h>
 
 namespace Dusk
 {
@@ -218,14 +219,7 @@ std::vector<FileEntry> get_DirectoryFileList(const std::string& Directory)
 
 bool FileExists(const std::string& FileName)
 {
-   std::ifstream input;
-   input.open(FileName.c_str(), std::ios::in | std::ios::binary);
-   if (!input)
-   {
-     return false;
-   }
-   input.close();
-   return true;
+   return (access(FileName.c_str(), F_OK)==0);
 }
 
 } //namespace

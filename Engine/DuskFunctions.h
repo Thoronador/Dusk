@@ -36,6 +36,7 @@
      - 2010-05-05 (rev 196) - documentation updated
      - 2010-06-03 (rev 214) - CountBitsSet() added
      - 2010-08-26 (rev 235) - CSVToVector() added
+     - 2010-12-01 (rev 264) - faster version of FileExists()
 
  ToDo list:
      - implement a faster version of FileExists()
@@ -107,16 +108,7 @@ struct FileEntry {
 /* returns a list of all files in the given directory as a vector */
 std::vector<FileEntry> get_DirectoryFileList(const std::string& Directory);
 
-/* Checks for existence of file FileName and returns true, if it exists.
-
-   remarks:
-       Do not use for checking against long file lists, because function is
-       rather slow, as long as files aren't in disk cache.
-       Files which cannot be opened due to insufficient privileges will be
-       reported as inexistent. Strictly speaking that's an error/bug. However,
-       most times you check for the existence of a file because you want to
-       read some data from it, so this error does not really matter here.
-*/
+/* Checks for existence of file FileName and returns true, if it exists.*/
 bool FileExists(const std::string& FileName);
 
 }//namespace
