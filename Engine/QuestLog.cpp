@@ -21,7 +21,7 @@
 #include "QuestLog.h"
 #include "Journal.h"
 #include "DuskConstants.h"
-#include <iostream>
+#include "Messages.h"
 
 namespace Dusk
 {
@@ -190,7 +190,7 @@ bool QuestLog::saveToStream(std::ofstream& output) const
 {
   if (!(output.good()))
   {
-    std::cout << "QuestLog::SaveToStream: ERROR: bad stream!\n";
+    DuskLog() << "QuestLog::saveToStream: ERROR: bad stream!\n";
     return false;
   }
   //write herader
@@ -211,7 +211,7 @@ bool QuestLog::saveToStream(std::ofstream& output) const
     output.write((char*) &(m_TimeLine[i].index), sizeof(unsigned int));
     if (!(output.good()))
     {
-      std::cout << "QuestLog::SaveToStream: ERROR while writing entries!\n";
+      DuskLog() << "QuestLog::saveToStream: ERROR while writing entries!\n";
       return false;
     }
   }//for
@@ -222,7 +222,7 @@ bool QuestLog::loadFromStream(std::ifstream& input)
 {
   if (!(input.good()))
   {
-    std::cout << "QuestLog::LoadFromStream: ERROR: bad stream!\n";
+    DuskLog() << "QuestLog::loadFromStream: ERROR: bad stream!\n";
     return false;
   }
   unsigned int len = 0;
@@ -230,7 +230,7 @@ bool QuestLog::loadFromStream(std::ifstream& input)
   input.read((char*) &len, sizeof(unsigned int));
   if (len!=cHeaderQLog)
   {
-    std::cout << "QuestLog::LoadFromStream: ERROR: invalid record header!\n";
+    DuskLog() << "QuestLog::loadFromStream: ERROR: invalid record header!\n";
     return false;
   }
   unsigned int count = 0;
@@ -244,7 +244,7 @@ bool QuestLog::loadFromStream(std::ifstream& input)
     input.read((char*) &len, sizeof(unsigned int));
     if (len>255)
     {
-      std::cout << "QuestLog::LoadFromStream: ERROR: questID seems to be longer"
+      DuskLog() << "QuestLog::loadFromStream: ERROR: questID seems to be longer"
                 << " than 255 characters!\n";
       return false;
     }
@@ -253,14 +253,14 @@ bool QuestLog::loadFromStream(std::ifstream& input)
     buffer[len] = '\0';
     if (!(input.good()))
     {
-      std::cout << "QuestLog::LoadFromStream: ERROR while reading questID!\n";
+      DuskLog() << "QuestLog::loadFromStream: ERROR while reading questID!\n";
       return false;
     }
     //read index
     input.read((char*) &len, sizeof(unsigned int));
     if (!(input.good()))
     {
-      std::cout << "QuestLog::LoadFromStream: ERROR while reading quest index!\n";
+      DuskLog() << "QuestLog::loadFromStream: ERROR while reading quest index!\n";
       return false;
     }
     //add it

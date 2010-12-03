@@ -19,7 +19,7 @@
 */
 
 /*---------------------------------------------------------------------------
- Author:  DaSteph, walljumper
+ Authors: DaSteph, walljumper, thoronador
  Date:    2010-01-13
  Purpose: CommandQuit class
           command to shut down the game
@@ -33,6 +33,7 @@
                               documentation update (by thoronador)
      - 2010-08-15 (rev 228) - scene is now destroyed explicitly during command
                               execution (should have been this way earlier)
+     - 2010-12-03 (rev 266) - use DuskLog/Messages class for logging
 
  ToDo list:
      - I guess this one is finished.
@@ -48,16 +49,18 @@
 
 namespace Dusk
 {
-    class CommandQuit : public Dusk::Command
-    {
-        public:
-            /* constructor */
-            CommandQuit();
-            /* destructor */
-            virtual ~CommandQuit();
+  class CommandQuit : public Dusk::Command
+  {
+    public:
+      /* constructor */
+      CommandQuit();
 
-            virtual bool execute(Dusk::Scene* scene, int count = 1);
-    };
-}
+      /* destructor */
+      virtual ~CommandQuit();
+
+      virtual bool execute(Dusk::Scene* scene, int count = 1);
+  };//class
+
+}//namespace
 
 #endif // COMMANDQUIT_H

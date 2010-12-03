@@ -19,6 +19,7 @@
 */
 
 #include "UniformMotionObject.h"
+#include "Messages.h"
 
 namespace Dusk
 {
@@ -141,6 +142,12 @@ void UniformMotionObject::injectTime(const float SecondsPassed)
 
 bool UniformMotionObject::saveUniformMotionObjectPart(std::ofstream& output) const
 {
+  if (!output.good())
+  {
+    DuskLog() << "UniformMotionObject::saveUniformMotionObjectPart: ERROR: bad"
+              << " stream given!\n";
+    return false;
+  }
   //write direction and destination, and speed
   // -- direction
   float xyz = m_Direction.x;
@@ -167,7 +174,7 @@ bool UniformMotionObject::loadUniformMotionObjectPart(std::ifstream& InStream)
 {
   if (!InStream.good())
   {
-    std::cout << "UniformMotionObject::LoadUniformMotionObjectPart: ERROR: bad"
+    DuskLog() << "UniformMotionObject::loadUniformMotionObjectPart: ERROR: bad"
               << " stream given!\n";
     return false;
   }

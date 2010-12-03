@@ -20,7 +20,7 @@
 
 #include "ProjectileBase.h"
 #include "DuskConstants.h"
-#include <iostream>
+#include "Messages.h"
 
 namespace Dusk
 {
@@ -81,8 +81,13 @@ std::string ProjectileBase::getProjectileMesh(const std::string& ID, const bool 
   }
   if (UseMarkerOnError)
   {
+    DuskLog() << "ProjectileBase::getProjectileMesh: Warning! No projectile "
+              << "with ID \""<<ID<< "\" found. Using error marker's mesh "
+              << "instead.\n";
     return cErrorMesh;
   }
+  DuskLog() << "ProjectileBase::getProjectileMesh: ERROR! No projectile with ID \""
+            << ID << "\" found. Returning empty string.\n";
   return "";
 }
 
@@ -94,6 +99,8 @@ ProjectileRecord ProjectileBase::getProjectileData(const std::string& ID) const
   {
     return iter->second;
   }
+  DuskLog() << "ProjectileBase::getProjectileData: ERROR! No projectile with ID \""
+            << ID << "\" found. Returning predefined data instead.\n";
   ProjectileRecord temp;
   temp.Mesh = "";
   temp.DefaultTTL = 0.00001;
@@ -124,7 +131,7 @@ bool ProjectileBase::saveAllToStream(std::ofstream& OutStream) const
 {
   if (!OutStream.good())
   {
-    std::cout << "ProjectileBase::SaveAllToStream: ERROR: stream contains errors!\n";
+    DuskLog() << "ProjectileBase::saveAllToStream: ERROR: stream contains errors!\n";
     return false;
   }
   std::map<std::string, ProjectileRecord>::const_iterator iter;
@@ -150,6 +157,13 @@ bool ProjectileBase::saveAllToStream(std::ofstream& OutStream) const
     OutStream.write((char*) &(iter->second.times), sizeof(uint8));
     //dice
     OutStream.write((char*) &(iter->second.dice), sizeof(uint8));
+    //check
+    if (!OutStream.good())
+    {
+      DuskLog() << "ProjectileBase::saveToStream: Error while writing data to "
+                << "stream. Current projectile is \""<<iter->first<<"\".\n";
+      return false;
+    }
     ++iter;
   } //while
   return OutStream.good();
@@ -159,14 +173,14 @@ bool ProjectileBase::loadNextProjectileFromStream(std::ifstream& InStream)
 {
   if (!InStream.good())
   {
-    std::cout << "ProjectileBase::LoadNextProjectileFromStream: ERROR: stream contains errors!\n";
+    DuskLog() << "ProjectileBase::loadNextProjectileFromStream: ERROR: stream contains errors!\n";
     return false;
   }
   unsigned int len = 0;
   InStream.read((char*) &len, sizeof(unsigned int));
   if (len != cHeaderProj)
   {
-    std::cout << "ProjectileBase::LoadNextProjectileFromStream: ERROR: stream "
+    DuskLog() << "ProjectileBase::loadNextProjectileFromStream: ERROR: stream "
               << "contains unexpected header!\n";
     return false;
   }
@@ -177,14 +191,14 @@ bool ProjectileBase::loadNextProjectileFromStream(std::ifstream& InStream)
   InStream.read((char*) &len, sizeof(unsigned int));
   if (len>255)
   {
-    std::cout << "ProjectileBase::LoadNextProjectileFromStream: ERROR: ID is "
+    DuskLog() << "ProjectileBase::loadNextProjectileFromStream: ERROR: ID is "
               << "longer than 255 characters!\n";
     return false;
   }
   InStream.read(Buffer, len);
   if (!InStream.good())
   {
-    std::cout << "ProjectileBase::LoadNextProjectileFromStream: ERROR while "
+    DuskLog() << "ProjectileBase::loadNextProjectileFromStream: ERROR while "
               << "reading ID from stream!\n";
     return false;
   }
@@ -196,14 +210,14 @@ bool ProjectileBase::loadNextProjectileFromStream(std::ifstream& InStream)
   InStream.read((char*) &len, sizeof(unsigned int));
   if (len>255)
   {
-    std::cout << "ProjectileBase::LoadNextProjectileFromStream: ERROR: mesh "
+    DuskLog() << "ProjectileBase::loadNextProjectileFromStream: ERROR: mesh "
               << "path is longer than 255 characters!\n";
     return false;
   }
   InStream.read(Buffer, len);
   if (!InStream.good())
   {
-    std::cout << "ProjectileBase::LoadNextProjectileFromStream: ERROR while "
+    DuskLog() << "ProjectileBase::loadNextProjectileFromStream: ERROR while "
               << "reading mesh path from stream!\n";
     return false;
   }
@@ -221,7 +235,7 @@ bool ProjectileBase::loadNextProjectileFromStream(std::ifstream& InStream)
   InStream.read((char*) &(temp.dice), sizeof(uint8));
   if (!(InStream.good()))
   {
-    std::cout << "ProjectileBase::LoadNextProjectileFromStream: ERROR while "
+    DuskLog() << "ProjectileBase::loadNextProjectileFromStream: ERROR while "
               << "reading projectile data from stream!\n";
     return false;
   }

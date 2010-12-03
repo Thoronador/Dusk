@@ -38,6 +38,7 @@
      - 2010-11-20 (rev 255) - rotation is now stored as Quaternion
      - 2010-11-26 (rev 260) - canCollide() added (always returns true)
      - 2010-11-30 (rev 262) - collision detection improved
+     - 2010-12-03 (rev 266) - use DuskLog/Messages class for logging
 
  ToDo list:
      - Improve collision detection for projectile. Currently only collisions

@@ -24,6 +24,7 @@
 #include "LightBase.h"
 #include "ContainerBase.h"
 #include "ItemBase.h"
+#include "Messages.h"
 
 namespace Dusk
 {
@@ -160,7 +161,7 @@ bool ObjectManager::saveAllToStream(std::ofstream& Stream) const
       {
         if (!(iter->second.at(i)->saveToStream(Stream)) or (!Stream.good()))
         {
-          std::cout << "ObjectManager::SaveAllToStream: ERROR while writing reference data.\n";
+          DuskLog() << "ObjectManager::saveAllToStream: ERROR while writing reference data.\n";
           return false;
         }
       }//if
@@ -226,7 +227,7 @@ bool ObjectManager::loadNextFromStream(std::ifstream& Stream, const unsigned int
          delete objPtr;
          break;
     default:
-         std::cout << "ObjectManager::LoadNextFromStream: ERROR: unexpected header.\n";
+         DuskLog() << "ObjectManager::loadNextFromStream: ERROR: unexpected header.\n";
          break;
   }//swi
   return false;
@@ -237,7 +238,7 @@ void ObjectManager::enableAllObjects(Ogre::SceneManager * scm)
   unsigned int i;
   if (scm==NULL)
   {
-    std::cout << "ObjectManager::EnableAllObjects: ERROR: Scene Manager is NULL!\n";
+    DuskLog() << "ObjectManager::enableAllObjects: ERROR: Scene Manager is NULL!\n";
     return;
   }
 
@@ -245,7 +246,7 @@ void ObjectManager::enableAllObjects(Ogre::SceneManager * scm)
   iter = m_ReferenceMap.begin();
   while (iter!=m_ReferenceMap.end())
   {
-    for(i=0; i<iter->second.size(); i++)
+    for(i=0; i<iter->second.size(); ++i)
     {
       if (iter->second.at(i)!=NULL)
       {
@@ -263,7 +264,7 @@ void ObjectManager::disableAllObjects()
   iter = m_ReferenceMap.begin();
   while (iter!=m_ReferenceMap.end())
   {
-    for(i=0; i<iter->second.size(); i++)
+    for(i=0; i<iter->second.size(); ++i)
     {
       if (iter->second.at(i)!=NULL)
       {
@@ -308,7 +309,7 @@ unsigned int ObjectManager::reenableReferencesOfObject(const std::string& ID, Og
 
   if (scm==NULL)
   {
-    std::cout << "ObjectManager::reenableReferencesOfObject: ERROR: Scene Manager is NULL pointer!";
+    DuskLog() << "ObjectManager::reenableReferencesOfObject: ERROR: Scene Manager is NULL pointer!";
     return 0;
   }
   if (!ObjectBase::getSingleton().hasObject(ID) and
@@ -316,7 +317,7 @@ unsigned int ObjectManager::reenableReferencesOfObject(const std::string& ID, Og
       !ContainerBase::getSingleton().hasContainer(ID) and
       !ItemBase::getSingleton().hasItem(ID))
   {
-    std::cout << "ObjectManager::reenableReferencesOfObject: ERROR: there is no"
+    DuskLog() << "ObjectManager::reenableReferencesOfObject: ERROR: there is no"
               << " record about object with the new ID \""+ID+"\" within the"
               << "ObjectBase, LightBase, ContainerBase or ItemBase classes. "
               << "Aborting.\n";
@@ -350,13 +351,13 @@ unsigned int ObjectManager::updateReferencesAfterIDChange(const std::string& old
 
   if (oldID=="" or newID=="")
   {
-    std::cout << "ObjectManager::updateReferencesAfterIDChange: ERROR: old ID "
+    DuskLog() << "ObjectManager::updateReferencesAfterIDChange: ERROR: old ID "
               << "or new ID is empty string. We don't want empty ID strings!\n";
     return 0;
   }
   if (oldID==newID)
   {
-    std::cout << "ObjectManager::updateReferencesAfterIDChange: Hint: old ID "
+    DuskLog() << "ObjectManager::updateReferencesAfterIDChange: Hint: old ID "
               << "is the same as new ID. No need to change anything here.\n";
     return 0;
   }
@@ -365,7 +366,7 @@ unsigned int ObjectManager::updateReferencesAfterIDChange(const std::string& old
       !ContainerBase::getSingleton().hasContainer(newID) and
       !ItemBase::getSingleton().hasItem(newID))
   {
-    std::cout << "ObjectManager::updateReferencesAfterIDChange: ERROR: there is "
+    DuskLog() << "ObjectManager::updateReferencesAfterIDChange: ERROR: there is "
               << "no record about object with the new ID \""+newID+"\" within "
               << "the ObjectBase, LightBase, ContainerBase or ItemBase classes."
               << " Aborting.\n";
@@ -373,7 +374,7 @@ unsigned int ObjectManager::updateReferencesAfterIDChange(const std::string& old
   }
   if (scm==NULL)
   {
-    std::cout << "ObjectManager::updateReferencesAfterIDChange: ERROR: got NULL "
+    DuskLog() << "ObjectManager::updateReferencesAfterIDChange: ERROR: got NULL "
               << "pointer for scene manager. Unable to update enabled objects.\n";
     return 0;
   }

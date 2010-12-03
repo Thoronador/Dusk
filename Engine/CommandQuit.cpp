@@ -19,30 +19,30 @@
 */
 
 #include "CommandQuit.h"
-#include <iostream>
+#include "Messages.h"
 #include "InputSystemEditor.h"
 #include "DataLoader.h"
 #include "Weather.h"
 
 namespace Dusk
 {
-    CommandQuit::CommandQuit()
-    {
-        //ctor
-    }
+  CommandQuit::CommandQuit()
+  {
+      //ctor
+  }
 
-    CommandQuit::~CommandQuit()
-    {
-        //dtor
-    }
+  CommandQuit::~CommandQuit()
+  {
+      //dtor
+  }
 
-    bool CommandQuit::execute(Dusk::Scene* scene, int count)
-    {
-        std::cout<<"Dusk: exit\n";
-        Scene::get().destroyScene();
-        std::cout<<"  Send exit signal to ISE...\n";
-        InputSystemEditor::get().exit();
-        return true;
-    }
+  bool CommandQuit::execute(Dusk::Scene* scene, int count)
+  {
+    DuskLog() << "Dusk: exit\n  Destroying scene...\n";
+    Scene::get().destroyScene();
+    DuskLog() << "  Send exit signal to ISE...\n";
+    InputSystemEditor::get().exit();
+    return true;
+  }
 
 } //namespace

@@ -55,6 +55,7 @@
      - 2010-08-18 (rev 230) - renamed from ObjectData to ObjectManager
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-11-20 (rev 255) - rotation is now stored as Quaternion
+     - 2010-12-03 (rev 266) - use DuskLog/Messages class for logging
 
  ToDo list:
      - extend class when further classes for non-animated objects are added

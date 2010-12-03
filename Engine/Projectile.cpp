@@ -24,6 +24,7 @@
 #include "DuskConstants.h"
 #include "Landscape.h"
 #include "DiceBox.h"
+#include "Messages.h"
 
 namespace Dusk
 {
@@ -216,7 +217,7 @@ void Projectile::injectTime(const float SecondsPassed)
                npc_ptr->inflictDamage(DiceBox::getSingleton().d20(pr.times));
                break;
           default:
-               std::cout << "Projectile::injectTime: ERROR: projectile \""<<ID
+               DuskLog() << "Projectile::injectTime: ERROR: projectile \""<<ID
                          << "\" has invalid die number ("<<pr.dice<<").\n";
                          break;
         }//switch
@@ -258,7 +259,7 @@ bool Projectile::saveToStream(std::ofstream& OutStream) const
 {
   if (!OutStream.good())
   {
-    std::cout << "Projectile::SaveToStream: ERROR: Stream contains errors!\n";
+    DuskLog() << "Projectile::saveToStream: ERROR: Stream contains errors!\n";
     return false;
   }
   //write header "RefP" (reference of Projectile)
@@ -266,13 +267,13 @@ bool Projectile::saveToStream(std::ofstream& OutStream) const
   //write all data inherited from DuskObject
   if (!saveDuskObjectPart(OutStream))
   {
-    std::cout << "Projectile::SaveToStream: ERROR while writing basic data!\n";
+    DuskLog() << "Projectile::saveToStream: ERROR while writing basic data!\n";
     return false;
   }
   //write all data inherited from UniformMotionObject
   if (!saveUniformMotionObjectPart(OutStream))
   {
-    std::cout << "Projectile::SaveToStream: ERROR while writing motion data!\n";
+    DuskLog() << "Projectile::saveToStream: ERROR while writing motion data!\n";
     return false;
   }
   //write TTL
@@ -284,13 +285,13 @@ bool Projectile::loadFromStream(std::ifstream& InStream)
 {
   if (entity!=NULL)
   {
-    std::cout << "Projectile::LoadFromStream: ERROR: Cannot load from stream "
+    DuskLog() << "Projectile::loadFromStream: ERROR: Cannot load from stream "
               << "while object is enabled.\n";
     return false;
   }
   if (!InStream.good())
   {
-    std::cout << "Projectile::LoadFromStream: ERROR: Stream contains errors!\n";
+    DuskLog() << "Projectile::loadFromStream: ERROR: Stream contains errors!\n";
     return false;
   }
   //read header "RefP"
@@ -298,21 +299,21 @@ bool Projectile::loadFromStream(std::ifstream& InStream)
   InStream.read((char*) &Header, sizeof(unsigned int));
   if (Header!=cHeaderRefP)
   {
-    std::cout << "Projectile::LoadFromStream: ERROR: Stream contains invalid "
+    DuskLog() << "Projectile::loadFromStream: ERROR: Stream contains invalid "
               << "reference header.\n";
     return false;
   }
   //read DuskObject stuff
   if (!loadDuskObjectPart(InStream))
   {
-    std::cout << "Projectile::LoadFromStream: ERROR while reading basic "
+    DuskLog() << "Projectile::loadFromStream: ERROR while reading basic "
               << "data.\n";
     return false;
   }
   // go on with data members from UniformMotionObject
   if (!loadUniformMotionObjectPart(InStream))
   {
-    std::cout << "Projectile::LoadFromStream: ERROR while loading motion data.\n";
+    DuskLog() << "Projectile::loadFromStream: ERROR while loading motion data.\n";
     return false;
   }
   //TTL

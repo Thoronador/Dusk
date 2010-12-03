@@ -20,7 +20,7 @@
 
 #include "Sun.h"
 #include "API.h"
-#include <iostream>
+#include "Messages.h"
 #include <string>
 #include <OgreParticle.h>
 #include <OgreVector3.h>
@@ -50,12 +50,12 @@ void Sun::show()
   Ogre::SceneManager* scm = getAPI().getOgreSceneManager();
   if (scm==NULL)
   {
-    std::cout << "Sun::show: ERROR: Got NULL for SceneManager.\n";
+    DuskLog() << "Sun::show: ERROR: Got NULL for SceneManager.\n";
     return;
   }
   if (isVisible())
   {
-    std::cout << "Sun::show: Hint: System is already visible. Skipping.\n";
+    DuskLog() << "Sun::show: Hint: System is already visible. Skipping.\n";
     return;
   }
   m_BBSet = scm->createBillboardSet(cSunBillboardSet);
@@ -77,13 +77,13 @@ void Sun::hide()
 {
   if (!isVisible())
   {
-    std::cout << "Sun::hide: Hint: System is already not visible. Skipping.\n";
+    DuskLog() << "Sun::hide: Hint: System is already not visible. Skipping.\n";
     return;
   }
   Ogre::SceneManager* scm = getAPI().getOgreSceneManager();
   if (scm==NULL)
   {
-    std::cout << "Sun::hide: ERROR: Got NULL for SceneManager.\n";
+    DuskLog() << "Sun::hide: ERROR: Got NULL for SceneManager.\n";
     return;
   }
   Ogre::SceneNode* node = m_BBSet->getParentSceneNode();

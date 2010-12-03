@@ -20,7 +20,7 @@
 
 #include "LightBase.h"
 #include "../Engine/DuskConstants.h"
-#include <iostream>
+#include "Messages.h"
 
 namespace Dusk
 {
@@ -159,6 +159,8 @@ LightRecord LightBase::getLightData(const std::string& ID) const
     return l_iter->second;
   }
   //nothing found, so we give them a black light
+  DuskLog() << "LightBase::getLightData: ERROR: no light with ID \""<<ID
+            << "\" found. Returning black light instead.\n";
   return LightRecord::getBlack(0.0f);
 }
 
@@ -186,6 +188,11 @@ unsigned int LightBase::numberOfLights() const
 
 bool LightBase::saveAllToStream(std::ofstream& out_stream) const
 {
+  if (!out_stream.good())
+  {
+    DuskLog() << "LightBase::saveAllToStream: ERROR: bad stream.\n";
+    return false;
+  }
   unsigned int len = 0;
   std::map<std::string, LightRecord>::const_iterator l_iter = m_LightList.begin();
   while (l_iter != m_LightList.end() && out_stream.good())
@@ -203,6 +210,13 @@ bool LightBase::saveAllToStream(std::ofstream& out_stream) const
     out_stream.write((char*) &(l_iter->second.radius), sizeof(float));
     //write light type
     out_stream.write((char*) &(l_iter->second.type), sizeof(Ogre::Light::LightTypes));
+    //check
+    if (!out_stream.good())
+    {
+      DuskLog() << "LightBase::saveAllToStream: ERROR: while writing light "
+                << "data. Current ID is \""<<l_iter->first<<"\".\n";
+      return false;
+    }
     ++l_iter;
   }//while
   return out_stream.good();
@@ -213,7 +227,7 @@ bool LightBase::loadRecordFromStream(std::ifstream& in_stream)
   unsigned int Header = 0;
   if (!in_stream.good())
   {
-    std::cout << "LightBase::LoadRecordFromStream: ERROR: stream contains errors.\n";
+    DuskLog() << "LightBase::loadRecordFromStream: ERROR: stream contains errors.\n";
     return false;
   }
   static LightRecord temp;
@@ -221,7 +235,7 @@ bool LightBase::loadRecordFromStream(std::ifstream& in_stream)
   in_stream.read((char*) &Header, sizeof(unsigned int));
   if (Header != cHeaderLight)
   {
-    std::cout << "LightBase::LoadRecordFromStream: ERROR: invalid record header.\n";
+    DuskLog() << "LightBase::loadRecordFromStream: ERROR: invalid record header.\n";
     return false;
   }
   //read ID length
@@ -229,7 +243,7 @@ bool LightBase::loadRecordFromStream(std::ifstream& in_stream)
   in_stream.read((char*) &Header, sizeof(unsigned int));
   if (Header>255)
   {
-    std::cout << "LightBase::LoadRecordFromStream: ERROR: ID is longer than 255"
+    DuskLog() << "LightBase::loadRecordFromStream: ERROR: ID is longer than 255"
               << "characters.\n";
     return false;
   }
@@ -237,8 +251,8 @@ bool LightBase::loadRecordFromStream(std::ifstream& in_stream)
   in_stream.read(ID_Buffer, Header);
   if (!in_stream.good())
   {
-    std::cout << "LightBase::LoadRecordFromStream: ERROR while reading light's"
-              << "ID from stream.\n";
+    DuskLog() << "LightBase::loadRecordFromStream: ERROR while reading light's"
+              << " ID from stream.\n";
     return false;
   }
   ID_Buffer[Header] = '\0'; //make sure it's NUL-terminated
@@ -251,8 +265,8 @@ bool LightBase::loadRecordFromStream(std::ifstream& in_stream)
   in_stream.read((char*) &(temp.type), sizeof(Ogre::Light::LightTypes));
   if (!in_stream.good())
   {
-    std::cout << "LightBase::LoadRecordFromStream: ERROR while reading light's"
-              << "colour values from stream.\n";
+    DuskLog() << "LightBase::loadRecordFromStream: ERROR while reading light's"
+              << " colour values from stream.\n";
     return false;
   }
   addLight(std::string(ID_Buffer), temp);

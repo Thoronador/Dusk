@@ -21,6 +21,7 @@
 #include "Light.h"
 #include "LightBase.h"
 #include "DuskConstants.h"
+#include "Messages.h"
 #include <sstream>
 
 namespace Dusk
@@ -48,7 +49,7 @@ bool Light::enable(Ogre::SceneManager* scm)
   }
   if (scm==NULL)
   {
-    std::cout << "Light::Enable: ERROR: no scene manager present.\n";
+    DuskLog() << "Light::enable: ERROR: no scene manager present.\n";
     return false;
   }
 
@@ -70,10 +71,7 @@ bool Light::enable(Ogre::SceneManager* scm)
 
   Ogre::SceneNode* ent_node = scm->getRootSceneNode()->createChildSceneNode(entity_name.str(), position);
   ent_node->attachObject(entity);
-  /*//not sure whether this is the best one for rotation
-  ent_node->rotate(Ogre::Vector3::UNIT_X, Ogre::Degree(rotation.x));
-  ent_node->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(rotation.y));
-  ent_node->rotate(Ogre::Vector3::UNIT_Z, Ogre::Degree(rotation.z));*/
+  //rotation
   ent_node->setOrientation(m_Rotation);
   //set user defined object to this object as reverse link
   entity->setUserObject(this);
@@ -90,7 +88,7 @@ bool Light::disable()
   Ogre::SceneManager * scm = ent_node->getCreator();
   if (scm==NULL)
   {
-    std::cout << "Light::Disable: ERROR: got NULL for scene manager.\n";
+    DuskLog() << "Light::disable: ERROR: got NULL for scene manager.\n";
     return false;
   }
   ent_node->detachObject(entity);
@@ -133,7 +131,7 @@ bool Light::saveToStream(std::ofstream& OutStream) const
 {
   if (!OutStream.good())
   {
-    std::cout << "Light::SaveToStream: ERROR: Stream contains errors!\n";
+    DuskLog() << "Light::saveToStream: ERROR: Stream contains errors!\n";
     return false;
   }
   unsigned int len;
@@ -178,13 +176,13 @@ bool Light::loadFromStream(std::ifstream& InStream)
 {
   if (entity!=NULL)
   {
-    std::cout << "Light::LoadFromStream: ERROR: Cannot load from stream while "
+    DuskLog() << "Light::loadFromStream: ERROR: Cannot load from stream while "
               << "light is enabled.\n";
     return false;
   }
   if (!InStream.good())
   {
-    std::cout << "DuskObject::LoadFromStream: ERROR: Stream contains errors!\n";
+    DuskLog() << "DuskObject::loadFromStream: ERROR: Stream contains errors!\n";
     return false;
   }
 
@@ -197,7 +195,7 @@ bool Light::loadFromStream(std::ifstream& InStream)
   InStream.read((char*) &Header, sizeof(unsigned int));
   if (Header!=cHeaderRefL)
   {
-    std::cout << "Light::LoadFromStream: ERROR: Stream contains invalid "
+    DuskLog() << "Light::loadFromStream: ERROR: Stream contains invalid "
               << "reference header.\n";
     return false;
   }
@@ -205,7 +203,7 @@ bool Light::loadFromStream(std::ifstream& InStream)
   InStream.read((char*) &len, sizeof(unsigned int));
   if (len>255)
   {
-    std::cout << "Light::LoadFromStream: ERROR: ID cannot be longer than "
+    DuskLog() << "Light::loadFromStream: ERROR: ID cannot be longer than "
               << "255 characters.\n";
     return false;
   }
@@ -213,7 +211,7 @@ bool Light::loadFromStream(std::ifstream& InStream)
   ID_Buffer[len] = '\0';
   if (!InStream.good())
   {
-    std::cout << "Light::LoadFromStream: ERROR while reading data (ID).\n";
+    DuskLog() << "Light::loadFromStream: ERROR while reading data (ID).\n";
     return false;
   }
   ID = std::string(ID_Buffer);

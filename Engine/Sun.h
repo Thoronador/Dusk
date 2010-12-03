@@ -27,6 +27,7 @@
  History:
      - 2010-08-22 (rev 233) - initial version (by thoronador)
      - 2010-08-23 (rev 234) - changed implementation of movement
+     - 2010-12-03 (rev 266) - use DuskLog/Messages class for logging
 
  ToDo list:
      - Find a better material for the sun - the current one displays the sun as

@@ -132,6 +132,8 @@
 		<Unit filename="../Engine/LuaEngine.cpp" />
 		<Unit filename="../Engine/LuaEngine.h" />
 		<Unit filename="../Engine/LuaIncludes.h" />
+		<Unit filename="../Engine/Messages.cpp" />
+		<Unit filename="../Engine/Messages.h" />
 		<Unit filename="../Engine/NPC.cpp" />
 		<Unit filename="../Engine/NPC.h" />
 		<Unit filename="../Engine/NPCBase.cpp" />

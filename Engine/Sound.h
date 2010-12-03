@@ -66,6 +66,7 @@
      - 2010-11-10 (rev 250) - naming guidelines enforced
      - 2010-12-01 (rev 265) - Sound is now in namespace Dusk
                             - usage of DuskLog/Messages class
+     - 2010-12-03 (rev 266) - unneccessary #include removed
 
  ToDo list:
      - ???
@@ -79,7 +80,6 @@
 
 #include <string>
 #include <vector>
-#include <iostream>
 #if defined(_WIN32)
   #include <windows.h>
 #elif defined(__linux__) || defined(linux)
