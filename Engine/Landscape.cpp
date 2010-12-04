@@ -20,7 +20,7 @@
 
 #include "Landscape.h"
 #include "DuskConstants.h"
-#include <iostream>
+#include "Messages.h"
 #include <sstream>
 #ifndef NO_OGRE_IN_LANDSCAPE
   #include <OgreMath.h>
@@ -102,13 +102,13 @@ bool LandscapeRecord::loadFromStream(std::ifstream &AStream)
 {
   if (m_Loaded)
   {
-    std::cout << "LandscapeRecord::LoadFromStream: ERROR: record already "
+    DuskLog() << "LandscapeRecord::loadFromStream: ERROR: record already "
               << "contains data.\n";
     return false;
   }
   if (!AStream.good())
   {
-    std::cout << "LandscapeRecord::LoadFromStream: ERROR: passed stream "
+    DuskLog() << "LandscapeRecord::loadFromStream: ERROR: passed stream "
               << "argument contains error(s).\n";
     return false;
   }
@@ -119,7 +119,7 @@ bool LandscapeRecord::loadFromStream(std::ifstream &AStream)
   AStream.read((char*) &Land, sizeof(unsigned int));
   if (Land!=cHeaderLand)
   {
-    std::cout << "LandscapeRecord::LoadFromStream: Stream contains invalid "
+    DuskLog() << "LandscapeRecord::loadFromStream: Stream contains invalid "
               << "Landscape record header.\n";
     return false;
   }
@@ -130,13 +130,13 @@ bool LandscapeRecord::loadFromStream(std::ifstream &AStream)
   AStream.read((char*) &m_Stride, sizeof(float));
   if (!AStream.good())
   {
-    std::cout << "LandscapeRecord::LoadFromStream: ERROR: Stream seems to "
+    DuskLog() << "LandscapeRecord::loadFromStream: ERROR: Stream seems to "
               << "have invalid Land record data.\n";
     return false;
   }
   if (m_Stride <=0.0f)
   {
-    std::cout << "LandscapeRecord::LoadFromStream: Stream contains an invalid "
+    DuskLog() << "LandscapeRecord::loadFromStream: Stream contains an invalid "
               << "stride value of "<< m_Stride <<". Setting default value. Exit.\n";
     m_Stride = cDefaultStride;
     return false;
@@ -146,7 +146,7 @@ bool LandscapeRecord::loadFromStream(std::ifstream &AStream)
   AStream.read((char*) &Height[0][0], 65*65*sizeof(float));
   if (!AStream.good())
   {
-    std::cout << "LandscapeRecord::LoadFromStream: ERROR: Stream seems to have"
+    DuskLog() << "LandscapeRecord::loadFromStream: ERROR: Stream seems to have"
               << " invalid Land record height data.\n";
     return false;
   }
@@ -155,7 +155,7 @@ bool LandscapeRecord::loadFromStream(std::ifstream &AStream)
   AStream.read((char*) &Colour[0][0][0], 65*65*3);
   if (!AStream.good())
   {
-    std::cout << "LandscapeRecord::LoadFromStream: ERROR: Stream seems to "
+    DuskLog() << "LandscapeRecord::loadFromStream: ERROR: Stream seems to "
               << "have invalid Land record colour data.\n";
     return false;
   }
@@ -187,12 +187,12 @@ bool LandscapeRecord::saveToStream(std::ofstream &AStream) const
 {
   if (!m_Loaded)
   {
-    std::cout << "LandscapeRecord::SaveToStream: ERROR: record is not loaded.\n";
+    DuskLog() << "LandscapeRecord::saveToStream: ERROR: record is not loaded.\n";
     return false;
   }
   if (!AStream.good())
   {
-    std::cout << "LandscapeRecord::SaveToStream: ERROR: passed stream argument"
+    DuskLog() << "LandscapeRecord::saveToStream: ERROR: passed stream argument"
               << " contains error(s).\n";
     return false;
   }
@@ -209,7 +209,7 @@ bool LandscapeRecord::saveToStream(std::ofstream &AStream) const
   AStream.write((char*) &Colour[0][0][0], 65*65*3);
   if (!AStream.good())
   {
-    std::cout << "LandscapeRecord::SaveToStream: Error while writing record to"
+    DuskLog() << "LandscapeRecord::saveToStream: Error while writing record to"
               << " stream.\n";
     return false;
   }//if
@@ -252,7 +252,7 @@ bool LandscapeRecord::scale(const float factor)
 {
   if (!m_Loaded || factor<cMinScale)
   {
-    std::cout << "LandscapeRecord::Scale: ERROR: Record is not loaded yet or "
+    DuskLog() << "LandscapeRecord::scale: ERROR: Record is not loaded yet or "
               << "scaling factor ("<<factor<<") is invalid.\n";
     return false;
   }
@@ -308,7 +308,7 @@ bool LandscapeRecord::generateByFunction( float (*func) (const float x, const fl
 {
   if (func==NULL)
   {
-    std::cout << "LandscapeRecord::GenerateByFunction: ERROR: pointer to "
+    DuskLog() << "LandscapeRecord::generateByFunction: ERROR: pointer to "
               << "function is NULL!\n";
     return false;
   }
@@ -346,7 +346,7 @@ bool LandscapeRecord::colourByFunction(ColourData (*func) (const float x, const 
 {
   if (func==NULL)
   {
-    std::cout << "LandscapeRecord::ColourByFunction: ERROR: pointer to "
+    DuskLog() << "LandscapeRecord::colourByFunction: ERROR: pointer to "
               << "function is NULL!\n";
     return false;
   }
@@ -420,7 +420,7 @@ bool LandscapeRecord::setColour(const float x, const float z, const unsigned cha
     unsigned int x_idx, y_idx;
     x_idx = (unsigned int)((x-m_OffsetX)/m_Stride);
     y_idx = (unsigned int)((z-m_OffsetY)/m_Stride);
-    std::cout << "DEBUG: LandscapeRecord::SetColour(): x_idx="<<x_idx<<", y_idx="<<y_idx<<"\n";
+    DuskLog() << "DEBUG: LandscapeRecord::setColour(): x_idx="<<x_idx<<", y_idx="<<y_idx<<"\n";
     Colour[x_idx][y_idx][0] = r;
     Colour[x_idx][y_idx][1] = g;
     Colour[x_idx][y_idx][2] = b;
@@ -432,7 +432,7 @@ bool LandscapeRecord::setColour(const float x, const float z, const unsigned cha
     #endif
     return true;
   }
-  std::cout << "DEBUG: LandscapeRecord::SetColour(): call with x or z value out of range.\n";
+  DuskLog() << "DEBUG: LandscapeRecord::setColour(): call with x or z value out of range.\n";
   return false;
 }
 
@@ -460,26 +460,26 @@ bool LandscapeRecord::enable(Ogre::SceneManager * scm, const bool WireFrame)
 {
   if (!m_Loaded)
   {
-    std::cout << "LandscapeRecord::Enable: ERROR: Record has no valid data (yet).\n";
+    DuskLog() << "LandscapeRecord::enable: ERROR: Record has no valid data (yet).\n";
     return false;
   }
 
   if (m_OgreObject != NULL)
   {
-    std::cout << "LandscapeRecord::Enable: Hint: Record is already enabled.\n";
+    DuskLog() << "LandscapeRecord::enable: Hint: Record is already enabled.\n";
     return true;
   }
 
   if (scm==NULL)
   {
-    std::cout << "LandscapeRecord::Enable: ERROR: Got NULL for scene manager.\n";
+    DuskLog() << "LandscapeRecord::enable: ERROR: Got NULL for scene manager.\n";
     return false;
   }
 
   //get own scene node for landscape
   if (!scm->hasSceneNode(Landscape::cLandNodeName))
   {
-    std::cout << "LandscapeRecord::Enable: ERROR: LandscapeNode does not exist.\n";
+    DuskLog() << "LandscapeRecord::enable: ERROR: LandscapeNode does not exist.\n";
     return false;
   }
   Ogre::SceneNode * landnode;
@@ -586,7 +586,7 @@ bool LandscapeRecord::disable()
   scm = m_OgreObject->getParentSceneNode()->getCreator();
   if (scm==NULL)
   {
-    std::cout << "LandscapeRecord::Disable: ERROR: Got NULL for "
+    DuskLog() << "LandscapeRecord::disable: ERROR: Got NULL for "
               << "scene manager.\n";
     return false;
   }
@@ -594,7 +594,7 @@ bool LandscapeRecord::disable()
   //get scene node for landscape
   if (!scm->hasSceneNode(Landscape::cLandNodeName))
   {
-    std::cout << "LandscapeRecord::Disable: ERROR: LandscapeNode does not exist.\n";
+    DuskLog() << "LandscapeRecord::disable: ERROR: LandscapeNode does not exist.\n";
     return false;
   }
   Ogre::SceneNode * landnode;
@@ -614,17 +614,17 @@ bool LandscapeRecord::update(const bool WireFrame)
   Ogre::SceneManager* scm = m_OgreObject->getParentSceneNode()->getCreator();
   if (scm==NULL)
   {
-    std::cout << "LandscapeRecord::Update: ERROR: SceneManager is NULL.\n";
+    DuskLog() << "LandscapeRecord::update: ERROR: SceneManager is NULL.\n";
     return false;
   }
   if (!disable())
   {
-    std::cout << "LandscapeRecord::Update: ERROR: Could not remove record.\n";
+    DuskLog() << "LandscapeRecord::update: ERROR: Could not remove record.\n";
     return false;
   }
   if (!enable(scm, WireFrame))
   {
-    std::cout << "LandscapeRecord::Update: ERROR: Could not enable record.\n";
+    DuskLog() << "LandscapeRecord::update: ERROR: Could not enable record.\n";
     return false;
   }
   return true;
@@ -757,7 +757,7 @@ bool Landscape::loadFromFile(const std::string& FileName)
 {
   if (m_numRec!=0)
   {
-    std::cout << "Landscape::LoadFromFile: Landscape data is already present.\n";
+    DuskLog() << "Landscape::loadFromFile: Landscape data is already present.\n";
     return false;
   }
 
@@ -768,7 +768,7 @@ bool Landscape::loadFromFile(const std::string& FileName)
   input.open(FileName.c_str(), std::ios::in | std::ios::binary);
   if(!input)
   {
-    std::cout << "Landscape::LoadFromFile: Could not open file \""<<FileName
+    DuskLog() << "Landscape::loadFromFile: Could not open file \""<<FileName
               << "\" for reading in binary mode.\n";
     return false;
   }//if
@@ -778,7 +778,7 @@ bool Landscape::loadFromFile(const std::string& FileName)
   input.read((char*) &Header, sizeof(unsigned int));
   if (Header!=cHeaderDusk)
   {
-    std::cout << "Landscape::LoadFromFile: File \""<<FileName<< "\" has "
+    DuskLog() << "Landscape::loadFromFile: File \""<<FileName<< "\" has "
               << "invalid header.\n";
     input.close();
     return false;
@@ -787,7 +787,7 @@ bool Landscape::loadFromFile(const std::string& FileName)
   input.read((char*) &numRecords, sizeof(unsigned int));
   if (!input.good())
   {
-    std::cout << "Landscape::LoadFromFile: File \""<<FileName<< "\" has "
+    DuskLog() << "Landscape::loadFromFile: File \""<<FileName<< "\" has "
               << "invalid, (short?) header.\n";
     input.close();
     return false;
@@ -795,7 +795,7 @@ bool Landscape::loadFromFile(const std::string& FileName)
 
   if (numRecords>cMaxLandRecords)
   {
-    std::cout << "Landscape::LoadFromFile: File \""<<FileName<< "\" has "
+    DuskLog() << "Landscape::loadFromFile: File \""<<FileName<< "\" has "
               << "more than "<<cMaxLandRecords<<" records.\n";
     input.close();
     return false;
@@ -811,7 +811,7 @@ bool Landscape::loadFromFile(const std::string& FileName)
     LandscapeRecord* tr = createRecord();
     if (!tr->loadFromStream(input))
     {
-      std::cout << "Landscape::LoadFromFile: File \""<<FileName<< "\" has "
+      DuskLog() << "Landscape::loadFromFile: File \""<<FileName<< "\" has "
                 << "invalid record data. Clearing loaded data.\n";
       //delete[] m_RecordList;
       //m_RecordList= NULL;
@@ -829,7 +829,7 @@ bool Landscape::saveToFile(const std::string& FileName) const
 {
   if (m_numRec==0)
   {
-    std::cout << "Landscape::SaveToFile: No Landscape data is present.\n";
+    DuskLog() << "Landscape::saveToFile: No Landscape data is present.\n";
     return false;
   }
 
@@ -838,7 +838,7 @@ bool Landscape::saveToFile(const std::string& FileName) const
   output.open(FileName.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
   if(!output)
   {
-    std::cout << "Landscape::SaveToFile: Could not open file \""<<FileName
+    DuskLog() << "Landscape::saveToFile: Could not open file \""<<FileName
               << "\" for writing in binary mode.\n";
     return false;
   }//if
@@ -853,7 +853,7 @@ bool Landscape::saveToFile(const std::string& FileName) const
   {
     if (!m_RecordList[i]->saveToStream(output))
     {
-      std::cout << "Landscape::SaveToFile: Error while writing record "<<i+1
+      DuskLog() << "Landscape::saveToFile: Error while writing record "<<i+1
                 << " to file \"" <<FileName<<"\".\n";
       output.close();
       return false;
@@ -867,7 +867,7 @@ bool Landscape::saveAllToStream(std::ofstream& AStream) const
 {
   if (!AStream.good())
   {
-    std::cout << "Landscape::SaveAllToStream: ERROR: passed stream argument"
+    DuskLog() << "Landscape::saveAllToStream: ERROR: passed stream argument"
               << " contains error(s).\n";
     return false;
   }
@@ -876,7 +876,7 @@ bool Landscape::saveAllToStream(std::ofstream& AStream) const
   {
     if (!m_RecordList[i]->saveToStream(AStream))
     {
-      std::cout << "Landscape::SaveAllToStream: Error while saving record "<<i+1
+      DuskLog() << "Landscape::saveAllToStream: Error while saving record "<<i+1
                 << " to stream.\n";
       return false;
     }
@@ -1036,7 +1036,7 @@ bool Landscape::sendToEngine(Ogre::SceneManager * scm, const bool WireFrame)
 
   if (scm==NULL)
   {
-    std::cout << "Landscape::SendToEngine: ERROR: Got NULL for scene manager.\n";
+    DuskLog() << "Landscape::sendToEngine: ERROR: Got NULL for scene manager.\n";
     return false;
   }
 
@@ -1063,7 +1063,7 @@ bool Landscape::removeFromEngine(Ogre::SceneManager * scm)
 
   if (scm==NULL)
   {
-    std::cout << "Landscape::RemoveFromEngine: ERROR: Got NULL for scene manager.\n";
+    DuskLog() << "Landscape::removeFromEngine: ERROR: Got NULL for scene manager.\n";
     return false;
   }
   //remove all records' objects, one by one

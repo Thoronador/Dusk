@@ -43,6 +43,7 @@
      - 2010-11-09 (rev 249) - possibility to specify default return value for
                               get-functions added
      - 2010-11-12 (rev 252) - new initial setting for screenshot format added
+     - 2010-12-04 (rev 268) - use DuskLog/Messages class for logging
 
  ToDo list:
      - ???

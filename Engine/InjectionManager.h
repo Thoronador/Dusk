@@ -53,6 +53,7 @@
                               Vehicle class
      - 2010-11-12 (rev 252) - getBegin() and getEnd() added
      - 2010-11-20 (rev 255) - rotation is now stored as quaternion
+     - 2010-12-04 (rev 268) - use DuskLog/Messages class for logging
 
  ToDo list:
      - ???

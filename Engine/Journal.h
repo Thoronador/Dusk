@@ -36,6 +36,7 @@
      - 2010-03-18 (rev 185) - changeQuestID() added
      - 2010-08-20 (rev 232) - minor optimizations for engine
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
+     - 2010-12-04 (rev 268) - use DuskLog/Messages class for logging
 
  ToDo list:
      - ???

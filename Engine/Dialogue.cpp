@@ -21,6 +21,7 @@
 #include "Dialogue.h"
 #include "DuskConstants.h"
 #include "LuaEngine.h"
+#include "Messages.h"
 
 namespace Dusk
 {
@@ -97,7 +98,7 @@ bool Dialogue::LineRecord::loadFromStream(std::ifstream& inp)
   inp.read((char*) &len, sizeof(unsigned int));
   if (len>511)
   {
-    std::cout << "LineRecord::LoadFromStream: ERROR: Text seems to be longer "
+    DuskLog() << "LineRecord::loadFromStream: ERROR: Text seems to be longer "
               << "than 511 characters.\n";
     return false;
   }
@@ -106,7 +107,7 @@ bool Dialogue::LineRecord::loadFromStream(std::ifstream& inp)
   buffer[len] = '\0'; //ensure NUL-termination
   if (!(inp.good()))
   {
-    std::cout << "LineRecord::LoadFromStream: ERROR: Error while reading Text "
+    DuskLog() << "LineRecord::loadFromStream: ERROR: Error while reading Text "
               << "from stream.\n";
     return false;
   }
@@ -116,7 +117,7 @@ bool Dialogue::LineRecord::loadFromStream(std::ifstream& inp)
   inp.read((char*) &len, sizeof(unsigned int));
   if (len>511)
   {
-    std::cout << "LineRecord::LoadFromStream: ERROR: NPC_ID seems to be longer "
+    DuskLog() << "LineRecord::loadFromStream: ERROR: NPC_ID seems to be longer "
               << "than 511 characters.\n";
     return false;
   }
@@ -124,7 +125,7 @@ bool Dialogue::LineRecord::loadFromStream(std::ifstream& inp)
   buffer[len] = '\0'; //ensure NUL-termination
   if (!(inp.good()))
   {
-    std::cout << "LineRecord::LoadFromStream: ERROR: Error while reading NPC_ID"
+    DuskLog() << "LineRecord::loadFromStream: ERROR: Error while reading NPC_ID"
               << "from stream.\n";
     return false;
   }
@@ -133,7 +134,7 @@ bool Dialogue::LineRecord::loadFromStream(std::ifstream& inp)
   inp.read((char*) &len, sizeof(unsigned int));
   if (len>511)
   {
-    std::cout << "LineRecord::LoadFromStream: ERROR: ItemID seems to be longer "
+    DuskLog() << "LineRecord::loadFromStream: ERROR: ItemID seems to be longer "
               << "than 511 characters.\n";
     return false;
   }
@@ -141,7 +142,7 @@ bool Dialogue::LineRecord::loadFromStream(std::ifstream& inp)
   buffer[len] = '\0'; //ensure NUL-termination
   if (!(inp.good()))
   {
-    std::cout << "LineRecord::LoadFromStream: ERROR: Error while reading ItemID"
+    DuskLog() << "LineRecord::loadFromStream: ERROR: Error while reading ItemID"
               << "from stream.\n";
     return false;
   }
@@ -152,7 +153,7 @@ bool Dialogue::LineRecord::loadFromStream(std::ifstream& inp)
     inp.read((char*) &(Conditions.ItemAmount), sizeof(unsigned int));
     if (!(inp.good()))
     {
-      std::cout << "LineRecord::LoadFromStream: ERROR: Error while reading "
+      DuskLog() << "LineRecord::loadFromStream: ERROR: Error while reading "
                 << "ItemOp and ItemAmount from stream.\n";
       return false;
     }//if
@@ -173,7 +174,7 @@ bool Dialogue::LineRecord::loadFromStream(std::ifstream& inp)
     //length check to avoid allocation of to much memory and running out of memory
     if (len>100 /*maximum lines*/ * 80 /*characters per line*/)
     {
-      std::cout << "LineRecord::LoadFromStream: ERROR: Condition Script is to "
+      DuskLog() << "LineRecord::loadFromStream: ERROR: Condition Script is to "
                 << "long ("<<len<<" characters). Maximum is 8000 characters.\n";
       return false;
     }
@@ -182,7 +183,7 @@ bool Dialogue::LineRecord::loadFromStream(std::ifstream& inp)
     scriptData[len] = '\0';
     if (!(inp.good()))
     {
-      std::cout << "LineRecord::LoadFromStream: ERROR: Error while reading "
+      DuskLog() << "LineRecord::loadFromStream: ERROR: Error while reading "
                 << "Script text from stream.\n";
       delete[] scriptData;
       return false;
@@ -201,7 +202,7 @@ bool Dialogue::LineRecord::loadFromStream(std::ifstream& inp)
     inp.read((char*) &len, sizeof(unsigned int));
     if (len>511)
     {
-      std::cout << "LineRecord::LoadFromStream: ERROR: ID seems to be longer "
+      DuskLog() << "LineRecord::loadFromStream: ERROR: ID seems to be longer "
                 << "than 511 characters.\n";
       return false;
     }
@@ -209,7 +210,7 @@ bool Dialogue::LineRecord::loadFromStream(std::ifstream& inp)
     buffer[len] = '\0'; //ensure NUL-termination
     if (!(inp.good()))
     {
-      std::cout << "LineRecord::LoadFromStream: ERROR: Error while reading ID"
+      DuskLog() << "LineRecord::loadFromStream: ERROR: Error while reading ID"
                 << "of dialogue choices from stream.\n";
       return false;
     }
@@ -227,16 +228,17 @@ bool Dialogue::LineRecord::loadFromStream(std::ifstream& inp)
     //length check to avoid allocation of to much memory + running out of memory
     if (len>100 /*maximum lines*/ * 80 /*characters per line*/)
     {
-      std::cout << "LineRecord::LoadFromStream: ERROR: Result Script is to "
+      DuskLog() << "LineRecord::loadFromStream: ERROR: Result Script is to "
                 << "long ("<<len<<" characters). Maximum is 8000 characters.\n";
       return false;
     }
     char* scriptData = new char[len+1];
+    scriptData[0] = '\0';
     inp.read(scriptData, len);
     scriptData[len] = '\0';
     if (!(inp.good()))
     {
-      std::cout << "LineRecord::LoadFromStream: ERROR: Error while reading "
+      DuskLog() << "LineRecord::loadFromStream: ERROR: Error while reading "
                 << "Result Script text from stream.\n";
       delete[] scriptData;
       return false;
@@ -278,6 +280,8 @@ std::string Dialogue::getText(const std::string& LineID) const
   {
     return iter->second.Text;
   }
+  DuskLog() << "Dialogue::getText: ERROR: no line with ID \""<<LineID
+            << "\" found. Returning empty string.\n";
   return "";
 }
 
@@ -290,6 +294,8 @@ Dialogue::ConditionRecord Dialogue::getCondition(const std::string& LineID) cons
     return iter->second.Conditions;
   }
   //nothing found, return empty record
+  DuskLog() << "Dialogue::getCondition: ERROR: no line with ID \""<<LineID
+            << "\" found. Returning empty record.\n";
   ConditionRecord cr;
   cr.NPC_ID = "";
   return cr;
@@ -330,7 +336,7 @@ Dialogue::Handle Dialogue::getGreetingLine(const NPC* who) const
   //now check each entry for conditions, and if they are met, return this entry
   for (i=0; i<iter->second.size(); i=i+1)
   {
-    if (conditionFulfilled(getCondition(iter->second.at(i)), who))
+    if (isConditionFulfilled(getCondition(iter->second.at(i)), who))
     {
       temp.LineID = iter->second.at(i);
       break;
@@ -349,7 +355,7 @@ Dialogue::Handle Dialogue::getGreetingLine(const NPC* who) const
   // dialogue.
   if (dial_iter == m_DialogueLines.end())
   {
-    std::cout << "Dialogue::GetGreetingLine: Hint: found no line entry for ID "
+    DuskLog() << "Dialogue::getGreetingLine: Hint: found no line entry for ID "
               << "\""<<temp.LineID<<"\". This should not happen here, check "
               << "your dialogue and add the line with this ID.\n";
     temp.LineID = "";
@@ -361,7 +367,7 @@ Dialogue::Handle Dialogue::getGreetingLine(const NPC* who) const
   //now check the conditions of the choices to display and add them
   for (i=0; i< dial_iter->second.Choices.size(); i=i+1)
   {
-    if (conditionFulfilled(getCondition(dial_iter->second.Choices.at(i)), who))
+    if (isConditionFulfilled(getCondition(dial_iter->second.Choices.at(i)), who))
     {
       temp.Choices.push_back(dial_iter->second.Choices.at(i));
     }//if
@@ -386,7 +392,7 @@ Dialogue::Handle Dialogue::getDialogueLine(const std::string& LineID, const NPC*
     //add choices
     for (i=0; i<iter->second.Choices.size(); i=i+1)
     {
-      if (conditionFulfilled(getCondition(iter->second.Choices[i]), who))
+      if (isConditionFulfilled(getCondition(iter->second.Choices[i]), who))
       {
         temp.Choices.push_back(iter->second.Choices.at(i));
       }
@@ -394,6 +400,8 @@ Dialogue::Handle Dialogue::getDialogueLine(const std::string& LineID, const NPC*
     return temp;
   }//if
   //nothing found
+  DuskLog() << "Dialogue::getDialogueLine: ERROR: no line with ID \""<<LineID
+            << "\" found. Returning empty handle.\n";
   temp.Text = "";
   return temp;
 }
@@ -417,6 +425,8 @@ bool Dialogue::processResultScript(const std::string& LineID)
   iter = m_DialogueLines.find(LineID);
   if (iter==m_DialogueLines.end())
   {
+    DuskLog() << "Dialogue::processResultScript: ERROR: there is no line with "
+              << "ID \""<<LineID<<"\". No script code is executed.\n";
     return false;
   }
   if (iter->second.ResultScript==NULL)
@@ -427,7 +437,7 @@ bool Dialogue::processResultScript(const std::string& LineID)
   return LuaEngine::getSingleton().runString( iter->second.ResultScript->getStringRepresentation());
 }
 
-bool Dialogue::conditionFulfilled(const ConditionRecord& cond, const NPC* who) const
+bool Dialogue::isConditionFulfilled(const ConditionRecord& cond, const NPC* who) const
 {
   //only check if ID is set. Unset ID matches every NPC.
   if (cond.NPC_ID!="")
@@ -486,7 +496,7 @@ bool Dialogue::conditionFulfilled(const ConditionRecord& cond, const NPC* who) c
            }
            break;
       default:
-           std::cout << "Dialogue::ConditionFulfilled: ERROR: invalid or "
+           DuskLog() << "Dialogue::isConditionFulfilled: ERROR: invalid or "
                      << "unknown enumeration value ("<<(unsigned int)(cond.ItemOp)
                      << "encountered. Will return false.\n";
            return false;
@@ -512,8 +522,8 @@ bool Dialogue::conditionFulfilled(const ConditionRecord& cond, const NPC* who) c
         if(lua_type(Lua,-1) != LUA_TFUNCTION)
         {
           lua_pop(Lua,1);
-          std::cout << "Dialogue::ConditionFulfilled: ERROR: Lua does not have"
-                    << " a function named \""<<LuaDialogueConditionFunction
+          DuskLog() << "Dialogue::isConditionFulfilled: ERROR: Lua does not "
+                    << "have a function named \""<<LuaDialogueConditionFunction
                     << "\"! Condition cannot be checked, assuming failure.\n";
           return false;
         }
@@ -524,30 +534,30 @@ bool Dialogue::conditionFulfilled(const ConditionRecord& cond, const NPC* who) c
           switch (errorCode)
           {
             case LUA_ERRERR:
-                 std::cout << "Dialogue::ConditionFulfilled: ERROR while "
+                 DuskLog() << "Dialogue::isConditionFulfilled: ERROR while "
                            << "calling the Lua error handler function.\n";
                  break;
             case LUA_ERRMEM:
-                 std::cout << "Dialogue::ConditionFulfilled: ERROR: memory "
+                 DuskLog() << "Dialogue::isConditionFulfilled: ERROR: memory "
                            << "allocation failed while trying to run the Lua "
                            << "function.\n";
                  break;
             case LUA_ERRRUN:
-                 std::cout << "Dialogue::ConditionFulfilled: ERROR: Lua runtime"
-                           << " error during lua_pcall()!\n";
+                 DuskLog() << "Dialogue::isConditionFulfilled: ERROR: Lua "
+                           << "runtime error during lua_pcall()!\n";
                  break;
             default: //should never happen
-                 std::cout << "Dialogue::ConditionFulfilled: unknown ERROR "
+                 DuskLog() << "Dialogue::isConditionFulfilled: unknown ERROR "
                            << "occured during lua_pcall().\n"; break;
           }//swi
-          std::cout << "Lua error message: " << lua_tostring(Lua, -1) << "\n";
+          DuskLog() << "Lua error message: " << lua_tostring(Lua, -1) << "\n";
           return false;
         }//if error occured
         //now get the result
         if (lua_type(Lua, -1) != LUA_TBOOLEAN)
         {
           //function did not return a boolean
-          std::cout << "Dialogue::ConditionFulfilled: script function did not "
+          DuskLog() << "Dialogue::isConditionFulfilled: script function did not "
                     << "return a boolean value.\n";
           lua_pop(Lua, 1);
           return false;
@@ -561,7 +571,7 @@ bool Dialogue::conditionFulfilled(const ConditionRecord& cond, const NPC* who) c
       }
       else
       {
-        std::cout << "Dialogue::ConditionFulfilled: ERROR while executing "
+        DuskLog() << "Dialogue::isConditionFulfilled: ERROR while executing "
                   << "script!\nLua's error message is: "<< errorString <<"\n";
         return false;
       }
@@ -576,7 +586,7 @@ bool Dialogue::saveToStream(std::ofstream& output) const
 {
    if (!(output.good()))
    {
-     std::cout << "Dialogue::SaveToStream: ERROR: Bad stream.\n";
+     DuskLog() << "Dialogue::saveToStream: ERROR: Bad stream.\n";
      return false;
    }
 
@@ -605,7 +615,7 @@ bool Dialogue::saveToStream(std::ofstream& output) const
 
      if (!(output.good()))
      {
-       std::cout << "Dialogue::SaveToStream: ERROR while writing greeting "
+       DuskLog() << "Dialogue::saveToStream: ERROR while writing greeting "
                  << "lines for \""<<gr_iter->first<<"\".\n";
        return false;
      }
@@ -623,7 +633,7 @@ bool Dialogue::saveToStream(std::ofstream& output) const
      output.write(iter->first.c_str(), len);
      if (!(iter->second.saveToStream(output)))
      {
-       std::cout << "Dialogue::SaveToStream: ERROR while writing dialogue "
+       DuskLog() << "Dialogue::saveToStream: ERROR while writing dialogue "
                  << "line \""<<iter->first<<"\".\n";
        return false;
      }
@@ -636,7 +646,7 @@ bool Dialogue::loadNextRecordFromStream(std::ifstream& input)
 {
   if (!(input.good()))
   {
-    std::cout << "Dialogue::LoadNextRecordFromStream: ERROR: Bad stream.\n";
+    DuskLog() << "Dialogue::loadNextRecordFromStream: ERROR: Bad stream.\n";
     return false;
   }
 
@@ -644,7 +654,7 @@ bool Dialogue::loadNextRecordFromStream(std::ifstream& input)
   input.read((char*) &i, sizeof(unsigned int));
   if (i != cHeaderDial)
   {
-    std::cout << "Dialogue::LoadNextRecordFromStream: ERROR: Unexpected header.\n";
+    DuskLog() << "Dialogue::loadNextRecordFromStream: ERROR: Unexpected header.\n";
     return false;
   }
 
@@ -658,7 +668,7 @@ bool Dialogue::loadNextRecordFromStream(std::ifstream& input)
     input.read((char*) &i, sizeof(unsigned int));
     if (i>255)
     {
-      std::cout << "Dialogue::LoadNextRecordFromStream: ERROR: ID seems to be "
+      DuskLog() << "Dialogue::loadNextRecordFromStream: ERROR: ID seems to be "
                 << "longer than 255 characters.\n";
       return false;
     }
@@ -666,14 +676,14 @@ bool Dialogue::loadNextRecordFromStream(std::ifstream& input)
     buffer[i] = '\0';
     if (!(input.good()))
     {
-      std::cout << "Dialogue::LoadNextRecordFromStream: ERROR while reading ID "
+      DuskLog() << "Dialogue::loadNextRecordFromStream: ERROR while reading ID "
                 << "from stream.\n";
       return false;
     }
     //load it
     if (!(temp_lr.loadFromStream(input)))
     {
-      std::cout << "Dialogue::LoadNextRecordFromStream: ERROR while loading "
+      DuskLog() << "Dialogue::loadNextRecordFromStream: ERROR while loading "
                 << "line record.\n";
       return false;
     }
@@ -687,7 +697,7 @@ bool Dialogue::loadNextRecordFromStream(std::ifstream& input)
     input.read((char*) &i, sizeof(unsigned int));
     if (i>255)
     {
-      std::cout << "Dialogue::LoadNextRecordFromStream: ERROR: NPC_ID seems to"
+      DuskLog() << "Dialogue::loadNextRecordFromStream: ERROR: NPC_ID seems to"
                 << " be longer than 255 characters.\n";
       return false;
     }
@@ -695,7 +705,7 @@ bool Dialogue::loadNextRecordFromStream(std::ifstream& input)
     buffer[i] = '\0';
     if (!(input.good()))
     {
-      std::cout << "Dialogue::LoadNextRecordFromStream: ERROR while reading "
+      DuskLog() << "Dialogue::loadNextRecordFromStream: ERROR while reading "
                 << "NPC ID from stream.\n";
       return false;
     }
@@ -705,8 +715,8 @@ bool Dialogue::loadNextRecordFromStream(std::ifstream& input)
     input.read((char*) &ChoiceCount, sizeof(unsigned int));
     if (ChoiceCount>100) //unlikely there's so much -> error
     {
-      std::cout << "Dialogue::LoadNextRecordFromStream: ERROR: got more than"
-                << " 100 choices for greeting list. Corrupt file?.\n";
+      DuskLog() << "Dialogue::loadNextRecordFromStream: ERROR: got more than"
+                << " 100 choices for greeting list. Corrupt file?\n";
       return false;
     }
     //read choices
@@ -721,7 +731,7 @@ bool Dialogue::loadNextRecordFromStream(std::ifstream& input)
 
       if (len>255)
       {
-        std::cout << "Dialogue::LoadNextRecordFromStream: ERROR: LineID seems "
+        DuskLog() << "Dialogue::loadNextRecordFromStream: ERROR: LineID seems "
                   << "to be longer than 255 characters.\n";
         return false;
       }
@@ -729,7 +739,7 @@ bool Dialogue::loadNextRecordFromStream(std::ifstream& input)
       buffer[len] = '\0';
       if (!(input.good()))
       {
-        std::cout << "Dialogue::LoadNextRecordFromStream: ERROR while reading "
+        DuskLog() << "Dialogue::loadNextRecordFromStream: ERROR while reading "
                   << "LineID from stream.\n";
         return false;
       }
@@ -739,7 +749,7 @@ bool Dialogue::loadNextRecordFromStream(std::ifstream& input)
   }
   else
   {
-    std::cout << "Dialogue::LoadNextRecordFromStream: ERROR: unrecognized flag"
+    DuskLog() << "Dialogue::loadNextRecordFromStream: ERROR: unrecognized flag"
                 << "("<<flag<<") in stream.\n";
     return false;
   }

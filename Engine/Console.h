@@ -54,6 +54,7 @@
      - 2010-06-06 (rev 216) - fixed a bug
      - 2010-08-20 (rev 231) - adjustments for CommandQuestLog
      - 2010-11-09 (rev 249) - adjustments for CommandScreenshot
+     - 2010-12-04 (rev 268) - use DuskLog/Messages class for logging
 
  ToDo list:
      - update Console as soon as new commands are available

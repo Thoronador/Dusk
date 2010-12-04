@@ -46,6 +46,7 @@
      - 2010-05-14 (rev 203) - possibility to render Landscape as wire frame
      - 2010-08-16 (rev 229) - error in changeListSize() fixed
      - 2010-11-13 (rev 254) - naming guidelines enforced
+     - 2010-12-04 (rev 268) - use DuskLog/Messages class for logging
 
  ToDo list:
      - implement LoadRecordFromStream() for Landscape class

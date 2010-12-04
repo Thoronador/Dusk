@@ -33,7 +33,7 @@
 #include "WeaponBase.h"
 #include "ProjectileBase.h"
 #include "QuestLog.h"
-//#include "ObjectBase.h"
+#include "Messages.h"
 
 namespace Dusk
 {
@@ -128,10 +128,10 @@ void Scene::createGrassMesh()
 
         if (DataLoader::getSingleton().loadFromFile("data"+path_sep+"DuskData.dusk"))
         {
-          std::cout << "Data loaded successfully.\n";
+          DuskLog() << "Data loaded successfully.\n";
           if (Landscape::getSingleton().sendToEngine(getAPI().getOgreSceneManager()))
           {
-            std::cout << "Landscape successfully added.\n";
+            DuskLog() << "Landscape successfully added.\n";
           }
           ObjectManager::getSingleton().enableAllObjects(getAPI().getOgreSceneManager());
         }
@@ -151,7 +151,7 @@ void Scene::createGrassMesh()
         wpObj->setUseWaypoints(true);
         wpObj->setPatrolMode(true);
         //just out of curiosity
-        std::cout << "Animated robot type enum (int): "<<(int)(wpObj->getDuskType())<<"\n"
+        DuskLog() << "Animated robot type enum (int): "<<(int)(wpObj->getDuskType())<<"\n"
                   << "  sizeof(DuskObject): "<<sizeof(DuskObject)<<" bytes\n"
                   << "  sizeof(Light): "<<sizeof(Light)<<" bytes\n"
                   << "  sizeof(Container): "<<sizeof(Container)<<" bytes\n"
@@ -240,39 +240,39 @@ void Scene::createGrassMesh()
                         false, Inventory::getEmptyInventory(), anims, tps);
         if (NPCBase::getSingleton().hasNPC("player"))
         {
-          std::cout << "NPCBase's got player entry.\n";
-          std::cout << "Tag points of \"player\":\n";
+          DuskLog() << "Debug: NPCBase got player entry.\n";
+          DuskLog() << "Debug: Tag points of \"player\":\n";
           const NPCTagPoints& tttp = NPCBase::getSingleton().getNPCTagPoints("player");
-          std::cout << "  Left  hand:   \""<<tttp.HandLeft<<"\"\n"
+          DuskLog() << "  Left  hand:   \""<<tttp.HandLeft<<"\"\n"
                     << "  Right hand:   \""<<tttp.HandRight<<"\"\n"
                     << "  Left  sheath: \""<<tttp.SheathLeft<<"\"\n"
                     << "  Right sheath: \""<<tttp.SheathRight<<"\"\n";
         }
         else
         {
-          std::cout << "NPCBase does NOT have a player entry.\n";
+          DuskLog() << "Debug: NPCBase does NOT have a player entry.\n";
         }
         //add player mesh
         Player::getSingleton().getInventory().addItem("sword", 5);
-        std::cout << "Player now has "<<Player::getSingleton().getConstInventory().getItemCount("sword")
+        DuskLog() << "Player now has "<<Player::getSingleton().getConstInventory().getItemCount("sword")
                   << " swords in inventory.\n";
         Player::getSingleton().getInventory().addItem("sword_gun", 5);
-        std::cout << "Player now has "<<Player::getSingleton().getConstInventory().getItemCount("sword_gun")
+        DuskLog() << "Player now has "<<Player::getSingleton().getConstInventory().getItemCount("sword_gun")
                   << " sword guns in inventory.\n";
         Player::getSingleton().setScale(5.0f);
         Player::getSingleton().enable(m_SceneManager);
         Player::getSingleton().setRotation(Ogre::Quaternion(Ogre::Degree(180.0), Ogre::Vector3::UNIT_Y));
         if (Player::getSingleton().equip("sword"))
         {
-          std::cout << "First equip() successful.\n";
+          DuskLog() << "First equip() successful.\n";
           if (Player::getSingleton().equip("sword_gun"))
           {
-            std::cout << "Second equip() successful.\n";
+            DuskLog() << "Second equip() successful.\n";
           }
         }
         else
         {
-          std::cout << "Player::equip() failed.\n";
+          DuskLog() << "Player::equip() failed.\n";
         }
         Camera::getSingleton().setZoom(125.0f);
         // ---- begin questlog test
@@ -292,18 +292,18 @@ void Scene::createGrassMesh()
 
     void Scene::destroyScene()
     {
-      std::cout << "Scene destruction in progress...\n";
-      std::cout << "  Delete objects...\n";
+      DuskLog() << "Scene destruction in progress...\n";
+      DuskLog() << "  Delete objects...\n";
       DataLoader::getSingleton().clearData(ALL_BITS);
-      std::cout<<"  Delete weather effects...\n";
+      DuskLog()<<"  Delete weather effects...\n";
       Weather& w_singleton = Weather::getSingelton();
       if (w_singleton.isFoggy()) w_singleton.stopFog();
       if (w_singleton.isRaining()) w_singleton.stopRain();
       if (w_singleton.isSnowing()) w_singleton.stopSnow();
       w_singleton.deleteAllCelestials();
-      std::cout << "  Delete Landscape...\n";
+      DuskLog() << "  Delete Landscape...\n";
       Landscape::getSingleton().removeFromEngine(getAPI().getOgreSceneManager());
       Landscape::getSingleton().clearAllRecords();
-      std::cout << "Scene destroyed.\n";
+      DuskLog() << "Scene destroyed.\n";
     }
 } //namespace

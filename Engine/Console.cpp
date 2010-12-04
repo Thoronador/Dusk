@@ -38,6 +38,7 @@
 #include "CommandScreenshot.h"
 #include "DuskFunctions.h"
 #include "DuskTypes.h"
+#include "Messages.h"
 #include <iostream>
 #include <sstream>
 
@@ -125,7 +126,7 @@ int Console::executeCommand(const std::string& p_string)
         //this is going to get big :/
         if (command[0] == "quit")
         {
-            std::cout << "Thee wants to quit?" << std::endl;
+            DuskLog() << "Thee wants to quit?\n";
             com = new CommandQuit();
             m_Dispatcher->executeCommand(com); // Object will be destroyed after being executed by the Dispatcher
         }
@@ -193,7 +194,7 @@ int Console::executeCommand(const std::string& p_string)
         {
             com = new CommandPickUp();
             m_Dispatcher->executeCommand(com);
-            std::cout << "pick something up!" << std::endl;
+            DuskLog() << "pick something up!\n";
         }
         else if (command[0] == "MoveMouse")
         {
@@ -207,13 +208,13 @@ int Console::executeCommand(const std::string& p_string)
         {
             com = new CommandAttack(true);
             m_Dispatcher->executeCommand(com);
-            std::cout << "attack started!" << std::endl;
+            DuskLog() << "attack started!\n";
         }
         else if (command[0] == "StopAttack")
         {
             com = new CommandAttack(false);
             m_Dispatcher->executeCommand(com);
-            std::cout << "attack stopped!" << std::endl;
+            DuskLog() << "attack stopped!\n";
         }
 
         //-------------------------------------------------------
@@ -223,8 +224,8 @@ int Console::executeCommand(const std::string& p_string)
         {
             if(command.size()< 2)
             {
-                std::cout<<"Console::executeCommand: Error: No noise ID parameter "
-                         <<"for CreateSound."<<std::endl;
+                DuskLog()<<"Console::executeCommand: Error: No noise ID parameter "
+                         <<"for CreateSound.\n";
             }
             else
             {
@@ -236,8 +237,8 @@ int Console::executeCommand(const std::string& p_string)
         {
             if(command.size()< 2)
             {
-                std::cout<<"Console::executeCommand: Error: No noise ID parameter "
-                         <<"for DestroySound."<<std::endl;
+                DuskLog()<<"Console::executeCommand: Error: No noise ID parameter "
+                         <<"for DestroySound.\n";
             }
             else
             {
@@ -249,8 +250,8 @@ int Console::executeCommand(const std::string& p_string)
         {
             if(command.size()< 3)
             {
-                std::cout<<"Console::executeCommand: Error: No media ID parameter "
-                         <<"or no file path for CreateMedia."<<std::endl;
+                DuskLog()<<"Console::executeCommand: Error: No media ID parameter "
+                         <<"or no file path for CreateMedia.\n";
             }
             else
             {
@@ -262,8 +263,8 @@ int Console::executeCommand(const std::string& p_string)
         {
             if(command.size()< 2)
             {
-                std::cout<<"Console::executeCommand: Error: No media ID parameter "
-                         <<"for DestroyMedia."<<std::endl;
+                DuskLog()<<"Console::executeCommand: Error: No media ID parameter "
+                         <<"for DestroyMedia.\n";
             }
             else
             {
@@ -275,8 +276,8 @@ int Console::executeCommand(const std::string& p_string)
         {
             if(command.size()< 3)
             {
-                std::cout<<"Console::executeCommand: Error: No noise ID parameter "
-                         <<"or no media ID for AssociateSoundMedia."<<std::endl;
+                DuskLog()<<"Console::executeCommand: Error: No noise ID parameter "
+                         <<"or no media ID for AssociateSoundMedia.\n";
             }
             else
             {
@@ -288,8 +289,8 @@ int Console::executeCommand(const std::string& p_string)
         {
             if(command.size()< 2)
             {
-                std::cout<<"Console::executeCommand: Error: No noise ID parameter "
-                         <<"for DeassociateSoundMedia."<<std::endl;
+                DuskLog()<<"Console::executeCommand: Error: No noise ID parameter "
+                         <<"for DeassociateSoundMedia.\n";
             }
             else
             {
@@ -301,8 +302,8 @@ int Console::executeCommand(const std::string& p_string)
         {
             if(command.size()< 2)
             {
-                std::cout<<"Console::executeCommand: Error: No noise ID parameter "
-                         <<"for PlaySound."<<std::endl;
+                DuskLog()<<"Console::executeCommand: Error: No noise ID parameter "
+                         <<"for PlaySound.\n";
             }
             else
             {
@@ -314,8 +315,8 @@ int Console::executeCommand(const std::string& p_string)
         {
             if(command.size()< 2)
             {
-                std::cout<<"Console::executeCommand: Error: No noise ID parameter "
-                         <<"for PauseSound."<<std::endl;
+                DuskLog()<<"Console::executeCommand: Error: No noise ID parameter "
+                         <<"for PauseSound.\n";
             }
             else
             {
@@ -327,8 +328,8 @@ int Console::executeCommand(const std::string& p_string)
         {
             if(command.size()< 2)
             {
-                std::cout<<"Console::executeCommand: Error: No noise ID "
-                         <<"for StopSound."<<std::endl;
+                DuskLog()<<"Console::executeCommand: Error: No noise ID "
+                         <<"for StopSound.\n";
             }
             else
             {
@@ -340,8 +341,8 @@ int Console::executeCommand(const std::string& p_string)
         {
             if(command.size()< 2)
             {
-                std::cout<<"Console::executeCommand: Error: No noise ID "
-                         <<"for UnPauseSound."<<std::endl;
+                DuskLog()<<"Console::executeCommand: Error: No noise ID "
+                         <<"for UnPauseSound.\n";
             }
             else
             {
@@ -353,8 +354,8 @@ int Console::executeCommand(const std::string& p_string)
         {
             if(command.size()< 2)
             {
-                std::cout<<"Console::executeCommand: Error: No noise ID "
-                         <<"for ReplaySound."<<std::endl;
+                DuskLog()<<"Console::executeCommand: Error: No noise ID "
+                         <<"for ReplaySound.\n";
             }
             else
             {
@@ -366,8 +367,8 @@ int Console::executeCommand(const std::string& p_string)
         {
             if(command.size()< 3)
             {
-                std::cout<<"Console::executeCommand: Error: Not enough "
-                         <<"parameters for LoopSound (2 needed)."<<std::endl;
+                DuskLog()<<"Console::executeCommand: Error: Not enough "
+                         <<"parameters for LoopSound (2 needed).\n";
             }
             else
             {
@@ -381,8 +382,8 @@ int Console::executeCommand(const std::string& p_string)
         {
             if(command.size()< 3)
             {
-                std::cout<<"Console::executeCommand: Error: Not enough "
-                         <<"parameters for SoundVolume (2 needed)."<<std::endl;
+                DuskLog()<<"Console::executeCommand: Error: Not enough "
+                         <<"parameters for SoundVolume (2 needed).\n";
             }
             else
             {
@@ -409,21 +410,21 @@ int Console::executeCommand(const std::string& p_string)
         {
             com = new CommandWeather(CommandWeather::wtFog, true);
             m_Dispatcher->executeCommand(com);
-            std::cout << "Fog toggled." << std::endl;
+            DuskLog() << "Fog toggled.\n";
         }
         //rain command
         else if (command[0] == "toggle_rain")
         {
             com = new CommandWeather(CommandWeather::wtRain, true);
             m_Dispatcher->executeCommand(com);
-            std::cout << "Rain toggled." << std::endl;
+            DuskLog() << "Rain toggled.\n";
         }
         //snow command
         else if (command[0] == "toggle_snow")
         {
             com = new CommandWeather(CommandWeather::wtSnow, true);
             m_Dispatcher->executeCommand(com);
-            std::cout << "Snow toggled." << std::endl;
+            DuskLog() << "Snow toggled.\n";
         }
         // --- QuestLog commands ---
         //toggle visibility
@@ -452,12 +453,12 @@ int Console::executeCommand(const std::string& p_string)
         {
             com = new CommandScreenshot();
             m_Dispatcher->executeCommand(com);
-            std::cout << "Screenshot command executed." << std::endl;
+            DuskLog() << "Screenshot command executed.\n";
         }
         // --- no command recognised ---
         else
         {
-            std::cout << "Console::executeCommand: Parser error." << std::endl;
+            DuskLog() << "Console::executeCommand: Parser error.\n";
         }
     }
     if(com) delete com;

@@ -24,6 +24,7 @@
   #include "NPCBase.h"
 #endif
 #include "Vehicle.h"
+#include "Messages.h"
 
 namespace Dusk
 {
@@ -172,21 +173,23 @@ unsigned int InjectionManager::reenableReferencesOfObject(const std::string& ID,
   unsigned int re_enabled = 0;
   if (scm==NULL)
   {
-    std::cout << "InjectionManager::reenableReferencesOfObject: ERROR: Scene "
+    DuskLog() << "InjectionManager::reenableReferencesOfObject: ERROR: Scene "
               << "Manager is NULL pointer!";
     return 0;
   }
-  if (!NPCBase::getSingleton().hasNPC(ID))
+  /*if (!NPCBase::getSingleton().hasNPC(ID))
   {
-    std::cout << "InjectionManager::reenableReferencesOfObject: ERROR: there is"
+    DuskLog() << "InjectionManager::reenableReferencesOfObject: ERROR: there is"
               << " no record about NPC with the new ID \""+ID+"\" within the "
               << "NPCBase class. Aborting.\n";
     return 0;
-  }
+  }*/
   std::map<std::string, std::vector<InjectionObject*> >::iterator iter;
   iter = m_ReferenceMap.find(ID);
   if (iter==m_ReferenceMap.end())
   {
+    DuskLog() << "InjectionManager::reenableReferencesOfObject: Hint: there are"
+              << " no references for ID \""<<ID<<"\".\n";
     return 0;
   }//if
   unsigned int position;
@@ -209,27 +212,27 @@ unsigned int InjectionManager::updateReferencesAfterIDChange(const std::string& 
 {
   if (oldID=="" or newID=="")
   {
-    std::cout << "InjectionManager::updateReferencesAfterIDChange: ERROR: old "
+    DuskLog() << "InjectionManager::updateReferencesAfterIDChange: ERROR: old "
               << "ID or new ID is empty string. We don't want empty ID "
               << "strings!\n";
     return 0;
   }
   if (oldID==newID)
   {
-    std::cout << "InjectionManager::updateReferencesAfterIDChange: Hint: old ID"
+    DuskLog() << "InjectionManager::updateReferencesAfterIDChange: Hint: old ID"
               << " is the same as new ID. No need to change anything here.\n";
     return 0;
   }
-  if (!NPCBase::getSingleton().hasNPC(newID))
+  /*if (!NPCBase::getSingleton().hasNPC(newID))
   {
-    std::cout << "InjectionManager::updateReferencesAfterIDChange: ERROR: there"
+    DuskLog() << "InjectionManager::updateReferencesAfterIDChange: ERROR: there"
               << " is no record about object with the new ID \""+newID+"\" "
               << "within the NPCBase class. Aborting.\n";
     return 0;
-  }
+  }*/
   if (scm==NULL)
   {
-    std::cout << "InjectionManager::updateReferencesAfterIDChange: ERROR: got "
+    DuskLog() << "InjectionManager::updateReferencesAfterIDChange: ERROR: got "
               << "NULL pointer for scene manager. Unable to update enabled "
               << "objects.\n";
     return 0;
@@ -280,7 +283,7 @@ void InjectionManager::injectAnimationTime(const float TimePassed)
   iter = m_ReferenceMap.begin();
   while (iter!=m_ReferenceMap.end())
   {
-    for (i=0; i<iter->second.size(); i++)
+    for (i=0; i<iter->second.size(); ++i)
     {
       if (iter->second.at(i)!=NULL)
       {
@@ -316,7 +319,7 @@ bool InjectionManager::saveAllToStream(std::ofstream& output) const
 {
   if (!(output.good()))
   {
-    std::cout << "InjectionManager::saveAllToStream: ERROR: Bad stream given.\n";
+    DuskLog() << "InjectionManager::saveAllToStream: ERROR: Bad stream given.\n";
     return false;
   }
   unsigned int i;
@@ -331,7 +334,7 @@ bool InjectionManager::saveAllToStream(std::ofstream& output) const
       {
         if (!(iter->second.at(i)->saveToStream(output)))
         {
-          std::cout << "InjectionManager::saveAllToStream: ERROR while saving "
+          DuskLog() << "InjectionManager::saveAllToStream: ERROR while saving "
                     << "reference.\n";
           return false;
         } //if
@@ -398,10 +401,12 @@ bool InjectionManager::loadNextFromStream(std::ifstream& Stream, const unsigned 
          delete injectPtr;
          break;
     default:
-         std::cout << "InjectionManager::LoadNextFromStream: ERROR: unexpected"
+         DuskLog() << "InjectionManager::loadNextFromStream: ERROR: unexpected"
                    << " header found.\n";
          break;
   }//swi
+  DuskLog() << "InjectionManager::loadNextFromStream: ERROR while loading next "
+            << " object from stream.\n";
   return false;
 }
 

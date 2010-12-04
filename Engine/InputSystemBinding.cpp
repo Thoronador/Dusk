@@ -24,6 +24,7 @@
 #include "Menu.h"
 #include "DuskFunctions.h"
 #include "Camera.h"
+#include "Messages.h"
 
 namespace Dusk{
 
@@ -37,12 +38,12 @@ InputSystemBinding::InputSystemBinding()
   {
     if (loadKeyConfiguration(cKeyConfigurationFile))
     {
-      std::cout << "Info: Key bindings successfully loaded from file \""
+      DuskLog() << "Info: Key bindings successfully loaded from file \""
                 <<cKeyConfigurationFile<<"\".\n";
     }
     else
     {
-      std::cout << "Info: Key bindings from file \""<<cKeyConfigurationFile
+      DuskLog() << "Info: Key bindings from file \""<<cKeyConfigurationFile
                 <<"\" could not be loaded.\n";
       loadPredefined = true;
     }
@@ -54,7 +55,7 @@ InputSystemBinding::InputSystemBinding()
 
   if (loadPredefined)
   {
-    std::cout << "Info: setting predefined key bindings.\n";
+    DuskLog() << "Info: setting predefined key bindings.\n";
     //predefined bindings
     myBindListPress.clear();
     myBindListPress[OIS::KC_ESCAPE] = Script("quit");
@@ -295,7 +296,7 @@ bool InputSystemBinding::loadKeyConfiguration(const std::string& fileName)
   if (!inFile)
   {
     //could not open file
-    std::cout << "InputSystemBinding::LoadKeyConfiguration: ERROR: could not "
+    DuskLog() << "InputSystemBinding::loadKeyConfiguration: ERROR: could not "
               << "open file \""<<fileName<<"\" for reading. Aborting.\n";
     return false;
   }
@@ -314,7 +315,7 @@ bool InputSystemBinding::loadKeyConfiguration(const std::string& fileName)
         pos = line.find(' ');
         if (pos == std::string::npos)
         {
-          std::cout << "InputSystemBinding::LoadKeyConfiguration: Hint: line "<<i
+          DuskLog() << "InputSystemBinding::LoadKeyConfiguration: Hint: line "<<i
                 << " of file \""<<fileName<<"\" is not valid.\n";
           inFile.close();
           return false;
@@ -326,7 +327,7 @@ bool InputSystemBinding::loadKeyConfiguration(const std::string& fileName)
           const OIS::KeyCode kc = stringToKeyCode(sRight);
           if (kc==OIS::KC_UNASSIGNED)
           {
-            std::cout << "InputSystemBinding::LoadKeyConfiguration: Error: line "
+            DuskLog() << "InputSystemBinding::loadKeyConfiguration: Error: line "
                       << i<<" of file \""<<fileName<<"\": string \""<<sRight
                       << "\" does not identify a valid key.\n";
             inFile.close();
@@ -338,7 +339,7 @@ bool InputSystemBinding::loadKeyConfiguration(const std::string& fileName)
           {
             //At least one script should contain something. Otherwise the key
             //has not any related actions.
-            std::cout << "InputSystemBinding::LoadKeyConfiguration: Error: line "
+            DuskLog() << "InputSystemBinding::loadKeyConfiguration: Error: line "
                       << i<<" of file \""<<fileName<<"\": the string \""<<sLeft
                       << "\" does not identify a valid option.\n";
             inFile.close();
@@ -378,7 +379,7 @@ bool InputSystemBinding::saveKeyConfiguration(const std::string& fileName) const
   if (!outFile)
   {
     //could not open file
-    std::cout << "InputSystemBinding::SaveKeyConfiguration: ERROR: could not "
+    DuskLog() << "InputSystemBinding::saveKeyConfiguration: ERROR: could not "
               << "open file \""<<fileName<<"\". Aborting.\n";
     return false;
   }
@@ -393,7 +394,7 @@ bool InputSystemBinding::saveKeyConfiguration(const std::string& fileName) const
     if ((key=="") or (value==""))
     {
       outFile.close();
-      std::cout << "InputSystemBinding::SaveKeyConfiguration: ERROR: OIS key "
+      DuskLog() << "InputSystemBinding::saveKeyConfiguration: ERROR: OIS key "
                 << "code has no string representation or bind script contains "
                 << "unknown command. Aborting.\n";
       return false;

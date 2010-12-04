@@ -20,8 +20,8 @@
 
 #include "Settings.h"
 #include "DuskFunctions.h"
+#include "Messages.h"
 #include <fstream>
-#include <iostream>
 
 namespace Dusk
 {
@@ -72,23 +72,23 @@ Settings::Settings()
 {
   m_AllSettings.clear();
   initialSettings();
-  std::cout << "Dusk::Settings: Loading configuration file... ";
+  DuskLog() << "Dusk::Settings: Loading configuration file... ";
   if (FileExists(CharacterConfigurationFile))
   {
     if (loadFromFile(CharacterConfigurationFile))
     {
-      std::cout << "done.\n";
+      DuskLog() << "done.\n";
     }
     else
     {
-      std::cout << "failed.\n";
+      DuskLog() << "failed.\n";
       initialSettings();
-      std::cout << "Predefined settings are loaded instead.\n";
+      DuskLog() << "Predefined settings are loaded instead.\n";
     }
   }
   else
   {
-    std::cout << "skipping (file not found).\n";
+    DuskLog() << "skipping (file not found).\n";
   }
 }
 
@@ -223,7 +223,7 @@ bool Settings::loadFromFile(const std::string& FileName)
         sep_pos = line.find('=');
         if (sep_pos == std::string::npos || sep_pos == 0)
         {
-          std::cout << "Settings::LoadFromFile: ERROR: Invalid line found: \""
+          DuskLog() << "Settings::LoadFromFile: ERROR: Invalid line found: \""
                     << line <<"\".\nGeneral format: \"Name of Setting=value\"\n"
                     <<"Loading from file cancelled.\n";
           input.close();
@@ -241,7 +241,7 @@ bool Settings::loadFromFile(const std::string& FileName)
                addSetting_string(line.substr(0, sep_pos), line.substr(sep_pos+1));
                break;
           default:
-               std::cout << "Settings::LoadFromFile: ERROR: No input type given.\n";
+               DuskLog() << "Settings::LoadFromFile: ERROR: No input type given.\n";
                input.close();
                return false;
                break;

@@ -53,6 +53,7 @@
      - 2010-11-13 (rev 254) - update due to renaming of some functions in
                               Landscape class
      - 2010-11-20 (rev 255) - rotation is now handled as Quaternion
+     - 2010-12-04 (rev 268) - use DuskLog/Messages class for logging
 
  ToDo list:
      - ???

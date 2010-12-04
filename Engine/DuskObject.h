@@ -77,6 +77,7 @@
      - 2010-11-26 (rev 260) - canCollide() added to determine, whether object is
                               considered for collision during collision
                               detections
+     - 2010-12-04 (rev 268) - use DuskLog/Messages class for logging
 
  ToDo list:
      - ???

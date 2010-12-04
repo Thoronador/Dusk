@@ -28,6 +28,7 @@
 #include "LuaBindingsAnimated.h"
 #include "LuaBindingsNPC.h"
 #include "LuaBindingsQuestLog.h"
+#include "Messages.h"
 
 namespace Dusk
 {
@@ -44,13 +45,13 @@ LuaEngine::LuaEngine()
     luaopen_string(m_Lua);
     luaopen_math(m_Lua);
     luaopen_loadlib(m_Lua);
-    std::cout << "LuaEngine started, running " << LUA_VERSION << ".\n";
+    DuskLog() << "LuaEngine started, running " << LUA_VERSION << ".\n";
     lua_dostring(m_Lua, "io.write('Lua says: this is ',_VERSION,'!\\n')");
     registerDusk();
   }
   else
   {
-    std::cout << "LuaEngine: ERROR: lua_open() failed!\n";
+    DuskLog() << "LuaEngine: ERROR: lua_open() failed!\n";
   }
   m_ScriptQueue = std::deque<Script>();
 }
@@ -60,7 +61,7 @@ LuaEngine::~LuaEngine()
   //empty
   lua_close(m_Lua);
   m_ScriptQueue.clear();
-  std::cout << "LuaEngine stopped.\n";
+  DuskLog() << "LuaEngine stopped.\n";
 }
 
 LuaEngine& LuaEngine::getSingleton()
@@ -72,28 +73,28 @@ LuaEngine& LuaEngine::getSingleton()
 bool LuaEngine::runString(const std::string& line, std::string* err_msg)
 {
   const int errCode = lua_dostring(m_Lua, line.c_str());
-  std::cout.flush();
+  std::cout.flush();//neccessary to make sure all output from Lua is written
   switch (errCode)
   {
     case 0: //all went fine here
          return true;
          break;
     case LUA_ERRRUN:
-         std::cout << "LuaEngine::runString: ERROR while running the chunk.\n";
+         DuskLog() << "LuaEngine::runString: ERROR while running the chunk.\n";
          break;
     case LUA_ERRSYNTAX:
-         std::cout << "LuaEngine::runString: ERROR during pre-compilation.\n";
+         DuskLog() << "LuaEngine::runString: ERROR during pre-compilation.\n";
          break;
     case LUA_ERRMEM:
-         std::cout << "LuaEngine::runString: ERROR: memory allocation "
+         DuskLog() << "LuaEngine::runString: ERROR: memory allocation "
                    << "failed.\n"; break;
     default:
-         std::cout << "LuaEngine::runString: an ERROR occured.\n"; break;
+         DuskLog() << "LuaEngine::runString: an ERROR occured.\n"; break;
   } //swi
   /*get lua error message, which was pushed onto stack by lua_load() or
     lua_pcall() (they are called by macro lua_dofile)
   */
-  std::cout << "Lua's error message: " << lua_tostring(m_Lua, -1) <<"\n";
+  DuskLog() << "Lua's error message: " << lua_tostring(m_Lua, -1) <<"\n";
   std::cout.flush();
   if (err_msg!=NULL)
   {
@@ -111,24 +112,24 @@ bool LuaEngine::runFile(const std::string& FileName, std::string* err_msg)
          return true;
          break;
     case LUA_ERRRUN:
-         std::cout << "LuaEngine::runFile: ERROR while running the "
+         DuskLog() << "LuaEngine::runFile: ERROR while running the "
                    << "chunk.\n"; break;
     case LUA_ERRSYNTAX:
-         std::cout << "LuaEngine::runFile: ERROR during pre-compilation.\n";
+         DuskLog() << "LuaEngine::runFile: ERROR during pre-compilation.\n";
          break;
     case LUA_ERRMEM:
-         std::cout << "LuaEngine::runFile: ERROR: memory allocation failed.\n";
+         DuskLog() << "LuaEngine::runFile: ERROR: memory allocation failed.\n";
          break;
     case LUA_ERRFILE:
-         std::cout << "LuaEngine::runFile: ERROR while opening the file \""
+         DuskLog() << "LuaEngine::runFile: ERROR while opening the file \""
                    << FileName << "\".\n"; break;
     default:
-         std::cout << "LuaEngine::runFile: an ERROR occured.\n"; break;
+         DuskLog() << "LuaEngine::runFile: an ERROR occured.\n"; break;
   } //swi
   /*get lua error message, which was pushed onto stack by lua_load() or
     lua_pcall() (they are called by macro lua_dofile)
   */
-  std::cout << "Lua's error message: " << lua_tostring(m_Lua, -1) <<"\n";
+  DuskLog() << "Lua's error message: " << lua_tostring(m_Lua, -1) <<"\n";
   if (err_msg!=NULL)
   {
     *err_msg = std::string(lua_tostring(m_Lua, -1));
@@ -154,7 +155,7 @@ unsigned int LuaEngine::processScripts(unsigned int maxEntries)
     if (!runString(m_ScriptQueue.front().getStringRepresentation()))
     {
       m_ScriptQueue.pop_front();
-      std::cout << "LuaEngine::processScripts: ERROR while processing script "
+      DuskLog() << "LuaEngine::processScripts: ERROR while processing script "
                 << toDo-maxEntries << " of " << toDo << ". Aborting.\n";
       return toDo-maxEntries;
     }

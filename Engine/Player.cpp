@@ -20,6 +20,7 @@
 
 #include "Player.h"
 #include "API.h"
+#include "Messages.h"
 #ifndef DUSK_EDITOR
   #include "Camera.h"
 #endif
@@ -34,8 +35,8 @@ void listBoneChildren(const Ogre::Node* b, const unsigned int indents)
   for (i=0; i<b->numChildren(); ++i)
   {
     Ogre::Node* cb = b->getChild(i);
-    std::cout << std::string(indents, ' ') << cb->getName();
-    std::cout << " (Children: " << cb->numChildren() << ")\n";
+    DuskLog() << std::string(indents, ' ') << cb->getName();
+    DuskLog() << " (Children: " << cb->numChildren() << ")\n";
     if (cb->numChildren()>0)
     {
       listBoneChildren(cb, indents+2);
@@ -137,7 +138,7 @@ bool Player::enable(Ogre::SceneManager* scm)
   }
   if (scm==NULL)
   {
-    std::cout << "Player::Enable: ERROR: no scene manager present.\n";
+    DuskLog() << "Player::enable: ERROR: no scene manager present.\n";
     return false;
   }
   if (!NPC::enable(scm)) return false;
@@ -147,19 +148,19 @@ bool Player::enable(Ogre::SceneManager* scm)
   const std::vector<std::string> as = getPossibleAnimationStates();
   for (i=0; i<as.size(); ++i)
   {
-    std::cout << "Player animation state available: "<<as[i]<<"\n";
+    DuskLog() << "Info: Player animation state available: "<<as[i]<<"\n";
   }//for
   // -- bones of skeleton
   if ( entity->hasSkeleton())
   {
     Ogre::SkeletonInstance* skelInst = entity->getSkeleton();
-    std::cout << "Player animation bones available: "<< skelInst->getNumBones()<< "\n";
+    DuskLog() << "Info: Player animation bones available: "<< skelInst->getNumBones()<< "\n";
     Ogre::Skeleton::BoneIterator rbIter = skelInst->getRootBoneIterator();
     while (rbIter.hasMoreElements())
     {
       Ogre::Bone* b = rbIter.getNext();
-      std::cout << "  Bone name: " << b->getName() << "\n";
-      std::cout << "    Children: " << b->numChildren() << "\n";
+      DuskLog() << "  Bone name: " << b->getName() << "\n";
+      DuskLog() << "    Children: " << b->numChildren() << "\n";
       listBoneChildren(b, 4);
     } //while
   }//if

@@ -38,6 +38,7 @@
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-09-03 (rev 240) - adjustments for Editor
      - 2010-11-20 (rev 255) - rotation is now stored as Quaternion
+     - 2010-12-04 (rev 268) - use DuskLog/Messages class for logging
 
  ToDo list:
      - actually implement loadFromStream() and saveToStream()

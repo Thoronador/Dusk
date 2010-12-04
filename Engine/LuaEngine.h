@@ -37,6 +37,7 @@
      - 2010-05-21 (rev 207) - bindings for UniformMotionObject added
      - 2010-05-28 (rev 209) - adjustments for namespace in QuestLog's bindings
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
+     - 2010-12-04 (rev 268) - use DuskLog/Messages class for logging
 
  ToDo list:
      - ???

@@ -41,6 +41,7 @@
      - 2010-08-03 (rev 221) - minor improvement
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-11-21 (rev 257) - minor optimization
+     - 2010-12-04 (rev 268) - use DuskLog/Messages class for logging
 
  ToDo list:
      - Probably we should change the inventory class from a map of strings and

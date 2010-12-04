@@ -36,6 +36,7 @@
                               condition handling
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-11-21 (rev 257) - minor optimization
+     - 2010-12-04 (rev 268) - use DuskLog/Messages class for logging
 
  ToDo list:
      - extend class for more conditions
@@ -281,7 +282,7 @@ class Dialogue
            cond - the conditions that have to be met
            who  - the NPC that has to fulfill the conditions
     */
-    bool conditionFulfilled(const ConditionRecord& cond, const NPC* who) const;
+    bool isConditionFulfilled(const ConditionRecord& cond, const NPC* who) const;
 
     /* flags to indicate type of dialogue data when reading from or writhing to
        a stream

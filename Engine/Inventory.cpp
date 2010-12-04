@@ -22,7 +22,7 @@
 #include "ItemBase.h"
 #include "WeaponBase.h"
 #include "DuskConstants.h"
-#include <iostream>
+#include "Messages.h"
 
 namespace Dusk
 {
@@ -51,7 +51,7 @@ void Inventory::addItem(const std::string& ItemID, const unsigned int count)
 {
   if (ItemID=="" or count==0)
   {
-    std::cout << "Inventory::AddItem: ERROR: ItemID is emtpy string or amount "
+    DuskLog() << "Inventory::addItem: ERROR: ItemID is emtpy string or amount "
               << "is zero!\n";
     return;
   }
@@ -176,7 +176,7 @@ bool Inventory::saveToStream(std::ofstream& OutStream) const
 {
   if (!OutStream.good())
   {
-    std::cout << "Inventory::SaveToStream: ERROR: stream contains errors!\n";
+    DuskLog() << "Inventory::saveToStream: ERROR: stream contains errors!\n";
     return false;
   }
   OutStream.write((char*) &cHeaderInve, sizeof(unsigned int));
@@ -203,14 +203,14 @@ bool Inventory::loadFromStream(std::ifstream& InStream)
 {
   if (!InStream.good())
   {
-    std::cout << "Inventory::LoadFromStream: ERROR: stream contains errors!\n";
+    DuskLog() << "Inventory::loadFromStream: ERROR: stream contains errors!\n";
     return false;
   }
   unsigned int len=0, i, count=0;
   InStream.read((char*) &len, sizeof(unsigned int));
   if (len!=cHeaderInve)
   {
-    std::cout << "Inventory::LoadFromStream: ERROR: stream contains unexpected header!\n";
+    DuskLog() << "Inventory::loadFromStream: ERROR: stream contains unexpected header!\n";
     return false;
   }
   //read number of items
@@ -225,13 +225,13 @@ bool Inventory::loadFromStream(std::ifstream& InStream)
     InStream.read((char*) &len, sizeof(unsigned int));
     if (len>255)
     {
-      std::cout << "Inventory::LoadFromStream: ERROR: ID is longer than 255 characters!\n";
+      DuskLog() << "Inventory::loadFromStream: ERROR: ID is longer than 255 characters!\n";
       return false;
     }
     InStream.read(ID_Buffer, len);
     if (!InStream.good())
     {
-      std::cout << "Inventory::LoadFromStream: ERROR while reading item ID!\n";
+      DuskLog() << "Inventory::loadFromStream: ERROR while reading item ID!\n";
       return false;
     }
     ID_Buffer[len] = '\0';
@@ -239,7 +239,7 @@ bool Inventory::loadFromStream(std::ifstream& InStream)
     InStream.read((char*) &len, sizeof(unsigned int));
     if (!InStream.good())
     {
-      std::cout << "Inventory::LoadFromStream: ERROR while reading item amount!\n";
+      DuskLog() << "Inventory::loadFromStream: ERROR while reading item amount!\n";
       return false;
     }
     addItem(std::string(ID_Buffer), len);
@@ -268,9 +268,9 @@ bool Inventory::operator==(const Inventory& other) const
     return false;
   }
   ConstInventoryIterator other_one = other.getFirst();
-  ConstInventoryIterator other_end = other.getEnd();
+  const ConstInventoryIterator other_end = other.getEnd();
   ConstInventoryIterator self_one = m_Items.begin();
-  ConstInventoryIterator self_end = m_Items.end();
+  const ConstInventoryIterator self_end = m_Items.end();
 
   while (self_one!=self_end and other_one!=other_end)
   {

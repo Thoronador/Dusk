@@ -19,7 +19,7 @@
 */
 
 #include "Journal.h"
-#include <iostream>
+#include "Messages.h"
 #include "DuskConstants.h"
 
 namespace Dusk
@@ -73,7 +73,7 @@ bool Journal::setQuestName(const std::string& JID, const std::string& qName)
 {
   if (JID=="" or qName=="")
   {
-    std::cout << "Journal::setQuestName: ERROR: ID or new quest name is empty "
+    DuskLog() << "Journal::setQuestName: ERROR: ID or new quest name is empty "
               << "string. No data will be added or changed.\n";
     return false;
   }
@@ -94,7 +94,7 @@ bool Journal::addEntry(const std::string& JID, const unsigned int jIndex,
 {
   if (JID=="" or jIndex==0)
   {
-    std::cout << "Journal::addEntry: ERROR: empty ID string or zero index "
+    DuskLog() << "Journal::addEntry: ERROR: empty ID string or zero index "
               << "given. No data will be added.\n";
     return false;
   }
@@ -261,7 +261,7 @@ bool Journal::deleteEntry(const std::string& questID, const unsigned int jIndex)
   iter = m_Entries.find(questID);
   if (iter==m_Entries.end())
   {
-    std::cout << "Journal::deleteEntry: Hint: no quest named \""<<questID
+    DuskLog() << "Journal::deleteEntry: Hint: no quest named \""<<questID
               << "\" found.\n";
     return false; //nothing to delete found
   }
@@ -269,7 +269,7 @@ bool Journal::deleteEntry(const std::string& questID, const unsigned int jIndex)
   indexIter = iter->second.Indices.find(jIndex);
   if (indexIter==iter->second.Indices.end())
   {
-    std::cout << "Journal::deleteEntry: Hint: quest \""<<questID<< "\" has no "
+    DuskLog() << "Journal::deleteEntry: Hint: quest \""<<questID<< "\" has no "
               << "entry with index "<<jIndex<<".\n";
     return false;
   }
@@ -347,7 +347,7 @@ bool Journal::saveAllToStream(std::ofstream& output) const
 {
   if (!(output.good()))
   {
-    std::cout << "Journal::SaveAllToStream: ERROR: bad stream!\n";
+    DuskLog() << "Journal::saveAllToStream: ERROR: bad stream!\n";
     return false;
   }
   std::map<const std::string, QuestRecord>::const_iterator iter;
@@ -364,7 +364,7 @@ bool Journal::saveAllToStream(std::ofstream& output) const
     output.write(iter->first.c_str(), len);
     if (!(output.good()))
     {
-      std::cout << "Journal::SaveAllToStream: ERROR while writing quest ID!\n";
+      DuskLog() << "Journal::saveAllToStream: ERROR while writing quest ID!\n";
       return false;
     }
     //write quest name
@@ -373,7 +373,7 @@ bool Journal::saveAllToStream(std::ofstream& output) const
     output.write(iter->second.QuestName.c_str(), len);
     if (!(output.good()))
     {
-      std::cout << "Journal::SaveAllToStream: ERROR while writing quest name!\n";
+      DuskLog() << "Journal::saveAllToStream: ERROR while writing quest name!\n";
       return false;
     }
 
@@ -396,7 +396,7 @@ bool Journal::saveAllToStream(std::ofstream& output) const
       output.write((char*) &(index_iter->second.Flags), 1);
       if (!(output.good()))
       {
-        std::cout << "Journal::SaveAllToStream: ERROR while writing "
+        DuskLog() << "Journal::saveAllToStream: ERROR while writing "
                   << "JournalRecord!\n";
         return false;
       }
@@ -411,21 +411,21 @@ bool Journal::loadNextFromStream(std::ifstream& input)
 {
   if (!(input.good()))
   {
-    std::cout << "Journal::LoadNextFromStream: ERROR: bad stream!\n";
+    DuskLog() << "Journal::loadNextFromStream: ERROR: bad stream!\n";
     return false;
   }
   unsigned int len = 0;
   input.read((char*) &len, sizeof(unsigned int));
   if (len != cHeaderJour)
   {
-    std::cout << "Journal::LoadNextFromStream: ERROR: invalid record header!\n";
+    DuskLog() << "Journal::loadNextFromStream: ERROR: invalid record header!\n";
     return false;
   }
   //read quest ID
   input.read((char*) &len, sizeof(unsigned int));
   if (len>511)
   {
-    std::cout << "Journal::LoadNextFromStream: ERROR: quest ID seems to be "
+    DuskLog() << "Journal::loadNextFromStream: ERROR: quest ID seems to be "
               << "longer than 511 characters!\n";
     return false;
   }
@@ -435,7 +435,7 @@ bool Journal::loadNextFromStream(std::ifstream& input)
   buffer[len] = '\0';
   if (!(input.good()))
   {
-    std::cout << "Journal::LoadNextFromStream: ERROR while reading quest ID!\n";
+    DuskLog() << "Journal::loadNextFromStream: ERROR while reading quest ID!\n";
     return false;
   }
   const std::string QuestID = std::string(buffer);
@@ -443,8 +443,8 @@ bool Journal::loadNextFromStream(std::ifstream& input)
   input.read((char*) &len, sizeof(unsigned int));
   if (len>511)
   {
-    std::cout << "Journal::LoadNextFromStream: ERROR: quest name seems to be "
-              << "longer than 511 characters!\n";
+    DuskLog() << "Journal::loadNextFromStream: ERROR: quest name of quest \""
+              <<QuestID <<"\" seems to be longer than 511 characters!\n";
     return false;
   }
   buffer[0] = buffer[511] = '\0';
@@ -452,7 +452,7 @@ bool Journal::loadNextFromStream(std::ifstream& input)
   buffer[len] = '\0';
   if (!(input.good()))
   {
-    std::cout << "Journal::LoadNextFromStream: ERROR while reading quest name!\n";
+    DuskLog() << "Journal::loadNextFromStream: ERROR while reading quest name!\n";
     return false;
   }
   setQuestName(QuestID, std::string(buffer));
@@ -462,15 +462,15 @@ bool Journal::loadNextFromStream(std::ifstream& input)
   input.read((char*) &indexCount, sizeof(unsigned int));
   if (indexCount==0)
   {
-    std::cout << "Journal::LoadNextFromStream: Hint: there are no records! "
+    DuskLog() << "Journal::loadNextFromStream: Hint: there are no records! "
               << "Aborting.\n";
     return true;
   }
   if (indexCount>100) //can there really be so much for one single(!) quest?
   {
-    std::cout << "Journal::LoadNextFromStream: ERROR: there seem to be more "
+    DuskLog() << "Journal::loadNextFromStream: ERROR: there seem to be more "
               << "than 100 subrecords for quest \""<<QuestID<<"\", which is "
-              << "most likely to much. Aborting.\n";
+              << "most likely too much. Aborting.\n";
     return false;
   }
   //now read the records
@@ -482,7 +482,7 @@ bool Journal::loadNextFromStream(std::ifstream& input)
     input.read((char*) &curIndex, sizeof(unsigned int));
     if (curIndex==0)
     {
-      std::cout << "Journal::LoadNextFromStream: ERROR: got zero as journal "
+      DuskLog() << "Journal::loadNextFromStream: ERROR: got zero as journal "
                 << "index for one subrecord of quest \""<<QuestID<<"\", but "
                 << "zero is not a valid index. Aborting.\n";
       return false;
@@ -492,7 +492,7 @@ bool Journal::loadNextFromStream(std::ifstream& input)
     input.read((char*) &len, sizeof(unsigned int));
     if (len>511)
     {
-      std::cout << "Journal::LoadNextFromStream: ERROR: text for quest \""
+      DuskLog() << "Journal::loadNextFromStream: ERROR: text for quest \""
                 << QuestID<<"\", index "<<curIndex<<", seems to be longer than"
                 << " 511 characters!\n";
       return false;
@@ -501,7 +501,7 @@ bool Journal::loadNextFromStream(std::ifstream& input)
     buffer[len] = '\0';
     if (!(input.good()))
     {
-      std::cout << "Journal::LoadNextFromStream: ERROR while reading journal "
+      DuskLog() << "Journal::loadNextFromStream: ERROR while reading journal "
                 << "text for quest \""<<QuestID<<"\", index "<<curIndex<<".\n";
       return false;
     }
@@ -510,7 +510,7 @@ bool Journal::loadNextFromStream(std::ifstream& input)
     input.read((char*) &(tempRec.Flags), 1);
     if (!(input.good()))
     {
-      std::cout << "Journal::LoadNextFromStream: ERROR while reading journal "
+      DuskLog() << "Journal::loadNextFromStream: ERROR while reading journal "
                 << "flags of quest \""<<QuestID<<"\", index "<<curIndex<<".\n";
       return false;
     }
