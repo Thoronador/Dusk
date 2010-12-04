@@ -65,6 +65,7 @@
      - 2010-11-26 (rev 260) - canCollide() added (always returns true for now)
      - 2010-12-01 (rev 263) - other objects than landscape are now considered
                               during movement, too
+     - 2010-12-04 (rev 267) - use DuskLog/Messages class for logging
 
  ToDo list:
      - add possibility to equip weapons, clothes, armour, etc.

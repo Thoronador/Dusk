@@ -29,6 +29,7 @@
      - 2010-09-22 (rev 243) - initial version (by thoronador)
      - 2010-09-24 (rev 244) - mountpoint data and functions for retrieval added
      - 2010-11-20 (rev 255) - rotation is now stored as Quaternion
+     - 2010-12-04 (rev 267) - use DuskLog/Messages class for logging
 
  ToDo list:
      - ???
@@ -132,7 +133,7 @@ class VehicleBase
            The value of the parameter idx has to be less than the value
            returned by getVehicleMountpoints().
     */
-    const Ogre::Vector3& getMountpointOffset(const std::string& ID, unsigned int idx) const;
+    const Ogre::Vector3& getMountpointOffset(const std::string& ID, const unsigned int idx) const;
 
     /* returns the rotation of a specified mountpoint for the given vehicle.
        If no vehicle of with that ID is present, the return value is undefined.
@@ -145,7 +146,7 @@ class VehicleBase
            The value of the parameter idx has to be less than the value
            returned by getVehicleMountpoints().
     */
-    const Ogre::Quaternion& getMountpointRotation(const std::string& ID, unsigned int idx) const;
+    const Ogre::Quaternion& getMountpointRotation(const std::string& ID, const unsigned int idx) const;
 
     /* returns the data of a specified mountpoint for the given vehicle.
        If no vehicle of with that ID is present, or mountpoint is not within the
@@ -159,7 +160,7 @@ class VehicleBase
            The value of the parameter idx has to be less than the value
            returned by getVehicleMountpoints().
     */
-    const MountpointData& getMountpointData(const std::string& ID, unsigned int idx) const;
+    const MountpointData& getMountpointData(const std::string& ID, const unsigned int idx) const;
 
     /* deletes a vehicle by ID and returns true, if a vehicle was deleted */
     bool deleteVehicle(const std::string& ID);

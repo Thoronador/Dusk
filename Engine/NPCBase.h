@@ -31,6 +31,7 @@
                             - GetFirst() and GetEnd() added
      - 2010-06-02 (rev 213) - information for animations and tag points added
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
+     - 2010-12-04 (rev 267) - use DuskLog/Messages class for logging
 
  ToDo list:
      - ???

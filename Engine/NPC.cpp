@@ -32,6 +32,7 @@
 #include "DiceBox.h"
 #include "Landscape.h"
 #include "Vehicle.h"
+#include "Messages.h"
 
 namespace Dusk
 {
@@ -486,13 +487,13 @@ bool NPC::equip(const std::string& ItemID)
 {
   if (m_Inventory.getItemCount(ItemID)==0)
   {
-    std::cout << "NPC::equip: ERROR: NPC has no item with ID \""<<ItemID
+    DuskLog() << "NPC::equip: ERROR: NPC has no item with ID \""<<ItemID
               << "\" in inventory.\n";
     return false; //NPC has no such item
   }
   if (entity==NULL)
   {
-    std::cout << "NPC::equip: ERROR: NPC is not enabled!\n";
+    DuskLog() << "NPC::equip: ERROR: NPC is not enabled!\n";
     return false; //cannot equip on an unenabled NPC
   }
   if (m_EquippedRight==NULL)
@@ -521,7 +522,7 @@ bool NPC::equip(const std::string& ItemID, const SlotType slot)
   }
   else
   {
-    std::cout << "NPC::equip: ERROR: there is no Item or weapon with the given "
+    DuskLog() << "NPC::equip: ERROR: there is no Item or weapon with the given "
               << "ID \""<<ItemID<<"\".\n";
     return false;
   }
@@ -536,13 +537,13 @@ bool NPC::equip(const std::string& ItemID, const SlotType slot)
          bone_name = NPCBase::getSingleton().getNPCTagPoints(ID).HandLeft;
          break;
     default:
-         std::cout << "NPC::equip: ERROR: unknown slot type!\n";
+         DuskLog() << "NPC::equip: ERROR: unknown slot type!\n";
          delete pItem;
          return false;
   } //swi
   if (bone_name=="")
   {
-    std::cout << "NPC::equip: ERROR: received empty tag point identifier for "
+    DuskLog() << "NPC::equip: ERROR: received empty tag point identifier for "
               << "NPC \""<<ID<<"\".\n";
     delete pItem;
     return false; //no bone name, no equip()
@@ -634,7 +635,7 @@ bool NPC::unequip(const SlotType slot)
          return true;
          break;
     default:
-         std::cout << "NPC::unequip: ERROR: unknown slot type!\n";
+         DuskLog() << "NPC::unequip: ERROR: unknown slot type!\n";
          return false;
   } //swi
 }
@@ -651,26 +652,6 @@ bool NPC::startAttack()
     //dead NPC cannot attack any more
     return false;
   }
-  /*if (m_EquippedRight!=NULL)
-  {
-    if (m_EquippedRight->GetType()==otWeapon)
-    {
-      //we got a weapon here, so use it
-      m_AttackFlags |= Flag_DoesAttack;
-      startAttackAnimation();
-      return true;
-    }//if weapon
-  }
-  if (m_EquippedLeft!=NULL)
-  {
-    if (m_EquippedLeft->GetType()==otWeapon)
-    {
-      //we got a weapon here, so use it
-      m_AttackFlags |= Flag_DoesAttack;
-      startAttackAnimation();
-      return true;
-    }//if weapon
-  }*/
   if (canAttackLeft() or canAttackRight())
   {
     //we have at least one weapon -> attack
@@ -711,7 +692,7 @@ bool NPC::saveToStream(std::ofstream& OutStream) const
 {
   if (!OutStream.good())
   {
-    std::cout << "NPC::SaveToStream: ERROR: Stream contains errors!\n";
+    DuskLog() << "NPC::saveToStream: ERROR: Stream contains errors!\n";
     return false;
   }
   //write header "RefN" (reference of NPC)
@@ -719,25 +700,25 @@ bool NPC::saveToStream(std::ofstream& OutStream) const
   //save stuff inherited from DuskObject
   if (!saveDuskObjectPart(OutStream))
   {
-    std::cout << "NPC::SaveToStream: ERROR while saving basic data!\n";
+    DuskLog() << "NPC::saveToStream: ERROR while saving basic data!\n";
     return false;
   }
   // go on with new data members from AnimatedObject
   if (!saveAnimatedObjectPart(OutStream))
   {
-    std::cout << "NPC::SaveToStream: ERROR while saving animation data!\n";
+    DuskLog() << "NPC::saveToStream: ERROR while saving animation data!\n";
     return false;
   }
   // go on with new data members from UniformMotionObject
   if (!saveUniformMotionObjectPart(OutStream))
   {
-    std::cout << "NPC::SaveToStream: ERROR while saving basic motion data!\n";
+    DuskLog() << "NPC::saveToStream: ERROR while saving basic motion data!\n";
     return false;
   }
   // go on with new data members from WaypointObject
   if (!saveWaypointObjectPart(OutStream))
   {
-    std::cout << "NPC::SaveToStream: ERROR while saving waypoint data!\n";
+    DuskLog() << "NPC::saveToStream: ERROR while saving waypoint data!\n";
     return false;
   }
   //done with inherited data members; go on with NPC stuff
@@ -756,12 +737,12 @@ bool NPC::saveToStream(std::ofstream& OutStream) const
 
   if (!OutStream.good())
   {
-    std::cout << "NPC::SaveToStream: ERROR while writing character data.\n";
+    DuskLog() << "NPC::saveToStream: ERROR while writing character data.\n";
     return false;
   }
   if (!(m_Inventory.saveToStream(OutStream)))
   {
-    std::cout << "NPC::SaveToStream: ERROR while writing inventory data.\n";
+    DuskLog() << "NPC::saveToStream: ERROR while writing inventory data.\n";
     return false;
   }
 
@@ -771,7 +752,7 @@ bool NPC::saveToStream(std::ofstream& OutStream) const
   OutStream.write((char*) &m_TimeToNextAttackLeft, sizeof(float));
   if (!OutStream.good())
   {
-    std::cout << "NPC::SaveToStream: ERROR while writing attack data.\n";
+    DuskLog() << "NPC::saveToStream: ERROR while writing attack data.\n";
     return false;
   }
   //equipped items
@@ -798,7 +779,7 @@ bool NPC::saveToStream(std::ofstream& OutStream) const
   OutStream.write((char*) &m_JumpVelocity, sizeof(float));
   if (!OutStream.good())
   {
-    std::cout << "NPC::SaveToStream: ERROR while writing equipped items or "
+    DuskLog() << "NPC::saveToStream: ERROR while writing equipped items or "
               << "jump data.\n";
     return false;
   }
@@ -809,13 +790,13 @@ bool NPC::loadFromStream(std::ifstream& InStream)
 {
   if (entity!=NULL)
   {
-    std::cout << "NPC::LoadFromStream: ERROR: Cannot load from stream while "
+    DuskLog() << "NPC::loadFromStream: ERROR: Cannot load from stream while "
               << "object is enabled.\n";
     return false;
   }
   if (!InStream.good())
   {
-    std::cout << "NPC::LoadFromStream: ERROR: Stream contains errors!\n";
+    DuskLog() << "NPC::loadFromStream: ERROR: Stream contains errors!\n";
     return false;
   }
   //read header "RefN"
@@ -823,32 +804,32 @@ bool NPC::loadFromStream(std::ifstream& InStream)
   InStream.read((char*) &Header, sizeof(unsigned int));
   if (Header!=cHeaderRefN)
   {
-    std::cout << "NPC::LoadFromStream: ERROR: Stream contains invalid reference"
+    DuskLog() << "NPC::loadFromStream: ERROR: Stream contains invalid reference"
               << "header.\n";
     return false;
   }
   //read DuskObject stuff
   if (!loadDuskObjectPart(InStream))
   {
-    std::cout << "NPC::LoadFromStream: ERROR while reading basic data.\n";
+    DuskLog() << "NPC::loadFromStream: ERROR while reading basic data.\n";
     return false;
   }
   // go on with data members from AnimatedObject
   if (!loadAnimatedObjectPart(InStream))
   {
-    std::cout << "NPC::LoadFromStream: ERROR while loading animation data.\n";
+    DuskLog() << "NPC::loadFromStream: ERROR while loading animation data.\n";
     return false;
   }
   // go on with data members from UniformMotionObject
   if (!loadUniformMotionObjectPart(InStream))
   {
-    std::cout << "NPC::LoadFromStream: ERROR while loading motion data.\n";
+    DuskLog() << "NPC::loadFromStream: ERROR while loading motion data.\n";
     return false;
   }
   // go on with data members from WaypointObject
   if (!loadWaypointObjectPart(InStream))
   {
-    std::cout << "NPC::LoadFromStream: ERROR while loading waypoint data.\n";
+    DuskLog() << "NPC::loadFromStream: ERROR while loading waypoint data.\n";
     return false;
   }
   //done with inherited data, go on with NPC data
@@ -868,12 +849,12 @@ bool NPC::loadFromStream(std::ifstream& InStream)
 
   if (!InStream.good())
   {
-    std::cout << "NPC::LoadFromStream: ERROR while reading character data.\n";
+    DuskLog() << "NPC::loadFromStream: ERROR while reading character data.\n";
     return false;
   }
   if (!(m_Inventory.loadFromStream(InStream)))
   {
-    std::cout << "NPC::LoadFromStream: ERROR while reading inventory data.\n";
+    DuskLog() << "NPC::loadFromStream: ERROR while reading inventory data.\n";
     return false;
   }
 
@@ -883,7 +864,7 @@ bool NPC::loadFromStream(std::ifstream& InStream)
   InStream.read((char*) &m_TimeToNextAttackLeft, sizeof(float));
   if (!InStream.good())
   {
-    std::cout << "NPC::LoadFromStream: ERROR while reading attack data.\n";
+    DuskLog() << "NPC::loadFromStream: ERROR while reading attack data.\n";
     return false;
   }
   //equipped items
@@ -896,7 +877,7 @@ bool NPC::loadFromStream(std::ifstream& InStream)
     InStream.read((char*) &len, sizeof(unsigned int));
     if (len>255)
     {
-      std::cout << "NPC::LoadFromStream: ERROR: ID of right hand item seems "
+      DuskLog() << "NPC::loadFromStream: ERROR: ID of right hand item seems "
                 << "to be longer than 255 characters.\n";
       return false;
     }
@@ -906,13 +887,13 @@ bool NPC::loadFromStream(std::ifstream& InStream)
     Buffer[len] = '\0';
     if (!InStream.good())
     {
-      std::cout << "NPC::LoadFromStream: ERROR while reading ID of right hand "
+      DuskLog() << "NPC::loadFromStream: ERROR while reading ID of right hand "
                 << "item.\n";
       return false;
     }
     if (!equip(std::string(Buffer)))
     {
-      std::cout << "NPC::LoadFromStream: ERROR while equipping right hand item.\n";
+      DuskLog() << "NPC::loadFromStream: ERROR while equipping right hand item.\n";
       return false;
     }
     //check for presence of another item
@@ -923,7 +904,7 @@ bool NPC::loadFromStream(std::ifstream& InStream)
       InStream.read((char*) &len, sizeof(unsigned int));
       if (len>255)
       {
-        std::cout << "NPC::LoadFromStream: ERROR: ID of left hand item seems "
+        DuskLog() << "NPC::loadFromStream: ERROR: ID of left hand item seems "
                   << "to be longer than 255 characters.\n";
         return false;
       }
@@ -932,13 +913,13 @@ bool NPC::loadFromStream(std::ifstream& InStream)
       Buffer[len] = '\0';
       if (!InStream.good())
       {
-        std::cout << "NPC::LoadFromStream: ERROR while reading ID of left hand "
+        DuskLog() << "NPC::loadFromStream: ERROR while reading ID of left hand "
                   << "item.\n";
         return false;
       }
       if (!equip(std::string(Buffer)))
       {
-        std::cout << "NPC::LoadFromStream: ERROR while equipping left hand item.\n";
+        DuskLog() << "NPC::loadFromStream: ERROR while equipping left hand item.\n";
         return false;
       }
     }//second item
@@ -1082,7 +1063,7 @@ void NPC::performAttack(const SlotType attackSlot)
 {
   if (attackSlot!=stRightHand and attackSlot!=stLeftHand)
   {
-    std::cout << "NPC::performAttack(): ERROR: invalid slot.\n";
+    DuskLog() << "NPC::performAttack: ERROR: invalid slot.\n";
     return;
   }
   //only enabled NPC can perform an attack
@@ -1098,7 +1079,7 @@ void NPC::performAttack(const SlotType attackSlot)
   }
   if (wRec.Range<0.0f)
   {
-    std::cout << "NPC::performAttack: ERROR: weapon range is below zero.\n";
+    DuskLog() << "NPC::performAttack: ERROR: weapon range is below zero.\n";
     return;
   }
   //check for projectile-based attack
@@ -1119,7 +1100,7 @@ void NPC::performAttack(const SlotType attackSlot)
     projPtr->setEmitter(this);
     //enable it
     projPtr->enable(getAPI().getOgreSceneManager());
-    std::cout << "NPC::performAttack: projectile \""<< wRec.ProjectileID << "\" emitted.\n";
+    DuskLog() << "NPC::performAttack: projectile \""<< wRec.ProjectileID << "\" emitted.\n";
     //we are done here
     return;
   }//projectile based
@@ -1127,10 +1108,10 @@ void NPC::performAttack(const SlotType attackSlot)
   /* We perform a melee attack, thus perform scene query to get all possible
      targets.
   */
-  std::cout << "NPC::performAttack: performing melee attack on ";
-  if (attackSlot==stRightHand) std::cout << "right";
-  if (attackSlot==stLeftHand) std::cout << "left";
-  std::cout << " hand.\n";
+  DuskLog() << "NPC::performAttack: performing melee attack on ";
+  if (attackSlot==stRightHand) DuskLog() << "right";
+  if (attackSlot==stLeftHand) DuskLog() << "left";
+  DuskLog() << " hand.\n";
   Ogre::SceneManager* scm = getAPI().getOgreSceneManager();
   if (scm==NULL) return;
   Ogre::SphereSceneQuery* sp_query =
@@ -1182,7 +1163,7 @@ void NPC::performAttack(const SlotType attackSlot)
                  NPC_Ptr->inflictDamage(DiceBox::getSingleton().d20(times));
                  break;
             default:
-                 std::cout << "NPC::performAttack: ERROR: weapon has unsupported"
+                 DuskLog() << "NPC::performAttack: ERROR: weapon has unsupported"
                            << " hit die (d="<<(int) wRec.DamageDice << ".\n";
                  break;
           }//swi

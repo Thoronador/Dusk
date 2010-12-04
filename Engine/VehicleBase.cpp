@@ -19,7 +19,7 @@
 */
 
 #include "VehicleBase.h"
-#include <iostream>
+#include "Messages.h"
 #include "DuskConstants.h"
 
 namespace Dusk
@@ -48,7 +48,7 @@ void VehicleBase::addVehicle(const std::string& ID, const VehicleRecord& data)
   }
   else
   {
-    std::cout << "VehicleBase::addVehicle: ERROR: invalid vehicle data or empty"
+    DuskLog() << "VehicleBase::addVehicle: ERROR: invalid vehicle data or empty"
               << " ID supplied!\n";
   }
 }
@@ -67,7 +67,14 @@ std::string VehicleBase::getVehicleMesh(const std::string& ID, const bool UseMar
     return cIter->second.Mesh;
   }
   //nothing found, if we get here
-  if (UseMarkerOnError) return cErrorMesh;
+  if (UseMarkerOnError)
+  {
+    DuskLog() << "VehicleBase::getVehicleMesh: Warning! No vehicle with ID \""
+              << ID << "\" found. Using error marker's mesh instead.\n";
+    return cErrorMesh;
+  }
+  DuskLog() << "VehicleBase::getMeshName: ERROR! No vehicle with ID \""<<ID
+            << "\" found. Returning empty string.\n";
   return "";
 }
 
@@ -79,6 +86,8 @@ std::string VehicleBase::getVehicleName(const std::string& ID) const
   {
     return cIter->second.Name;
   }
+  DuskLog() << "VehicleBase::getVehicleName: ERROR! No vehicle with ID \""<<ID
+            << "\" found. Returning empty string.\n";
   return "";
 }
 
@@ -90,8 +99,8 @@ float VehicleBase::getVehicleSpeed(const std::string& ID) const
   {
     return cIter->second.MaxSpeed;
   }
-  std::cout << "VehicleBase::getVehicleSpeed: Hint: no vehicle with ID \""
-            << ID<<"\" found.\n";
+  DuskLog() << "VehicleBase::getVehicleSpeed: Hint: no vehicle with ID \""
+            << ID<<"\" found. Returning zero.\n";
   return 0.0f;
 }
 
@@ -108,50 +117,53 @@ unsigned int VehicleBase::getVehicleMountpoints(const std::string& ID) const
   {
     return cIter->second.MountpointCount;
   }
-  std::cout << "VehicleBase::getVehicleMountpoints: Hint: no vehicle with ID \""
-            << ID<<"\" found.\n";
+  DuskLog() << "VehicleBase::getVehicleMountpoints: ERROR: no vehicle with ID \""
+            << ID <<"\" found. Returning zero.\n";
   return 0;
 }
 
-const Ogre::Vector3& VehicleBase::getMountpointOffset(const std::string& ID, unsigned int idx) const
+const Ogre::Vector3& VehicleBase::getMountpointOffset(const std::string& ID, const unsigned int idx) const
 {
   const std::map<std::string, VehicleRecord>::const_iterator cIter =
       m_Vehicles.find(ID);
   if (cIter!=m_Vehicles.end())
   {
     if (idx< cIter->second.MountpointCount) return cIter->second.Mountpoints.at(idx).offset;
-    std::cout << "VehicleBase::getMountpointOffset: ERROR: index is out of range.\n";
+    DuskLog() << "VehicleBase::getMountpointOffset: ERROR: index is out of "
+              << "range. Returning zero vector.\n";
   }
-  std::cout << "VehicleBase::getMountpointOffset: ERROR: no vehicle with ID \""
-            << ID<<"\" found.\n";
+  DuskLog() << "VehicleBase::getMountpointOffset: ERROR: no vehicle with ID \""
+            << ID<<"\" found. Returning zero vector.\n";
   return Ogre::Vector3::ZERO;
 }
 
-const Ogre::Quaternion& VehicleBase::getMountpointRotation(const std::string& ID, unsigned int idx) const
+const Ogre::Quaternion& VehicleBase::getMountpointRotation(const std::string& ID, const unsigned int idx) const
 {
   const std::map<std::string, VehicleRecord>::const_iterator cIter =
       m_Vehicles.find(ID);
   if (cIter!=m_Vehicles.end())
   {
     if (idx< cIter->second.MountpointCount) return cIter->second.Mountpoints.at(idx).rotation;
-    std::cout << "VehicleBase::getMountpointRotation: ERROR: index is out of range.\n";
+    DuskLog() << "VehicleBase::getMountpointRotation: ERROR: index is out of "
+              << "range. Returning identity quaternion.\n";
   }
-  std::cout << "VehicleBase::getMountpointRotation: ERROR: no vehicle with ID \""
-            << ID<<"\" found.\n";
+  DuskLog() << "VehicleBase::getMountpointRotation: ERROR: no vehicle with ID \""
+            << ID<<"\" found. Returning identity quaternion.\n";
   return Ogre::Quaternion::IDENTITY;
 }
 
-const MountpointData& VehicleBase::getMountpointData(const std::string& ID, unsigned int idx) const
+const MountpointData& VehicleBase::getMountpointData(const std::string& ID, const unsigned int idx) const
 {
   const std::map<std::string, VehicleRecord>::const_iterator cIter =
       m_Vehicles.find(ID);
   if (cIter!=m_Vehicles.end())
   {
     if (idx< cIter->second.MountpointCount) return cIter->second.Mountpoints.at(idx);
-    std::cout << "VehicleBase::getMountpointData: ERROR: index is out of range.\n";
+    DuskLog() << "VehicleBase::getMountpointData: ERROR: index is out of range."
+              << " Returning predefined data.\n";
   }
-  std::cout << "VehicleBase::getMountpointData: ERROR: no vehicle with ID \""
-            << ID<<"\" found.\n";
+  DuskLog() << "VehicleBase::getMountpointData: ERROR: no vehicle with ID \""
+            << ID<<"\" found. Returning predefined values.\n";
   return mp_null;
 }
 
@@ -181,7 +193,7 @@ bool VehicleBase::saveAllToStream(std::ofstream& OutStream) const
 {
   if (!OutStream.good())
   {
-    std::cout << "VehicleBase::SaveAllToStream: ERROR: stream contains errors!\n";
+    DuskLog() << "VehicleBase::saveAllToStream: ERROR: stream contains errors!\n";
     return false;
   }
   std::map<std::string, VehicleRecord>::const_iterator iter;
@@ -237,7 +249,7 @@ bool VehicleBase::loadNextVehicleFromStream(std::ifstream& InStream)
 {
   if (!InStream.good())
   {
-    std::cout << "VehicleBase::loadNextVehicleFromStream: ERROR: stream "
+    DuskLog() << "VehicleBase::loadNextVehicleFromStream: ERROR: stream "
               << "contains errors!\n";
     return false;
   }
@@ -245,7 +257,7 @@ bool VehicleBase::loadNextVehicleFromStream(std::ifstream& InStream)
   InStream.read((char*) &len, sizeof(unsigned int));
   if (len != cHeaderVehi)
   {
-    std::cout << "VehicleBase::LoadNextVehicleFromStream: ERROR: stream "
+    DuskLog() << "VehicleBase::loadNextVehicleFromStream: ERROR: stream "
               << "contains unexpected header!\n";
     return false;
   }
@@ -256,14 +268,14 @@ bool VehicleBase::loadNextVehicleFromStream(std::ifstream& InStream)
   InStream.read((char*) &len, sizeof(unsigned int));
   if (len>255)
   {
-    std::cout << "VehicleBase::loadNextVehicleFromStream: ERROR: ID is longer "
+    DuskLog() << "VehicleBase::loadNextVehicleFromStream: ERROR: ID is longer "
               << "than 255 characters!\n";
     return false;
   }
   InStream.read(Buffer, len);
   if (!InStream.good())
   {
-    std::cout << "VehicleBase::loadNextVehicleFromStream: ERROR while reading "
+    DuskLog() << "VehicleBase::loadNextVehicleFromStream: ERROR while reading "
               << "ID from stream!\n";
     return false;
   }
@@ -274,15 +286,15 @@ bool VehicleBase::loadNextVehicleFromStream(std::ifstream& InStream)
   InStream.read((char*) &len, sizeof(unsigned int));
   if (len>255)
   {
-    std::cout << "VehicleBase::loadNextVehicleFromStream: ERROR: mesh path is "
-              << "longer than 255 characters!\n";
+    DuskLog() << "VehicleBase::loadNextVehicleFromStream: ERROR: mesh path of "
+              << "vehicle \""<<vehicleID<<"\" is longer than 255 characters!\n";
     return false;
   }
   Buffer[0] = Buffer[255] = '\0';
   InStream.read(Buffer, len);
   if (!InStream.good())
   {
-    std::cout << "VehicleBase::loadNextVehicleFromStream: ERROR while reading "
+    DuskLog() << "VehicleBase::loadNextVehicleFromStream: ERROR while reading "
               << "mesh path from stream!\n";
     return false;
   }
@@ -294,15 +306,15 @@ bool VehicleBase::loadNextVehicleFromStream(std::ifstream& InStream)
   InStream.read((char*) &len, sizeof(unsigned int));
   if (len>255)
   {
-    std::cout << "VehicleBase::loadNextVehicleFromStream: ERROR: name is longer"
-              << " than 255 characters!\n";
+    DuskLog() << "VehicleBase::loadNextVehicleFromStream: ERROR: name of vehicle \""
+              << vehicleID <<"\" is longer than 255 characters!\n";
     return false;
   }
   Buffer[0] = Buffer[255] = '\0';
   InStream.read(Buffer, len);
   if (!InStream.good())
   {
-    std::cout << "VehicleBase::loadNextVehicleFromStream: ERROR while reading "
+    DuskLog() << "VehicleBase::loadNextVehicleFromStream: ERROR while reading "
               << "name from stream!\n";
     return false;
   }
@@ -312,7 +324,7 @@ bool VehicleBase::loadNextVehicleFromStream(std::ifstream& InStream)
   InStream.read((char*) &(vRec.MaxSpeed), sizeof(vRec.MaxSpeed));
   if (vRec.MaxSpeed<0.0f)
   {
-    std::cout << "VehicleBase::loadNextVehicleFromStream: ERROR while reading "
+    DuskLog() << "VehicleBase::loadNextVehicleFromStream: ERROR while reading "
               << "data from stream. Vehicle has invalid maximum speed.\n";
     return false;
   }
@@ -320,13 +332,13 @@ bool VehicleBase::loadNextVehicleFromStream(std::ifstream& InStream)
   InStream.read((char*) &(vRec.MountpointCount), sizeof(vRec.MountpointCount));
   if (!InStream.good())
   {
-    std::cout << "VehicleBase::loadNextVehicleFromStream: ERROR while reading "
+    DuskLog() << "VehicleBase::loadNextVehicleFromStream: ERROR while reading "
               << "data from stream!\n";
     return false;
   }
   if (vRec.MountpointCount>cMaxMountpointCount)
   {
-    std::cout << "VehicleBase::loadNextVehicleFromStream: ERROR while reading "
+    DuskLog() << "VehicleBase::loadNextVehicleFromStream: ERROR while reading "
               << "data from stream! Number of mountpoints is to big. Current "
               << "value is "<<vRec.MountpointCount<<", but only up to "
               << cMaxMountpointCount << " are allowed.\n";
@@ -350,7 +362,7 @@ bool VehicleBase::loadNextVehicleFromStream(std::ifstream& InStream)
     mpd.rotation = Ogre::Quaternion(w,x,y,z);
     if (!InStream.good())
     {
-      std::cout << "VehicleBase::loadNextVehicleFromStream: ERROR while reading"
+      DuskLog() << "VehicleBase::loadNextVehicleFromStream: ERROR while reading"
                 << " mountpoint data from stream!\n";
       return false;
     }//if

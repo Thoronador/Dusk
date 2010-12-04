@@ -21,6 +21,7 @@
 #include "WaypointObject.h"
 #include "ObjectBase.h"
 #include "DuskConstants.h"
+#include "Messages.h"
 
 namespace Dusk
 {
@@ -232,7 +233,7 @@ bool WaypointObject::loadWaypointObjectPart(std::ifstream& InStream)
   InStream.read((char*) &m_Patrol, sizeof(bool));
   if (!InStream.good())
   {
-    std::cout << "WaypointObject::loadWaypointObjectPart: ERROR while reading flags.\n";
+    DuskLog() << "WaypointObject::loadWaypointObjectPart: ERROR while reading flags.\n";
     return false;
   }
   // -- current waypoint
@@ -243,7 +244,7 @@ bool WaypointObject::loadWaypointObjectPart(std::ifstream& InStream)
   InStream.read((char*) &wp_count, sizeof(unsigned int));
   if (wp_count>100)
   {
-    std::cout << "WaypointObject::loadWaypointObjectPart: ERROR: There are "
+    DuskLog() << "WaypointObject::loadWaypointObjectPart: ERROR: There are "
               << "more than 100 waypoints for one object. Aborting to avoid too"
               << " much data in vector.\n";
     return false;
@@ -262,7 +263,7 @@ bool WaypointObject::loadWaypointObjectPart(std::ifstream& InStream)
     temp_vec.z = f_temp;
     if (!(InStream.good()))
     {
-      std::cout << "WaypointObject::loadWaypointObjectPart: ERROR while reading"
+      DuskLog() << "WaypointObject::loadWaypointObjectPart: ERROR while reading"
                 << " waypoints' data.\n";
       return false;
     }
@@ -275,7 +276,7 @@ bool WaypointObject::saveToStream(std::ofstream& OutStream) const
 {
   if (!OutStream.good())
   {
-    std::cout << "WaypointObject::saveToStream: ERROR: Stream contains errors!\n";
+    DuskLog() << "WaypointObject::saveToStream: ERROR: Stream contains errors!\n";
     return false;
   }
   //write header "RfWP" (reference of WaypointObject)
@@ -283,14 +284,14 @@ bool WaypointObject::saveToStream(std::ofstream& OutStream) const
   //write all data inherited from DuskObject
   if (!saveDuskObjectPart(OutStream))
   {
-    std::cout << "WaypointObject::saveToStream: ERROR while writing basic "
+    DuskLog() << "WaypointObject::saveToStream: ERROR while writing basic "
               << "data!\n";
     return false;
   }
   //write all data inherited from UniformMotionObject
   if (!saveUniformMotionObjectPart(OutStream))
   {
-    std::cout << "WaypointObject::saveToStream: ERROR while writing motion "
+    DuskLog() << "WaypointObject::saveToStream: ERROR while writing motion "
               << "data!\n";
     return false;
   }
@@ -302,13 +303,13 @@ bool WaypointObject::loadFromStream(std::ifstream& InStream)
 {
   if (entity!=NULL)
   {
-    std::cout << "WaypointObject::loadFromStream: ERROR: Cannot load from "
+    DuskLog() << "WaypointObject::loadFromStream: ERROR: Cannot load from "
               << "stream while object is enabled.\n";
     return false;
   }
   if (!InStream.good())
   {
-    std::cout << "WaypointObject::loadFromStream: ERROR: Stream contains errors!\n";
+    DuskLog() << "WaypointObject::loadFromStream: ERROR: Stream contains errors!\n";
     return false;
   }
   //read header "RfWP"
@@ -316,21 +317,21 @@ bool WaypointObject::loadFromStream(std::ifstream& InStream)
   InStream.read((char*) &Header, sizeof(unsigned int));
   if (Header!=cHeaderRfWP)
   {
-    std::cout << "WaypointObject::loadFromStream: ERROR: Stream contains "
+    DuskLog() << "WaypointObject::loadFromStream: ERROR: Stream contains "
               << "invalid reference header.\n";
     return false;
   }
   //read all stuff inherited from DuskObject
   if (!loadDuskObjectPart(InStream))
   {
-    std::cout << "WaypointObject::loadFromStream: ERROR while reading basic "
+    DuskLog() << "WaypointObject::loadFromStream: ERROR while reading basic "
               << "object data.\n";
     return false;
   }//if
   //read all stuff inherited from UniformMotionObject
   if (!loadUniformMotionObjectPart(InStream))
   {
-    std::cout << "WaypointObject::loadFromStream: ERROR while reading motion "
+    DuskLog() << "WaypointObject::loadFromStream: ERROR while reading motion "
               << "object data.\n";
     return false;
   }//if

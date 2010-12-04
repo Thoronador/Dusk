@@ -21,7 +21,7 @@
 #include "VehicleBase.h"
 #include "NPC.h"
 #include "DuskConstants.h"
-#include <OgreMatrix3.h>
+#include "Messages.h"
 
 namespace Dusk
 {
@@ -80,7 +80,7 @@ bool Vehicle::enable(Ogre::SceneManager* scm)
   }
   if (!AnimatedObject::enable(scm))
   {
-    std::cout << "Vehicle::enable: ERROR: could not enable animation object.\n";
+    DuskLog() << "Vehicle::enable: ERROR: could not enable animation object.\n";
     return false;
   }
   //enable passengers, too
@@ -243,7 +243,7 @@ bool Vehicle::saveToStream(std::ofstream& OutStream) const
 {
   if (!OutStream.good())
   {
-    std::cout << "Vehicle::saveToStream: ERROR: Stream contains errors!\n";
+    DuskLog() << "Vehicle::saveToStream: ERROR: Stream contains errors!\n";
     return false;
   }
   //write header "RefV" (reference of Vehicle)
@@ -251,25 +251,25 @@ bool Vehicle::saveToStream(std::ofstream& OutStream) const
   //save stuff inherited from DuskObject
   if (!saveDuskObjectPart(OutStream))
   {
-    std::cout << "Vehicle::saveToStream: ERROR while saving basic data!\n";
+    DuskLog() << "Vehicle::saveToStream: ERROR while saving basic data!\n";
     return false;
   }
   // go on with new data members from AnimatedObject
   if (!saveAnimatedObjectPart(OutStream))
   {
-    std::cout << "Vehicle::saveToStream: ERROR while saving animation data!\n";
+    DuskLog() << "Vehicle::saveToStream: ERROR while saving animation data!\n";
     return false;
   }
   // go on with new data members from UniformMotionObject
   if (!saveUniformMotionObjectPart(OutStream))
   {
-    std::cout << "Vehicle::saveToStream: ERROR while saving basic motion data!\n";
+    DuskLog() << "Vehicle::saveToStream: ERROR while saving basic motion data!\n";
     return false;
   }
   // go on with new data members from WaypointObject
   if (!saveWaypointObjectPart(OutStream))
   {
-    std::cout << "Vehicle::saveToStream: ERROR while saving waypoint data!\n";
+    DuskLog() << "Vehicle::saveToStream: ERROR while saving waypoint data!\n";
     return false;
   }
   //done with inherited data members; go on with Vehicle stuff
@@ -281,7 +281,7 @@ bool Vehicle::saveToStream(std::ofstream& OutStream) const
   */
   if (!OutStream.good())
   {
-    std::cout << "Vehicle::saveToStream: ERROR while writing vehicle data.\n";
+    DuskLog() << "Vehicle::saveToStream: ERROR while writing vehicle data.\n";
     return false;
   }
   return OutStream.good();
@@ -291,13 +291,13 @@ bool Vehicle::loadFromStream(std::ifstream& InStream)
 {
   if (entity!=NULL)
   {
-    std::cout << "Vehicle::loadFromStream: ERROR: Cannot load from stream while"
+    DuskLog() << "Vehicle::loadFromStream: ERROR: Cannot load from stream while"
               << " object is enabled.\n";
     return false;
   }
   if (!InStream.good())
   {
-    std::cout << "Vehicle::loadFromStream: ERROR: Stream contains errors!\n";
+    DuskLog() << "Vehicle::loadFromStream: ERROR: Stream contains errors!\n";
     return false;
   }
   //read header "RefV"
@@ -305,32 +305,32 @@ bool Vehicle::loadFromStream(std::ifstream& InStream)
   InStream.read((char*) &Header, sizeof(unsigned int));
   if (Header!=cHeaderRefV)
   {
-    std::cout << "Vehicle::loadFromStream: ERROR: Stream contains invalid "
+    DuskLog() << "Vehicle::loadFromStream: ERROR: Stream contains invalid "
               << "reference header.\n";
     return false;
   }
   //read DuskObject stuff
   if (!loadDuskObjectPart(InStream))
   {
-    std::cout << "Vehicle::loadFromStream: ERROR while reading basic data.\n";
+    DuskLog() << "Vehicle::loadFromStream: ERROR while reading basic data.\n";
     return false;
   }
   // go on with data members from AnimatedObject
   if (!loadAnimatedObjectPart(InStream))
   {
-    std::cout << "Vehicle::loadFromStream: ERROR while loading animation data.\n";
+    DuskLog() << "Vehicle::loadFromStream: ERROR while loading animation data.\n";
     return false;
   }
   // go on with data members from UniformMotionObject
   if (!loadUniformMotionObjectPart(InStream))
   {
-    std::cout << "Vehicle::loadFromStream: ERROR while loading motion data.\n";
+    DuskLog() << "Vehicle::loadFromStream: ERROR while loading motion data.\n";
     return false;
   }
   // go on with data members from WaypointObject
   if (!loadWaypointObjectPart(InStream))
   {
-    std::cout << "vehicle::loadFromStream: ERROR while loading waypoint data.\n";
+    DuskLog() << "vehicle::loadFromStream: ERROR while loading waypoint data.\n";
     return false;
   }
   //done with inherited data, go on with Vehicle data
@@ -342,7 +342,7 @@ bool Vehicle::loadFromStream(std::ifstream& InStream)
   */
   if (!InStream.good())
   {
-    std::cout << "Vehicle::loadFromStream: ERROR while reading vehicle data.\n";
+    DuskLog() << "Vehicle::loadFromStream: ERROR while reading vehicle data.\n";
     return false;
   }
   return InStream.good();

@@ -20,7 +20,7 @@
 
 #include "ItemBase.h"
 #include "DuskConstants.h"
-#include <iostream>
+#include "Messages.h"
 
 namespace Dusk
 {
@@ -52,12 +52,12 @@ void ItemBase::addItem(const std::string& ID, const std::string& name,
 {
   if (ID=="" or name=="" or Mesh=="")
   {
-    std::cout << "ItemBase::addItem: ERROR: ID, name or mesh name is empty.\n";
+    DuskLog() << "ItemBase::addItem: ERROR: ID, name or mesh name is empty.\n";
     return;
   }
   if (value<0 or weight<0.0f)
   {
-    std::cout << "ItemBase::addItem: ERROR: invalid weight or value given.\n";
+    DuskLog() << "ItemBase::addItem: ERROR: invalid weight or value given.\n";
     return;
   }
   m_ItemList[ID] = (ItemRecord){name, value, weight, Mesh};
@@ -97,6 +97,8 @@ std::string ItemBase::getItemName(const std::string& itemID) const
   {
     return iter->second.Name;
   }
+  DuskLog() << "ItemBase::getItemName: ERROR: No item with ID \""<<itemID
+            << "\" found. Returning empty string.\n";
   return "";
 }
 
@@ -108,6 +110,8 @@ int ItemBase::getItemValue(const std::string& itemID) const
   {
     return iter->second.value;
   }
+  DuskLog() << "ItemBase::getItemValue: ERROR: No item with ID \""<<itemID
+            << "\" found. Returning -1.\n";
   return -1;
 }
 
@@ -119,6 +123,8 @@ float ItemBase::getItemWeight(const std::string& itemID) const
   {
     return iter->second.weight;
   }
+  DuskLog() << "ItemBase::getItemWeight: ERROR: No item with ID \""<<itemID
+            << "\" found. Returning zero.\n";
   return 0.0;
 }
 
@@ -133,16 +139,26 @@ std::string ItemBase::getMeshName(const std::string& itemID, const bool UseMarke
   //item with given ID is not present
   if (UseMarkerOnError)
   {
+    DuskLog() << "ItemBase::getMeshName: ERROR: No item with ID \""<<itemID
+            << "\" found. Returning error marker's mesh instead.\n";
     return cErrorMesh;
   }
   else
   {
+    DuskLog() << "ItemBase::getMeshName: ERROR: No item with ID \""<<itemID
+            << "\" found. Returning empty string.\n";
     return "";
   }
 }
 
 bool ItemBase::saveToStream(std::ofstream& Stream) const
 {
+  if (!Stream.good())
+  {
+    DuskLog() << "ItemBase::saveToStream: ERROR: bad stream.\n";
+    return false;
+  }
+
   std::map<std::string, ItemRecord>::const_iterator iter;
   unsigned int len = 0;
 
@@ -169,7 +185,7 @@ bool ItemBase::saveToStream(std::ofstream& Stream) const
 
     if (!Stream.good())
     {
-      std::cout << "ItemBase::SaveToStream: ERROR while writing data.\n";
+      DuskLog() << "ItemBase::saveToStream: ERROR while writing data.\n";
       return false;
     }//if
   }//for
@@ -178,6 +194,11 @@ bool ItemBase::saveToStream(std::ofstream& Stream) const
 
 bool ItemBase::loadFromStream(std::ifstream& Stream)
 {
+  if (!Stream.good())
+  {
+    DuskLog() << "ItemBase::loadFromStream: ERROR: bad stream.\n";
+    return false;
+  }//if
   unsigned int Header, len;
   //buffers declared static to avoid multiple allocation and deallocation
   //during multiple calls of LoadFromStream()
@@ -190,7 +211,7 @@ bool ItemBase::loadFromStream(std::ifstream& Stream)
   Stream.read((char*) &Header, sizeof(unsigned int));
   if (Header!=cHeaderItem)
   {
-    std::cout << "ItemBase::LoadFromStream: ERROR: Stream contains invalid "
+    DuskLog() << "ItemBase::loadFromStream: ERROR: Stream contains invalid "
               << "item record header.\n";
     return false;
   }//if
@@ -199,7 +220,7 @@ bool ItemBase::loadFromStream(std::ifstream& Stream)
   Stream.read((char*) &len, sizeof(unsigned int));
   if (len>255)
   {
-    std::cout << "ItemBase::LoadFromStream: ERROR: ID cannot be longer than "
+    DuskLog() << "ItemBase::loadFromStream: ERROR: ID cannot be longer than "
               << "255 characters.\n";
     return false;
   }
@@ -208,7 +229,7 @@ bool ItemBase::loadFromStream(std::ifstream& Stream)
   ID_Buffer[len] = '\0'; //add terminating null character
   if (!(Stream.good()))
   {
-    std::cout << "ItemBase::LoadFromStream: ERROR while reading data (ID).\n";
+    DuskLog() << "ItemBase::loadFromStream: ERROR while reading data (ID).\n";
     return false;
   }
 
@@ -216,7 +237,7 @@ bool ItemBase::loadFromStream(std::ifstream& Stream)
   Stream.read((char*) &len, sizeof(unsigned int));
   if (len>255)
   {
-    std::cout << "ItemBase::LoadFromStream: ERROR: item name cannot be longer "
+    DuskLog() << "ItemBase::loadFromStream: ERROR: item name cannot be longer "
               << "than 255 characters.\n";
     return false;
   }
@@ -225,7 +246,7 @@ bool ItemBase::loadFromStream(std::ifstream& Stream)
   Name_Buffer[len] = '\0'; //add terminating null character
   if (!(Stream.good()))
   {
-    std::cout << "ItemBase::LoadFromStream: ERROR while reading data (name).\n";
+    DuskLog() << "ItemBase::loadFromStream: ERROR while reading data (name).\n";
     return false;
   }
 
@@ -238,7 +259,7 @@ bool ItemBase::loadFromStream(std::ifstream& Stream)
   Stream.read((char*) &len, sizeof(unsigned int));
   if (len>255)
   {
-    std::cout << "ItemBase::LoadFromStream: ERROR: mesh name cannot be longer "
+    DuskLog() << "ItemBase::loadFromStream: ERROR: mesh name cannot be longer "
               << "than 255 characters.\n";
     return false;
   }
@@ -247,7 +268,7 @@ bool ItemBase::loadFromStream(std::ifstream& Stream)
   Mesh_Buffer[len] = '\0'; //add terminating null character
   if (!(Stream.good()))
   {
-    std::cout << "ItemBase::LoadFromStream: ERROR while reading data (mesh).\n";
+    DuskLog() << "ItemBase::loadFromStream: ERROR while reading data (mesh).\n";
     return false;
   }
   addItem(std::string(ID_Buffer), std::string(Name_Buffer), value, weight,

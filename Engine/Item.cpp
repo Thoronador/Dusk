@@ -22,6 +22,7 @@
 #include "DuskConstants.h"
 #include "ItemBase.h"
 #include "API.h"
+#include "Messages.h"
 
 namespace Dusk
 {
@@ -58,7 +59,7 @@ bool Item::enableWithoutSceneNode(Ogre::SceneManager* scm)
   }
   if (scm==NULL)
   {
-    std::cout << "Item::EnableWithoutNode: ERROR: no scene manager present.\n";
+    DuskLog() << "Item::enableWithoutNode: ERROR: no scene manager present.\n";
     return false;
   }
   //generate unique entity name
@@ -96,7 +97,7 @@ bool Item::disable()
   }
   if (scm==NULL)
   {
-    std::cout << "DuskObject::Disable: ERROR: got NULL for scene manager.\n";
+    DuskLog() << "DuskObject::disable: ERROR: got NULL for scene manager.\n";
     return false;
   }
   if (ent_node!=NULL)
@@ -128,7 +129,7 @@ bool Item::saveToStream(std::ofstream& OutStream) const
 {
   if (!OutStream.good())
   {
-    std::cout << "Item::SaveToStream: ERROR: Stream contains errors!\n";
+    DuskLog() << "Item::saveToStream: ERROR: Stream contains errors!\n";
     return false;
   }
   //write header "RefI" (reference of Item)
@@ -136,14 +137,14 @@ bool Item::saveToStream(std::ofstream& OutStream) const
   //write all data inherited from DuskObject
   if (!saveDuskObjectPart(OutStream))
   {
-    std::cout << "Item::SaveToStream: ERROR while writing basic "
+    DuskLog() << "Item::saveToStream: ERROR while writing basic "
               << "data!\n";
     return false;
   }
   //write all data from Item
   if (!saveItemPart(OutStream))
   {
-    std::cout << "Item::SaveToStream: ERROR while writing item data!\n";
+    DuskLog() << "Item::saveToStream: ERROR while writing item data!\n";
     return false;
   }
   return true;
@@ -153,13 +154,13 @@ bool Item::loadFromStream(std::ifstream& InStream)
 {
   if (entity!=NULL)
   {
-    std::cout << "Item::LoadFromStream: ERROR: Cannot load from stream while "
+    DuskLog() << "Item::loadFromStream: ERROR: Cannot load from stream while "
               << "item is enabled.\n";
     return false;
   }
   if (!InStream.good())
   {
-    std::cout << "Item::LoadFromStream: ERROR: Stream contains errors!\n";
+    DuskLog() << "Item::loadFromStream: ERROR: Stream contains errors!\n";
     return false;
   }
   //read header "RefI"
@@ -167,21 +168,21 @@ bool Item::loadFromStream(std::ifstream& InStream)
   InStream.read((char*) &Header, sizeof(unsigned int));
   if (Header!=cHeaderRefI)
   {
-    std::cout << "Item::LoadFromStream: ERROR: Stream contains invalid "
+    DuskLog() << "Item::loadFromStream: ERROR: Stream contains invalid "
               << "reference header.\n";
     return false;
   }
   //read all stuff inherited from DuskObject
   if (!loadDuskObjectPart(InStream))
   {
-    std::cout << "Item::LoadFromStream: ERROR while reading basic object "
+    DuskLog() << "Item::loadFromStream: ERROR while reading basic object "
               << "data.\n";
     return false;
   }//if
   //read all stuff from Item
   if (!loadItemPart(InStream))
   {
-    std::cout << "Item::LoadFromStream: ERROR while reading item data.\n";
+    DuskLog() << "Item::loadFromStream: ERROR while reading item data.\n";
     return false;
   }//if
   return true;

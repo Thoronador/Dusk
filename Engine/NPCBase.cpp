@@ -19,7 +19,7 @@
 */
 
 #include "NPCBase.h"
-#include <iostream>
+#include "Messages.h"
 #include "DuskConstants.h"
 
 namespace Dusk
@@ -71,7 +71,7 @@ void NPCBase::addNPC(const std::string& ID, const std::string& Name,
 {
   if (ID=="" or Name=="" or Mesh=="")
   {
-    std::cout << "NPCBase::addNPC: ERROR: ID, name or mesh name is empty.\n";
+    DuskLog() << "NPCBase::addNPC: ERROR: ID, name or mesh name is empty.\n";
     return;
   }
   std::map<std::string, NPCRecord>::iterator iter = m_NPCList.find(ID);
@@ -133,6 +133,8 @@ std::string NPCBase::getNPCName(const std::string& NPC_ID) const
   {
     return iter->second.Name;
   }
+  DuskLog() << "NPCBase::getNPCName: ERROR: no NPC with ID \""<<NPC_ID
+            << "\" found. Returning empty string.\n";
   return "";
 }
 
@@ -146,8 +148,12 @@ std::string NPCBase::getNPCMesh(const std::string& NPC_ID, const bool UseMarkerO
   //item with given ID is not present
   if (UseMarkerOnError)
   {
+    DuskLog() << "NPCBase::getNPCMesh: ERROR: no NPC with ID \""<<NPC_ID
+            << "\" found. Returning error marker's mesh instead.\n";
     return cErrorMesh;
   }
+  DuskLog() << "NPCBase::getNPCMesh: ERROR: no NPC with ID \""<<NPC_ID
+            << "\" found. Returning empty string.\n";
   return "";
 }
 
@@ -158,6 +164,8 @@ uint8 NPCBase::getLevel(const std::string& NPC_ID) const
   {
     return iter->second.Level;
   }
+  DuskLog() << "NPCBase::getLevel: ERROR: no NPC with ID \""<<NPC_ID
+            << "\" found. Returning zero.\n";
   return 0;
 }
 
@@ -168,6 +176,8 @@ NPCAttributes NPCBase::getAttributes(const std::string& NPC_ID) const
   {
     return iter->second.Attributes;
   }
+  DuskLog() << "NPCBase::getAttributes: ERROR: no NPC with ID \""<<NPC_ID
+            << "\" found. Returning zero attributes.\n";
   return NPCAttributes::getNullAttributes();
 }
 
@@ -178,6 +188,8 @@ bool  NPCBase::isNPCFemale(const std::string& NPC_ID) const
   {
     return iter->second.Female;
   }
+  DuskLog() << "NPCBase::isNPCFemale: ERROR: no NPC with ID \""<<NPC_ID
+            << "\" found. Returning false.\n";
   return false;
 }
 
@@ -188,6 +200,8 @@ const Inventory& NPCBase::getNPCInventory(const std::string& NPC_ID) const
   {
     return iter->second.InventoryAtStart;
   }
+  DuskLog() << "NPCBase::getNPCInventory: ERROR: no NPC with ID \""<<NPC_ID
+            << "\" found. Returning empty inventory.\n";
   return Inventory::getEmptyInventory();
 }
 
@@ -198,6 +212,8 @@ const NPCAnimations& NPCBase::getNPCAnimations(const std::string& NPC_ID) const
   {
     return iter->second.Animations;
   }
+  DuskLog() << "NPCBase::getNPCAnimations: ERROR: no NPC with ID \""<<NPC_ID
+            << "\" found. Returning null animations.\n";
   return NPCAnimations::getNullAnimations();
 }
 
@@ -208,6 +224,8 @@ const NPCTagPoints& NPCBase::getNPCTagPoints(const std::string& NPC_ID) const
   {
     return iter->second.TagPoints;
   }
+  DuskLog() << "NPCBase::getNPCTagPoints: ERROR: no NPC with ID \""<<NPC_ID
+            << "\" found. Returning empty tag points.\n";
   return NPCTagPoints::getNullTagPoints();
 }
 
@@ -215,7 +233,7 @@ bool NPCBase::saveToStream(std::ofstream& output) const
 {
   if (!(output.good()))
   {
-    std::cout << "NPCBase::SaveToStream: ERROR: Bad stream.\n";
+    DuskLog() << "NPCBase::saveToStream: ERROR: Bad stream.\n";
     return false;
   }
   unsigned int len;
@@ -252,7 +270,7 @@ bool NPCBase::saveToStream(std::ofstream& output) const
     //inventory
     if (!(iter->second.InventoryAtStart.saveToStream(output)))
     {
-      std::cout << "NPCBase::SaveToStream: ERROR while writing inventory data "
+      DuskLog() << "NPCBase::saveToStream: ERROR while writing inventory data "
                 << "of NPC \""<<iter->first<<"\" to stream.\n";
       return false;
     }
@@ -298,6 +316,12 @@ bool NPCBase::saveToStream(std::ofstream& output) const
     len = iter->second.TagPoints.SheathRight.length();
     output.write((char*) &len, sizeof(unsigned int));
     output.write(iter->second.TagPoints.SheathRight.c_str(), len);
+    if (!output.good())
+    {
+      DuskLog() << "NPCBase::saveToStream: ERROR while writing animations and "
+                << "tagpoints of NPC \""<<iter->first<<"\" to stream.\n";
+      return false;
+    }
     ++iter;
   } //while
   return output.good();
@@ -307,7 +331,7 @@ bool NPCBase::loadNextRecordFromStream(std::ifstream& input)
 {
   if (!(input.good()))
   {
-    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR: Bad stream.\n";
+    DuskLog() << "NPCBase::loadNextRecordFromStream: ERROR: Bad stream.\n";
     return false;
   }
   unsigned int len = 0;
@@ -315,7 +339,7 @@ bool NPCBase::loadNextRecordFromStream(std::ifstream& input)
   input.read((char*) &len, sizeof(unsigned int));
   if (len != cHeaderNPC_)
   {
-    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR: Invalid header.\n";
+    DuskLog() << "NPCBase::loadNextRecordFromStream: ERROR: Invalid header.\n";
     return false;
   }
   //ID
@@ -323,7 +347,7 @@ bool NPCBase::loadNextRecordFromStream(std::ifstream& input)
   input.read((char*) &len, sizeof(unsigned int));
   if (len > 255)
   {
-    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR: NPC ID seems to be"
+    DuskLog() << "NPCBase::loadNextRecordFromStream: ERROR: NPC ID seems to be"
               << " longer than 255 characters.\n";
     return false;
   }
@@ -333,17 +357,17 @@ bool NPCBase::loadNextRecordFromStream(std::ifstream& input)
   buffer[len] = '\0';
   if (!(input.good()))
   {
-    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR while reading NPC "
+    DuskLog() << "NPCBase::loadNextRecordFromStream: ERROR while reading NPC "
               << "ID.\n";
     return false;
   }
-  std::string tempID = std::string(buffer);
+  const std::string tempID = std::string(buffer);
   //name
   len = 0;
   input.read((char*) &len, sizeof(unsigned int));
   if (len > 255)
   {
-    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR: NPC name seems to "
+    DuskLog() << "NPCBase::loadNextRecordFromStream: ERROR: NPC name seems to "
               << "be longer than 255 characters.\n";
     return false;
   }
@@ -352,7 +376,7 @@ bool NPCBase::loadNextRecordFromStream(std::ifstream& input)
   buffer[len] = '\0';
   if (!(input.good()))
   {
-    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR while reading NPC "
+    DuskLog() << "NPCBase::loadNextRecordFromStream: ERROR while reading NPC "
               << "name from stream.\n";
     return false;
   }
@@ -363,7 +387,7 @@ bool NPCBase::loadNextRecordFromStream(std::ifstream& input)
   input.read((char*) &len, sizeof(unsigned int));
   if (len > 255)
   {
-    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR: NPC mesh seems to "
+    DuskLog() << "NPCBase::loadNextRecordFromStream: ERROR: NPC mesh seems to "
               << "be longer than 255 characters.\n";
     return false;
   }
@@ -372,7 +396,7 @@ bool NPCBase::loadNextRecordFromStream(std::ifstream& input)
   buffer[len] = '\0';
   if (!(input.good()))
   {
-    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR while reading NPC "
+    DuskLog() << "NPCBase::loadNextRecordFromStream: ERROR while reading NPC "
               << "mesh location from stream.\n";
     return false;
   }
@@ -391,14 +415,14 @@ bool NPCBase::loadNextRecordFromStream(std::ifstream& input)
   input.read((char*) &(temp_rec.Female), sizeof(bool));
   if (!(input.good()))
   {
-    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR while reading NPC "
+    DuskLog() << "NPCBase::loadNextRecordFromStream: ERROR while reading NPC "
               << "level or attributes from stream.\n";
     return false;
   }
   //inventory
   if (!(temp_rec.InventoryAtStart.loadFromStream(input)))
   {
-    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR while reading NPC "
+    DuskLog() << "NPCBase::loadNextRecordFromStream: ERROR while reading NPC "
               << "inventory from stream.\n";
     return false;
   }
@@ -408,8 +432,9 @@ bool NPCBase::loadNextRecordFromStream(std::ifstream& input)
   input.read((char*) &len, sizeof(unsigned int));
   if (len > 255)
   {
-    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR: NPC animation name"
-              << " seems to be longer than 255 characters.\n";
+    DuskLog() << "NPCBase::loadNextRecordFromStream: ERROR: NPC idle animation"
+              << " name of \""<<tempID<<"\" seems to be longer than 255 "
+              << "characters.\n";
     return false;
   }
   buffer[0] = '\0';
@@ -417,8 +442,8 @@ bool NPCBase::loadNextRecordFromStream(std::ifstream& input)
   buffer[len] = '\0';
   if (!(input.good()))
   {
-    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR while reading NPC "
-              << "animation name from stream.\n";
+    DuskLog() << "NPCBase::loadNextRecordFromStream: ERROR while reading NPC "
+              << "idle animation name from stream.\n";
     return false;
   }
   temp_rec.Animations.Idle = std::string(buffer);
@@ -427,8 +452,9 @@ bool NPCBase::loadNextRecordFromStream(std::ifstream& input)
   input.read((char*) &len, sizeof(unsigned int));
   if (len > 255)
   {
-    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR: NPC animation name"
-              << " seems to be longer than 255 characters.\n";
+    DuskLog() << "NPCBase::loadNextRecordFromStream: ERROR: NPC walk animation "
+              << " name of \""<<tempID<<"\" seems to be longer than 255 "
+              << "characters.\n";
     return false;
   }
   buffer[0] = '\0';
@@ -436,8 +462,8 @@ bool NPCBase::loadNextRecordFromStream(std::ifstream& input)
   buffer[len] = '\0';
   if (!(input.good()))
   {
-    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR while reading NPC "
-              << "animation name from stream.\n";
+    DuskLog() << "NPCBase::loadNextRecordFromStream: ERROR while reading NPC "
+              << "walk animation name from stream.\n";
     return false;
   }
   temp_rec.Animations.Walk = std::string(buffer);
@@ -446,8 +472,9 @@ bool NPCBase::loadNextRecordFromStream(std::ifstream& input)
   input.read((char*) &len, sizeof(unsigned int));
   if (len > 255)
   {
-    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR: NPC animation name"
-              << " seems to be longer than 255 characters.\n";
+    DuskLog() << "NPCBase::loadNextRecordFromStream: ERROR: NPC melee animation"
+              << " name of \""<<tempID<<"\" seems to be longer than 255 "
+              << "characters.\n";
     return false;
   }
   buffer[0] = '\0';
@@ -455,8 +482,8 @@ bool NPCBase::loadNextRecordFromStream(std::ifstream& input)
   buffer[len] = '\0';
   if (!(input.good()))
   {
-    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR while reading NPC "
-              << "animation name from stream.\n";
+    DuskLog() << "NPCBase::loadNextRecordFromStream: ERROR while reading NPC "
+              << "melee animation name from stream.\n";
     return false;
   }
   temp_rec.Animations.MeleeAttack = std::string(buffer);
@@ -465,8 +492,9 @@ bool NPCBase::loadNextRecordFromStream(std::ifstream& input)
   input.read((char*) &len, sizeof(unsigned int));
   if (len > 255)
   {
-    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR: NPC animation name"
-              << " seems to be longer than 255 characters.\n";
+    DuskLog() << "NPCBase::loadNextRecordFromStream: ERROR: NPC projectile "
+              << "animation name of\""<<tempID<< " seems to be longer than 255 "
+              << "characters.\n";
     return false;
   }
   buffer[0] = '\0';
@@ -474,8 +502,8 @@ bool NPCBase::loadNextRecordFromStream(std::ifstream& input)
   buffer[len] = '\0';
   if (!(input.good()))
   {
-    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR while reading NPC "
-              << "animation name from stream.\n";
+    DuskLog() << "NPCBase::loadNextRecordFromStream: ERROR while reading NPC "
+              << "projectile attack animation name from stream.\n";
     return false;
   }
   temp_rec.Animations.ProjectileAttack = std::string(buffer);
@@ -484,8 +512,9 @@ bool NPCBase::loadNextRecordFromStream(std::ifstream& input)
   input.read((char*) &len, sizeof(unsigned int));
   if (len > 255)
   {
-    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR: NPC animation name"
-              << " seems to be longer than 255 characters.\n";
+    DuskLog() << "NPCBase::loadNextRecordFromStream: ERROR: NPC jum animation "
+              << "name of \""<<tempID<<"\" seems to be longer than 255 "
+              << "characters.\n";
     return false;
   }
   buffer[0] = '\0';
@@ -493,8 +522,8 @@ bool NPCBase::loadNextRecordFromStream(std::ifstream& input)
   buffer[len] = '\0';
   if (!(input.good()))
   {
-    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR while reading NPC "
-              << "animation name from stream.\n";
+    DuskLog() << "NPCBase::loadNextRecordFromStream: ERROR while reading NPC "
+              << "jump animation name from stream.\n";
     return false;
   }
   temp_rec.Animations.Jump = std::string(buffer);
@@ -503,8 +532,9 @@ bool NPCBase::loadNextRecordFromStream(std::ifstream& input)
   input.read((char*) &len, sizeof(unsigned int));
   if (len > 255)
   {
-    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR: NPC animation name"
-              << " seems to be longer than 255 characters.\n";
+    DuskLog() << "NPCBase::loadNextRecordFromStream: ERROR: NPC death animation"
+              << " name of \""<<tempID<<"\" seems to be longer than 255 "
+              << "characters.\n";
     return false;
   }
   buffer[0] = '\0';
@@ -512,8 +542,8 @@ bool NPCBase::loadNextRecordFromStream(std::ifstream& input)
   buffer[len] = '\0';
   if (!(input.good()))
   {
-    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR while reading NPC "
-              << "animation name from stream.\n";
+    DuskLog() << "NPCBase::loadNextRecordFromStream: ERROR while reading NPC "
+              << "death animation name from stream.\n";
     return false;
   }
   temp_rec.Animations.Death = std::string(buffer);
@@ -524,8 +554,9 @@ bool NPCBase::loadNextRecordFromStream(std::ifstream& input)
   input.read((char*) &len, sizeof(unsigned int));
   if (len > 255)
   {
-    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR: NPC TagPoint name"
-              << " seems to be longer than 255 characters.\n";
+    DuskLog() << "NPCBase::loadNextRecordFromStream: ERROR: NPC TagPoint name"
+              << " (left hand) of \""<<tempID<<"\" seems to be longer than 255"
+              << " characters.\n";
     return false;
   }
   buffer[0] = '\0';
@@ -533,8 +564,8 @@ bool NPCBase::loadNextRecordFromStream(std::ifstream& input)
   buffer[len] = '\0';
   if (!(input.good()))
   {
-    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR while reading NPC "
-              << "TagPoint name from stream.\n";
+    DuskLog() << "NPCBase::loadNextRecordFromStream: ERROR while reading NPC "
+              << "TagPoint name (left hand) of \""<<tempID<<"\" from stream.\n";
     return false;
   }
   temp_rec.TagPoints.HandLeft = std::string(buffer);
@@ -543,7 +574,7 @@ bool NPCBase::loadNextRecordFromStream(std::ifstream& input)
   input.read((char*) &len, sizeof(unsigned int));
   if (len > 255)
   {
-    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR: NPC TagPoint name"
+    DuskLog() << "NPCBase::loadNextRecordFromStream: ERROR: NPC TagPoint name"
               << " seems to be longer than 255 characters.\n";
     return false;
   }
@@ -552,8 +583,8 @@ bool NPCBase::loadNextRecordFromStream(std::ifstream& input)
   buffer[len] = '\0';
   if (!(input.good()))
   {
-    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR while reading NPC "
-              << "TagPoint name from stream.\n";
+    DuskLog() << "NPCBase::loadNextRecordFromStream: ERROR while reading NPC "
+              << "TagPoint name (right hand) of \""<<tempID<<"\" from stream.\n";
     return false;
   }
   temp_rec.TagPoints.HandRight = std::string(buffer);
@@ -562,8 +593,9 @@ bool NPCBase::loadNextRecordFromStream(std::ifstream& input)
   input.read((char*) &len, sizeof(unsigned int));
   if (len > 255)
   {
-    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR: NPC TagPoint name"
-              << " seems to be longer than 255 characters.\n";
+    DuskLog() << "NPCBase::loadNextRecordFromStream: ERROR: NPC TagPoint name"
+              << " (left sheath) of \""<<tempID<<"\" seems to be longer than "
+              << "255 characters.\n";
     return false;
   }
   buffer[0] = '\0';
@@ -571,8 +603,8 @@ bool NPCBase::loadNextRecordFromStream(std::ifstream& input)
   buffer[len] = '\0';
   if (!(input.good()))
   {
-    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR while reading NPC "
-              << "TagPoint name from stream.\n";
+    DuskLog() << "NPCBase::loadNextRecordFromStream: ERROR while reading NPC "
+              << "TagPoint name (left sheath) of \""<<tempID<<"\" from stream.\n";
     return false;
   }
   temp_rec.TagPoints.SheathLeft = std::string(buffer);
@@ -581,8 +613,9 @@ bool NPCBase::loadNextRecordFromStream(std::ifstream& input)
   input.read((char*) &len, sizeof(unsigned int));
   if (len > 255)
   {
-    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR: NPC TagPoint name"
-              << " seems to be longer than 255 characters.\n";
+    DuskLog() << "NPCBase::loadNextRecordFromStream: ERROR: NPC TagPoint name"
+              << " (left sheath) of \""<<tempID<<"\" seems to be longer than "
+              << "255 characters.\n";
     return false;
   }
   buffer[0] = '\0';
@@ -590,8 +623,8 @@ bool NPCBase::loadNextRecordFromStream(std::ifstream& input)
   buffer[len] = '\0';
   if (!(input.good()))
   {
-    std::cout << "NPCBase::LoadNextRecordFromStream: ERROR while reading NPC "
-              << "TagPoint name from stream.\n";
+    DuskLog() << "NPCBase::loadNextRecordFromStream: ERROR while reading NPC "
+              << "TagPoint name (right sheath) of \""<<tempID<<"\" from stream.\n";
     return false;
   }
   temp_rec.TagPoints.SheathRight = std::string(buffer);

@@ -37,6 +37,7 @@
      - 2010-01-30 (rev 161) - obsolete load/save functions removed
                             - documentation updated
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
+     - 2010-12-04 (rev 267) - use DuskLog/Messages class for logging
 
  ToDo list:
      - ???
