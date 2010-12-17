@@ -44,7 +44,13 @@ LuaEngine::LuaEngine()
     luaopen_io(m_Lua);
     luaopen_string(m_Lua);
     luaopen_math(m_Lua);
+    #ifdef DUSK_LUA50
     luaopen_loadlib(m_Lua);
+    #elif defined(DUSK_LUA51)
+    luaopen_loadpackage(m_Lua);
+    #else
+      #error "Could not detect a supported Lua version!"
+    #endif
     DuskLog() << "LuaEngine started, running " << LUA_VERSION << ".\n";
     runString("io.write('Lua says: this is ',_VERSION,'!\\n')");
     registerDusk();
