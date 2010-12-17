@@ -41,6 +41,7 @@
      - 2010-12-17 (rev 269) - new version of runString() now uses no more macros
      - 2010-12-17 (rev 270) - new version of runFile() now uses no more macros
      - 2010-12-17 (rev 271) - new version of constructor now uses no more macros
+     - 2010-12-17 (rev 272) - minor fix (spelling for Lua 5.1)
 
  ToDo list:
      - ???

@@ -47,7 +47,7 @@ LuaEngine::LuaEngine()
     #ifdef DUSK_LUA50
     luaopen_loadlib(m_Lua);
     #elif defined(DUSK_LUA51)
-    luaopen_loadpackage(m_Lua);
+    luaopen_package(m_Lua);
     #else
       #error "Could not detect a supported Lua version!"
     #endif
