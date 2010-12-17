@@ -46,7 +46,7 @@ LuaEngine::LuaEngine()
     luaopen_math(m_Lua);
     luaopen_loadlib(m_Lua);
     DuskLog() << "LuaEngine started, running " << LUA_VERSION << ".\n";
-    lua_dostring(m_Lua, "io.write('Lua says: this is ',_VERSION,'!\\n')");
+    runString("io.write('Lua says: this is ',_VERSION,'!\\n')");
     registerDusk();
   }
   else
@@ -72,15 +72,19 @@ LuaEngine& LuaEngine::getSingleton()
 
 bool LuaEngine::runString(const std::string& line, std::string* err_msg)
 {
-  const int errCode = lua_dostring(m_Lua, line.c_str());
-  std::cout.flush();//neccessary to make sure all output from Lua is written
+  //load chunk and push it onto stack
+  #ifdef DUSK_LUA51
+  //Lua 5.1 stuff
+  int errCode = luaL_loadstring(m_Lua, line.c_str());
+  #elif defined(DUSK_LUA50)
+  //Lua 5.0 stuff
+  int errCode = luaL_loadbuffer(m_Lua, line.c_str(), line.length(), line.c_str());
+  #else
+    #error "LuaEngine could not detect a known Lua version!"
+  #endif
   switch (errCode)
   {
     case 0: //all went fine here
-         return true;
-         break;
-    case LUA_ERRRUN:
-         DuskLog() << "LuaEngine::runString: ERROR while running the chunk.\n";
          break;
     case LUA_ERRSYNTAX:
          DuskLog() << "LuaEngine::runString: ERROR during pre-compilation.\n";
@@ -89,11 +93,44 @@ bool LuaEngine::runString(const std::string& line, std::string* err_msg)
          DuskLog() << "LuaEngine::runString: ERROR: memory allocation "
                    << "failed.\n"; break;
     default:
-         DuskLog() << "LuaEngine::runString: an ERROR occured.\n"; break;
+         DuskLog() << "LuaEngine::runString: an unknown ERROR occured.\n"; break;
   } //swi
-  /*get lua error message, which was pushed onto stack by lua_load() or
-    lua_pcall() (they are called by macro lua_dofile)
+  /*get lua error message, which was pushed onto stack by luaL_loadstring()
   */
+  if (errCode != 0)
+  {
+    DuskLog() << "Lua's error message: " << lua_tostring(m_Lua, -1) <<"\n";
+    std::cout.flush();
+    if (err_msg!=NULL)
+    {
+      *err_msg = std::string(lua_tostring(m_Lua, -1));
+    }
+    return false;
+  }//if
+
+  //call/execute the loaded chunk
+  // call with zero arguments (0), push all results (MULTRET), and use the
+  //  standard error function (0)
+  errCode = lua_pcall(m_Lua, 0, LUA_MULTRET, 0);
+  switch (errCode)
+  {
+    case 0: //all went fine here
+         return true;
+         break;
+    case LUA_ERRRUN:
+         DuskLog() << "LuaEngine::runString: ERROR while running the chunk.\n";
+         break;
+    case LUA_ERRERR:
+         DuskLog() << "LuaEngine::runString: ERROR while running the error "
+                   << "handling function.\n";
+         break;
+    case LUA_ERRMEM:
+         DuskLog() << "LuaEngine::runString: ERROR: memory allocation "
+                   << "failed.\n"; break;
+    default:
+         DuskLog() << "LuaEngine::runString: an unknown ERROR occured.\n"; break;
+  } //swi
+  /* get lua error message, which was pushed onto stack by lua_pcall() */
   DuskLog() << "Lua's error message: " << lua_tostring(m_Lua, -1) <<"\n";
   std::cout.flush();
   if (err_msg!=NULL)
