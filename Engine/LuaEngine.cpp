@@ -91,15 +91,18 @@ bool LuaEngine::runString(const std::string& line, std::string* err_msg)
          break;
     case LUA_ERRMEM:
          DuskLog() << "LuaEngine::runString: ERROR: memory allocation "
-                   << "failed.\n"; break;
+                   << "failed.\n";
+         break;
     default:
-         DuskLog() << "LuaEngine::runString: an unknown ERROR occured.\n"; break;
+         DuskLog() << "LuaEngine::runString: an unknown ERROR occured while "
+                   << "loading the string.\n";
+         break;
   } //swi
-  /*get lua error message, which was pushed onto stack by luaL_loadstring()
-  */
+  /*get lua error message, which was pushed onto stack by luaL_loadstring() or
+    luaL_loadbuffer() */
   if (errCode != 0)
   {
-    DuskLog() << "Lua's error message: " << lua_tostring(m_Lua, -1) <<"\n";
+    DuskLog() << "Lua's error message: \"" << lua_tostring(m_Lua, -1) <<"\"\n";
     std::cout.flush();
     if (err_msg!=NULL)
     {
@@ -126,12 +129,15 @@ bool LuaEngine::runString(const std::string& line, std::string* err_msg)
          break;
     case LUA_ERRMEM:
          DuskLog() << "LuaEngine::runString: ERROR: memory allocation "
-                   << "failed.\n"; break;
+                   << "failed.\n";
+         break;
     default:
-         DuskLog() << "LuaEngine::runString: an unknown ERROR occured.\n"; break;
+         DuskLog() << "LuaEngine::runString: an unknown ERROR occured during "
+                   << "protected function call.\n";
+         break;
   } //swi
   /* get lua error message, which was pushed onto stack by lua_pcall() */
-  DuskLog() << "Lua's error message: " << lua_tostring(m_Lua, -1) <<"\n";
+  DuskLog() << "Lua's error message: \"" << lua_tostring(m_Lua, -1) <<"\"\n";
   std::cout.flush();
   if (err_msg!=NULL)
   {
@@ -142,15 +148,11 @@ bool LuaEngine::runString(const std::string& line, std::string* err_msg)
 
 bool LuaEngine::runFile(const std::string& FileName, std::string* err_msg)
 {
-  const int errCode = lua_dofile(m_Lua, FileName.c_str());
+  int errCode = luaL_loadfile(m_Lua, FileName.c_str());
   switch (errCode)
   {
     case 0: //all went fine here
-         return true;
          break;
-    case LUA_ERRRUN:
-         DuskLog() << "LuaEngine::runFile: ERROR while running the "
-                   << "chunk.\n"; break;
     case LUA_ERRSYNTAX:
          DuskLog() << "LuaEngine::runFile: ERROR during pre-compilation.\n";
          break;
@@ -159,14 +161,51 @@ bool LuaEngine::runFile(const std::string& FileName, std::string* err_msg)
          break;
     case LUA_ERRFILE:
          DuskLog() << "LuaEngine::runFile: ERROR while opening the file \""
-                   << FileName << "\".\n"; break;
+                   << FileName << "\".\n";
+         break;
     default:
-         DuskLog() << "LuaEngine::runFile: an ERROR occured.\n"; break;
+         DuskLog() << "LuaEngine::runFile: an unknown ERROR occured while "
+                   << "loading the file \""<<FileName<<"\".\n";
+         break;
   } //swi
-  /*get lua error message, which was pushed onto stack by lua_load() or
-    lua_pcall() (they are called by macro lua_dofile)
-  */
+  /*get Lua's error message, which was pushed onto stack by lua_load() */
+  if (errCode!=0)
+  {
+    DuskLog() << "Lua's error message: \"" << lua_tostring(m_Lua, -1) <<"\"\n";
+    if (err_msg!=NULL)
+    {
+      *err_msg = std::string(lua_tostring(m_Lua, -1));
+    }
+    return false;
+  }//if
+
+  //call/execute the loaded chunk
+  // call with zero arguments (0), push all results (MULTRET), and use the
+  //  standard error function (0)
+  errCode = lua_pcall(m_Lua, 0, LUA_MULTRET, 0);
+  switch (errCode)
+  {
+    case 0: //all went fine here
+         return true;
+         break;
+    case LUA_ERRRUN:
+         DuskLog() << "LuaEngine::runFile: ERROR while running the chunk.\n";
+         break;
+    case LUA_ERRERR:
+         DuskLog() << "LuaEngine::runFile: ERROR while running the error "
+                   << "handling function.\n";
+         break;
+    case LUA_ERRMEM:
+         DuskLog() << "LuaEngine::runFile: ERROR: memory allocation failed.\n";
+         break;
+    default:
+         DuskLog() << "LuaEngine::runFile: an unknown ERROR occured during "
+                   << "protected function call.\n";
+         break;
+  } //swi
+  /* get Lua's error message, which was pushed onto stack by lua_pcall() */
   DuskLog() << "Lua's error message: " << lua_tostring(m_Lua, -1) <<"\n";
+  std::cout.flush();
   if (err_msg!=NULL)
   {
     *err_msg = std::string(lua_tostring(m_Lua, -1));

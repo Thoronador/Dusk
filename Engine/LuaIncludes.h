@@ -34,6 +34,7 @@
                               Lua 5.1 and not Lua 5.0 for Windows
      - 2010-05-15 (rev 204) - Dusk-specific defines added; comments updated
      - 2010-12-17 (rev 269) - obsolete macro removed
+     - 2010-12-17 (rev 270) - obsolete macro removed
 
  ToDo list:
      - ???
@@ -58,7 +59,6 @@ extern "C" {
     #define DUSK_LUA51
     /*compatibility macros (not completely happy with them)*/
     #define luaopen_loadlib(L)  luaopen_package(L)
-    #define lua_dofile luaL_dofile
   #elif defined(__linux__) || defined(linux)
     /* We use Lua 5.0 on Linux platforms.
        If you want to use a different Lua version, or use a different OS, you
