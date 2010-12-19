@@ -218,6 +218,68 @@ bool InputSystemBinding::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseBu
     return true;
 }
 
+bool InputSystemBinding::isBound(const OIS::KeyCode kc) const
+{
+  if (myBindListPress.find(kc)!=myBindListPress.end()) return true;
+  if (myBindListRelease.find(kc)!=myBindListRelease.end()) return true;
+  return (myBindListHold.find(kc)!=myBindListHold.end());
+}
+
+bool InputSystemBinding::bindKey(const OIS::KeyCode kc, const std::string& key_string)
+{
+  if (kc==OIS::KC_UNASSIGNED) return false;
+  if (isBound(kc))
+  {
+    DuskLog() << "InputSystemBinding::bindKey: Error: the given key is already"
+              << " bound.\n";
+    return false;
+  }
+  const Script pressScript = getPressScriptFromKeyString(key_string);
+  const Script releaseScript = getReleaseScriptFromKeyString(key_string);
+  if (pressScript.isEmpty() and releaseScript.isEmpty())
+  {
+    //At least one script should contain something. Otherwise the key has not
+    //any related actions and/or key_string contains an invalid value.
+    DuskLog() << "InputSystemBinding::bindKey: Error: string \""<< key_string
+              <<"\" does not identify a valid key.\n";
+    return false;
+  }
+  //press binding
+  if (pressScript.isEmpty())
+  {
+    myBindListPress.erase(kc);
+  }
+  else
+  {
+    myBindListPress[kc] = pressScript;
+  }
+  //release binding
+  if (releaseScript.isEmpty())
+  {
+    myBindListRelease.erase(kc);
+  }
+  else
+  {
+    myBindListRelease[kc] = releaseScript;
+  }
+  //hold binding (currently not used)
+  myBindListHold.erase(kc);
+  return true;
+}
+
+bool InputSystemBinding::unbindKey(const OIS::KeyCode kc)
+{
+  if (kc==OIS::KC_UNASSIGNED) return false;
+  if (isBound(kc))
+  {
+    myBindListPress.erase(kc);
+    myBindListRelease.erase(kc);
+    myBindListHold.erase(kc);
+    return true;
+  }
+  return false;
+}
+
 std::string InputSystemBinding::getKeyStringFromScript(const Script& scr)
 {
   const std::string str_rep = scr.getStringRepresentation();

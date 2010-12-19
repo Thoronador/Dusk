@@ -55,6 +55,7 @@
      - 2010-08-20 (rev 231) - adjustments for CommandQuestLog
      - 2010-11-09 (rev 249) - adjustments for CommandScreenshot
      - 2010-12-04 (rev 268) - use DuskLog/Messages class for logging
+     - 2010-12-19 (rev 273) - adjustments for CommandBindKey and CommandUnbindKey
 
  ToDo list:
      - update Console as soon as new commands are available
@@ -105,13 +106,17 @@ namespace Dusk
          */
         int processScripts (int maxEntries = 0);
 
-    protected:
     private:
         /**
          * Standard constructor
          */
         Console();
+
+        /**
+         * Empty copy constructor
+         */
         Console(const Console& op){}
+
         /**
          * Standard destructor.
          */
@@ -139,7 +144,7 @@ namespace Dusk
          */
         static Console* s_console;
 
-    };
+    };//class
 
 } //namespace
 

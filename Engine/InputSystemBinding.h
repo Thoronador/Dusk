@@ -53,6 +53,7 @@
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-11-09 (rev 249) - binding for screenshots
      - 2010-12-04 (rev 268) - use DuskLog/Messages class for logging
+     - 2010-12-19 (rev 273) - isBound(), bindKey() and unbindKey() added
 
  ToDo list:
      - method to load bind list from an external resource
@@ -108,7 +109,7 @@ namespace Dusk
          *
          * @param arg   The MouseEvent that holds the information about the mouse movement.
          */
-        virtual bool mouseMoved( const OIS::MouseEvent &arg );
+        virtual bool mouseMoved(const OIS::MouseEvent &arg);
 
         /**
          * Implements the mousePressed event to receive notifications if a mouse button has been pressed.
@@ -116,7 +117,7 @@ namespace Dusk
          * @param arg   The MouseEvent that holds the information about the mouse.
          * @param id    The MouseButton that has been pressed.
          */
-        virtual bool mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
+        virtual bool mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
 
         /**
          * Implements the mouseReleased event to receive notifications if a mouse button has been released.
@@ -124,7 +125,32 @@ namespace Dusk
          * @param arg   The MouseEvent that holds the information about the mouse.
          * @param id    The MouseButton that has been released.
          */
-        virtual bool mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
+        virtual bool mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
+
+        /* returns true, if the given key is currently bound, i.e. pressing or
+           releasing the button will cause a script to be executed
+
+           parameters:
+             kc - the OIS code of the key to check
+        */
+        bool isBound(const OIS::KeyCode kc) const;
+
+        /* binds a certain action to a key and returns true on success.
+           This function fails, if the given key is already bound. In that case
+           it won't change the key binding and returns false.
+
+           parameters:
+               kc - the OIS key code of the key
+               key_string - string that represents the function of the key
+        */
+        bool bindKey(const OIS::KeyCode kc, const std::string& key_string);
+
+        /* removes a key binding and returnes true, if a binding existed
+
+           parameters:
+               kc - the OIS key code of the key whose binding will be removed
+        */
+        bool unbindKey(const OIS::KeyCode kc);
 
         /* constant that names the configuration file which holds the key
            bindings

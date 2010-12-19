@@ -36,6 +36,7 @@
 #include "CommandZoom.h"
 #include "CommandQuestLog.h"
 #include "CommandScreenshot.h"
+#include "CommandBindKey.h"
 #include "DuskFunctions.h"
 #include "DuskTypes.h"
 #include "Messages.h"
@@ -133,6 +134,30 @@ int Console::executeCommand(const std::string& p_string)
         else if (command[0] == "bind")
         {
             std::cout << "Bind a key!" << std::endl;
+            if(command.size()< 3)
+            {
+                DuskLog()<<"Console::executeCommand: Error: Not enough "
+                         <<"parameters for bind command.\n";
+            }
+            else
+            {
+                com  = new CommandBindKey(command[1], command[2]);
+                m_Dispatcher->executeCommand(com);
+            }
+        }
+        else if (command[0] == "unbind")
+        {
+            std::cout << "Delete a key binding!" << std::endl;
+            if(command.size()< 2)
+            {
+                DuskLog()<<"Console::executeCommand: Error: Not enough "
+                         <<"parameters for unbind command.\n";
+            }
+            else
+            {
+                com  = new CommandUnbindKey(command[1]);
+                m_Dispatcher->executeCommand(com);
+            }
         }
         else if (command[0] == "set")
         {
