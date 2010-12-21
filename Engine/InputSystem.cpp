@@ -197,8 +197,10 @@ OIS::KeyCode InputSystem::stringToKeyCode(const std::string& key)
 
   if (key=="page_up") return OIS::KC_PGUP;
   if (key=="page_down") return OIS::KC_PGDOWN;
+  // + on numpad
+  if (key=="numpad_add") return OIS::KC_ADD;
   // - on numpad
-  if (key=="subtract") return OIS::KC_SUBTRACT;
+  if (key=="numpad_sub") return OIS::KC_SUBTRACT;
 
   return OIS::KC_UNASSIGNED; //no matching string
 }
@@ -274,6 +276,9 @@ std::string InputSystem::keyCodeToString(const OIS::KeyCode kc)
     case OIS::KC_INSERT: return "insert";
     case OIS::KC_PGUP: return "page_up";
     case OIS::KC_PGDOWN: return "page_down";
+    //numpad
+    case OIS::KC_ADD: return "numpad_add";
+    case OIS::KC_SUBTRACT: return "numpad_sub";
     //no valid/ recognised key
     default: return "";
   } //swi

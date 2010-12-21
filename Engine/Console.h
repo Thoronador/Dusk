@@ -56,6 +56,7 @@
      - 2010-11-09 (rev 249) - adjustments for CommandScreenshot
      - 2010-12-04 (rev 268) - use DuskLog/Messages class for logging
      - 2010-12-19 (rev 273) - adjustments for CommandBindKey and CommandUnbindKey
+     - 2010-12-21 (rev 274) - adjustments for CommandListKeys
 
  ToDo list:
      - update Console as soon as new commands are available

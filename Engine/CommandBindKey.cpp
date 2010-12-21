@@ -20,6 +20,7 @@
 
 #include "CommandBindKey.h"
 #include "InputSystemBinding.h"
+#include "InputSystemEditor.h"
 #include "Messages.h"
 
 namespace Dusk
@@ -78,5 +79,31 @@ bool CommandUnbindKey::execute(Dusk::Scene* scene, int count)
   }//if
   return InputSystemBinding::get().unbindKey(code);
 }
+
+/* ---- class CommandListKeys ---- */
+
+CommandListKeys::CommandListKeys()
+{
+  //empty
+}
+
+CommandListKeys::~CommandListKeys()
+{
+  //empty
+}
+
+bool CommandListKeys::execute(Dusk::Scene* scene, int count)
+{
+  std::map<OIS::KeyCode, std::string> key_list = InputSystemBinding::get().listKeyBindings();
+  std::map<OIS::KeyCode, std::string>::const_iterator iter = key_list.begin();
+  while (iter!=key_list.end())
+  {
+    InputSystemEditor::get().addMessage(
+        InputSystemBinding::get().keyCodeToString(iter->first)+ " " +iter->second);
+    ++iter;
+  }//while
+  return true;
+}
+
 
 } //namespace

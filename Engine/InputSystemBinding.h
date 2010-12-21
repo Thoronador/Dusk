@@ -54,6 +54,7 @@
      - 2010-11-09 (rev 249) - binding for screenshots
      - 2010-12-04 (rev 268) - use DuskLog/Messages class for logging
      - 2010-12-19 (rev 273) - isBound(), bindKey() and unbindKey() added
+     - 2010-12-21 (rev 274) - listKeyBindings() added
 
  ToDo list:
      - method to load bind list from an external resource
@@ -151,6 +152,9 @@ namespace Dusk
                kc - the OIS key code of the key whose binding will be removed
         */
         bool unbindKey(const OIS::KeyCode kc);
+
+        /* returns the key bindings for display in console */
+        std::map<OIS::KeyCode, std::string> listKeyBindings() const;
 
         /* constant that names the configuration file which holds the key
            bindings

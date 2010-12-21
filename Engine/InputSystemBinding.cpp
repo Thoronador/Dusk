@@ -280,6 +280,19 @@ bool InputSystemBinding::unbindKey(const OIS::KeyCode kc)
   return false;
 }
 
+std::map<OIS::KeyCode, std::string> InputSystemBinding::listKeyBindings() const
+{
+  std::map<OIS::KeyCode, std::string> result;
+  std::map<OIS::KeyCode, Dusk::Script>::const_iterator iter;
+  iter = myBindListPress.begin();
+  while (iter!=myBindListPress.end())
+  {
+    result[iter->first] = getKeyStringFromScript(iter->second);
+    ++iter;
+  }//while
+  return result;
+}
+
 std::string InputSystemBinding::getKeyStringFromScript(const Script& scr)
 {
   const std::string str_rep = scr.getStringRepresentation();

@@ -33,6 +33,7 @@
      - 2008-03-26 (rev 57)  - mouse support added (by walljumper)
      - 2010-02-01 (rev 162) - two utility functions added (by thoronador)
      - 2010-11-10 (rev 250) - minor optimization on includes
+     - 2010-12-21 (rev 274) - key code <-> string conversion updated
 
  ToDo list:
      - ???

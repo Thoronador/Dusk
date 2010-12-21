@@ -21,11 +21,12 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
  Date:    2010-12-19
- Purpose: CommandBindKey and CommandUnbindKey classes
-          Command for setting and deleting key bindings via console
+ Purpose: CommandBindKey, CommandUnbindKey and CommandListKeys classes
+          Command for setting, deleting and listing key bindings via Console
 
  History:
      - 2010-12-19 (rev 273) - initial version (by thoronador)
+     - 2010-12-21 (rev 274) - CommandListKeys class added
 
  ToDo list:
      - ???
@@ -79,6 +80,18 @@ namespace Dusk
       virtual bool execute(Dusk::Scene* scene, int count = 1);
     private:
       std::string m_Key;
+  };//class
+
+  class CommandListKeys : public Command
+  {
+    public:
+      /* Constructor.*/
+      CommandListKeys();
+
+      /* destructor */
+      virtual ~CommandListKeys();
+
+      virtual bool execute(Dusk::Scene* scene, int count = 1);
   };//class
 
 } //namespace

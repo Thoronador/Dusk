@@ -117,6 +117,19 @@ description:
 
 
 /*
+This Header defines the CommandBindKey, CommandUnbindKey and
+CommandListKeys classes.
+
+description:
+    These classes are used to set and delete key bindings via Console,
+    and to list the current key bindings.
+status:
+    Seems to work.
+*/
+#include "CommandBindKey.h"
+
+
+/*
 This Header defines the CommandLoopSound class.
 
 description:
@@ -704,8 +717,8 @@ status:
 
 
 /*
-This Header defines the Trigger interface class, the AABoxTrigger class
-and the SphereTrigger class.
+This Header defines the Trigger interface class, the AABoxTrigger class,
+the SphereTrigger class and the ScriptedTrigger class.
 
 description:
     The Trigger class provides a basic interface for triggers.
@@ -715,6 +728,9 @@ description:
 
     The SphereTrigger class is derived from trigger and implements some
     methods for a trigger with spheric area.
+
+    The ScriptedTrigger class is derived from trigger and implements some
+    methods for a trigger which executes scripts.
 status:
     not tested
 */

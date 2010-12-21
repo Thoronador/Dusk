@@ -159,6 +159,12 @@ int Console::executeCommand(const std::string& p_string)
                 m_Dispatcher->executeCommand(com);
             }
         }
+        else if (command[0] == "bind_list")
+        {
+            std::cout << "List key bindings!" << std::endl;
+            com  = new CommandListKeys();
+            m_Dispatcher->executeCommand(com);
+        }
         else if (command[0] == "set")
         {
             std::cout << "A variable to set" << std::endl;
