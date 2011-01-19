@@ -126,7 +126,7 @@ protected:
 	void CreateCEGUICatalogue(void);
 	void CreatePopupMenus(void);
 	void showCEGUILoadWindow(void);
-	void UpdateLoadWindowFiles(const std::string Directory);
+	void UpdateLoadWindowFiles(const std::string& Directory);
 
 	//for editing object references
 	void showObjectReferenceEditWindow(const CEGUI::Point& pt);

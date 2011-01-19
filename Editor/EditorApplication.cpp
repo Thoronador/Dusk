@@ -626,17 +626,17 @@ void EditorApplication::showCEGUILoadWindow(void)
     FileBox->setSize(CEGUI::UVector2(CEGUI::UDim(0.8, 0), CEGUI::UDim(0.65, 0)));
     FileBox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.2, 0)));
     FileBox->setMultiselectEnabled(false);
-    FileBox->setSortingEnabled(true);
+    FileBox->setSortingEnabled(false);
     FileBox->subscribeEvent(CEGUI::Listbox::EventMouseDoubleClick,
             CEGUI::Event::Subscriber(&EditorApplication::LoadFrameOKClicked, this));
     frame->addChildWindow(FileBox);
-    UpdateLoadWindowFiles(LoadFrameDirectory);
   }
+  UpdateLoadWindowFiles(LoadFrameDirectory);
   frame->setVisible(true);
-  frame->setAlwaysOnTop(true);
+  frame->moveToFront();
 }
 
-void EditorApplication::UpdateLoadWindowFiles(const std::string Directory)
+void EditorApplication::UpdateLoadWindowFiles(const std::string& Directory)
 {
     LoadFrameDirectory = Directory;
     LoadFrameFiles = get_DirectoryFileList(Directory);
@@ -655,6 +655,7 @@ void EditorApplication::UpdateLoadWindowFiles(const std::string Directory)
       }
     }//for
     std::cout << "total: "<< LoadFrameFiles.size() <<"\n\n";
+    sortFileEntries(LoadFrameFiles);
 
     CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
 

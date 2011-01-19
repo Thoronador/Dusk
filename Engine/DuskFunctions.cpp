@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@
   #error "Unknown operating system!"
 #endif
 #include <unistd.h>
+#include <cstring>
 
 namespace Dusk
 {
@@ -227,6 +228,35 @@ std::vector<FileEntry> get_DirectoryFileList(const std::string& Directory)
 bool FileExists(const std::string& FileName)
 {
    return (access(FileName.c_str(), F_OK)==0);
+}
+
+bool EntryIsLesser(const FileEntry& a, const FileEntry& b)
+{
+  if (a.IsDirectory and not b.IsDirectory) return true;
+  if (b.IsDirectory and not a.IsDirectory) return false;
+  if (a.IsDirectory and a.FileName==".") return true;
+  if (a.IsDirectory and a.FileName==".." and b.FileName!=".") return true;
+  return strcmp(a.FileName.c_str(), b.FileName.c_str())<0;
+}
+
+void sortFileEntries(std::vector<FileEntry>& entries)
+{
+  const unsigned int size = entries.size();
+  FileEntry temp;
+  unsigned int i, j;
+  for (i=0; i<size; ++i)
+  {
+    for (j=i+1; j<size; ++j)
+    {
+      if (EntryIsLesser(entries.at(j), entries.at(i)))
+      { //swap them
+        temp = entries.at(i);
+        entries.at(i) = entries.at(j);
+        entries.at(j) = temp;
+      }//iff
+    }//for
+  }//for
+  return;
 }
 
 } //namespace

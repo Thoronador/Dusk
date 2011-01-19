@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2009, 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -38,9 +38,9 @@
      - 2010-08-26 (rev 235) - CSVToVector() added
      - 2010-12-01 (rev 264) - faster version of FileExists()
      - 2010-12-01 (rev 265) - double-precision version of FloatToString()
+     - 2011-01-19 (rev 276) - function to sort file entries added
 
  ToDo list:
-     - implement a faster version of FileExists()
      - ???
 
  Bugs:
@@ -111,6 +111,9 @@ struct FileEntry {
 
 /* returns a list of all files in the given directory as a vector */
 std::vector<FileEntry> get_DirectoryFileList(const std::string& Directory);
+
+/*sorts file entries in vector; directories before files, then by character */
+void sortFileEntries(std::vector<FileEntry>& entries);
 
 /* Checks for existence of file FileName and returns true, if it exists.*/
 bool FileExists(const std::string& FileName);
