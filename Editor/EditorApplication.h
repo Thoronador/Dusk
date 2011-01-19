@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Editor.
-    Copyright (C) 2009, 2010 thoronador
+    Copyright (C) 2009, 2010, 2011 thoronador
 
     The Dusk Editor is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -92,6 +92,7 @@ protected:
 
     //landscape
     ColourData LandscapeColour;
+    float m_LandscapeEditRadius;
 
     // These internal methods package up the stages in the startup process
     /** Sets up the application - returns false if the user chooses to abandon configuration. */
@@ -183,6 +184,7 @@ protected:
 	bool LandscapeFrameFinishClicked(const CEGUI::EventArgs &e);
 	bool LandscapeFrameRadioButtonClicked(const CEGUI::EventArgs &e);
 	bool LandscapeFrameColourChanged(const CEGUI::EventArgs &e);
+	bool LandscapeFrameRadiusChanged(const CEGUI::EventArgs &e);
 
 	//scene query wrapper
 	DuskObject* GetObjectAtMouse(const CEGUI::Point& pt);

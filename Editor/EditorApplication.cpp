@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Editor.
-    Copyright (C) 2009, 2010 thoronador
+    Copyright (C) 2009, 2010, 2011 thoronador
 
     The Dusk Editor is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -96,6 +96,7 @@ EditorApplication::EditorApplication()
   LandscapeColour.red = 254;
   LandscapeColour.green = 128;
   LandscapeColour.blue = 0;
+  m_LandscapeEditRadius = 20.0f;
 
   mouse.LeftButton.down = mouse.LeftButton.up = CEGUI::Point(0.0f, 0.0f);
   mouse.RightButton.down = mouse.RightButton.up = CEGUI::Point(0.0f, 0.0f);
@@ -1314,8 +1315,9 @@ bool EditorApplication::RootMouseMove(const CEGUI::EventArgs &e)
                 switch(mFrameListener->getEditorMode())
                 {
                   case EM_LandscapeColour:
-                       land_rec->setColour(vec_i.x, vec_i.z, LandscapeColour.red,
-                                    LandscapeColour.green, LandscapeColour.blue);
+                       land_rec->setColourRadial(vec_i.x, vec_i.z, LandscapeColour.red,
+                                    LandscapeColour.green, LandscapeColour.blue,
+                                    m_LandscapeEditRadius);
                        break;
                   case EM_LandscapeUp:
                        land_rec->terraform(vec_i.x, vec_i.z, cTerraformDelta);
@@ -1771,9 +1773,11 @@ void EditorApplication::showLandscapeEditWindow(void)
     spin->setTextInputMode(CEGUI::Spinner::FloatingPoint);
     spin->setMinimumValue(1.0f);
     spin->setMaximumValue(200.0f); //Let's see, if these limits are appropriate.
-    spin->setText("20.0");
+    spin->setText(FloatToString(m_LandscapeEditRadius));
     spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.08, 0)));
     spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.75, 0), CEGUI::UDim(0.1, 0)));
+    spin->subscribeEvent(CEGUI::Spinner::EventValueChanged,
+            CEGUI::Event::Subscriber(&EditorApplication::LandscapeFrameRadiusChanged, this));
     frame->addChildWindow(spin);
     //--falloff
     //---- static text
@@ -1875,6 +1879,9 @@ void EditorApplication::showLandscapeEditWindow(void)
          break;
   }//switch
   radio->setSelected(true);
+  //--radius
+  spin = static_cast<CEGUI::Spinner*> (winmgr.getWindow("Editor/LandscapeFrame/RadiusSpin"));
+  spin->setCurrentValue(m_LandscapeEditRadius);
   //-- colour
   spin = static_cast<CEGUI::Spinner*> (winmgr.getWindow("Editor/LandscapeFrame/RedSpin"));
   spin->setCurrentValue(LandscapeColour.red);
@@ -1930,6 +1937,18 @@ bool EditorApplication::LandscapeFrameRadioButtonClicked(const CEGUI::EventArgs 
       mFrameListener->setEditorMode(EM_LandscapeColour);
     }//else
   }
+  return true;
+}
+
+bool EditorApplication::LandscapeFrameRadiusChanged(const CEGUI::EventArgs &e)
+{
+  const CEGUI::WindowEventArgs& win_event = static_cast<const CEGUI::WindowEventArgs&> (e);
+  if (win_event.window==NULL)
+  {
+    return true;
+  }
+  CEGUI::Spinner* spin = static_cast<CEGUI::Spinner*> (win_event.window);
+  m_LandscapeEditRadius = spin->getCurrentValue();
   return true;
 }
 

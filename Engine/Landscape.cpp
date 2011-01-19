@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010 thoronador
+    Copyright (C) 2009, 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -433,6 +433,70 @@ bool LandscapeRecord::setColour(const float x, const float z, const unsigned cha
     return true;
   }
   DuskLog() << "DEBUG: LandscapeRecord::setColour(): call with x or z value out of range.\n";
+  return false;
+}
+
+bool LandscapeRecord::setColourRadial(const float x, const float z, const unsigned char r,
+                           const unsigned char g, const unsigned char b,
+                           const float radius)
+{
+  if (x>=m_OffsetX && x<=m_OffsetX+64*m_Stride
+     && z>=m_OffsetY && z<=m_OffsetY+64*m_Stride
+     && radius>0.0f)
+  {
+    //get indices at center
+    const int x_idx = static_cast<int>((x-m_OffsetX)/m_Stride);
+    const int y_idx = static_cast<int>((z-m_OffsetY)/m_Stride);
+    //get range of radius by means of indices
+    const int range = radius/m_Stride;
+    //calculate minimum indices that are affected
+    unsigned int x_min, y_min;
+    if (range>=x_idx)
+    {
+      x_min = 0;
+    }
+    else x_min = x_idx-range;
+    if (range>=y_idx)
+    {
+      y_min = 0;
+    }
+    else y_min = y_idx-range;
+    //calculate maximum indices that are affected
+    unsigned int x_max, y_max;
+    if (range+x_idx>=64)
+    {
+      x_max = 64;
+    }
+    else x_max = x_idx+range;
+    if (range+y_idx>=64)
+    {
+      y_max = 64;
+    }
+    else y_max = y_idx+range;
+    DuskLog() << "DEBUG: LandscapeRecord::setColourRadial(): call with: x_idx: "
+              <<x_idx<<"; x_min: "<<x_min<<"; x_max: "<<x_max<<"\n"
+              <<"y_idx: "<<y_idx<<"; y_min: "<<y_min<<"; y_max: "<<y_max<<"\n"
+              <<"range: "<<range<<"\n";
+    //now loop through all indices and change colour
+    unsigned int i, j;
+    for (i=x_min; i<=x_max; ++i)
+    {
+      for (j=y_min; j<=y_max; ++j);
+      {
+        Colour[i][j][0] = r;
+        Colour[i][j][1] = g;
+        Colour[i][j][2] = b;
+      }//for j
+    }//for i
+    #ifndef NO_OGRE_IN_LANDSCAPE
+    if (isEnabled())
+    {
+      Landscape::getSingleton().requestUpdate(this);
+    }
+    #endif
+    return true;
+  }
+  DuskLog() << "DEBUG: LandscapeRecord::setColourRadial(): call with x, z or radius value out of range.\n";
   return false;
 }
 
@@ -1001,7 +1065,7 @@ LandscapeRecord* Landscape::getRecordAtXZ(const float x, const float z) const
 }
 
 //gets pointer to record with given ID
-//  ---- safer than GetRecordByPosition(), but also slower
+//  ---- safer than getRecordByPosition(), but also slower
 LandscapeRecord* Landscape::getRecordByID(const unsigned int recordID)
 {
   if (m_numRec==0)

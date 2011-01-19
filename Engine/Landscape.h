@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010 thoronador
+    Copyright (C) 2009, 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -47,6 +47,7 @@
      - 2010-08-16 (rev 229) - error in changeListSize() fixed
      - 2010-11-13 (rev 254) - naming guidelines enforced
      - 2010-12-04 (rev 268) - use DuskLog/Messages class for logging
+     - 2011-01-19 (rev 275) - setColourRadial() added
 
  ToDo list:
      - implement LoadRecordFromStream() for Landscape class
@@ -227,6 +228,19 @@ namespace Dusk
       */
       bool setColour(const float x, const float z, const unsigned char r,const unsigned char g, const unsigned char b);
 
+      /* funtion to set colour at certain point and its surrounding area.
+         Returns true on success.
+
+         parameters:
+             x      - x-coordinate of the point that shall be moved
+             z      - z-coordinate of the point that shall be moved
+             r,g,b  - new RGB-colour value
+             radius - radius of the effect
+      */
+      bool setColourRadial(const float x, const float z, const unsigned char r,
+                           const unsigned char g, const unsigned char b,
+                           const float radius);
+
       /* sets the stride value (i.e. distance between adjacent points) to
          new_stride and returns true on success, false otherwise.
 
@@ -362,7 +376,7 @@ namespace Dusk
          is available
 
          remarks:
-             This function is safer than GetRecordByPosition(), because you will
+             This function is safer than getRecordByPosition(), because you will
              always get the same record for the same ID until the record is
              deleted. (After deletion, it will return a NULL pointer.)
       */
