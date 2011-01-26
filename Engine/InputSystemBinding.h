@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2007, 2008, 2009, 2010 DaSteph, walljumper, thoronador
+    Copyright (C) 2007, 2008, 2009, 2010, 2011 DaSteph, walljumper, thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -55,6 +55,8 @@
      - 2010-12-04 (rev 268) - use DuskLog/Messages class for logging
      - 2010-12-19 (rev 273) - isBound(), bindKey() and unbindKey() added
      - 2010-12-21 (rev 274) - listKeyBindings() added
+     - 2011-01-26 (rev 277) - fixed handling of carriage return characters at
+                              the end of lines in loadKeyConfiguration()
 
  ToDo list:
      - method to load bind list from an external resource

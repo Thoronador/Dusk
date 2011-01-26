@@ -383,6 +383,15 @@ bool InputSystemBinding::loadKeyConfiguration(const std::string& fileName)
   while (inFile.getline(buffer, 127))
   {
     line = std::string(buffer);
+    //check for possible carriage return at end (happens on Windows systems)
+    if (line!="")
+    {
+      if (line.at(line.length()-1)=='\r')
+      {
+        line.erase(line.length()-1);
+      }//if
+    }
+
     if (line!="") //we only want to process non-empty lines...
     {
       if (line[0]!='#')  //...and those not starting with # (=comment)

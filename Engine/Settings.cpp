@@ -202,6 +202,15 @@ bool Settings::loadFromFile(const std::string& FileName)
   {
     buffer[255] = '\0';
     line = std::string(buffer);
+    //check for possible carriage return at end (happens on Windows systems)
+    if (line!="")
+    {
+      if (line.at(line.length()-1)=='\r')
+      {
+        line.erase(line.length()-1);
+      }//if
+    }
+
     if (line == "[uint]")
     {
       input_type = stInt;

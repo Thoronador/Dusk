@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2007, 2009, 2010 ssj5000, thoronador
+    Copyright (C) 2007, 2009, 2010, 2011 ssj5000, thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -44,6 +44,8 @@
                               get-functions added
      - 2010-11-12 (rev 252) - new initial setting for screenshot format added
      - 2010-12-04 (rev 268) - use DuskLog/Messages class for logging
+     - 2011-01-26 (rev 277) - fixed handling of carriage return characters at
+                              the end of lines in loadFromFile()
 
  ToDo list:
      - ???
