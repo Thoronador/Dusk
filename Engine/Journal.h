@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@
      - 2010-08-20 (rev 232) - minor optimizations for engine
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-12-04 (rev 268) - use DuskLog/Messages class for logging
+     - 2011-02-05 (rev 278) - flag for quest failure added
 
  ToDo list:
      - ???
@@ -66,11 +67,17 @@ namespace Dusk
   /* flag to indicate that this entry finishes the quest*/
   static const uint8 FinishedFlag;
 
+  /* flag to indicate that this entry causes the quest to fail */
+  static const uint8 FailedFlag;
+
   /* flag to indicate that this entry was deleted */
   static const uint8 DeletedFlag;
 
   /* returns true, if DeletedFlag is set*/
   bool isDeleted() const;
+
+  /* rerturns true, if FailedFlag is set */
+  bool isFailure() const;
 
   /* returns true, if FinishedFlag is set*/
   bool isFinisher() const;

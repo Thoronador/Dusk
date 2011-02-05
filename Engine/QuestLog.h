@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@
      - 2010-03-08 (rev 178) - getMaximumPresentIndex() added
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-12-03 (rev 266) - use DuskLog/Messages class for logging
+     - 2011-02-05 (rev 278) - isQuestFailed() and listFailedQuests() added
 
  ToDo list:
      - ???
@@ -46,6 +47,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include "DuskTypes.h"
 
 namespace Dusk
 {
@@ -78,6 +80,9 @@ namespace Dusk
       /* returns true, if the given quest is already finished */
       bool isQuestFinished(const std::string& questID) const;
 
+      /* returns true, if the given quest has already failed */
+      bool isQuestFailed(const std::string& questID) const;
+
       /* returns true, if the entry of quest questID and index index is present */
       bool hasQuestEntry(const std::string& questID, const unsigned int index) const;
 
@@ -89,7 +94,12 @@ namespace Dusk
       /* returns the vector of all quests that have been finished yet */
       std::vector<std::string> listFinishedQuests() const;
 
-      /* returns the vector of all quests that have NOT been finished yet */
+      /* returns the vector of all quests that have already failed */
+      std::vector<std::string> listFailedQuests() const;
+
+      /* returns the vector of all quests that have NOT been finished and have
+         NOT failed yet
+      */
       std::vector<std::string> listActiveQuests() const;
 
       /* returns a vector of all quest entries in the QuestLog in chronological
@@ -109,7 +119,7 @@ namespace Dusk
       void clearAllData();
 
       /* returns the number of quest entries in QuestLog */
-      unsigned int numberOfQuestEntries() const;
+      unsigned int getNumberOfQuestEntries() const;
 
       /* tries to save data to stream and returns true on success, false otherwise
 
@@ -152,7 +162,7 @@ namespace Dusk
       std::map<std::string, std::map<unsigned int, unsigned int> > m_PresentEntries;
 
       /* map for retrieving quest state without iterating through vector */
-      std::map<std::string, bool> m_FinishedQuests;
+      std::map<std::string, uint8> m_StateOfQuests;
 
   }; //class Questlog
 

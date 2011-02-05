@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -26,11 +26,17 @@ namespace Dusk
 {
 
 const uint8 JournalRecord::FinishedFlag = 1;
+const uint8 JournalRecord::FailedFlag = 2;
 const uint8 JournalRecord::DeletedFlag = 128;
 
 bool JournalRecord::isDeleted() const
 {
   return ((Flags& DeletedFlag)>0);
+}
+
+bool JournalRecord::isFailure() const
+{
+  return ((Flags& FailedFlag)>0);
 }
 
 bool JournalRecord::isFinisher() const
@@ -43,6 +49,7 @@ std::string JournalRecord::flagsToString(const uint8 theFlags)
   std::string result = "";
   if ((theFlags&DeletedFlag)>0) result = result +"D";
   if ((theFlags&FinishedFlag)>0) result = result +"F";
+  if ((theFlags&FailedFlag)>0) result = result +"X";
   return result;
 }
 

@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -66,8 +66,8 @@ bool QuestLog::addQuestEntry(const std::string& questID, const unsigned int inde
     temp.questID = questID;
     temp.index = index;
     m_TimeLine.push_back(temp);
-    m_FinishedQuests[questID] = m_FinishedQuests[questID] or
-         ((Journal::getSingleton().getFlags(questID, index)&JournalRecord::FinishedFlag)>0);
+    m_StateOfQuests[questID] = (m_StateOfQuests[questID] |
+         Journal::getSingleton().getFlags(questID, index));
     return true;
   }
   //entry was already present, so we add nothing
@@ -81,12 +81,22 @@ bool QuestLog::hasQuest(const std::string& questID) const
 
 bool QuestLog::isQuestFinished(const std::string& questID) const
 {
-  std::map<std::string, bool>::const_iterator iter = m_FinishedQuests.find(questID);
-  if (iter==m_FinishedQuests.end())
+  std::map<std::string, uint8>::const_iterator iter = m_StateOfQuests.find(questID);
+  if (iter==m_StateOfQuests.end())
   {
     return false;
   }
-  return iter->second;
+  return ((iter->second & JournalRecord::FinishedFlag)>0);
+}
+
+bool QuestLog::isQuestFailed(const std::string& questID) const
+{
+  std::map<std::string, uint8>::const_iterator iter = m_StateOfQuests.find(questID);
+  if (iter==m_StateOfQuests.end())
+  {
+    return false;
+  }
+  return ((iter->second & JournalRecord::FailedFlag)>0);
 }
 
 bool QuestLog::hasQuestEntry(const std::string& questID, const unsigned int index) const
@@ -121,10 +131,26 @@ std::vector<std::string> QuestLog::listFinishedQuests() const
 {
   std::vector<std::string> sv;
   sv.clear();
-  std::map<std::string, bool>::const_iterator cIter = m_FinishedQuests.begin();
-  while (cIter!=m_FinishedQuests.end())
+  std::map<std::string, uint8>::const_iterator cIter = m_StateOfQuests.begin();
+  while (cIter!=m_StateOfQuests.end())
   {
-    if (cIter->second)
+    if ((cIter->second & JournalRecord::FinishedFlag)>0)
+    {
+      sv.push_back(cIter->first);
+    }
+    ++cIter;
+  }//while
+  return sv;
+}
+
+std::vector<std::string> QuestLog::listFailedQuests() const
+{
+  std::vector<std::string> sv;
+  sv.clear();
+  std::map<std::string, uint8>::const_iterator cIter = m_StateOfQuests.begin();
+  while (cIter!=m_StateOfQuests.end())
+  {
+    if ((cIter->second & JournalRecord::FailedFlag)>0)
     {
       sv.push_back(cIter->first);
     }
@@ -137,10 +163,10 @@ std::vector<std::string> QuestLog::listActiveQuests() const
 {
   std::vector<std::string> sv;
   sv.clear();
-  std::map<std::string, bool>::const_iterator cIter = m_FinishedQuests.begin();
-  while (cIter!=m_FinishedQuests.end())
+  std::map<std::string, uint8>::const_iterator cIter = m_StateOfQuests.begin();
+  while (cIter!=m_StateOfQuests.end())
   {
-    if (!(cIter->second))
+    if ((cIter->second & (JournalRecord::FinishedFlag|JournalRecord::FailedFlag))==0)
     {
       sv.push_back(cIter->first);
     }
@@ -178,10 +204,10 @@ void QuestLog::clearAllData()
 {
   m_PresentEntries.clear();
   m_TimeLine.clear();
-  m_FinishedQuests.clear();
+  m_StateOfQuests.clear();
 }
 
-unsigned int QuestLog::numberOfQuestEntries() const
+unsigned int QuestLog::getNumberOfQuestEntries() const
 {
   return m_TimeLine.size();
 }
