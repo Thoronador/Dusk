@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 
 /*---------------------------------------------------------------------------
  Author:  thoronador
- Date:    2010-02-06
+ Date:    2010-03-13
  Purpose: Messages Singleton class
           represents a class to write log messages to a file
 
@@ -29,6 +29,7 @@
      - 2010-12-01 (rev 265) - documentation updated
                             - unneccessary member functions removed
                             - operator << overloaded for use with Messages
+     - 2011-02-06 (rev 279) - minor error fixed
 
  ToDo list:
      - ???
@@ -44,6 +45,7 @@
 #include <string>
 #include <fstream>
 #include <deque>
+#include <stdint.h>
 
 namespace Dusk
 {
