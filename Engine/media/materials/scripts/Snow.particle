@@ -1,4 +1,4 @@
-Dusk/Snow
+particle_system Dusk/Snow
 {
 	quota	75000
 	material	Dusk/flare

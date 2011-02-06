@@ -1,4 +1,4 @@
-Dusk/Rain
+particle_system Dusk/Rain
 {
     material        Dusk/Droplet
     particle_width  2
