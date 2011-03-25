@@ -28,6 +28,7 @@
 
  History:
      - 2010-05-01 (rev 195)  - initial version (by thoronador)
+     - 2011-03-25 (rev 281)  - flag for quest failure can now be set, too
 
  ToDo list:
      - ???

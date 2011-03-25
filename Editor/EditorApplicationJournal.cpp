@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Editor.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2011 thoronador
 
     The Dusk Editor is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -499,6 +499,14 @@ void EditorApplicationJournal::showQuestEntryNewWindow(void)
     check->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.1, 0)));
     frame->addChildWindow(check);
 
+    //checkbox for Failed flag
+    check = static_cast<CEGUI::Checkbox*> (winmgr.createWindow("TaharezLook/Checkbox", "Editor/NewQuestEntryFrame/Failed"));
+    check->setText("Fails Quest");
+    check->setSelected(false);
+    check->setPosition(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.4, 0)));
+    check->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.1, 0)));
+    frame->addChildWindow(check);
+
     //static text for text
     button = winmgr.createWindow("TaharezLook/StaticText", "Editor/NewQuestEntryFrame/Text_Label");
     button->setText("Text:");
@@ -545,7 +553,8 @@ bool EditorApplicationJournal::NewQuestEntryFrameOKClicked(const CEGUI::EventArg
   if (winmgr.isWindowPresent("Editor/NewQuestEntryFrame")
      && winmgr.isWindowPresent("Editor/NewQuestEntryFrame/Text")
      && winmgr.isWindowPresent("Editor/NewQuestEntryFrame/Index_Edit")
-     && winmgr.isWindowPresent("Editor/NewQuestEntryFrame/Finished"))
+     && winmgr.isWindowPresent("Editor/NewQuestEntryFrame/Finished")
+     && winmgr.isWindowPresent("Editor/NewQuestEntryFrame/Failed"))
   {
     CEGUI::Editbox* IndexEdit = static_cast<CEGUI::Editbox*> (winmgr.getWindow("Editor/NewQuestEntryFrame/Index_Edit"));
     if (StringToInt(IndexEdit->getText().c_str(), 0)<=0)
@@ -574,6 +583,12 @@ bool EditorApplicationJournal::NewQuestEntryFrameOKClicked(const CEGUI::EventArg
     {
       flags = JournalRecord::FinishedFlag;
     }
+    check = static_cast<CEGUI::Checkbox*> (winmgr.getWindow("Editor/NewQuestEntryFrame/Failed"));
+    if (check->isSelected())
+    {
+      flags = flags | JournalRecord::FailedFlag;
+    }
+
     //add it to journal
     if (Journal::getSingleton().addEntry(ID_of_quest_to_add_entry, newIndex, newText, flags))
     {
@@ -656,6 +671,13 @@ void EditorApplicationJournal::showQuestEntryEditWindow(void)
     check->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.1, 0)));
     frame->addChildWindow(check);
 
+    //checkbox for Failed flag
+    check = static_cast<CEGUI::Checkbox*> (winmgr.createWindow("TaharezLook/Checkbox", "Editor/EditQuestEntryFrame/Failed"));
+    check->setText("Fails Quest");
+    check->setPosition(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.4, 0)));
+    check->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.1, 0)));
+    frame->addChildWindow(check);
+
     //static text for text
     button = winmgr.createWindow("TaharezLook/StaticText", "Editor/EditQuestEntryFrame/Text_Label");
     button->setText("Text:");
@@ -702,6 +724,9 @@ void EditorApplicationJournal::showQuestEntryEditWindow(void)
   check = static_cast<CEGUI::Checkbox*> (winmgr.getWindow("Editor/EditQuestEntryFrame/Finished"));
   check->setSelected((Journal::getSingleton().getFlags(QuestID_of_entry_to_edit,
                      Index_of_entry_to_edit)&JournalRecord::FinishedFlag)>0);
+  check = static_cast<CEGUI::Checkbox*> (winmgr.getWindow("Editor/EditQuestEntryFrame/Failed"));
+  check->setSelected((Journal::getSingleton().getFlags(QuestID_of_entry_to_edit,
+                     Index_of_entry_to_edit)&JournalRecord::FailedFlag)>0);
   winmgr.getWindow("Editor/EditQuestEntryFrame/Text")->setText(
       Journal::getSingleton().getText(QuestID_of_entry_to_edit,Index_of_entry_to_edit));
 }
@@ -724,6 +749,7 @@ bool EditorApplicationJournal::EditQuestEntryFrameOKClicked(const CEGUI::EventAr
   if (!winmgr.isWindowPresent("Editor/EditQuestEntryFrame") or
       !winmgr.isWindowPresent("Editor/EditQuestEntryFrame/Index_Edit") or
       !winmgr.isWindowPresent("Editor/EditQuestEntryFrame/Finished") or
+      !winmgr.isWindowPresent("Editor/EditQuestEntryFrame/Failed") or
       !winmgr.isWindowPresent("Editor/EditQuestEntryFrame/Text"))
   {
     return true;
@@ -743,6 +769,11 @@ bool EditorApplicationJournal::EditQuestEntryFrameOKClicked(const CEGUI::EventAr
   else
   {
     temp.Flags = 0;
+  }
+  check = static_cast<CEGUI::Checkbox*> (winmgr.getWindow("Editor/EditQuestEntryFrame/Failed"));
+  if (check->isSelected())
+  {
+    temp.Flags = temp.Flags | JournalRecord::FailedFlag;
   }
   const unsigned int new_index = StringToInt(winmgr.getWindow("Editor/EditQuestEntryFrame/Index_Edit")->getText().c_str(), 0);
   if (new_index==0)
