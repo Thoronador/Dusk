@@ -29,6 +29,7 @@
  History:
      - 2010-05-01 (rev 195)  - initial version (by thoronador)
      - 2011-03-25 (rev 281)  - flag for quest failure can now be set, too
+     - 2011-04-30 (rev 282)  - separate window for creating new quests
 
  ToDo list:
      - ???
@@ -72,6 +73,7 @@ class EditorApplicationJournal
 
     //window for journal entries
     void showJournalWindow(void);
+    void showJournalNewQuestWindow(void);
     void showJournalConfirmDeleteQuestWindow(void);
     void showJournalRenameQuestWindow(void);
     void showQuestEntryNewWindow(void);
@@ -93,6 +95,9 @@ class EditorApplicationJournal
     bool JournalFrameRenameQuestClicked(const CEGUI::EventArgs &e);
     bool JournalFrameCloseClicked(const CEGUI::EventArgs &e);
     bool JournalFrameComboboxChanged(const CEGUI::EventArgs &e);
+    //callbacks for quest creation window
+    bool JournalNewQuestFrameCreateClicked(const CEGUI::EventArgs &e);
+    bool JournalNewQuestFrameCancelClicked(const CEGUI::EventArgs &e);
     //callbacks for quest deletion window
     bool JournalDeleteQuestFrameYesClicked(const CEGUI::EventArgs &e);
     bool JournalDeleteQuestFrameNoClicked(const CEGUI::EventArgs &e);
