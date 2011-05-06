@@ -39,7 +39,15 @@ const std::string Weather::cRainParticleSystem = "Dusk/RainPS";
 Weather::Weather()
 {
   m_Fog_r = m_Fog_g = m_Fog_b = 1.0f;
-  m_orig_bgcolour = getAPI().getOgreRenderWindow()->getViewport(0)->getBackgroundColour();
+  if (getAPI().getOgreRenderWindow()!=NULL)
+  {
+    m_orig_bgcolour = getAPI().getOgreRenderWindow()->getViewport(0)->getBackgroundColour();
+  }
+  else
+  {
+    //Just assume black as background colour. Should work for now.
+    m_orig_bgcolour = Ogre::ColourValue(0.0f, 0.0f, 0.0f);
+  }
   m_Daytime = 7.98f;
   m_CelestialList.clear();
   Celestial* sun = new Sun();
@@ -160,11 +168,18 @@ void Weather::stopSnow()
 {
   if (!isSnowing()) return;
   Ogre::SceneManager* scm = getAPI().getOgreSceneManager();
-  Ogre::SceneNode* SnowNode = scm->getSceneNode(cSnowParticleSystem+"_Node");
-  SnowNode->detachObject(cSnowParticleSystem);
-  scm->destroyParticleSystem(cSnowParticleSystem);
-  SnowNode->getParentSceneNode()->removeChild(SnowNode);
-  scm->destroySceneNode(SnowNode->getName());
+  if (scm!=NULL)
+  {
+    Ogre::SceneNode* SnowNode = scm->getSceneNode(cSnowParticleSystem+"_Node");
+    SnowNode->detachObject(cSnowParticleSystem);
+    scm->destroyParticleSystem(cSnowParticleSystem);
+    SnowNode->getParentSceneNode()->removeChild(SnowNode);
+    scm->destroySceneNode(SnowNode->getName());
+  }
+  else
+  {
+    std::cout << "Warning: got NULL for Scene Manager in Weather::stopSnow().\n";
+  }
 }
 
 bool Weather::isSnowing() const
@@ -174,7 +189,7 @@ bool Weather::isSnowing() const
   {
     scm = Ogre::Root::getSingleton().getSceneManagerIterator().getNext();
   }
-  return (scm!=NULL and scm->hasParticleSystem(cSnowParticleSystem));
+  return ((scm!=NULL) and (scm->hasParticleSystem(cSnowParticleSystem)));
 }
 
 void Weather::startRain()
