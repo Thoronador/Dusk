@@ -214,10 +214,10 @@ void EditorApplication::createScene(void)
   mSystem->setDefaultMouseCursor((CEGUI::utf8*)"TaharezLook", (CEGUI::utf8*)"MouseArrow");
   mSystem->setDefaultFont((CEGUI::utf8*)"BlueHighway-12");
 
-  CreateCEGUIRootWindow();
-  CreateCEGUIMenuBar();
-  CreateCEGUICatalogue();
-  CreatePopupMenus();
+  createCEGUIRootWindow();
+  createCEGUIMenuBar();
+  createCEGUICatalogue();
+  createPopupMenus();
 }
 
 void EditorApplication::destroyScene(void)
@@ -272,7 +272,7 @@ void EditorApplication::loadResources(void)
 }
 
 //CEGUI-based stuff
-void EditorApplication::CreateCEGUIRootWindow(void)
+void EditorApplication::createCEGUIRootWindow(void)
 {
   CEGUI::WindowManager *winmgr = CEGUI::WindowManager::getSingletonPtr();
   CEGUI::Window *sheet = winmgr->createWindow("DefaultGUISheet", "Editor/Root");
@@ -288,7 +288,7 @@ void EditorApplication::CreateCEGUIRootWindow(void)
 
 }
 
-void EditorApplication::CreateCEGUIMenuBar(void)
+void EditorApplication::createCEGUIMenuBar(void)
 {
   CEGUI::WindowManager &wmgr = CEGUI::WindowManager::getSingleton();
 
@@ -437,7 +437,7 @@ void EditorApplication::CreateCEGUIMenuBar(void)
   sheet->addChildWindow(mode_indicator);
 }
 
-void EditorApplication::CreateCEGUICatalogue(void)
+void EditorApplication::createCEGUICatalogue(void)
 {
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
 
@@ -554,9 +554,12 @@ void EditorApplication::CreateCEGUICatalogue(void)
   //Sample data
   // ---- no data yet, just refresh the list
   RefreshNPCList();
+
+  //projectiles
+  createProjectileCatalogueTab(winmgr, tab);
 }
 
-void EditorApplication::CreatePopupMenus(void)
+void EditorApplication::createPopupMenus(void)
 {
   //PopUp Menu for static objects' tab
   CreatePopupMenuObjectTab();
@@ -569,6 +572,9 @@ void EditorApplication::CreatePopupMenus(void)
 
   //PopUp Menu for NPCs' tab
   CreatePopupMenuNPCTab();
+
+  //PopUp Menu for Projectile's tab
+  createPopupMenuProjectileTab();
 }
 
 void EditorApplication::showCEGUILoadWindow(void)
@@ -674,7 +680,7 @@ void EditorApplication::UpdateLoadWindowFiles(const std::string& Directory)
     FileBox->requestRedraw();
 }
 
-void EditorApplication::ClearCatalogue(void)
+void EditorApplication::clearCatalogue(void)
 {
   CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*>
              (CEGUI::WindowManager::getSingleton().getWindow("Editor/Catalogue/Tab/Item/List"));
@@ -781,7 +787,7 @@ bool EditorApplication::LoadFrameOKClicked(const CEGUI::EventArgs &e)
     LoadedDataFile = "";
     ID_of_object_to_delete = "";
     mouse_object = edit_object = NULL;
-    ClearCatalogue();
+    clearCatalogue();
     // --- load file
     if (!(DataLoader::getSingleton().loadFromFile(LoadFrameDirectory+PathToFile)))
     {
@@ -897,14 +903,14 @@ bool EditorApplication::ModeMoveClicked(const CEGUI::EventArgs &e)
 {
   LandscapeFrameFinishClicked(e);
   mFrameListener->setEditorMode(EM_Movement);
-  SetCatalogueVisibility(true);
+  setCatalogueVisibility(true);
   return true;
 }
 
 bool EditorApplication::ModeLandUpClicked(const CEGUI::EventArgs &e)
 {
   mFrameListener->setEditorMode(EM_LandscapeUp);
-  SetCatalogueVisibility(false);
+  setCatalogueVisibility(false);
   showLandscapeEditWindow();
   return true;
 }
@@ -912,7 +918,7 @@ bool EditorApplication::ModeLandUpClicked(const CEGUI::EventArgs &e)
 bool EditorApplication::ModeLandDownClicked(const CEGUI::EventArgs &e)
 {
   mFrameListener->setEditorMode(EM_LandscapeDown);
-  SetCatalogueVisibility(false);
+  setCatalogueVisibility(false);
   showLandscapeEditWindow();
   return true;
 }
@@ -920,7 +926,7 @@ bool EditorApplication::ModeLandDownClicked(const CEGUI::EventArgs &e)
 bool EditorApplication::ModeLandColourClicked(const CEGUI::EventArgs &e)
 {
   mFrameListener->setEditorMode(EM_LandscapeColour);
-  SetCatalogueVisibility(false);
+  setCatalogueVisibility(false);
   showLandscapeEditWindow();
   return true;
 }
@@ -929,7 +935,7 @@ bool EditorApplication::ModeListClicked(const CEGUI::EventArgs &e)
 {
   LandscapeFrameFinishClicked(e);
   mFrameListener->setEditorMode(EM_Lists);
-  SetCatalogueVisibility(true);
+  setCatalogueVisibility(true);
   return true;
 }
 
@@ -1011,6 +1017,8 @@ void EditorApplication::closeAllEditWindows(void)
   closeEditWindowsObject();
   //frames for NPCs
   closeEditWindowsNPC();
+  //frames for projectiles
+  closeEditWindowsProjectile();
 }
 
 bool EditorApplication::RootMouseDown(const CEGUI::EventArgs &e)
@@ -1042,7 +1050,7 @@ bool EditorApplication::RootMouseDown(const CEGUI::EventArgs &e)
   //check for entity / object at mouse position
   if (mouse_ea.button == CEGUI::LeftButton or mouse_ea.button == CEGUI::RightButton)
   {
-    mouse_object = GetObjectAtMouse(mouse_ea.position);
+    mouse_object = getObjectAtMouse(mouse_ea.position);
   }//if buttons down
   return true;
 }
@@ -1379,7 +1387,7 @@ bool EditorApplication::ObjectListMouseDown(const CEGUI::EventArgs &e)
 
 void EditorApplication::showObjectReferenceEditWindow(const CEGUI::Point& pt)
 {
-  DuskObject* target = GetObjectAtMouse(pt);
+  DuskObject* target = getObjectAtMouse(pt);
   if (target==NULL)
   { //no object found
     return;
@@ -1642,7 +1650,7 @@ bool EditorApplication::ObjectReferenceEditSaveClicked(const CEGUI::EventArgs &e
 }
 
 //scene query wrapper
-DuskObject* EditorApplication::GetObjectAtMouse(const CEGUI::Point& pt)
+DuskObject* EditorApplication::getObjectAtMouse(const CEGUI::Point& pt)
 {
   DuskObject* mo = NULL;
 
@@ -1698,7 +1706,7 @@ DuskObject* EditorApplication::GetObjectAtMouse(const CEGUI::Point& pt)
   return mo;
 }
 
-void EditorApplication::SetCatalogueVisibility(const bool visible)
+void EditorApplication::setCatalogueVisibility(const bool visible)
 {
   CEGUI::Window* win = CEGUI::WindowManager::getSingleton().getWindow("Editor/Catalogue");
   win->setVisible(visible);

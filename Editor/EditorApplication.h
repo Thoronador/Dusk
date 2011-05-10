@@ -29,6 +29,7 @@
 #include "EditorApplicationLight.h"
 #include "EditorApplicationItem.h"
 #include "EditorApplicationObject.h"
+#include "EditorApplicationProjectile.h"
 #include "EditorFrameListener.h"
 #include "../Engine/DuskObject.h"
 #include "../Engine/DuskTypes.h"
@@ -59,7 +60,7 @@ CEGUI::ListboxItem * getLbItemAtPoint(const CEGUI::Point& pt, CEGUI::MultiColumn
 
 class EditorApplication: public EditorApplicationNPC, public EditorApplicationLight,
                          public EditorApplicationItem, public EditorApplicationObject,
-                         public EditorApplicationJournal
+                         public EditorApplicationJournal, public EditorApplicationProjectile
 {
 public:
     /// Standard constructor
@@ -121,10 +122,10 @@ protected:
 	virtual void loadResources(void);
 
 	//CEGUI related methods to create interface
-	void CreateCEGUIRootWindow(void);
-	void CreateCEGUIMenuBar(void);
-	void CreateCEGUICatalogue(void);
-	void CreatePopupMenus(void);
+	void createCEGUIRootWindow(void);
+	void createCEGUIMenuBar(void);
+	void createCEGUICatalogue(void);
+	void createPopupMenus(void);
 	void showCEGUILoadWindow(void);
 	void UpdateLoadWindowFiles(const std::string& Directory);
 
@@ -138,11 +139,11 @@ protected:
 	void closeAllEditWindows(void);
 
 	//shows or hides catalogue window
-	void SetCatalogueVisibility(const bool visible);
+	void setCatalogueVisibility(const bool visible);
 
 	//clear items/ lights/ objects in catalogue
 	//  (real data is not affected, methods only delete all shown new rows catalogue)
-	void ClearCatalogue(void);
+	void clearCatalogue(void);
 
 	//callbacks for menu items
 	bool LoadButtonClicked(const CEGUI::EventArgs &e);
@@ -187,7 +188,7 @@ protected:
 	bool LandscapeFrameRadiusChanged(const CEGUI::EventArgs &e);
 
 	//scene query wrapper
-	DuskObject* GetObjectAtMouse(const CEGUI::Point& pt);
+	DuskObject* getObjectAtMouse(const CEGUI::Point& pt);
 };//class
 
 }//namespace

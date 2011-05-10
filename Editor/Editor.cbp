@@ -70,6 +70,8 @@
 		<Unit filename="EditorApplicationNPC.h" />
 		<Unit filename="EditorApplicationObject.cpp" />
 		<Unit filename="EditorApplicationObject.h" />
+		<Unit filename="EditorApplicationProjectile.cpp" />
+		<Unit filename="EditorApplicationProjectile.h" />
 		<Unit filename="EditorCamera.cpp" />
 		<Unit filename="EditorCamera.h" />
 		<Unit filename="EditorFrameListener.cpp" />
