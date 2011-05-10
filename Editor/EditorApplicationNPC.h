@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Editor.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2011 thoronador
 
     The Dusk Editor is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -39,6 +39,8 @@
                             - closeEditWindowsNPC() added
      - 2010-09-10 (rev 241) - preparations for editing NPCs
      - 2010-09-13 (rev 242) - editing NPCs is now possible
+     - 2011-05-10 (rev 285) - createNPCCatalogueTab() an NPCTabClicked() added
+                              (moved code from EditorApplication)
 
  ToDo list:
      - refine possibility to create NPCs (inventory)
@@ -87,7 +89,19 @@ class EditorApplicationNPC
     void closeEditWindowsNPC(void);
 
     /* clears NPCs in catalogue and re-lists every present NPC */
-    void RefreshNPCList(void);
+    void refreshNPCList(void);
+
+    /* creates the cataloge tab for NPCs
+
+       parameters:
+           winmgr - the window manager (for convenience)
+           tab    - the basic catalogue tab control
+    */
+    void createNPCCatalogueTab(CEGUI::WindowManager& winmgr, CEGUI::TabControl * tab);
+
+    //callback for clicking on NPC tab
+    bool NPCTabClicked(const CEGUI::EventArgs &e);
+
     //windows for creating/ editing NPCs
     void showNPCNewWindow(void);
 	void showNPCConfirmDeleteWindow(void);
@@ -102,7 +116,7 @@ class EditorApplicationNPC
 	void addNPCRecordToCatalogue(const std::string& ID, const NPCRecord& Record);
 
     //create the popup menu for the NPC tab
-    void CreatePopupMenuNPCTab(void);
+    void createPopupMenuNPCTab(void);
 	//callbacks for popup menu
 	bool NPCNewClicked(const CEGUI::EventArgs &e);
 	bool NPCEditClicked(const CEGUI::EventArgs &e);
@@ -125,7 +139,7 @@ class EditorApplicationNPC
 	bool NPCNewTagsFrameOKClicked(const CEGUI::EventArgs &e);
 
 	//create popup menu for inventory list in NPCNewFrame
-	void CreatePopupMenuNPCNewFrameList(void);
+	void createPopupMenuNPCNewFrameList(void);
 	//callbacks for popup menu
     bool InventoryListAddClicked(const CEGUI::EventArgs &e);
     bool InventoryListEditClicked(const CEGUI::EventArgs &e);
@@ -156,14 +170,14 @@ class EditorApplicationNPC
     bool EditAddInventoryFrameCancelClicked(const CEGUI::EventArgs &e);
 
 	//create popup menu for inventory list in NPCEditFrame
-	void CreatePopupMenuNPCEditFrameList(void);
+	void createPopupMenuNPCEditFrameList(void);
 	//callbacks for popup menu
     bool EditInventoryListAddClicked(const CEGUI::EventArgs &e);
     bool EditInventoryListEditClicked(const CEGUI::EventArgs &e);
     bool EditInventoryListDeleteClicked(const CEGUI::EventArgs &e);
 
     //helper function to list all available item IDs in a Combobox
-    void UpdateItemList(CEGUI::Combobox* combo);
+    void updateItemList(CEGUI::Combobox* combo);
 
     //gets data from MCL and transforms it into inventory
     Inventory MCLToInventory(const CEGUI::MultiColumnList* mcl);

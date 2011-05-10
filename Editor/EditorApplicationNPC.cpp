@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Editor.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2011 thoronador
 
     The Dusk Editor is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ EditorApplicationNPC::~EditorApplicationNPC()
   //empty
 }
 
-void EditorApplicationNPC::RefreshNPCList(void)
+void EditorApplicationNPC::refreshNPCList(void)
 {
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
   CEGUI::MultiColumnList* mcl = NULL;
@@ -91,7 +91,7 @@ void EditorApplicationNPC::addNPCRecordToCatalogue(const std::string& ID, const 
   mcl->setItem(lbi, 4, row);
 }
 
-void EditorApplicationNPC::CreatePopupMenuNPCTab(void)
+void EditorApplicationNPC::createPopupMenuNPCTab(void)
 {
   CEGUI::WindowManager &wmgr = CEGUI::WindowManager::getSingleton();
   //PopUp Menu for NPCs' tab
@@ -112,6 +112,29 @@ void EditorApplicationNPC::CreatePopupMenuNPCTab(void)
   popup->addItem(menu_item);
   wmgr.getWindow("Editor/Catalogue/Tab/NPC/List")->addChildWindow(popup);
   popup->closePopupMenu();
+}
+
+bool EditorApplicationNPC::NPCTabClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  CEGUI::PopupMenu * popup = static_cast<CEGUI::PopupMenu*> (winmgr.getWindow("Editor/Catalogue/NPCPopUp"));
+  if (!popup->isPopupMenuOpen())
+  {
+    const CEGUI::MouseEventArgs& mea = static_cast<const CEGUI::MouseEventArgs&> (e);
+    if (mea.button == CEGUI::RightButton)
+    {
+      const CEGUI::Rect mcl_rect = winmgr.getWindow("Editor/Catalogue/Tab/NPC/List")->getPixelRect();
+      const float pu_x = (mea.position.d_x-mcl_rect.d_left)/mcl_rect.getWidth();
+      const float pu_y = (mea.position.d_y-mcl_rect.d_top)/mcl_rect.getHeight();
+      popup->setPosition(CEGUI::UVector2(CEGUI::UDim(pu_x, 0), CEGUI::UDim(pu_y, 0)));
+      popup->openPopupMenu();
+    }
+  }
+  else
+  {
+    popup->closePopupMenu();
+  }
+  return true;
 }
 
 bool EditorApplicationNPC::NPCNewClicked(const CEGUI::EventArgs &e)
@@ -519,7 +542,7 @@ void EditorApplicationNPC::showNPCNewWindow(void)
     mcl->subscribeEvent(CEGUI::Window::EventMouseButtonUp, CEGUI::Event::Subscriber(&EditorApplicationNPC::NPCNewFrameInventoryListClicked, this));
     frame->addChildWindow(mcl);
     //adds a popup menu + callbacks for clicks
-    CreatePopupMenuNPCNewFrameList();
+    createPopupMenuNPCNewFrameList();
 
     //animations button
     button = winmgr.createWindow("TaharezLook/Button", "Editor/NPCNewFrame/AnimButton");
@@ -646,7 +669,7 @@ bool EditorApplicationNPC::NPCNewFrameOKClicked(const CEGUI::EventArgs &e)
     {
       winmgr.destroyWindow("Editor/NPCNewFrame/AddInventoryFrame");
     }//if
-    RefreshNPCList();
+    refreshNPCList();
   }//if
   else
   {
@@ -655,7 +678,7 @@ bool EditorApplicationNPC::NPCNewFrameOKClicked(const CEGUI::EventArgs &e)
   return true;
 }
 
-void EditorApplicationNPC::CreatePopupMenuNPCNewFrameList(void)
+void EditorApplicationNPC::createPopupMenuNPCNewFrameList(void)
 {
   CEGUI::WindowManager &wmgr = CEGUI::WindowManager::getSingleton();
   //PopUp Menu for inventory list
@@ -768,7 +791,7 @@ void EditorApplicationNPC::showInventoryListAddWindow(void)
     CBox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.2, 0)));
     CBox->setReadOnly(true);
     frame->addChildWindow(CBox);
-    UpdateItemList(CBox);
+    updateItemList(CBox);
     //create Add button
     CEGUI::Window* button = winmgr.createWindow("TaharezLook/Button", "Editor/NPCNewFrame/AddInventoryFrame/Add");
     button->setText("Add");
@@ -791,7 +814,7 @@ void EditorApplicationNPC::showInventoryListAddWindow(void)
   frame->moveToFront();
 }
 
-void EditorApplicationNPC::UpdateItemList(CEGUI::Combobox* combo)
+void EditorApplicationNPC::updateItemList(CEGUI::Combobox* combo)
 {
   if (combo!=NULL)
   {
@@ -1489,7 +1512,7 @@ void EditorApplicationNPC::showNPCEditWindow(void)
     mcl->subscribeEvent(CEGUI::Window::EventMouseButtonUp, CEGUI::Event::Subscriber(&EditorApplicationNPC::NPCEditFrameInventoryListClicked, this));
     frame->addChildWindow(mcl);
     //adds a popup menu + callbacks for clicks
-    CreatePopupMenuNPCEditFrameList();
+    createPopupMenuNPCEditFrameList();
 
     //animations button
     button = winmgr.createWindow("TaharezLook/Button", "Editor/NPCEditFrame/AnimButton");
@@ -1569,7 +1592,7 @@ void EditorApplicationNPC::showNPCEditWindow(void)
   InventoryToMCL(npc_info.getNPCInventory(ID_of_NPC_to_edit) , mcl);
 }
 
-void EditorApplicationNPC::CreatePopupMenuNPCEditFrameList(void)
+void EditorApplicationNPC::createPopupMenuNPCEditFrameList(void)
 {
   CEGUI::WindowManager &wmgr = CEGUI::WindowManager::getSingleton();
   //PopUp Menu for inventory list
@@ -1737,7 +1760,7 @@ bool EditorApplicationNPC::NPCEditFrameOKClicked(const CEGUI::EventArgs &e)
     {
       winmgr.destroyWindow("Editor/NPCEditFrame/AddInventoryFrame");
     }//if
-    RefreshNPCList();
+    refreshNPCList();
     ID_of_NPC_to_edit = "";
   }//if
   else
@@ -2113,7 +2136,7 @@ void EditorApplicationNPC::showEditInventoryListAddWindow(void)
     CBox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.2, 0)));
     CBox->setReadOnly(true);
     frame->addChildWindow(CBox);
-    UpdateItemList(CBox);
+    updateItemList(CBox);
     //create Add button
     CEGUI::Window* button = winmgr.createWindow("TaharezLook/Button", "Editor/NPCEditFrame/AddInventoryFrame/Add");
     button->setText("Add");
@@ -2182,6 +2205,32 @@ bool EditorApplicationNPC::EditAddInventoryFrameCancelClicked(const CEGUI::Event
     winmgr.destroyWindow("Editor/NPCEditFrame/AddInventoryFrame");
   }
   return true;
+}
+
+void EditorApplicationNPC::createNPCCatalogueTab(CEGUI::WindowManager& winmgr, CEGUI::TabControl * tab)
+{
+  //NPC tab
+  CEGUI::Window* pane = winmgr.createWindow("TaharezLook/TabContentPane", "Editor/Catalogue/Tab/NPC");
+  pane->setSize(CEGUI::UVector2(CEGUI::UDim(1.0, 0), CEGUI::UDim(1.0, 0)));
+  pane->setPosition(CEGUI::UVector2(CEGUI::UDim(0.0, 0), CEGUI::UDim(0.0, 0)));
+  pane->setText("NPCs");
+  tab->addTab(pane);
+
+  CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.createWindow("TaharezLook/MultiColumnList", "Editor/Catalogue/Tab/NPC/List"));
+  mcl->setSize(CEGUI::UVector2(CEGUI::UDim(0.9, 0), CEGUI::UDim(0.9, 0)));
+  mcl->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.05, 0)));
+  mcl->addColumn("ID", 0, CEGUI::UDim(0.19, 0));
+  mcl->addColumn("Name", 1, CEGUI::UDim(0.19, 0));
+  mcl->addColumn("Level", 2, CEGUI::UDim(0.19, 0));
+  mcl->addColumn("Female", 3, CEGUI::UDim(0.19, 0));
+  mcl->addColumn("Mesh", 4, CEGUI::UDim(0.19, 0));
+  mcl->setUserColumnDraggingEnabled(false);
+  pane->addChildWindow(mcl);
+  mcl->subscribeEvent(CEGUI::Window::EventMouseButtonUp, CEGUI::Event::Subscriber(&EditorApplicationNPC::NPCTabClicked, this));
+
+  //Sample data
+  // ---- no data yet, just refresh the list
+  refreshNPCList();
 }
 
 } //namespace

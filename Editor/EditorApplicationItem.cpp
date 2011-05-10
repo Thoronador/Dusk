@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Editor.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2011 thoronador
 
     The Dusk Editor is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ EditorApplicationItem::~EditorApplicationItem()
   //empty
 }
 
-void EditorApplicationItem::CreatePopupMenuItemTab(void)
+void EditorApplicationItem::createPopupMenuItemTab(void)
 {
   CEGUI::WindowManager &wmgr = CEGUI::WindowManager::getSingleton();
   //PopUp Menu for items' tab
@@ -701,7 +701,7 @@ bool EditorApplicationItem::ItemEditFrameSaveClicked(const CEGUI::EventArgs &e)
   ItemBase::getSingleton().addItem(std::string(id_edit->getText().c_str()),
                                    ir.Name, ir.value, ir.weight, ir.Mesh);
   //update list
-  RefreshItemList();
+  refreshItemList();
   //reference update
   ObjectManager::getSingleton().reenableReferencesOfObject(ID_of_item_to_edit, getAPI().getOgreSceneManager());
   //delete window
@@ -820,7 +820,7 @@ void EditorApplicationItem::showItemConfirmDeleteWindow(void)
   frame->moveToFront();
 }
 
-void EditorApplicationItem::RefreshItemList(void)
+void EditorApplicationItem::refreshItemList(void)
 {
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
   CEGUI::MultiColumnList* mcl = NULL;
@@ -868,6 +868,85 @@ void EditorApplicationItem::addItemRecordToCatalogue(const std::string& ID, cons
   lbi = new CEGUI::ListboxTextItem(ItemData.Mesh);
   lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
   mcl->setItem(lbi, 4, row);
+}
+
+void EditorApplicationItem::closeEditWindowsItem(void)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  //frame window for new items
+  if (winmgr.isWindowPresent("Editor/ItemNewFrame"))
+  {
+    winmgr.destroyWindow("Editor/ItemNewFrame");
+  }
+  //frame window for editing items
+  if (winmgr.isWindowPresent("Editor/ItemEditFrame"))
+  {
+    winmgr.destroyWindow("Editor/ItemEditFrame");
+  }
+  //frame for deleting items
+  if (winmgr.isWindowPresent("Editor/ItemDeleteFrame"))
+  {
+    winmgr.destroyWindow("Editor/ItemDeleteFrame");
+  }
+  //frame to change ID of items
+  if (winmgr.isWindowPresent("Editor/ConfirmItemIDChangeFrame"))
+  {
+    winmgr.destroyWindow("Editor/ConfirmItemIDChangeFrame");
+  }
+}
+
+void EditorApplicationItem::createItemCatalogueTab(CEGUI::WindowManager& winmgr, CEGUI::TabControl * tab)
+{
+  //Item tab
+  CEGUI::Window * pane = winmgr.createWindow("TaharezLook/TabContentPane", "Editor/Catalogue/Tab/Item");
+  pane->setSize(CEGUI::UVector2(CEGUI::UDim(1.0, 0), CEGUI::UDim(1.0, 0)));
+  pane->setPosition(CEGUI::UVector2(CEGUI::UDim(0.0, 0), CEGUI::UDim(0.0, 0)));
+  pane->setText("Items");
+  tab->addTab(pane);
+
+  CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.createWindow("TaharezLook/MultiColumnList", "Editor/Catalogue/Tab/Item/List"));
+  mcl->setSize(CEGUI::UVector2(CEGUI::UDim(0.9, 0), CEGUI::UDim(0.9, 0)));
+  mcl->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.05, 0)));
+  mcl->addColumn("ID", 0, CEGUI::UDim(0.19, 0));
+  mcl->addColumn("Name", 1, CEGUI::UDim(0.19, 0));
+  mcl->addColumn("Value", 2, CEGUI::UDim(0.19, 0));
+  mcl->addColumn("Weight", 3, CEGUI::UDim(0.19, 0));
+  mcl->addColumn("Mesh", 4, CEGUI::UDim(0.19, 0));
+  mcl->setUserColumnDraggingEnabled(false);
+  pane->addChildWindow(mcl);
+  mcl->subscribeEvent(CEGUI::Window::EventMouseButtonUp, CEGUI::Event::Subscriber(&EditorApplicationItem::ItemTabClicked, this));
+
+  //sample data
+  ItemRecord ir;
+  ir.Name = "Fresh Apple";
+  ir.value = 5;
+  ir.weight = 0.2;
+  ir.Mesh = "food/golden_delicious.mesh";
+  addItemRecordToCatalogue("apple", ir);
+  ItemBase::getSingleton().addItem("apple", ir);
+}
+
+bool EditorApplicationItem::ItemTabClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  CEGUI::PopupMenu * popup = static_cast<CEGUI::PopupMenu*> (winmgr.getWindow("Editor/Catalogue/ItemPopUp"));
+  if (!popup->isPopupMenuOpen())
+  {
+    const CEGUI::MouseEventArgs& mea = static_cast<const CEGUI::MouseEventArgs&> (e);
+    if (mea.button == CEGUI::RightButton)
+    {
+      const CEGUI::Rect mcl_rect = winmgr.getWindow("Editor/Catalogue/Tab/Item/List")->getPixelRect();
+      const float pu_x = (mea.position.d_x-mcl_rect.d_left)/mcl_rect.getWidth();
+      const float pu_y = (mea.position.d_y-mcl_rect.d_top)/mcl_rect.getHeight();
+      popup->setPosition(CEGUI::UVector2(CEGUI::UDim(pu_x, 0), CEGUI::UDim(pu_y, 0)));
+      popup->openPopupMenu();
+    }
+  }
+  else
+  {
+    popup->closePopupMenu();
+  }
+  return true;
 }
 
 } //namespace

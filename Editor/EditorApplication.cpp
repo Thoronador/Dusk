@@ -457,103 +457,17 @@ void EditorApplication::createCEGUICatalogue(void)
   tab->setPosition(CEGUI::UVector2(CEGUI::UDim(0.02, 0), CEGUI::UDim(0.05, 0)));
   catalogue->addChildWindow(tab);
 
-  CEGUI::Window* pane = winmgr.createWindow("TaharezLook/TabContentPane", "Editor/Catalogue/Tab/Object");
-  pane->setSize(CEGUI::UVector2(CEGUI::UDim(1.0, 0), CEGUI::UDim(1.0, 0)));
-  pane->setPosition(CEGUI::UVector2(CEGUI::UDim(0.0, 0), CEGUI::UDim(0.0, 0)));
-  pane->setText("Objects");
-  tab->addTab(pane);
-  //add the grid
-  CEGUI::MultiColumnList *mcl = NULL;
-  mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.createWindow("TaharezLook/MultiColumnList", "Editor/Catalogue/Tab/Object/List"));
-  mcl->setSize(CEGUI::UVector2(CEGUI::UDim(0.9, 0), CEGUI::UDim(0.9, 0)));
-  mcl->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.05, 0)));
-  mcl->addColumn("ID", 0, CEGUI::UDim(0.38, 0));
-  mcl->addColumn("Mesh", 1, CEGUI::UDim(0.38, 0));
-  mcl->addColumn("Collision", 2, CEGUI::UDim(0.2, 0));
-  mcl->setUserColumnDraggingEnabled(false);
-  pane->addChildWindow(mcl);
-  mcl->subscribeEvent(CEGUI::Window::EventMouseButtonUp, CEGUI::Event::Subscriber(&EditorApplication::ObjectTabClicked, this));
-
-  //add some random data
-  addObjectRecordToCatalogue("The_ID", "flora/Oak.mesh", false);
-  addObjectRecordToCatalogue("static_seat", "YetAnother.mesh", true);
+  //Object tab
+  createObjectCatalogueTab(winmgr, tab);
 
   //Item tab
-  pane = winmgr.createWindow("TaharezLook/TabContentPane", "Editor/Catalogue/Tab/Item");
-  pane->setSize(CEGUI::UVector2(CEGUI::UDim(1.0, 0), CEGUI::UDim(1.0, 0)));
-  pane->setPosition(CEGUI::UVector2(CEGUI::UDim(0.0, 0), CEGUI::UDim(0.0, 0)));
-  pane->setText("Items");
-  tab->addTab(pane);
-
-  mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.createWindow("TaharezLook/MultiColumnList", "Editor/Catalogue/Tab/Item/List"));
-  mcl->setSize(CEGUI::UVector2(CEGUI::UDim(0.9, 0), CEGUI::UDim(0.9, 0)));
-  mcl->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.05, 0)));
-  mcl->addColumn("ID", 0, CEGUI::UDim(0.19, 0));
-  mcl->addColumn("Name", 1, CEGUI::UDim(0.19, 0));
-  mcl->addColumn("Value", 2, CEGUI::UDim(0.19, 0));
-  mcl->addColumn("Weight", 3, CEGUI::UDim(0.19, 0));
-  mcl->addColumn("Mesh", 4, CEGUI::UDim(0.19, 0));
-  mcl->setUserColumnDraggingEnabled(false);
-  pane->addChildWindow(mcl);
-  mcl->subscribeEvent(CEGUI::Window::EventMouseButtonUp, CEGUI::Event::Subscriber(&EditorApplication::ItemTabClicked, this));
-
-  //sample data
-  ItemRecord ir;
-  ir.Name = "Fresh Apple";
-  ir.value = 5;
-  ir.weight = 0.2;
-  ir.Mesh = "food/golden_delicious.mesh";
-  addItemRecordToCatalogue("apple", ir);
-  ItemBase::getSingleton().addItem("apple", ir);
+  createItemCatalogueTab(winmgr, tab);
 
   //Light tab
-  pane = winmgr.createWindow("TaharezLook/TabContentPane", "Editor/Catalogue/Tab/Light");
-  pane->setSize(CEGUI::UVector2(CEGUI::UDim(1.0, 0), CEGUI::UDim(1.0, 0)));
-  pane->setPosition(CEGUI::UVector2(CEGUI::UDim(0.0, 0), CEGUI::UDim(0.0, 0)));
-  pane->setText("Lights");
-  tab->addTab(pane);
-
-  mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.createWindow("TaharezLook/MultiColumnList", "Editor/Catalogue/Tab/Light/List"));
-  mcl->setSize(CEGUI::UVector2(CEGUI::UDim(0.9, 0), CEGUI::UDim(0.9, 0)));
-  mcl->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.05, 0)));
-  mcl->addColumn("ID", 0, CEGUI::UDim(0.16, 0));
-  mcl->addColumn("Red", 1, CEGUI::UDim(0.16, 0));
-  mcl->addColumn("Green", 2, CEGUI::UDim(0.16, 0));
-  mcl->addColumn("Blue", 3, CEGUI::UDim(0.16, 0));
-  mcl->addColumn("Radius", 4, CEGUI::UDim(0.16, 0));
-  mcl->addColumn("Type", 5, CEGUI::UDim(0.16, 0));
-  mcl->setUserColumnDraggingEnabled(false);
-  pane->addChildWindow(mcl);
-  mcl->subscribeEvent(CEGUI::Window::EventMouseButtonUp, CEGUI::Event::Subscriber(&EditorApplication::LightTabClicked, this));
-
-  //sample data
-  LightBase::getSingleton().addLight("light_red", LightRecord::getRed(123.4));
-  LightBase::getSingleton().addLight("light_green", LightRecord::getGreen(23.4));
-  LightBase::getSingleton().addLight("light_blue", LightRecord::getBlue(3.4));
-  RefreshLightList();
+  createLightCatalogueTab(winmgr, tab);
 
   //NPC tab
-  pane = winmgr.createWindow("TaharezLook/TabContentPane", "Editor/Catalogue/Tab/NPC");
-  pane->setSize(CEGUI::UVector2(CEGUI::UDim(1.0, 0), CEGUI::UDim(1.0, 0)));
-  pane->setPosition(CEGUI::UVector2(CEGUI::UDim(0.0, 0), CEGUI::UDim(0.0, 0)));
-  pane->setText("NPCs");
-  tab->addTab(pane);
-
-  mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.createWindow("TaharezLook/MultiColumnList", "Editor/Catalogue/Tab/NPC/List"));
-  mcl->setSize(CEGUI::UVector2(CEGUI::UDim(0.9, 0), CEGUI::UDim(0.9, 0)));
-  mcl->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.05, 0)));
-  mcl->addColumn("ID", 0, CEGUI::UDim(0.19, 0));
-  mcl->addColumn("Name", 1, CEGUI::UDim(0.19, 0));
-  mcl->addColumn("Level", 2, CEGUI::UDim(0.19, 0));
-  mcl->addColumn("Female", 3, CEGUI::UDim(0.19, 0));
-  mcl->addColumn("Mesh", 4, CEGUI::UDim(0.19, 0));
-  mcl->setUserColumnDraggingEnabled(false);
-  pane->addChildWindow(mcl);
-  mcl->subscribeEvent(CEGUI::Window::EventMouseButtonUp, CEGUI::Event::Subscriber(&EditorApplication::NPCTabClicked, this));
-
-  //Sample data
-  // ---- no data yet, just refresh the list
-  RefreshNPCList();
+  createNPCCatalogueTab(winmgr, tab);
 
   //projectiles
   createProjectileCatalogueTab(winmgr, tab);
@@ -562,16 +476,16 @@ void EditorApplication::createCEGUICatalogue(void)
 void EditorApplication::createPopupMenus(void)
 {
   //PopUp Menu for static objects' tab
-  CreatePopupMenuObjectTab();
+  createPopupMenuObjectTab();
 
   //PopUp Menu for items' tab
-  CreatePopupMenuItemTab();
+  createPopupMenuItemTab();
 
   //PopUp Menu for lights' tab
-  CreatePopupMenuLightTab();
+  createPopupMenuLightTab();
 
   //PopUp Menu for NPCs' tab
-  CreatePopupMenuNPCTab();
+  createPopupMenuNPCTab();
 
   //PopUp Menu for Projectile's tab
   createPopupMenuProjectileTab();
@@ -804,11 +718,11 @@ bool EditorApplication::LoadFrameOKClicked(const CEGUI::EventArgs &e)
     CEGUI::WindowManager::getSingleton().destroyWindow("Editor/LoadFrame");
     // show data in grid
     // --- items
-    RefreshItemList();
+    refreshItemList();
     // --- objects
-    RefreshObjectList();
+    refreshObjectList();
     // --- lights
-    RefreshLightList();
+    refreshLightList();
 
     //  --- make loaded stuff visible via Ogre
     std::cout << "DEBUG: sendToEngine...\n";
@@ -817,85 +731,6 @@ bool EditorApplication::LoadFrameOKClicked(const CEGUI::EventArgs &e)
     ObjectManager::getSingleton().enableAllObjects(mSceneMgr);
     EditorCamera::getSingleton().resetToOrigin();
   }//else branch
-  return true;
-}
-
-bool EditorApplication::ObjectTabClicked(const CEGUI::EventArgs &e)
-{
-  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
-  //maybe we should provide checks here
-  CEGUI::PopupMenu * popup = static_cast<CEGUI::PopupMenu*> (winmgr.getWindow("Editor/Catalogue/ObjectPopUp"));
-  if (!popup->isPopupMenuOpen())
-  {
-    const CEGUI::MouseEventArgs& mea = static_cast<const CEGUI::MouseEventArgs&> (e);
-    std::cout << "Debug: MouseEvent data:\n"
-              << "  position: x: "<<mea.position.d_x<<"; y: "<<mea.position.d_y<<"\n"
-              << "  button: ";
-    switch (mea.button)
-    {
-      case CEGUI::LeftButton: std::cout << "left\n"; break;
-      case CEGUI::RightButton: std::cout << "right\n"; break;
-      default: std::cout << "other\n"; break;
-    }//swi
-    if (mea.button == CEGUI::RightButton)
-    {
-      const CEGUI::Rect mcl_rect = winmgr.getWindow("Editor/Catalogue/Tab/Object/List")->getPixelRect();
-      const float pu_x = (mea.position.d_x-mcl_rect.d_left)/mcl_rect.getWidth();
-      const float pu_y = (mea.position.d_y-mcl_rect.d_top)/mcl_rect.getHeight();
-      popup->setPosition(CEGUI::UVector2(CEGUI::UDim(pu_x, 0), CEGUI::UDim(pu_y, 0)));
-      popup->openPopupMenu();
-    }
-  }
-  else
-  {
-    popup->closePopupMenu();
-  }
-  return true;
-}
-
-bool EditorApplication::ItemTabClicked(const CEGUI::EventArgs &e)
-{
-  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
-  CEGUI::PopupMenu * popup = static_cast<CEGUI::PopupMenu*> (winmgr.getWindow("Editor/Catalogue/ItemPopUp"));
-  if (!popup->isPopupMenuOpen())
-  {
-    const CEGUI::MouseEventArgs& mea = static_cast<const CEGUI::MouseEventArgs&> (e);
-    if (mea.button == CEGUI::RightButton)
-    {
-      const CEGUI::Rect mcl_rect = winmgr.getWindow("Editor/Catalogue/Tab/Item/List")->getPixelRect();
-      const float pu_x = (mea.position.d_x-mcl_rect.d_left)/mcl_rect.getWidth();
-      const float pu_y = (mea.position.d_y-mcl_rect.d_top)/mcl_rect.getHeight();
-      popup->setPosition(CEGUI::UVector2(CEGUI::UDim(pu_x, 0), CEGUI::UDim(pu_y, 0)));
-      popup->openPopupMenu();
-    }
-  }
-  else
-  {
-    popup->closePopupMenu();
-  }
-  return true;
-}
-
-bool EditorApplication::LightTabClicked(const CEGUI::EventArgs &e)
-{
-  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
-  CEGUI::PopupMenu * popup = static_cast<CEGUI::PopupMenu*> (winmgr.getWindow("Editor/Catalogue/LightPopUp"));
-  if (!popup->isPopupMenuOpen())
-  {
-    const CEGUI::MouseEventArgs& mea = static_cast<const CEGUI::MouseEventArgs&> (e);
-    if (mea.button == CEGUI::RightButton)
-    {
-      const CEGUI::Rect mcl_rect = winmgr.getWindow("Editor/Catalogue/Tab/Light/List")->getPixelRect();
-      const float pu_x = (mea.position.d_x-mcl_rect.d_left)/mcl_rect.getWidth();
-      const float pu_y = (mea.position.d_y-mcl_rect.d_top)/mcl_rect.getHeight();
-      popup->setPosition(CEGUI::UVector2(CEGUI::UDim(pu_x, 0), CEGUI::UDim(pu_y, 0)));
-      popup->openPopupMenu();
-    }
-  }
-  else
-  {
-    popup->closePopupMenu();
-  }
   return true;
 }
 
@@ -942,46 +777,6 @@ bool EditorApplication::ModeListClicked(const CEGUI::EventArgs &e)
 void EditorApplication::closeAllEditWindows(void)
 {
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
-  //frame window for new lights
-  if (winmgr.isWindowPresent("Editor/LightNewFrame"))
-  {
-    winmgr.destroyWindow("Editor/LightNewFrame");
-  }
-  //frame window for new items
-  if (winmgr.isWindowPresent("Editor/ItemNewFrame"))
-  {
-    winmgr.destroyWindow("Editor/ItemNewFrame");
-  }
-  //frame window for editing lights
-  if (winmgr.isWindowPresent("Editor/LightEditFrame"))
-  {
-    winmgr.destroyWindow("Editor/LightEditFrame");
-  }
-  //frame window for editing items
-  if (winmgr.isWindowPresent("Editor/ItemEditFrame"))
-  {
-    winmgr.destroyWindow("Editor/ItemEditFrame");
-  }
-  //frame for deleting items
-  if (winmgr.isWindowPresent("Editor/ItemDeleteFrame"))
-  {
-    winmgr.destroyWindow("Editor/ItemDeleteFrame");
-  }
-  //frame for deleting Lights
-  if (winmgr.isWindowPresent("Editor/LightDeleteFrame"))
-  {
-    winmgr.destroyWindow("Editor/LightDeleteFrame");
-  }
-  //frame to change ID of items
-  if (winmgr.isWindowPresent("Editor/ConfirmItemIDChangeFrame"))
-  {
-    winmgr.destroyWindow("Editor/ConfirmItemIDChangeFrame");
-  }
-  //frame to change ID of lights
-  if (winmgr.isWindowPresent("Editor/ConfirmLightIDChangeFrame"))
-  {
-    winmgr.destroyWindow("Editor/ConfirmLightIDChangeFrame");
-  }
   //frame for editing object references
   if (winmgr.isWindowPresent("Editor/ObjectReference"))
   {
@@ -1015,6 +810,10 @@ void EditorApplication::closeAllEditWindows(void)
   }
   //frames for Objects
   closeEditWindowsObject();
+  //frames for Lights
+  closeEditWindowsLight();
+  //frames for items
+  closeEditWindowsItem();
   //frames for NPCs
   closeEditWindowsNPC();
   //frames for projectiles
@@ -2038,29 +1837,6 @@ bool EditorApplication::WireframeToggleClicked(const CEGUI::EventArgs &e)
   if (winevent.window!=NULL)
   {
      mFrameListener->setWireFrame(winevent.window->getName()=="Editor/MenuBar/Extra/PopUp/WireFrame");
-  }
-  return true;
-}
-
-bool EditorApplication::NPCTabClicked(const CEGUI::EventArgs &e)
-{
-  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
-  CEGUI::PopupMenu * popup = static_cast<CEGUI::PopupMenu*> (winmgr.getWindow("Editor/Catalogue/NPCPopUp"));
-  if (!popup->isPopupMenuOpen())
-  {
-    const CEGUI::MouseEventArgs& mea = static_cast<const CEGUI::MouseEventArgs&> (e);
-    if (mea.button == CEGUI::RightButton)
-    {
-      const CEGUI::Rect mcl_rect = winmgr.getWindow("Editor/Catalogue/Tab/NPC/List")->getPixelRect();
-      const float pu_x = (mea.position.d_x-mcl_rect.d_left)/mcl_rect.getWidth();
-      const float pu_y = (mea.position.d_y-mcl_rect.d_top)/mcl_rect.getHeight();
-      popup->setPosition(CEGUI::UVector2(CEGUI::UDim(pu_x, 0), CEGUI::UDim(pu_y, 0)));
-      popup->openPopupMenu();
-    }
-  }
-  else
-  {
-    popup->closePopupMenu();
   }
   return true;
 }

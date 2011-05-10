@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Editor.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2011 thoronador
 
     The Dusk Editor is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -84,7 +84,7 @@ void EditorApplicationLight::addLightRecordToCatalogue(const std::string& ID, co
   mcl->setItem(lbi, 5, row);
 }
 
-void EditorApplicationLight::RefreshLightList(void)
+void EditorApplicationLight::refreshLightList(void)
 {
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
   CEGUI::MultiColumnList* mcl = NULL;
@@ -108,7 +108,7 @@ void EditorApplicationLight::RefreshLightList(void)
   return;
 }
 
-void EditorApplicationLight::CreatePopupMenuLightTab(void)
+void EditorApplicationLight::createPopupMenuLightTab(void)
 {
   CEGUI::WindowManager &wmgr = CEGUI::WindowManager::getSingleton();
   //PopUp Menu for lights' tab
@@ -816,7 +816,7 @@ bool EditorApplicationLight::LightEditFrameSaveClicked(const CEGUI::EventArgs &e
   //save it
   LightBase::getSingleton().addLight(ID_of_light_to_edit, lr);
   //update list
-  RefreshLightList();
+  refreshLightList();
   //reference update
   unsigned int ref_count =
   ObjectManager::getSingleton().reenableReferencesOfObject(ID_of_light_to_edit, getAPI().getOgreSceneManager()/* mSceneMgr*/);
@@ -959,6 +959,83 @@ bool EditorApplicationLight::LightConfirmIDChangeCancelClicked(const CEGUI::Even
   if (winmgr.isWindowPresent("Editor/ConfirmLightIDChangeFrame"))
   {
     winmgr.destroyWindow("Editor/ConfirmLightIDChangeFrame");
+  }
+  return true;
+}
+
+void EditorApplicationLight::closeEditWindowsLight(void)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  //frame window for new lights
+  if (winmgr.isWindowPresent("Editor/LightNewFrame"))
+  {
+    winmgr.destroyWindow("Editor/LightNewFrame");
+  }
+  //frame window for editing lights
+  if (winmgr.isWindowPresent("Editor/LightEditFrame"))
+  {
+    winmgr.destroyWindow("Editor/LightEditFrame");
+  }
+  //frame for deleting Lights
+  if (winmgr.isWindowPresent("Editor/LightDeleteFrame"))
+  {
+    winmgr.destroyWindow("Editor/LightDeleteFrame");
+  }
+  //frame to change ID of lights
+  if (winmgr.isWindowPresent("Editor/ConfirmLightIDChangeFrame"))
+  {
+    winmgr.destroyWindow("Editor/ConfirmLightIDChangeFrame");
+  }
+}
+
+void EditorApplicationLight::createLightCatalogueTab(CEGUI::WindowManager& winmgr, CEGUI::TabControl * tab)
+{
+  //Light tab
+  CEGUI::Window* pane = winmgr.createWindow("TaharezLook/TabContentPane", "Editor/Catalogue/Tab/Light");
+  pane->setSize(CEGUI::UVector2(CEGUI::UDim(1.0, 0), CEGUI::UDim(1.0, 0)));
+  pane->setPosition(CEGUI::UVector2(CEGUI::UDim(0.0, 0), CEGUI::UDim(0.0, 0)));
+  pane->setText("Lights");
+  tab->addTab(pane);
+
+  CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.createWindow("TaharezLook/MultiColumnList", "Editor/Catalogue/Tab/Light/List"));
+  mcl->setSize(CEGUI::UVector2(CEGUI::UDim(0.9, 0), CEGUI::UDim(0.9, 0)));
+  mcl->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.05, 0)));
+  mcl->addColumn("ID", 0, CEGUI::UDim(0.16, 0));
+  mcl->addColumn("Red", 1, CEGUI::UDim(0.16, 0));
+  mcl->addColumn("Green", 2, CEGUI::UDim(0.16, 0));
+  mcl->addColumn("Blue", 3, CEGUI::UDim(0.16, 0));
+  mcl->addColumn("Radius", 4, CEGUI::UDim(0.16, 0));
+  mcl->addColumn("Type", 5, CEGUI::UDim(0.16, 0));
+  mcl->setUserColumnDraggingEnabled(false);
+  pane->addChildWindow(mcl);
+  mcl->subscribeEvent(CEGUI::Window::EventMouseButtonUp, CEGUI::Event::Subscriber(&EditorApplicationLight::LightTabClicked, this));
+
+  //sample data
+  LightBase::getSingleton().addLight("light_red", LightRecord::getRed(123.4));
+  LightBase::getSingleton().addLight("light_green", LightRecord::getGreen(23.4));
+  LightBase::getSingleton().addLight("light_blue", LightRecord::getBlue(3.4));
+  refreshLightList();
+}
+
+bool EditorApplicationLight::LightTabClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  CEGUI::PopupMenu * popup = static_cast<CEGUI::PopupMenu*> (winmgr.getWindow("Editor/Catalogue/LightPopUp"));
+  if (!popup->isPopupMenuOpen())
+  {
+    const CEGUI::MouseEventArgs& mea = static_cast<const CEGUI::MouseEventArgs&> (e);
+    if (mea.button == CEGUI::RightButton)
+    {
+      const CEGUI::Rect mcl_rect = winmgr.getWindow("Editor/Catalogue/Tab/Light/List")->getPixelRect();
+      const float pu_x = (mea.position.d_x-mcl_rect.d_left)/mcl_rect.getWidth();
+      const float pu_y = (mea.position.d_y-mcl_rect.d_top)/mcl_rect.getHeight();
+      popup->setPosition(CEGUI::UVector2(CEGUI::UDim(pu_x, 0), CEGUI::UDim(pu_y, 0)));
+      popup->openPopupMenu();
+    }
+  }
+  else
+  {
+    popup->closePopupMenu();
   }
   return true;
 }

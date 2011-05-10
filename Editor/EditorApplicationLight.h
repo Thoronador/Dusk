@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Editor.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2011 thoronador
 
     The Dusk Editor is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -28,6 +28,10 @@
 
  History:
      - 2010-04-28 (rev 192)  - initial version (by thoronador)
+     - 2010-08-31 (rev 239)  - naming convention enforced
+     - 2011-05-10 (rev 285)  - closeEditWindowsLight(), createLightCatalogueTab()
+                               and LightTabClicked() added (moved code from
+                               EditorApplication)
 
  ToDo list:
      - ???
@@ -63,8 +67,17 @@ class EditorApplicationLight
       (real data is not effected, methods only show new row in catalogue) */
     void addLightRecordToCatalogue(const std::string& ID, const LightRecord& Record);
 
+    /* creates the cataloge tab for lights
+
+       parameters:
+           winmgr - the window manager (for convenience)
+           tab    - the basic catalogue tab control
+    */
+    void createLightCatalogueTab(CEGUI::WindowManager& winmgr, CEGUI::TabControl * tab);
+    //callback for clicking light catalogue tab
+    bool LightTabClicked(const CEGUI::EventArgs &e);
     //create the popup menu for the Light tab
-    void CreatePopupMenuLightTab(void);
+    void createPopupMenuLightTab(void);
     //callbacks for popup menu
     bool LightNewClicked(const CEGUI::EventArgs &e);
 	bool LightEditClicked(const CEGUI::EventArgs &e);
@@ -90,8 +103,13 @@ class EditorApplicationLight
 	bool LightConfirmIDChangeNewClicked(const CEGUI::EventArgs &e);
 	bool LightConfirmIDChangeCancelClicked(const CEGUI::EventArgs &e);
 
+	/* destroys all windows that might currently be open, because they were
+       created by this class
+    */
+    void closeEditWindowsLight(void);
+
     /* clears light list in catalogue and redisplays every present light */
-    void RefreshLightList(void);
+    void refreshLightList(void);
 }; //class
 
 } //namespace

@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Editor.
-    Copyright (C) 2009, 2010 thoronador
+    Copyright (C) 2009, 2010, 2011 thoronador
 
     The Dusk Editor is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ EditorApplicationObject::~EditorApplicationObject()
   //empty
 }
 
-void EditorApplicationObject::CreatePopupMenuObjectTab(void)
+void EditorApplicationObject::createPopupMenuObjectTab(void)
 {
   CEGUI::WindowManager &wmgr = CEGUI::WindowManager::getSingleton();
   //PopUp Menu for static objects' tab
@@ -93,7 +93,7 @@ void EditorApplicationObject::closeEditWindowsObject(void)
   ID_of_object_to_edit = "";
 }
 
-void EditorApplicationObject::RefreshObjectList(void)
+void EditorApplicationObject::refreshObjectList(void)
 {
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
   CEGUI::MultiColumnList* mcl = NULL;
@@ -710,7 +710,7 @@ bool EditorApplicationObject::ObjectEditFrameSaveClicked(const CEGUI::EventArgs 
   //save it
   ObjectBase::getSingleton().addObject(id_edit_str, mesh_edit_str, collision_flag);
   //update list
-  RefreshObjectList();
+  refreshObjectList();
   //update shown objects
   ObjectManager::getSingleton().reenableReferencesOfObject(ID_of_object_to_edit, getAPI().getOgreSceneManager()/*mSceneMgr*/);
   //delete window
@@ -768,6 +768,64 @@ bool EditorApplicationObject::ObjectDeleteFrameYesClicked(const CEGUI::EventArgs
   ID_of_object_to_delete = "";
   //delete window
   CEGUI::WindowManager::getSingleton().destroyWindow("Editor/ObjectDeleteFrame");
+  return true;
+}
+
+void EditorApplicationObject::createObjectCatalogueTab(CEGUI::WindowManager& winmgr, CEGUI::TabControl * tab)
+{
+  //Object tab
+  CEGUI::Window* pane = winmgr.createWindow("TaharezLook/TabContentPane", "Editor/Catalogue/Tab/Object");
+  pane->setSize(CEGUI::UVector2(CEGUI::UDim(1.0, 0), CEGUI::UDim(1.0, 0)));
+  pane->setPosition(CEGUI::UVector2(CEGUI::UDim(0.0, 0), CEGUI::UDim(0.0, 0)));
+  pane->setText("Objects");
+  tab->addTab(pane);
+  //add the grid
+  CEGUI::MultiColumnList *mcl = NULL;
+  mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.createWindow("TaharezLook/MultiColumnList", "Editor/Catalogue/Tab/Object/List"));
+  mcl->setSize(CEGUI::UVector2(CEGUI::UDim(0.9, 0), CEGUI::UDim(0.9, 0)));
+  mcl->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.05, 0)));
+  mcl->addColumn("ID", 0, CEGUI::UDim(0.38, 0));
+  mcl->addColumn("Mesh", 1, CEGUI::UDim(0.38, 0));
+  mcl->addColumn("Collision", 2, CEGUI::UDim(0.2, 0));
+  mcl->setUserColumnDraggingEnabled(false);
+  pane->addChildWindow(mcl);
+  mcl->subscribeEvent(CEGUI::Window::EventMouseButtonUp, CEGUI::Event::Subscriber(&EditorApplicationObject::ObjectTabClicked, this));
+
+  //add some random data
+  addObjectRecordToCatalogue("The_ID", "flora/Oak.mesh", false);
+  addObjectRecordToCatalogue("static_seat", "YetAnother.mesh", true);
+}
+
+bool EditorApplicationObject::ObjectTabClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  //maybe we should provide checks here
+  CEGUI::PopupMenu * popup = static_cast<CEGUI::PopupMenu*> (winmgr.getWindow("Editor/Catalogue/ObjectPopUp"));
+  if (!popup->isPopupMenuOpen())
+  {
+    const CEGUI::MouseEventArgs& mea = static_cast<const CEGUI::MouseEventArgs&> (e);
+    std::cout << "Debug: MouseEvent data:\n"
+              << "  position: x: "<<mea.position.d_x<<"; y: "<<mea.position.d_y<<"\n"
+              << "  button: ";
+    switch (mea.button)
+    {
+      case CEGUI::LeftButton: std::cout << "left\n"; break;
+      case CEGUI::RightButton: std::cout << "right\n"; break;
+      default: std::cout << "other\n"; break;
+    }//swi
+    if (mea.button == CEGUI::RightButton)
+    {
+      const CEGUI::Rect mcl_rect = winmgr.getWindow("Editor/Catalogue/Tab/Object/List")->getPixelRect();
+      const float pu_x = (mea.position.d_x-mcl_rect.d_left)/mcl_rect.getWidth();
+      const float pu_y = (mea.position.d_y-mcl_rect.d_top)/mcl_rect.getHeight();
+      popup->setPosition(CEGUI::UVector2(CEGUI::UDim(pu_x, 0), CEGUI::UDim(pu_y, 0)));
+      popup->openPopupMenu();
+    }
+  }
+  else
+  {
+    popup->closePopupMenu();
+  }
   return true;
 }
 

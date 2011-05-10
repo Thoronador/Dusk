@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Editor.
-    Copyright (C) 2009, 2010 thoronador
+    Copyright (C) 2009, 2010, 2011 thoronador
 
     The Dusk Editor is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -36,6 +36,8 @@
      - 2010-11-27 (rev 261)  - closeEditWindowsObject() added
                              - collision flag of objects can now be set and is
                                displayed in catalogue, too
+     - 2011-05-10 (rev 285)  - createObjectCatalogueTab() and ObjectTabClicked()
+                               added (moved code from EditorApplication)
 
  ToDo list:
      - ???
@@ -66,7 +68,17 @@ class EditorApplicationObject
     //id for editing
     std::string ID_of_object_to_edit;
 
-    void CreatePopupMenuObjectTab(void);
+    /* creates the cataloge tab for objects
+
+       parameters:
+           winmgr - the window manager (for convenience)
+           tab    - the basic catalogue tab control
+    */
+    void createObjectCatalogueTab(CEGUI::WindowManager& winmgr, CEGUI::TabControl * tab);
+    //callback for clicking on object tab
+    bool ObjectTabClicked(const CEGUI::EventArgs &e);
+    //creates the popup menu on the object tab
+    void createPopupMenuObjectTab(void);
     //callbacks for popup menues
     bool ObjectNewClicked(const CEGUI::EventArgs &e);
 	bool ObjectEditClicked(const CEGUI::EventArgs &e);
@@ -79,7 +91,7 @@ class EditorApplicationObject
     void closeEditWindowsObject(void);
 
     /* clears object list in catalogue and redisplays every present object */
-    void RefreshObjectList(void);
+    void refreshObjectList(void);
 
     //windows for creating/ editing objects
 	void showObjectNewWindow(void);

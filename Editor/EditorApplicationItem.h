@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Editor.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2011 thoronador
 
     The Dusk Editor is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,6 +30,9 @@
      - 2010-04-30 (rev 193)  - initial version (by thoronador)
      - 2010-08-31 (rev 239)  - naming convention enforced
      - 2010-11-22 (rev 259)  - item references are now handled, too
+     - 2011-05-10 (rev 285)  - closeEditWindowsItem(), createItemCatalogueTab()
+                               and ItemTabClicked() added (moved code from
+                               EditorApplication)
 
  ToDo list:
      - ???
@@ -60,8 +63,18 @@ class EditorApplicationItem
     std::string ID_of_item_to_delete;
     //ID for editing
     std::string ID_of_item_to_edit;
+
+    /* creates the cataloge tab for items
+
+       parameters:
+           winmgr - the window manager (for convenience)
+           tab    - the basic catalogue tab control
+    */
+    void createItemCatalogueTab(CEGUI::WindowManager& winmgr, CEGUI::TabControl * tab);
+    //callback for clicking on tab
+    bool ItemTabClicked(const CEGUI::EventArgs &e);
     //create the popup menu for the Item tab
-    void CreatePopupMenuItemTab(void);
+    void createPopupMenuItemTab(void);
     //callbacks for popup menue
     bool ItemNewClicked(const CEGUI::EventArgs &e);
     bool ItemEditClicked(const CEGUI::EventArgs &e);
@@ -91,8 +104,13 @@ class EditorApplicationItem
 	bool ItemConfirmIDChangeNewClicked(const CEGUI::EventArgs &e);
 	bool ItemConfirmIDChangeCancelClicked(const CEGUI::EventArgs &e);
 
+	/* destroys all windows that might currently be open, because they were
+       created by this class
+    */
+    void closeEditWindowsItem(void);
+
     /* clears item list in catalogue and redisplays every present item */
-	void RefreshItemList(void);
+	void refreshItemList(void);
 }; //class
 
 } //namespace

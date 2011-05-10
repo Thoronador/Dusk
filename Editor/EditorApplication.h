@@ -165,10 +165,6 @@ protected:
 	//callbacks for buttons
 	bool LoadFrameCancelClicked(const CEGUI::EventArgs &e);
 	bool LoadFrameOKClicked(const CEGUI::EventArgs &e);
-	bool ObjectTabClicked(const CEGUI::EventArgs &e);
-	bool ItemTabClicked(const CEGUI::EventArgs &e);
-	bool LightTabClicked(const CEGUI::EventArgs &e);
-	bool NPCTabClicked(const CEGUI::EventArgs &e);
 
 	//callbacks for window clicks / to implement object dragging
 	bool RootMouseDown(const CEGUI::EventArgs &e);
