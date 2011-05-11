@@ -121,7 +121,7 @@ void NPCBase::clearAllNPCs()
   m_NPCList.clear();
 }
 
-unsigned int NPCBase::numberOfNPCs() const
+unsigned int NPCBase::getNumberOfNPCs() const
 {
   return m_NPCList.size();
 }
@@ -636,12 +636,12 @@ bool NPCBase::loadNextRecordFromStream(std::ifstream& input)
 }
 
 #ifdef DUSK_EDITOR
-NPCBaseIterator NPCBase::getFirst() const
+NPCBase::Iterator NPCBase::getFirst() const
 {
   return m_NPCList.begin();
 }
 
-NPCBaseIterator NPCBase::getEnd() const
+NPCBase::Iterator NPCBase::getEnd() const
 {
   return m_NPCList.end();
 }

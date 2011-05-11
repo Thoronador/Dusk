@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010 thoronador
+    Copyright (C) 2009, 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -76,7 +76,7 @@ void ObjectBase::clearAllObjects()
   m_ObjectList.clear();
 }
 
-unsigned int ObjectBase::numberOfObjects() const
+unsigned int ObjectBase::getNumberOfObjects() const
 {
   return m_ObjectList.size();
 }
@@ -203,14 +203,16 @@ bool ObjectBase::loadFromStream(std::ifstream& Stream)
   return true;
 }
 
-std::map<std::string, ObjectRecord>::const_iterator ObjectBase::getFirst() const
+#ifdef DUSK_EDITOR
+ObjectBase::Iterator ObjectBase::getFirst() const
 {
   return m_ObjectList.begin();
 }
 
-std::map<std::string, ObjectRecord>::const_iterator ObjectBase::getEnd() const
+ObjectBase::Iterator ObjectBase::getEnd() const
 {
   return m_ObjectList.end();
 }
+#endif
 
 }//namespace

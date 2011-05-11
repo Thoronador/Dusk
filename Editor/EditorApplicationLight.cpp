@@ -87,19 +87,16 @@ void EditorApplicationLight::addLightRecordToCatalogue(const std::string& ID, co
 void EditorApplicationLight::refreshLightList(void)
 {
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
-  CEGUI::MultiColumnList* mcl = NULL;
   if (!winmgr.isWindowPresent("Editor/Catalogue/Tab/Light/List"))
   {
     showWarning("ERROR: Could not find light list window in CEGUI Window Manager!");
     return;
   }
-  mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/Catalogue/Tab/Light/List"));
+  CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/Catalogue/Tab/Light/List"));
   mcl->resetList();
 
-  std::map<std::string, LightRecord>::const_iterator first;
-  std::map<std::string, LightRecord>::const_iterator end;
-  first = LightBase::getSingleton().getFirst();
-  end = LightBase::getSingleton().getEnd();
+  LightBase::Iterator first = LightBase::getSingleton().getFirst();
+  const LightBase::Iterator end = LightBase::getSingleton().getEnd();
   while (first != end)
   {
     addLightRecordToCatalogue(first->first, first->second);

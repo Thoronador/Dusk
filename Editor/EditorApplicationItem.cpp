@@ -823,18 +823,16 @@ void EditorApplicationItem::showItemConfirmDeleteWindow(void)
 void EditorApplicationItem::refreshItemList(void)
 {
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
-  CEGUI::MultiColumnList* mcl = NULL;
   if (!winmgr.isWindowPresent("Editor/Catalogue/Tab/Item/List"))
   {
     showWarning("ERROR: Could not find item list window in Window Manager!");
     return;
   }
-  mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/Catalogue/Tab/Item/List"));
+  CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/Catalogue/Tab/Item/List"));
   mcl->resetList();
 
-  std::map<std::string, ItemRecord>::const_iterator first;
-  first = ItemBase::getSingleton().getFirst();
-  const std::map<std::string, ItemRecord>::const_iterator end = ItemBase::getSingleton().getEnd();
+  ItemBase::Iterator first = ItemBase::getSingleton().getFirst();
+  const ItemBase::Iterator end = ItemBase::getSingleton().getEnd();
   while (first != end)
   {
     addItemRecordToCatalogue(first->first, first->second);

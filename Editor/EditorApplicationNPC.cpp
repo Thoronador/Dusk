@@ -53,9 +53,8 @@ void EditorApplicationNPC::refreshNPCList(void)
   mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/Catalogue/Tab/NPC/List"));
   mcl->resetList();
 
-  std::map<std::string, NPCRecord>::const_iterator first;
-  first = NPCBase::getSingleton().getFirst();
-  const std::map<std::string, NPCRecord>::const_iterator end = NPCBase::getSingleton().getEnd();
+  NPCBase::Iterator first = NPCBase::getSingleton().getFirst();
+  const NPCBase::Iterator end = NPCBase::getSingleton().getEnd();
   while (first != end)
   {
     addNPCRecordToCatalogue(first->first, first->second);
@@ -820,8 +819,8 @@ void EditorApplicationNPC::updateItemList(CEGUI::Combobox* combo)
   {
     combo->resetList();
     CEGUI::ListboxItem* lbi = NULL;
-    std::map<std::string, ItemRecord>::const_iterator itemFirst = ItemBase::getSingleton().getFirst();
-    const std::map<std::string, ItemRecord>::const_iterator itemEnd = ItemBase::getSingleton().getEnd();
+    ItemBase::Iterator itemFirst = ItemBase::getSingleton().getFirst();
+    const ItemBase::Iterator itemEnd = ItemBase::getSingleton().getEnd();
     while (itemFirst!=itemEnd)
     {
       lbi = new CEGUI::ListboxTextItem(itemFirst->first);

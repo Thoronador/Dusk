@@ -38,6 +38,7 @@
                             - documentation updated
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-12-04 (rev 267) - use DuskLog/Messages class for logging
+     - 2011-05-11 (rev 287) - iterator type for getFirst() and getEnd() added
 
  ToDo list:
      - ???
@@ -56,6 +57,7 @@
 
 namespace Dusk
 {
+  //structure that can hold the data of one item
   struct ItemRecord
   {
     std::string Name;
@@ -65,7 +67,6 @@ namespace Dusk
   };
 
   const ItemRecord cEmptyItemRecord = { "", 0, 0.0, ""};
-
 
   /* class ItemBase
            This class' purpose is to hold the IDs of all distinct items in the
@@ -90,6 +91,11 @@ namespace Dusk
   class ItemBase
   {
     public:
+      #ifdef DUSK_EDITOR
+      //iterator type for iterating through the items
+      typedef std::map<std::string, ItemRecord>::const_iterator Iterator;
+      #endif
+
       /* destructor */
       virtual ~ItemBase();
 
@@ -139,7 +145,7 @@ namespace Dusk
       void clearAllItems();
 
       /* returns the number of distinct items which are currently present */
-      unsigned int numberOfItems() const;
+      unsigned int getNumberOfItems() const;
 
       /* returns the name of the given item, or an empty string if no such item
          is present
@@ -193,17 +199,21 @@ namespace Dusk
       */
       bool loadFromStream(std::ifstream& Stream);
 
+      #ifdef DUSK_EDITOR
       /* helper functions to access internal map iterators - not used in-game,
          only used by Editor application.
       */
-      std::map<std::string, ItemRecord>::const_iterator getFirst() const;
-      std::map<std::string, ItemRecord>::const_iterator getEnd() const;
+      Iterator getFirst() const;
+      Iterator getEnd() const;
+      #endif
     private:
       /* constructor */
       ItemBase();
 
       /* empty copy constructor - we follow the singleton passtern */
       ItemBase(const ItemBase& op){}
+
+      //item list
       std::map<std::string, ItemRecord> m_ItemList;
   };//class
 

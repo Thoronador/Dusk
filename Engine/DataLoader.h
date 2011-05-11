@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010 thoronador
+    Copyright (C) 2009, 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -54,6 +54,8 @@
      - 2010-11-13 (rev 254) - update due to renaming of some functions in
                               Landscape class
      - 2010-12-01 (rev 265) - use DuskLog/Messages class for logging
+     - 2011-05-11 (rev 287) - update to to renaming of some functions in other
+                              singleton classes
 
  ToDo list:
      - extend class when further classes for data management are added

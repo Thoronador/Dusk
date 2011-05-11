@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010 thoronador
+    Copyright (C) 2009, 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-11-21 (rev 257) - minor optimization
      - 2010-12-03 (rev 266) - use DuskLog/Messages class for logging
+     - 2011-05-11 (rev 287) - iterator type for getFirst() and getEnd() added
 
  ToDo list:
      - ???
@@ -112,6 +113,11 @@ namespace Dusk
   class LightBase
   {
     public:
+      #ifdef DUSK_EDITOR
+      //iterator type for iterating through the lights
+      typedef std::map<std::string, LightRecord>::const_iterator Iterator;
+      #endif
+
       /* destructor */
       virtual ~LightBase();
 
@@ -174,7 +180,7 @@ namespace Dusk
       void clearAllData();
 
       /* returns the number of distinct light records */
-      unsigned int numberOfLights() const;
+      unsigned int getNumberOfLights() const;
 
       /* tries to save all light records to the given stream. Returns true, if
          the operation was successful, and false if it failed.
@@ -192,11 +198,13 @@ namespace Dusk
       */
       bool loadRecordFromStream(std::ifstream& in_stream);
 
+      #ifdef DUSK_EDITOR
       /* utility functions to access internal map iterators - not used in-game,
          only used by Editor application.
       */
-      std::map<std::string, LightRecord>::const_iterator getFirst() const;
-      std::map<std::string, LightRecord>::const_iterator getEnd() const;
+      Iterator getFirst() const;
+      Iterator getEnd() const;
+      #endif
     private:
       /* private constructor (singleton pattern) */
       LightBase();

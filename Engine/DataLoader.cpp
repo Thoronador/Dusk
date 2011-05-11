@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010 thoronador
+    Copyright (C) 2009, 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -88,7 +88,7 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
   }
   if ((bits & ITEM_BIT) !=0)
   {
-    data_records += ItemBase::getSingleton().numberOfItems();
+    data_records += ItemBase::getSingleton().getNumberOfItems();
   }
   if ((bits & JOURNAL_BIT) !=0)
   {
@@ -100,15 +100,15 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
   }
   if ((bits & LIGHT_BIT) !=0)
   {
-    data_records += LightBase::getSingleton().numberOfLights();
+    data_records += LightBase::getSingleton().getNumberOfLights();
   }
   if ((bits & NPC_BIT) !=0)
   {
-    data_records += NPCBase::getSingleton().numberOfNPCs();
+    data_records += NPCBase::getSingleton().getNumberOfNPCs();
   }
   if ((bits & OBJECT_BIT) !=0)
   {
-    data_records += ObjectBase::getSingleton().numberOfObjects();
+    data_records += ObjectBase::getSingleton().getNumberOfObjects();
   }
   if ((bits & PROJECTILE_BIT) !=0)
   {
@@ -120,7 +120,7 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
   }
   if ((bits & REFERENCE_BIT) !=0)
   {
-    data_records += ObjectManager::getSingleton().numberOfReferences();
+    data_records += ObjectManager::getSingleton().getNumberOfReferences();
   }
   if ((bits & VEHICLE_BIT) !=0)
   {
@@ -128,7 +128,7 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
   }
   if ((bits & WEAPON_BIT) !=0)
   {
-    data_records += WeaponBase::getSingleton().numberOfWeapons();
+    data_records += WeaponBase::getSingleton().getNumberOfWeapons();
   }
   //write number of records
   output.write((char*) &data_records, sizeof(unsigned int));
@@ -701,7 +701,7 @@ bool DataLoader::saveGame(const std::string& FileName) const
   //write header "Dusk"
   output.write((char*) &cHeaderDusk, sizeof(unsigned int));
   //determine and write number of records
-  unsigned int data_records = 1 /*QuestLog*/ + ObjectManager::getSingleton().numberOfReferences()
+  unsigned int data_records = 1 /*QuestLog*/ + ObjectManager::getSingleton().getNumberOfReferences()
                               + InjectionManager::getSingleton().getNumberOfReferences();
   output.write((char*) &data_records, sizeof(unsigned int));
   //write headers to identify file as save game

@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010 thoronador
+    Copyright (C) 2009, 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -39,6 +39,8 @@
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-11-26 (rev 260) - value for collision detection added
      - 2010-12-03 (rev 266) - use DuskLog/Messages class for logging
+     - 2011-05-11 (rev 287) - renamed numberOfObjects() to getNumberOfObjects()
+                            - iterator type for getFirst() and getEnd()
 
  ToDo list:
      - ???
@@ -85,6 +87,11 @@ namespace Dusk
   class ObjectBase
   {
     public:
+      #ifdef DUSK_EDITOR
+      //iterator type for iterating through objects
+      typedef std::map<std::string, ObjectRecord>::const_iterator Iterator;
+      #endif
+
       /* destructor */
       virtual ~ObjectBase();
 
@@ -118,7 +125,7 @@ namespace Dusk
       void clearAllObjects();
 
       /* returns the number of objects which are currently present */
-      unsigned int numberOfObjects() const;
+      unsigned int getNumberOfObjects() const;
 
       /* returns the mesh path of the given object, or an empty string, if no
           object with that ID is present. However, if UseMarkerOnError is set
@@ -146,11 +153,13 @@ namespace Dusk
       */
       bool loadFromStream(std::ifstream& Stream);
 
+      #ifdef DUSK_EDITOR
       /* helper functions to access internal map iterators - not used in-game,
          only used by Editor application.
       */
-      std::map<std::string, ObjectRecord>::const_iterator getFirst() const;
-      std::map<std::string, ObjectRecord>::const_iterator getEnd() const;
+      Iterator getFirst() const;
+      Iterator getEnd() const;
+      #endif
     private:
       /*  constuctor */
       ObjectBase();
@@ -158,6 +167,7 @@ namespace Dusk
       /* empty copy constructor - singleton pattern */
       ObjectBase(const ObjectBase& op){}
 
+      //list of objects
       std::map<std::string, ObjectRecord> m_ObjectList;
   };//class
 

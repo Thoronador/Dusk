@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010 thoronador
+    Copyright (C) 2009, 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -181,7 +181,7 @@ void LightBase::clearAllData()
   m_LightList.clear();
 }
 
-unsigned int LightBase::numberOfLights() const
+unsigned int LightBase::getNumberOfLights() const
 {
   return m_LightList.size();
 }
@@ -273,14 +273,16 @@ bool LightBase::loadRecordFromStream(std::ifstream& in_stream)
   return true;
 }
 
-std::map<std::string, LightRecord>::const_iterator LightBase::getFirst() const
+#ifdef DUSK_EDITOR
+LightBase::Iterator LightBase::getFirst() const
 {
   return m_LightList.begin();
 }
 
-std::map<std::string, LightRecord>::const_iterator LightBase::getEnd() const
+LightBase::Iterator LightBase::getEnd() const
 {
   return m_LightList.end();
 }
+#endif
 
 }//namespace

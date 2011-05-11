@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
      - 2010-06-10 (rev 217) - tiny adjustment in getWeaponData()
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-12-01 (rev 265) - use DuskLog/Messages class for logging
+     - 2011-05-11 (rev 287) - getFirst() and getEnd() added
 
  ToDo list:
      - ???
@@ -76,6 +77,11 @@ struct WeaponRecord
   uint8 DamageTimes;
   uint8 DamageDice;
 }; //struct
+
+#ifdef DUSK_EDITOR
+//iterator type for iterating through the weapons
+typedef std::map<std::string, WeaponRecord>::const_iterator WeaponBaseIterator;
+#endif
 
 class WeaponBase
 {
@@ -149,7 +155,7 @@ class WeaponBase
     void clearAll();
 
     /* returns the number of present weapons in the list */
-    unsigned int numberOfWeapons() const;
+    unsigned int getNumberOfWeapons() const;
 
     /* tries to save all weapons to the stream and returns true on success
 
@@ -167,6 +173,15 @@ class WeaponBase
            InStream - the input stream that is used to load the weapon data
     */
     bool loadNextWeaponFromStream(std::ifstream& InStream);
+
+
+    #ifdef DUSK_EDITOR
+    /* returns constant iterator to first element in weapon list*/
+    WeaponBaseIterator getFirst() const;
+
+    /* returns constant iterator to end of weapon list*/
+    WeaponBaseIterator getEnd() const;
+    #endif
   private:
     /* constructor - singleton */
     WeaponBase();
@@ -174,6 +189,7 @@ class WeaponBase
     /* private, empty copy constructor - singleton pattern */
     WeaponBase(const WeaponBase& op) {}
 
+    //internal list of weapons
     std::map<std::string, WeaponRecord> m_Weapons;
 }; //class
 

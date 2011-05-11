@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -138,7 +138,7 @@ void WeaponBase::clearAll()
   m_Weapons.clear();
 }
 
-unsigned int WeaponBase::numberOfWeapons() const
+unsigned int WeaponBase::getNumberOfWeapons() const
 {
   return m_Weapons.size();
 }
@@ -317,5 +317,17 @@ bool WeaponBase::loadNextWeaponFromStream(std::ifstream& InStream)
   }//if
   return false;
 }
+
+#ifdef DUSK_EDITOR
+WeaponBaseIterator WeaponBase::getFirst() const
+{
+  return m_Weapons.begin();
+}
+
+WeaponBaseIterator WeaponBase::getEnd() const
+{
+  return m_Weapons.end();
+}
+#endif
 
 } //namespace

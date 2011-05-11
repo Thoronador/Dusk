@@ -96,18 +96,16 @@ void EditorApplicationObject::closeEditWindowsObject(void)
 void EditorApplicationObject::refreshObjectList(void)
 {
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
-  CEGUI::MultiColumnList* mcl = NULL;
   if (!winmgr.isWindowPresent("Editor/Catalogue/Tab/Object/List"))
   {
     showWarning("ERROR: Could not find object list window in Window Manager!");
     return;
   }
-  mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/Catalogue/Tab/Object/List"));
+  CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/Catalogue/Tab/Object/List"));
   mcl->resetList();
 
-  std::map<std::string, ObjectRecord>::const_iterator first;
-  first = ObjectBase::getSingleton().getFirst();
-  const std::map<std::string, ObjectRecord>::const_iterator end = ObjectBase::getSingleton().getEnd();
+  ObjectBase::Iterator first = ObjectBase::getSingleton().getFirst();
+  const ObjectBase::Iterator end = ObjectBase::getSingleton().getEnd();
   while (first != end)
   {
     addObjectRecordToCatalogue(first->first, first->second.Mesh, first->second.collide);

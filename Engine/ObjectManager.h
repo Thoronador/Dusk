@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010 thoronador
+    Copyright (C) 2009, 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -56,6 +56,7 @@
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-11-20 (rev 255) - rotation is now stored as Quaternion
      - 2010-12-03 (rev 266) - use DuskLog/Messages class for logging
+     - 2011-05-11 (rev 287) - renamed numberOfReferences() to getNumberOfReferences()
 
  ToDo list:
      - extend class when further classes for non-animated objects are added
@@ -90,7 +91,7 @@ namespace Dusk
       static ObjectManager& getSingleton();
 
       /* returns the number of objects currently loaded */
-      unsigned int numberOfReferences() const;
+      unsigned int getNumberOfReferences() const;
 
       /* adds a new object instance with given ID, position, rotation and scale
          to the game and returns a pointer to the newly created object

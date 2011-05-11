@@ -29,6 +29,8 @@
 #include "../Engine/ObjectManager.h"
 #include "../Engine/ObjectBase.h"
 #include "../Engine/ItemBase.h"
+#include "../Engine/ProjectileBase.h"
+#include "../Engine/WeaponBase.h"
 #include "../Engine/Weather.h"
 #include "../Engine/InjectionManager.h"
 #include <OgreConfigFile.h>
@@ -640,11 +642,13 @@ bool EditorApplication::StatsButtonClicked(const CEGUI::EventArgs &e)
 {
   showHint( "Current statistics:\n  Landscape records: "
            + IntToString(Landscape::getSingleton().getNumberOfRecordsAvailable())+"\n"
-           +"  Object records: "  + IntToString(ObjectBase::getSingleton().numberOfObjects())+"\n"
-           +"  Items: " + IntToString(ItemBase::getSingleton().numberOfItems())+"\n"
-           +"  Lights: " + IntToString(LightBase::getSingleton().numberOfLights())+"\n"
-           +"    Object, Light & Item references: "+ IntToString(ObjectManager::getSingleton().numberOfReferences())
-           +"\n  NPCs: " + IntToString(NPCBase::getSingleton().numberOfNPCs())
+           +"  Object records: "  + IntToString(ObjectBase::getSingleton().getNumberOfObjects())+"\n"
+           +"  Items: " + IntToString(ItemBase::getSingleton().getNumberOfItems())+"\n"
+           +"  Lights: " + IntToString(LightBase::getSingleton().getNumberOfLights())+"\n"
+           +"    Object, Light & Item references: "+ IntToString(ObjectManager::getSingleton().getNumberOfReferences())
+           +"\n  Projectiles: " + IntToString(ProjectileBase::getSingleton().getNumberOfProjectiles())
+           +"\n  Weapons: " + IntToString(WeaponBase::getSingleton().getNumberOfWeapons())
+           +"\n  NPCs: " + IntToString(NPCBase::getSingleton().getNumberOfNPCs())
            +"\n    Animated Object & NPC references: "+ IntToString(InjectionManager::getSingleton().getNumberOfReferences())
            +"\n  Journal:\n"
            +"    quests: "+ IntToString(Journal::getSingleton().numberOfDistinctQuests())

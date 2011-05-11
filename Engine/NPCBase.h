@@ -33,6 +33,7 @@
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-12-04 (rev 267) - use DuskLog/Messages class for logging
      - 2011-05-11 (rev 286) - iterator type for getFirst() and getEnd() added
+     - 2011-05-11 (rev 287) - renamed numberOfNPCs() to getNumberOfNPCs()
 
  ToDo list:
      - ???
@@ -102,11 +103,6 @@ namespace Dusk
     NPCTagPoints TagPoints;
   }; //struct
 
-  #ifdef DUSK_EDITOR
-  //iterator type for iterating through the NPCs
-  typedef std::map<std::string, NPCRecord>::const_iterator NPCBaseIterator;
-  #endif
-
 
 /* class NPCBase
          The purpose of this class is to hold the IDs of all distinct NPCs in
@@ -130,6 +126,11 @@ namespace Dusk
   class NPCBase
   {
     public:
+      #ifdef DUSK_EDITOR
+      //iterator type for iterating through the NPCs
+      typedef std::map<std::string, NPCRecord>::const_iterator Iterator;
+      #endif
+
       /* static Singleton retrieval */
       static NPCBase& getSingleton();
 
@@ -181,7 +182,7 @@ namespace Dusk
       void clearAllNPCs();
 
       /* Returns the current number of NPC entries (for statistics only) */
-      unsigned int numberOfNPCs() const;
+      unsigned int getNumberOfNPCs() const;
 
       /* Returns the name of the NPC with ID 'NPC_ID', or an empty string if no
          such record is present.
@@ -239,10 +240,10 @@ namespace Dusk
 
       #ifdef DUSK_EDITOR
       /* returns constant iterator to first element in NPC list*/
-      NPCBaseIterator getFirst() const;
+      Iterator getFirst() const;
 
       /* returns constant iterator to end of NPC list*/
-      NPCBaseIterator getEnd() const;
+      Iterator getEnd() const;
       #endif
     private:
       /* private constructor due to singleton pattern */
