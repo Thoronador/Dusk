@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@
      - 2010-05-30 (rev 210) - initial version (by thoronador)
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-12-03 (rev 266) - use DuskLog/Messages class for logging
+     - 2011-05-11 (rev 286) - getFirst() and getEnd() added
 
  ToDo list:
      - ???
@@ -57,6 +58,26 @@ namespace Dusk
     uint8 times, dice;
   }; //struct
 
+  #ifdef DUSK_EDITOR
+  //iterator type for iterating through the projectiles
+  typedef std::map<std::string, ProjectileRecord>::const_iterator ProjectileBaseIterator;
+  #endif
+
+  /* class ProjectileBase
+         The purpose of this class is to hold the IDs of all distinct
+         projectiles in the game, as well as their meshes and attributes.
+
+         Think of ProjectileBase as a sort of look-up table, e.g.:
+
+             ID   |  Mesh           | TTL | Velocity | times | dice
+           -------+-----------------+-----+----------+-------+------
+           arrow  | wooden.mesh     | 5.0 |  123.45  |   4   |   6
+           bullet | bullet.mesh     | 8.9 |  678.9   |  10   |  12
+           sonic  | sonic_gun.mesh  | 0.1 |  330.0   |  20   |  20
+            ...   | ...             | ... | ...      | ...   | ...
+
+  */
+
   class ProjectileBase
   {
     private:
@@ -76,17 +97,30 @@ namespace Dusk
 
       /* adds a new projectile with the given data
 
+         parameters:
+             ID       - the ID of the new projectile
+             mesh     - path to the projectile's mesh
+             TTL      - time to live of the projectile
+             velocity - speed of movement
+             n, dice  - the number and type of dice that are used to calculate
+                        the amount of damage the prjectile inflicts
+
          remarks:
-           This function always succeeds, except for empty ID or mesh path. In
-           that case, nothing is added.
-           If a projectile record with the same ID already exists, it is
-           overwritten by the new data.
+             This function always succeeds, except for empty ID or mesh path.
+             In that case, nothing is added.
+             If a projectile record with the same ID already exists, it is
+             overwritten by the new data.
       */
       void addProjectile(const std::string& ID, const std::string& mesh,
                          const float TTL, const float velocity, const uint8 n,
                          const uint8 dice);
 
-      /* same as above, but with struct for data */
+      /* same as above, but with struct for data
+
+         parameters:
+             ID   - the ID of the new projectile
+             data - record holding the projectile's data
+      */
       void addProjectile(const std::string& ID, const ProjectileRecord& data);
 
       /* returns true, if a projectile with the given ID is present
@@ -137,6 +171,14 @@ namespace Dusk
                         projectile record from
       */
       bool loadNextProjectileFromStream(std::ifstream& InStream);
+
+      #ifdef DUSK_EDITOR
+      /* returns constant iterator to first element in projectile list*/
+      ProjectileBaseIterator getFirst() const;
+
+      /* returns constant iterator to end of projectile list*/
+      ProjectileBaseIterator getEnd() const;
+      #endif
   }; //class
 
 } //namespace

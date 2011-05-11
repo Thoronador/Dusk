@@ -28,6 +28,7 @@
 
  History:
      - 2010-05-10 (rev 284) - initial version (by thoronador)
+     - 2010-05-11 (rev 286) - windows for creating and editing projectiles added
 
  ToDo list:
      - ???
@@ -43,6 +44,9 @@
 
 namespace Dusk
 {
+
+//forward declaration
+struct ProjectileRecord;
 
 class EditorApplicationProjectile
 {
@@ -64,9 +68,9 @@ class EditorApplicationProjectile
     /* creates the popup menu for the projectile tab */
     void createPopupMenuProjectileTab(void);
     //callbacks for popup menu
-	bool ProjectileNewClicked(const CEGUI::EventArgs &e);
-	bool ProjectileEditClicked(const CEGUI::EventArgs &e);
-	bool ProjectileDeleteClicked(const CEGUI::EventArgs &e);
+    bool ProjectileNewClicked(const CEGUI::EventArgs &e);
+    bool ProjectileEditClicked(const CEGUI::EventArgs &e);
+    bool ProjectileDeleteClicked(const CEGUI::EventArgs &e);
 
     /* event callback for clicking on catalogue tab */
     bool ProjectileTabClicked(const CEGUI::EventArgs &e);
@@ -82,8 +86,28 @@ class EditorApplicationProjectile
     bool ProjectileDeleteFrameNoClicked(const CEGUI::EventArgs &e);
     bool ProjectileDeleteFrameYesClicked(const CEGUI::EventArgs &e);
 
+    //window for creating new projectiles
+    void showProjectileNewWindow(void);
+    //callbacks of window for creating new projectiles
+    bool ProjectileNewFrameCancelClicked(const CEGUI::EventArgs &e);
+    bool ProjectileNewFrameOKClicked(const CEGUI::EventArgs &e);
+
+    //window for editinh projectiles
+    void showProjectileEditWindow(void);
+    //callbacks of window for editing new projectiles
+    bool ProjectileEditFrameCancelClicked(const CEGUI::EventArgs &e);
+    bool ProjectileEditFrameOKClicked(const CEGUI::EventArgs &e);
+
+    /* clears projectiles in catalogue and re-lists every present projectile */
+    void refreshProjectileList(void);
+
+    //method to visually add a projectile record to the catalogue
+    void addProjectileRecordToCatalogue(const std::string& ID, const ProjectileRecord& record);
+
     //ID of the projectile that shall be deleted
     std::string ID_of_Projectile_to_delete;
+    //ID of the projectile that shall be edited
+    std::string ID_of_Projectile_to_edit;
 };//class
 
 }//namespace

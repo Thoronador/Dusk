@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010 thoronador
+    Copyright (C) 2009, 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
      - 2010-06-02 (rev 213) - information for animations and tag points added
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-12-04 (rev 267) - use DuskLog/Messages class for logging
+     - 2011-05-11 (rev 286) - iterator type for getFirst() and getEnd() added
 
  ToDo list:
      - ???
@@ -100,6 +101,11 @@ namespace Dusk
     NPCAnimations Animations;
     NPCTagPoints TagPoints;
   }; //struct
+
+  #ifdef DUSK_EDITOR
+  //iterator type for iterating through the NPCs
+  typedef std::map<std::string, NPCRecord>::const_iterator NPCBaseIterator;
+  #endif
 
 
 /* class NPCBase
@@ -233,10 +239,10 @@ namespace Dusk
 
       #ifdef DUSK_EDITOR
       /* returns constant iterator to first element in NPC list*/
-      std::map<std::string, NPCRecord>::const_iterator getFirst() const;
+      NPCBaseIterator getFirst() const;
 
       /* returns constant iterator to end of NPC list*/
-      std::map<std::string, NPCRecord>::const_iterator getEnd() const;
+      NPCBaseIterator getEnd() const;
       #endif
     private:
       /* private constructor due to singleton pattern */

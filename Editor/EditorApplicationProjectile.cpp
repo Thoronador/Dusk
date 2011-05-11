@@ -24,6 +24,7 @@
 #include "../Engine/ProjectileBase.h"
 #include "../Engine/InjectionManager.h"
 #include "../Engine/DuskFunctions.h"
+#include "../Engine/API.h"
 
 namespace Dusk
 {
@@ -31,6 +32,7 @@ namespace Dusk
 EditorApplicationProjectile::EditorApplicationProjectile()
 {
   ID_of_Projectile_to_delete = "";
+  ID_of_Projectile_to_edit = "";
 }
 
 EditorApplicationProjectile::~EditorApplicationProjectile()
@@ -112,13 +114,27 @@ bool EditorApplicationProjectile::ProjectileTabClicked(const CEGUI::EventArgs &e
 
 bool EditorApplicationProjectile::ProjectileNewClicked(const CEGUI::EventArgs &e)
 {
-  #warning Not implemented yet!
+  showProjectileNewWindow();
   return true;
 }
 
 bool EditorApplicationProjectile::ProjectileEditClicked(const CEGUI::EventArgs &e)
 {
-  #warning Not implemented yet!
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  const CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*>
+                                (winmgr.getWindow("Editor/Catalogue/Tab/Projectile/List"));
+  CEGUI::ListboxItem* lbi = mcl->getFirstSelectedItem();
+  if (lbi==NULL)
+  {
+    showHint("You have to select a projectile from the list to edit it.");
+  }
+  else
+  {
+    const unsigned int row_index = mcl->getItemRowIndex(lbi);
+    lbi = mcl->getItemAtGridReference(CEGUI::MCLGridRef(row_index, 0));
+    ID_of_Projectile_to_edit = std::string(lbi->getText().c_str());
+    showProjectileEditWindow();
+  }
   return true;
 }
 
@@ -256,6 +272,512 @@ void EditorApplicationProjectile::closeEditWindowsProjectile(void)
   {
     winmgr.destroyWindow("Editor/ProjectileDeleteFrame");
   }
+}
+
+void EditorApplicationProjectile::showProjectileNewWindow(void)
+{
+  CEGUI::FrameWindow* frame = NULL;
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/ProjectileNewFrame"))
+  {
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.getWindow("Editor/ProjectileNewFrame"));
+  }
+  else
+  {
+    //create frame and child windows
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.createWindow("TaharezLook/FrameWindow", "Editor/ProjectileNewFrame"));
+    frame->setTitleBarEnabled(true);
+    frame->setText("New Projectile...");
+    frame->setCloseButtonEnabled(false);
+    frame->setFrameEnabled(true);
+    frame->setSizingEnabled(true);
+    frame->setInheritsAlpha(false);
+    winmgr.getWindow("Editor/Root")->addChildWindow(frame);
+
+    const float h = 2.5f/21.0f; //height of one element
+    const float d = 0.5f/21.0f; //distance between two adjacent elements
+    const float o = 2.0f/21.0f; //offset of first element
+
+    CEGUI::Window * button = NULL;
+    //static text for ID
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/ProjectileNewFrame/ID_Label");
+    button->setText("ID:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //editbox for ID
+    button = winmgr.createWindow("TaharezLook/Editbox", "Editor/ProjectileNewFrame/ID_Edit");
+    button->setText("");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //static text for mesh
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/ProjectileNewFrame/Mesh_Label");
+    button->setText("Mesh:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o+h+d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //editbox for mesh
+    button = winmgr.createWindow("TaharezLook/Editbox", "Editor/ProjectileNewFrame/Mesh_Edit");
+    button->setText("");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o+h+d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //static text for TTL
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/ProjectileNewFrame/TTL_Label");
+    button->setText("TTL (seconds):");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o+2*h+2*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //editbox for TTL
+    button = winmgr.createWindow("TaharezLook/Editbox", "Editor/ProjectileNewFrame/TTL_Edit");
+    button->setText("");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o+2*h+2*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //static text for velocity
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/ProjectileNewFrame/Velocity_Label");
+    button->setText("Velocity:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o+3*h+3*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //editbox for velocity
+    button = winmgr.createWindow("TaharezLook/Editbox", "Editor/ProjectileNewFrame/Velocity_Edit");
+    button->setText("");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o+3*h+3*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //static text for Damage
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/ProjectileNewFrame/Damage_Label");
+    button->setText("Damage");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o+4*h+4*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //spinner for number of dice
+    CEGUI::Spinner* spin = static_cast<CEGUI::Spinner*> (winmgr.createWindow("TaharezLook/Spinner", "Editor/ProjectileNewFrame/Times_Spin"));
+    spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o+4*h+4*d, 0)));
+    spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(h, 0)));
+    spin->setTextInputMode(CEGUI::Spinner::Integer);
+    spin->setText("1");
+    spin->setMaximumValue(255.0f);
+    spin->setMinimumValue(0.0f);
+    frame->addChildWindow(spin);
+
+    //static text for d
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/ProjectileNewFrame/d_Label");
+    button->setText("d");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.425, 0), CEGUI::UDim(o+4*h+4*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //spinner for dice
+    spin = static_cast<CEGUI::Spinner*> (winmgr.createWindow("TaharezLook/Spinner", "Editor/ProjectileNewFrame/Dice_Spin"));
+    spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.55, 0), CEGUI::UDim(o+4*h+4*d, 0)));
+    spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(h, 0)));
+    spin->setTextInputMode(CEGUI::Spinner::Integer);
+    spin->setText("6");
+    spin->setMaximumValue(20.0f);
+    spin->setMinimumValue(1.0f);
+    frame->addChildWindow(spin);
+
+    //OK button
+    button = winmgr.createWindow("TaharezLook/Button", "Editor/ProjectileNewFrame/OK");
+    button->setText("OK");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(o+5*h+5*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(h, 0)));
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplicationProjectile::ProjectileNewFrameOKClicked, this));
+    frame->addChildWindow(button);
+    //Cancel button
+    button = winmgr.createWindow("TaharezLook/Button", "Editor/ProjectileNewFrame/Cancel");
+    button->setText("Cancel");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(o+5*h+5*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(h, 0)));
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplicationProjectile::ProjectileNewFrameCancelClicked, this));
+    frame->addChildWindow(button);
+  }
+  frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.125, 0)));
+  frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.45, 0)));
+  frame->moveToFront();
+}
+
+bool EditorApplicationProjectile::ProjectileNewFrameCancelClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/ProjectileNewFrame"))
+  {
+    winmgr.destroyWindow("Editor/ProjectileNewFrame");
+  }
+  return true;
+}
+
+bool EditorApplicationProjectile::ProjectileNewFrameOKClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/ProjectileNewFrame/ID_Edit") and
+      winmgr.isWindowPresent("Editor/ProjectileNewFrame/Mesh_Edit") and
+      winmgr.isWindowPresent("Editor/ProjectileNewFrame/TTL_Edit") and
+      winmgr.isWindowPresent("Editor/ProjectileNewFrame/Velocity_Edit") and
+      winmgr.isWindowPresent("Editor/ProjectileNewFrame/Times_Spin") and
+      winmgr.isWindowPresent("Editor/ProjectileNewFrame/Dice_Spin"))
+  {
+    const std::string projID = winmgr.getWindow("Editor/ProjectileNewFrame/ID_Edit")->getText().c_str();
+    const std::string projMesh = winmgr.getWindow("Editor/ProjectileNewFrame/Mesh_Edit")->getText().c_str();
+    if ((projID=="") or (projMesh == ""))
+    {
+      showHint("You have to enter an ID and Mesh path for the Projectile!");
+      return true;
+    }
+    if (ProjectileBase::getSingleton().hasProjectile(projID))
+    {
+      showHint("A projectile with the ID \""+projID+"\" already exists. Please "
+              +"choose a different ID or delete the other projectile first.\n");
+      return true;
+    }
+    const float velocity = StringToFloat(winmgr.getWindow("Editor/ProjectileNewFrame/Velocity_Edit")->getText().c_str(), -1.0f);
+    if (velocity<=0.0f)
+    {
+      showHint("The velocity for the projectile has to be floating point value greater than zero!");
+      return true;
+    }
+    const float TTL = StringToFloat(winmgr.getWindow("Editor/ProjectileNewFrame/TTL_Edit")->getText().c_str(), -1.0f);
+    if (TTL<=0.0f)
+    {
+      showHint("The TTL for the projectile has to be floating point value greater than zero!");
+      return true;
+    }
+    const uint8 projTimes = static_cast<uint8>((static_cast<CEGUI::Spinner*>(
+          winmgr.getWindow("Editor/ProjectileNewFrame/Times_Spin")))->getCurrentValue());
+    const uint8 projDice = static_cast<uint8>((static_cast<CEGUI::Spinner*>(
+          winmgr.getWindow("Editor/ProjectileNewFrame/Dice_Spin")))->getCurrentValue());
+    ProjectileBase::getSingleton().addProjectile(projID, projMesh, TTL, velocity, projTimes, projDice);
+    winmgr.destroyWindow("Editor/ProjectileNewFrame");
+    refreshProjectileList();
+    return true;
+  }
+  else
+  {
+    showWarning("Some window elements are missing for creating new projectiles!");
+  }
+  return true;
+}
+
+
+void EditorApplicationProjectile::refreshProjectileList(void)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (!winmgr.isWindowPresent("Editor/Catalogue/Tab/Projectile/List"))
+  {
+    showWarning("ERROR: Could not find Projectile list window in CEGUI Window Manager!");
+    return;
+  }
+  CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/Catalogue/Tab/Projectile/List"));
+  mcl->resetList();
+
+  ProjectileBaseIterator first = ProjectileBase::getSingleton().getFirst();
+  const ProjectileBaseIterator end = ProjectileBase::getSingleton().getEnd();
+  while (first != end)
+  {
+    addProjectileRecordToCatalogue(first->first, first->second);
+    ++first;
+  }//while
+  return;
+}
+
+void EditorApplicationProjectile::addProjectileRecordToCatalogue(const std::string& ID, const ProjectileRecord& record)
+{
+  if (!CEGUI::WindowManager::getSingleton().isWindowPresent("Editor/Catalogue/Tab/Projectile/List"))
+  {
+    return;
+  }
+  CEGUI::MultiColumnList* mcl;
+  mcl = static_cast<CEGUI::MultiColumnList*> (CEGUI::WindowManager::getSingleton().getWindow("Editor/Catalogue/Tab/Projectile/List"));
+  CEGUI::ListboxItem *lbi;
+  unsigned int row;
+  lbi = new CEGUI::ListboxTextItem(ID);
+  lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
+  row = mcl->addRow(lbi, 0);
+  lbi = new CEGUI::ListboxTextItem(record.Mesh);
+  lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
+  mcl->setItem(lbi, 1, row);
+  lbi = new CEGUI::ListboxTextItem(FloatToString(record.DefaultTTL));
+  lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
+  mcl->setItem(lbi, 2, row);
+  lbi = new CEGUI::ListboxTextItem(FloatToString(record.DefaultVelocity));
+  lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
+  mcl->setItem(lbi, 3, row);
+  lbi = new CEGUI::ListboxTextItem(IntToString(record.times)+"d"+IntToString(record.dice));
+  lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
+  mcl->setItem(lbi, 4, row);
+}
+
+void EditorApplicationProjectile::showProjectileEditWindow(void)
+{
+  CEGUI::FrameWindow* frame = NULL;
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/ProjectileEditFrame"))
+  {
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.getWindow("Editor/ProjectileEditFrame"));
+  }
+  else
+  {
+    //create frame and child windows
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.createWindow("TaharezLook/FrameWindow", "Editor/ProjectileEditFrame"));
+    frame->setTitleBarEnabled(true);
+    frame->setText("Edit Projectile...");
+    frame->setCloseButtonEnabled(false);
+    frame->setFrameEnabled(true);
+    frame->setSizingEnabled(true);
+    frame->setInheritsAlpha(false);
+    winmgr.getWindow("Editor/Root")->addChildWindow(frame);
+
+    const float h = 2.5f/21.0f; //height of one element
+    const float d = 0.5f/21.0f; //distance between two adjacent elements
+    const float o = 2.0f/21.0f; //offset of first element
+
+    CEGUI::Window * button = NULL;
+    //static text for ID
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/ProjectileEditFrame/ID_Label");
+    button->setText("ID:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //editbox for ID
+    button = winmgr.createWindow("TaharezLook/Editbox", "Editor/ProjectileEditFrame/ID_Edit");
+    button->setText("");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //static text for mesh
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/ProjectileEditFrame/Mesh_Label");
+    button->setText("Mesh:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o+h+d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //editbox for mesh
+    button = winmgr.createWindow("TaharezLook/Editbox", "Editor/ProjectileEditFrame/Mesh_Edit");
+    button->setText("");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o+h+d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //static text for TTL
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/ProjectileEditFrame/TTL_Label");
+    button->setText("TTL (seconds):");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o+2*h+2*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //editbox for TTL
+    button = winmgr.createWindow("TaharezLook/Editbox", "Editor/ProjectileEditFrame/TTL_Edit");
+    button->setText("");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o+2*h+2*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //static text for velocity
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/ProjectileEditFrame/Velocity_Label");
+    button->setText("Velocity:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o+3*h+3*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //editbox for velocity
+    button = winmgr.createWindow("TaharezLook/Editbox", "Editor/ProjectileEditFrame/Velocity_Edit");
+    button->setText("");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o+3*h+3*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //static text for Damage
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/ProjectileEditFrame/Damage_Label");
+    button->setText("Damage");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o+4*h+4*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //spinner for number of dice
+    CEGUI::Spinner* spin = static_cast<CEGUI::Spinner*> (winmgr.createWindow("TaharezLook/Spinner", "Editor/ProjectileEditFrame/Times_Spin"));
+    spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o+4*h+4*d, 0)));
+    spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(h, 0)));
+    spin->setTextInputMode(CEGUI::Spinner::Integer);
+    spin->setText("1");
+    spin->setMaximumValue(255.0f);
+    spin->setMinimumValue(0.0f);
+    frame->addChildWindow(spin);
+
+    //static text for d
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/ProjectileEditFrame/d_Label");
+    button->setText("d");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.425, 0), CEGUI::UDim(o+4*h+4*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //spinner for dice
+    spin = static_cast<CEGUI::Spinner*> (winmgr.createWindow("TaharezLook/Spinner", "Editor/ProjectileEditFrame/Dice_Spin"));
+    spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.55, 0), CEGUI::UDim(o+4*h+4*d, 0)));
+    spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(h, 0)));
+    spin->setTextInputMode(CEGUI::Spinner::Integer);
+    spin->setText("6");
+    spin->setMaximumValue(20.0f);
+    spin->setMinimumValue(1.0f);
+    frame->addChildWindow(spin);
+
+    //OK button
+    button = winmgr.createWindow("TaharezLook/Button", "Editor/ProjectileEditFrame/OK");
+    button->setText("OK");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(o+5*h+5*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(h, 0)));
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplicationProjectile::ProjectileEditFrameOKClicked, this));
+    frame->addChildWindow(button);
+    //Cancel button
+    button = winmgr.createWindow("TaharezLook/Button", "Editor/ProjectileEditFrame/Cancel");
+    button->setText("Cancel");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(o+5*h+5*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(h, 0)));
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplicationProjectile::ProjectileEditFrameCancelClicked, this));
+    frame->addChildWindow(button);
+  }
+  frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.125, 0)));
+  frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.45, 0)));
+  frame->moveToFront();
+
+  //fill data into it
+
+  const ProjectileRecord p_rec = ProjectileBase::getSingleton().getProjectileData(ID_of_Projectile_to_edit);
+  // ---- ID
+  winmgr.getWindow("Editor/ProjectileEditFrame/ID_Edit")->setText(ID_of_Projectile_to_edit);
+  // ---- mesh
+  winmgr.getWindow("Editor/ProjectileEditFrame/Mesh_Edit")->setText(p_rec.Mesh);
+  // ---- TTL
+  winmgr.getWindow("Editor/ProjectileEditFrame/TTL_Edit")->setText(FloatToString(p_rec.DefaultTTL));
+  // ---- velocity
+  winmgr.getWindow("Editor/ProjectileEditFrame/Velocity_Edit")->setText(FloatToString(p_rec.DefaultVelocity));
+  // ---- number of dice
+  CEGUI::Spinner* spin = static_cast<CEGUI::Spinner*> (winmgr.getWindow("Editor/ProjectileEditFrame/Times_Spin"));
+  spin->setText(IntToString(p_rec.times));
+  spin->setCurrentValue(p_rec.times);
+  // ---- dice type
+  spin = static_cast<CEGUI::Spinner*> (winmgr.getWindow("Editor/ProjectileEditFrame/Dice_Spin"));
+  spin->setText(IntToString(p_rec.dice));
+  spin->setCurrentValue(p_rec.dice);
+  return;
+}
+
+bool EditorApplicationProjectile::ProjectileEditFrameCancelClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/ProjectileEditFrame"))
+  {
+    winmgr.destroyWindow("Editor/ProjectileEditFrame");
+  }
+  ID_of_Projectile_to_edit = "";
+  return true;
+}
+
+bool EditorApplicationProjectile::ProjectileEditFrameOKClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/ProjectileEditFrame/ID_Edit") and
+      winmgr.isWindowPresent("Editor/ProjectileEditFrame/Mesh_Edit") and
+      winmgr.isWindowPresent("Editor/ProjectileEditFrame/TTL_Edit") and
+      winmgr.isWindowPresent("Editor/ProjectileEditFrame/Velocity_Edit") and
+      winmgr.isWindowPresent("Editor/ProjectileEditFrame/Times_Spin") and
+      winmgr.isWindowPresent("Editor/ProjectileEditFrame/Dice_Spin"))
+  {
+    const std::string projID = winmgr.getWindow("Editor/ProjectileEditFrame/ID_Edit")->getText().c_str();
+    const std::string projMesh = winmgr.getWindow("Editor/ProjectileEditFrame/Mesh_Edit")->getText().c_str();
+    if ((projID=="") or (projMesh == ""))
+    {
+      showHint("You have to enter an ID and Mesh path for the Projectile!");
+      return true;
+    }
+    const float velocity = StringToFloat(winmgr.getWindow("Editor/ProjectileEditFrame/Velocity_Edit")->getText().c_str(), -1.0f);
+    if (velocity<=0.0f)
+    {
+      showHint("The velocity for the projectile has to be floating point value greater than zero!");
+      return true;
+    }
+    const float TTL = StringToFloat(winmgr.getWindow("Editor/ProjectileEditFrame/TTL_Edit")->getText().c_str(), -1.0f);
+    if (TTL<=0.0f)
+    {
+      showHint("The TTL for the projectile has to be floating point value greater than zero!");
+      return true;
+    }
+    const uint8 projTimes = static_cast<uint8>((static_cast<CEGUI::Spinner*>(
+          winmgr.getWindow("Editor/ProjectileEditFrame/Times_Spin")))->getCurrentValue());
+    const uint8 projDice = static_cast<uint8>((static_cast<CEGUI::Spinner*>(
+          winmgr.getWindow("Editor/ProjectileEditFrame/Dice_Spin")))->getCurrentValue());
+
+    const bool idChanged = (projID!=ID_of_Projectile_to_edit);
+    if (idChanged)
+    {
+      if (ProjectileBase::getSingleton().hasProjectile(projID))
+      {
+        showHint("A projectole with the ID \""+projID+"\" already exists. Please "
+                +"choose a different ID or delete the other projectile first.\n");
+        return true;
+      }//if
+    }//if
+    else
+    {
+      //ID remained the same, but the user might have deleted the projectile.
+      if (!ProjectileBase::getSingleton().hasProjectile(projID))
+      {
+        showHint("A projectile with the ID \""+projID+"\" does not exist. You "
+                +"have possibly deleted the Projectile.");
+        return true;
+      }//if
+    }
+    const bool meshChanged = ProjectileBase::getSingleton().getProjectileMesh(ID_of_Projectile_to_edit) != projMesh;
+    //get changes into projectile base
+    ProjectileBase::getSingleton().addProjectile(projID, projMesh, TTL, velocity, projTimes, projDice);
+
+    //update enabled projectiles that are affected by changes
+    unsigned int affected_references = 0;
+    if (idChanged)
+    {
+      //change IDs
+      affected_references =
+      InjectionManager::getSingleton().updateReferencesAfterIDChange(ID_of_Projectile_to_edit, projID, getAPI().getOgreSceneManager());
+      //delete data record for old ID
+      ProjectileBase::getSingleton().deleteProjectile(ID_of_Projectile_to_edit);
+    }
+    else if (meshChanged)
+    {
+      //update it
+      affected_references =
+      InjectionManager::getSingleton().reenableReferencesOfObject(ID_of_Projectile_to_edit, getAPI().getOgreSceneManager());
+    }
+    if (meshChanged or idChanged)
+    {
+      showHint("Changes accepted, "+IntToString(affected_references)+" references have been updated.");
+    }
+    winmgr.destroyWindow("Editor/ProjectileEditFrame");
+    ID_of_Projectile_to_edit = "";
+    refreshProjectileList();
+    return true;
+  }
+  else
+  {
+    showWarning("Some window elements are missing for editing projectiles!");
+  }
+  return true;
 }
 
 } //namespace

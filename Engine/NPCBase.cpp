@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010 thoronador
+    Copyright (C) 2009, 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -636,12 +636,12 @@ bool NPCBase::loadNextRecordFromStream(std::ifstream& input)
 }
 
 #ifdef DUSK_EDITOR
-std::map<std::string, NPCRecord>::const_iterator NPCBase::getFirst() const
+NPCBaseIterator NPCBase::getFirst() const
 {
   return m_NPCList.begin();
 }
 
-std::map<std::string, NPCRecord>::const_iterator NPCBase::getEnd() const
+NPCBaseIterator NPCBase::getEnd() const
 {
   return m_NPCList.end();
 }

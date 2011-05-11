@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -242,5 +242,17 @@ bool ProjectileBase::loadNextProjectileFromStream(std::ifstream& InStream)
   addProjectile(projID, temp);
   return true;
 }
+
+#ifdef DUSK_EDITOR
+ProjectileBaseIterator ProjectileBase::getFirst() const
+{
+  return m_Projectiles.begin();
+}
+
+ProjectileBaseIterator ProjectileBase::getEnd() const
+{
+  return m_Projectiles.end();
+}
+#endif
 
 } //namespace
