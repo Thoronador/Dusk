@@ -29,6 +29,8 @@
  History:
      - 2010-05-10 (rev 284) - initial version (by thoronador)
      - 2010-05-11 (rev 286) - windows for creating and editing projectiles added
+     - 2010-05-13 (rev 288) - added missing frame windows to function
+                              closeEditWindowsProjectile()
 
  ToDo list:
      - ???
@@ -92,7 +94,7 @@ class EditorApplicationProjectile
     bool ProjectileNewFrameCancelClicked(const CEGUI::EventArgs &e);
     bool ProjectileNewFrameOKClicked(const CEGUI::EventArgs &e);
 
-    //window for editinh projectiles
+    //window for editing projectiles
     void showProjectileEditWindow(void);
     //callbacks of window for editing new projectiles
     bool ProjectileEditFrameCancelClicked(const CEGUI::EventArgs &e);

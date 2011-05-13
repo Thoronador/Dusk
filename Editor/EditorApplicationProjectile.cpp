@@ -271,6 +271,18 @@ void EditorApplicationProjectile::closeEditWindowsProjectile(void)
   if (winmgr.isWindowPresent("Editor/ProjectileDeleteFrame"))
   {
     winmgr.destroyWindow("Editor/ProjectileDeleteFrame");
+    ID_of_Projectile_to_delete = "";
+  }
+  //delete creation window
+  if (winmgr.isWindowPresent("Editor/ProjectileNewFrame"))
+  {
+    winmgr.destroyWindow("Editor/ProjectileNewFrame");
+  }
+  //delete edit window
+  if (winmgr.isWindowPresent("Editor/ProjectileEditFrame"))
+  {
+    winmgr.destroyWindow("Editor/ProjectileEditFrame");
+    ID_of_Projectile_to_edit = "";
   }
 }
 

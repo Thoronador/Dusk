@@ -473,6 +473,9 @@ void EditorApplication::createCEGUICatalogue(void)
 
   //projectiles
   createProjectileCatalogueTab(winmgr, tab);
+
+  //weapons
+  createWeaponCatalogueTab(winmgr, tab);
 }
 
 void EditorApplication::createPopupMenus(void)
@@ -491,6 +494,9 @@ void EditorApplication::createPopupMenus(void)
 
   //PopUp Menu for Projectile's tab
   createPopupMenuProjectileTab();
+
+  //PopUp Menu for Weapons' tab
+  createPopupMenuWeaponTab();
 }
 
 void EditorApplication::showCEGUILoadWindow(void)
@@ -610,6 +616,12 @@ void EditorApplication::clearCatalogue(void)
   mcl = static_cast<CEGUI::MultiColumnList*>
            (CEGUI::WindowManager::getSingleton().getWindow("Editor/Catalogue/Tab/NPC/List"));
   mcl->resetList();
+  mcl = static_cast<CEGUI::MultiColumnList*>
+           (CEGUI::WindowManager::getSingleton().getWindow("Editor/Catalogue/Tab/Projectile/List"));
+  mcl->resetList();
+  mcl = static_cast<CEGUI::MultiColumnList*>
+           (CEGUI::WindowManager::getSingleton().getWindow("Editor/Catalogue/Tab/Weapon/List"));
+  mcl->resetList();
 }
 
 //callbacks for buttons
@@ -727,6 +739,10 @@ bool EditorApplication::LoadFrameOKClicked(const CEGUI::EventArgs &e)
     refreshObjectList();
     // --- lights
     refreshLightList();
+    // --- projectiles
+    refreshProjectileList();
+    // --- weapons
+    refreshWeaponList();
 
     //  --- make loaded stuff visible via Ogre
     std::cout << "DEBUG: sendToEngine...\n";
@@ -822,6 +838,8 @@ void EditorApplication::closeAllEditWindows(void)
   closeEditWindowsNPC();
   //frames for projectiles
   closeEditWindowsProjectile();
+  //frames for weapons
+  closeEditWindowsWeapon();
 }
 
 bool EditorApplication::RootMouseDown(const CEGUI::EventArgs &e)
