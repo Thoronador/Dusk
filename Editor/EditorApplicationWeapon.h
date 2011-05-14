@@ -28,6 +28,7 @@
 
  History:
      - 2010-05-13 (rev 288) - initial version (by thoronador)
+     - 2010-05-14 (rev 289) - window for creating new weapons added
 
  ToDo list:
      - add possibility to create and edit weapons
@@ -84,6 +85,9 @@ class EditorApplicationWeapon
 
     //window for creating new weapons
     void showWeaponNewWindow(void);
+    //callbacks of window for creating new weapons
+    bool WeaponNewFrameCancelClicked(const CEGUI::EventArgs &e);
+    bool WeaponNewFrameOKClicked(const CEGUI::EventArgs &e);
 
     //window for editing projectiles
     void showWeaponEditWindow(void);

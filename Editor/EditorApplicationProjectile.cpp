@@ -453,7 +453,7 @@ bool EditorApplicationProjectile::ProjectileNewFrameOKClicked(const CEGUI::Event
     if (ProjectileBase::getSingleton().hasProjectile(projID))
     {
       showHint("A projectile with the ID \""+projID+"\" already exists. Please "
-              +"choose a different ID or delete the other projectile first.\n");
+              +"choose a different ID or delete the other projectile first.");
       return true;
     }
     const float velocity = StringToFloat(winmgr.getWindow("Editor/ProjectileNewFrame/Velocity_Edit")->getText().c_str(), -1.0f);
