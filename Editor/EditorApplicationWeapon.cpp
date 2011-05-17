@@ -25,6 +25,7 @@
 #include "../Engine/ProjectileBase.h"
 #include "../Engine/ObjectManager.h"
 #include "../Engine/DuskFunctions.h"
+#include "../Engine/API.h"
 
 namespace Dusk
 {
@@ -271,7 +272,6 @@ bool EditorApplicationWeapon::WeaponDeleteFrameYesClicked(const CEGUI::EventArgs
 
 void EditorApplicationWeapon::closeEditWindowsWeapon(void)
 {
-  #warning There is still more to do!
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
   //delete deletion window
   if (winmgr.isWindowPresent("Editor/WeaponDeleteFrame"))
@@ -282,6 +282,11 @@ void EditorApplicationWeapon::closeEditWindowsWeapon(void)
   if (winmgr.isWindowPresent("Editor/WeaponNewFrame"))
   {
     winmgr.destroyWindow("Editor/WeaponNewFrame");
+  }
+  //delete window for editing weapons
+  if (winmgr.isWindowPresent("Editor/WeaponEditFrame"))
+  {
+    winmgr.destroyWindow("Editor/WeaponEditFrame");
   }
 }
 
@@ -625,7 +630,402 @@ bool EditorApplicationWeapon::WeaponNewFrameOKClicked(const CEGUI::EventArgs &e)
 
 void EditorApplicationWeapon::showWeaponEditWindow(void)
 {
-  #warning Not implemented yet!
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  CEGUI::FrameWindow* frame;
+  if (winmgr.isWindowPresent("Editor/WeaponEditFrame"))
+  {
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.getWindow("Editor/WeaponEditFrame"));
+  }
+  else
+  {
+    //create frame and child windows
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.createWindow("TaharezLook/FrameWindow", "Editor/WeaponEditFrame"));
+    frame->setTitleBarEnabled(true);
+    frame->setText("Edit Weapon...");
+    frame->setCloseButtonEnabled(false);
+    frame->setFrameEnabled(true);
+    frame->setSizingEnabled(true);
+    frame->setInheritsAlpha(false);
+    winmgr.getWindow("Editor/Root")->addChildWindow(frame);
+
+    const float h = 2.5f/33.0f; //height of one element
+    const float d = 0.5f/33.0f; //distance between two adjacent elements
+    const float o = 2.25f/33.0f; //offset of first element
+
+    CEGUI::Window * button = NULL;
+    //static text for ID
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/WeaponEditFrame/ID_Label");
+    button->setText("ID:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //editbox for ID
+    button = winmgr.createWindow("TaharezLook/Editbox", "Editor/WeaponEditFrame/ID_Edit");
+    button->setText("");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //static text for name
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/WeaponEditFrame/Name_Label");
+    button->setText("Name:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o+h+d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //editbox for name
+    button = winmgr.createWindow("TaharezLook/Editbox", "Editor/WeaponEditFrame/Name_Edit");
+    button->setText("");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o+h+d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //static text for mesh
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/WeaponEditFrame/Mesh_Label");
+    button->setText("Mesh:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o+2*h+2*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //editbox for mesh
+    button = winmgr.createWindow("TaharezLook/Editbox", "Editor/WeaponEditFrame/Mesh_Edit");
+    button->setText("");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o+2*h+2*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //static text for value
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/WeaponEditFrame/Value_Label");
+    button->setText("Value:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o+3*h+3*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //editbox for value
+    button = winmgr.createWindow("TaharezLook/Editbox", "Editor/WeaponEditFrame/Value_Edit");
+    button->setText("0");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o+3*h+3*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //static text for weight
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/WeaponEditFrame/Weight_Label");
+    button->setText("Weight:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o+3*h+3*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //editbox for weight
+    button = winmgr.createWindow("TaharezLook/Editbox", "Editor/WeaponEditFrame/Weight_Edit");
+    button->setText("1.0");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o+3*h+3*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //static text for time between attacks
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/WeaponEditFrame/TimeBetween_Label");
+    button->setText("Attack Time:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o+4*h+4*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //editbox for time between attacks
+    button = winmgr.createWindow("TaharezLook/Editbox", "Editor/WeaponEditFrame/TimeBetween_Edit");
+    button->setText("1.0");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o+4*h+4*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //static text for type
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/WeaponEditFrame/Type_Label");
+    button->setText("Type:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o+5*h+5*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //radiobox for melee type
+    CEGUI::RadioButton* radio = static_cast<CEGUI::RadioButton*> (winmgr.createWindow("TaharezLook/RadioButton", "Editor/WeaponEditFrame/RadioTypeMelee"));
+    radio->setText("Melee");
+    radio->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o+5*h+5*d, 0)));
+    radio->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(h, 0)));
+    radio->setSelected(true);
+    radio->setGroupID(666666);
+    frame->addChildWindow(radio);
+
+    //radiobox for gun type
+    radio = static_cast<CEGUI::RadioButton*> (winmgr.createWindow("TaharezLook/RadioButton", "Editor/WeaponEditFrame/RadioTypeGun"));
+    radio->setText("Gun");
+    radio->setPosition(CEGUI::UVector2(CEGUI::UDim(0.65, 0), CEGUI::UDim(o+5*h+5*d, 0)));
+    radio->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(h, 0)));
+    radio->setSelected(false);
+    radio->setGroupID(666666);
+    frame->addChildWindow(radio);
+
+    //static text for range (melee only)
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/WeaponEditFrame/Range_Label");
+    button->setText("Range (melee):");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o+6*h+6*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //editbox for time range
+    button = winmgr.createWindow("TaharezLook/Editbox", "Editor/WeaponEditFrame/Range_Edit");
+    button->setText("128.0");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o+6*h+6*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //static text for projectile (gun only)
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/WeaponEditFrame/Projectile_Label");
+    button->setText("Projectile (gun):");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o+7*h+7*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //editbox for projectile
+    button = winmgr.createWindow("TaharezLook/Editbox", "Editor/WeaponEditFrame/Projectile_Edit");
+    button->setText("");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o+7*h+7*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //static text for Damage
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/WeaponEditFrame/Damage_Label");
+    button->setText("Damage");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o+8*h+8*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //spinner for number of dice
+    CEGUI::Spinner* spin = static_cast<CEGUI::Spinner*> (winmgr.createWindow("TaharezLook/Spinner", "Editor/WeaponEditFrame/Times_Spin"));
+    spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o+8*h+8*d, 0)));
+    spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(h, 0)));
+    spin->setTextInputMode(CEGUI::Spinner::Integer);
+    spin->setText("1");
+    spin->setMaximumValue(255.0f);
+    spin->setMinimumValue(0.0f);
+    frame->addChildWindow(spin);
+
+    //static text for d
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/WeaponEditFrame/d_Label");
+    button->setText("d");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.425, 0), CEGUI::UDim(o+8*h+8*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //spinner for dice
+    spin = static_cast<CEGUI::Spinner*> (winmgr.createWindow("TaharezLook/Spinner", "Editor/WeaponEditFrame/Dice_Spin"));
+    spin->setPosition(CEGUI::UVector2(CEGUI::UDim(0.55, 0), CEGUI::UDim(o+8*h+8*d, 0)));
+    spin->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(h, 0)));
+    spin->setTextInputMode(CEGUI::Spinner::Integer);
+    spin->setText("6");
+    spin->setMaximumValue(20.0f);
+    spin->setMinimumValue(1.0f);
+    frame->addChildWindow(spin);
+
+    //OK button
+    button = winmgr.createWindow("TaharezLook/Button", "Editor/WeaponEditFrame/OK");
+    button->setText("OK");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(o+9*h+9*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(h, 0)));
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplicationWeapon::WeaponEditFrameOKClicked, this));
+    frame->addChildWindow(button);
+    //Cancel button
+    button = winmgr.createWindow("TaharezLook/Button", "Editor/WeaponEditFrame/Cancel");
+    button->setText("Cancel");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(o+9*h+9*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(h, 0)));
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplicationWeapon::WeaponEditFrameCancelClicked, this));
+    frame->addChildWindow(button);
+  }
+  //set fields
+  winmgr.getWindow("Editor/WeaponEditFrame/ID_Edit")->setText(ID_of_Weapon_to_edit);
+  const WeaponRecord wRec = WeaponBase::getSingleton().getWeaponData(ID_of_Weapon_to_edit);
+  winmgr.getWindow("Editor/WeaponEditFrame/Name_Edit")->setText(wRec.Name);
+  winmgr.getWindow("Editor/WeaponEditFrame/Mesh_Edit")->setText(wRec.Mesh);
+  winmgr.getWindow("Editor/WeaponEditFrame/Value_Edit")->setText(IntToString(wRec.value));
+  winmgr.getWindow("Editor/WeaponEditFrame/Weight_Edit")->setText(FloatToString(wRec.weight));
+  winmgr.getWindow("Editor/WeaponEditFrame/TimeBetween_Edit")->setText(FloatToString(wRec.TimeBetweenAttacks));
+  switch (wRec.Type)
+  {
+    case wtMelee:
+         static_cast<CEGUI::RadioButton*>(winmgr.getWindow("Editor/WeaponEditFrame/RadioTypeMelee"))->setSelected(true);
+         static_cast<CEGUI::RadioButton*>(winmgr.getWindow("Editor/WeaponEditFrame/RadioTypeGun"))->setSelected(false);
+         break;
+    case wtGun:
+         static_cast<CEGUI::RadioButton*>(winmgr.getWindow("Editor/WeaponEditFrame/RadioTypeGun"))->setSelected(true);
+         static_cast<CEGUI::RadioButton*>(winmgr.getWindow("Editor/WeaponEditFrame/RadioTypeMelee"))->setSelected(false);
+         break;
+  }//swi
+  winmgr.getWindow("Editor/WeaponEditFrame/Range_Edit")->setText(FloatToString(wRec.Range));
+  winmgr.getWindow("Editor/WeaponEditFrame/Projectile_Edit")->setText(wRec.ProjectileID);
+  static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/WeaponEditFrame/Times_Spin"))->setCurrentValue(wRec.DamageTimes);
+  static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/WeaponEditFrame/Dice_Spin"))->setCurrentValue(wRec.DamageDice);
+
+  //move and resize window/set position and size
+  frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.125, 0)));
+  frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.6, 0)));
+  frame->moveToFront();
+}
+
+bool EditorApplicationWeapon::WeaponEditFrameCancelClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/WeaponEditFrame"))
+  {
+    winmgr.destroyWindow("Editor/WeaponEditFrame");
+  }
+  return true;
+}
+
+bool EditorApplicationWeapon::WeaponEditFrameOKClicked(const CEGUI::EventArgs &e)
+{
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/WeaponEditFrame/ID_Edit") and
+      winmgr.isWindowPresent("Editor/WeaponEditFrame/Name_Edit") and
+      winmgr.isWindowPresent("Editor/WeaponEditFrame/Mesh_Edit") and
+      winmgr.isWindowPresent("Editor/WeaponEditFrame/Value_Edit") and
+      winmgr.isWindowPresent("Editor/WeaponEditFrame/Weight_Edit") and
+      winmgr.isWindowPresent("Editor/WeaponEditFrame/TimeBetween_Edit") and
+      winmgr.isWindowPresent("Editor/WeaponEditFrame/RadioTypeGun") and
+      winmgr.isWindowPresent("Editor/WeaponEditFrame/RadioTypeMelee") and
+      winmgr.isWindowPresent("Editor/WeaponEditFrame/Range_Edit") and
+      winmgr.isWindowPresent("Editor/WeaponEditFrame/Projectile_Edit") and
+      winmgr.isWindowPresent("Editor/WeaponEditFrame/Times_Spin") and
+      winmgr.isWindowPresent("Editor/WeaponEditFrame/Dice_Spin"))
+  {
+    const std::string weapID = winmgr.getWindow("Editor/WeaponEditFrame/ID_Edit")->getText().c_str();
+    if (weapID.empty())
+    {
+      showHint("You have to enter an ID for the weapon!");
+      return true;
+    }
+    //weapon record that will be filled with the data
+    WeaponRecord weapRec;
+    weapRec.Mesh = winmgr.getWindow("Editor/WeaponEditFrame/Mesh_Edit")->getText().c_str();
+    if (weapRec.Mesh.empty())
+    {
+      showHint("You have to enter a mesh path for the weapon!");
+      return true;
+    }
+    weapRec.Name = winmgr.getWindow("Editor/WeaponEditFrame/Name_Edit")->getText().c_str();
+    if (weapRec.Name.empty())
+    {
+      showHint("You have to enter a name for the weapon!");
+      return true;
+    }
+    weapRec.value = StringToInt(winmgr.getWindow("Editor/WeaponEditFrame/Value_Edit")->getText().c_str(), -1);
+    if (weapRec.value<0)
+    {
+      showHint("The value of the weapon has to be a non-negative integer!");
+      return true;
+    }
+    weapRec.weight = StringToFloat(winmgr.getWindow("Editor/WeaponEditFrame/Weight_Edit")->getText().c_str(), -1.0f);
+    if (weapRec.weight<0.0f)
+    {
+      showHint("The weight of the weapon has to be a non-negative floating point value!");
+      return true;
+    }
+    weapRec.TimeBetweenAttacks = StringToFloat(winmgr.getWindow("Editor/WeaponEditFrame/TimeBetween_Edit")->getText().c_str(), -1.0f);
+    if (weapRec.TimeBetweenAttacks<=0.0f)
+    {
+      showHint("The attack time of the weapon has to be a positive floating point value!");
+      return true;
+    }
+    //type check
+    if (static_cast<CEGUI::RadioButton*>(winmgr.getWindow("Editor/WeaponEditFrame/RadioTypeGun"))->isSelected())
+    {
+      weapRec.Type = wtGun;
+      weapRec.Range = 0.0f;
+      weapRec.ProjectileID = winmgr.getWindow("Editor/WeaponEditFrame/Projectile_Edit")->getText().c_str();
+      if (weapRec.ProjectileID.empty())
+      {
+        showHint("You have to enter a projectile ID for the weapon!");
+        return true;
+      }
+      if (!ProjectileBase::getSingleton().hasProjectile(weapRec.ProjectileID))
+      {
+        showHint("There is no projectile with the ID \""+weapRec.ProjectileID
+                 +"\"! Check the ID for proper spelling or create a new "
+                 +"projectile with that ID.");
+        return true;
+      }
+    }
+    else
+    {
+      weapRec.Type = wtMelee;
+      weapRec.ProjectileID = "";
+      weapRec.Range = StringToFloat(winmgr.getWindow("Editor/WeaponEditFrame/Range_Edit")->getText().c_str(), -1.0f);
+      if (weapRec.Range<=0.0f)
+      {
+        showHint("The range of the weapon has to be a positive floating point value!");
+        return true;
+      }
+    }
+    CEGUI::Spinner* spin = static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/WeaponEditFrame/Times_Spin"));
+    weapRec.DamageTimes = static_cast<uint8>(spin->getCurrentValue());
+    spin = static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/WeaponEditFrame/Dice_Spin"));
+    weapRec.DamageDice = static_cast<uint8>(spin->getCurrentValue());
+
+
+    const bool idChanged = (weapID!=ID_of_Weapon_to_edit);
+    if (idChanged)
+    {
+      if (WeaponBase::getSingleton().hasWeapon(weapID))
+      {
+        showHint("A weapon with the ID \""+weapID+"\" already exists. Please "
+                +"choose a different ID or delete the other weapon first.\n");
+        return true;
+      }//if
+    }//if
+    else
+    {
+      //ID remained the same, but the user might have deleted the weapon.
+      if (!WeaponBase::getSingleton().hasWeapon(weapID))
+      {
+        showHint("A weapon with the ID \""+weapID+"\" does not exist. You "
+                +"have possibly deleted the weapon.");
+        return true;
+      }//if
+    }
+
+    const bool meshChanged = WeaponBase::getSingleton().getWeaponMesh(ID_of_Weapon_to_edit) != weapRec.Mesh;
+    //get changes into weapon base
+    WeaponBase::getSingleton().addWeapon(weapID, weapRec);
+
+    //update enabled Weapons that are affected by changes
+    unsigned int affected_references = 0;
+    if (idChanged)
+    {
+      //change IDs
+      affected_references =
+      ObjectManager::getSingleton().updateReferencesAfterIDChange(ID_of_Weapon_to_edit, weapID, getAPI().getOgreSceneManager());
+      //delete data record for old ID
+      ProjectileBase::getSingleton().deleteProjectile(ID_of_Weapon_to_edit);
+    }
+    else if (meshChanged)
+    {
+      //update it
+      affected_references =
+      ObjectManager::getSingleton().reenableReferencesOfObject(ID_of_Weapon_to_edit, getAPI().getOgreSceneManager());
+    }
+    if (meshChanged or idChanged)
+    {
+      showHint("Changes accepted, "+IntToString(affected_references)+" references have been updated.");
+    }
+    winmgr.destroyWindow("Editor/WeaponEditFrame");
+    ID_of_Weapon_to_edit = "";
+    refreshWeaponList();
+    return true;
+  }
+  else
+  {
+    showWarning("Some window elements are missing for editing weapon!");
+  }
+  return true;
 }
 
 void EditorApplicationWeapon::refreshWeaponList(void)

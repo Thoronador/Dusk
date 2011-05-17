@@ -31,6 +31,7 @@
      - 2010-05-11 (rev 286) - windows for creating and editing projectiles added
      - 2010-05-13 (rev 288) - added missing frame windows to function
                               closeEditWindowsProjectile()
+     - 2010-05-17 (rev 290) - minor fixes
 
  ToDo list:
      - ???

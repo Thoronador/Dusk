@@ -21,6 +21,7 @@
 #include "EditorApplicationProjectile.h"
 #include <CEGUI/CEGUI.h>
 #include "EditorApplicationBase.h"
+#include "../Engine/WeaponBase.h"
 #include "../Engine/ProjectileBase.h"
 #include "../Engine/InjectionManager.h"
 #include "../Engine/DuskFunctions.h"
@@ -741,7 +742,7 @@ bool EditorApplicationProjectile::ProjectileEditFrameOKClicked(const CEGUI::Even
     {
       if (ProjectileBase::getSingleton().hasProjectile(projID))
       {
-        showHint("A projectole with the ID \""+projID+"\" already exists. Please "
+        showHint("A projectile with the ID \""+projID+"\" already exists. Please "
                 +"choose a different ID or delete the other projectile first.\n");
         return true;
       }//if
@@ -769,6 +770,8 @@ bool EditorApplicationProjectile::ProjectileEditFrameOKClicked(const CEGUI::Even
       InjectionManager::getSingleton().updateReferencesAfterIDChange(ID_of_Projectile_to_edit, projID, getAPI().getOgreSceneManager());
       //delete data record for old ID
       ProjectileBase::getSingleton().deleteProjectile(ID_of_Projectile_to_edit);
+      //update projectile information in related weapons
+      WeaponBase::getSingleton().updateProjectilesAfterIDChange(ID_of_Projectile_to_edit, projID);
     }
     else if (meshChanged)
     {

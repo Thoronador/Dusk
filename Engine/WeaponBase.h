@@ -33,6 +33,7 @@
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-12-01 (rev 265) - use DuskLog/Messages class for logging
      - 2011-05-11 (rev 287) - getFirst() and getEnd() added
+     - 2011-05-17 (rev 290) - updateProjectilesAfterIDChange() added
 
  ToDo list:
      - ???
@@ -181,6 +182,15 @@ class WeaponBase
 
     /* returns constant iterator to end of weapon list*/
     WeaponBaseIterator getEnd() const;
+
+    /* updates the IDs of projectile-based guns after the ID of a projectile
+       was changed in the editor
+
+       parameters:
+           oldProjID - the old ID of the projectile
+           newProjID - the new ID of the projectile
+    */
+    void updateProjectilesAfterIDChange(const std::string& oldProjID, const std::string& newProjID);
     #endif
   private:
     /* constructor - singleton */
