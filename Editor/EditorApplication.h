@@ -31,6 +31,7 @@
 #include "EditorApplicationObject.h"
 #include "EditorApplicationProjectile.h"
 #include "EditorApplicationWeapon.h"
+#include "EditorApplicationVehicle.h"
 #include "EditorFrameListener.h"
 #include "../Engine/DuskObject.h"
 #include "../Engine/DuskTypes.h"
@@ -62,7 +63,7 @@ CEGUI::ListboxItem * getLbItemAtPoint(const CEGUI::Point& pt, CEGUI::MultiColumn
 class EditorApplication: public EditorApplicationNPC, public EditorApplicationLight,
                          public EditorApplicationItem, public EditorApplicationObject,
                          public EditorApplicationJournal, public EditorApplicationProjectile,
-                         public EditorApplicationWeapon
+                         public EditorApplicationWeapon, public EditorApplicationVehicle
 {
 public:
     /// Standard constructor

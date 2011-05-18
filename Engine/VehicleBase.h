@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@
      - 2010-09-24 (rev 244) - mountpoint data and functions for retrieval added
      - 2010-11-20 (rev 255) - rotation is now stored as Quaternion
      - 2010-12-04 (rev 267) - use DuskLog/Messages class for logging
+     - 2011-05-18 (rev 291) - getFirst() and getEnd() added
 
  ToDo list:
      - ???
@@ -187,6 +188,18 @@ class VehicleBase
            InStream - the input stream that is used to load the weapon data
     */
     bool loadNextVehicleFromStream(std::ifstream& InStream);
+
+
+    #ifdef DUSK_EDITOR
+    //constant iterator type for iterating through the vehicles
+    typedef std::map<std::string, VehicleRecord>::const_iterator Iterator;
+
+    /* returns constant iterator to first element in vehicle list*/
+    Iterator getFirst() const;
+
+    /* returns constant iterator to end of vehicle list*/
+    Iterator getEnd() const;
+    #endif
   private:
     /* constructor - private due to singleton pattern */
     VehicleBase();

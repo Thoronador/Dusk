@@ -30,9 +30,9 @@
      - 2010-05-13 (rev 288) - initial version (by thoronador)
      - 2010-05-14 (rev 289) - window for creating new weapons added
      - 2010-05-17 (rev 290) - window for editing weapons added
+     - 2010-05-18 (rev 291) - minor improvements
 
  ToDo list:
-     - add possibility to create and edit weapons
      - ???
 
  Bugs:
@@ -70,6 +70,23 @@ class EditorApplicationWeapon
 
     /* creates the popup menu for the weapon tab */
     void createPopupMenuWeaponTab(void);
+
+    /* destroys all windows that might currently be open, because they were
+       created by this class
+    */
+    void closeEditWindowsWeapon(void);
+
+    /* clears weapons in catalogue and re-lists every present weapon */
+    void refreshWeaponList(void);
+
+    /* method to visually add a weapon record to the catalogue
+
+       parameters:
+           ID     - ID of the weapon
+           record - weapon data
+    */
+    void addWeaponRecordToCatalogue(const std::string& ID, const WeaponRecord& record);
+  private:
     //callbacks for popup menu
     bool WeaponNewClicked(const CEGUI::EventArgs &e);
     bool WeaponEditClicked(const CEGUI::EventArgs &e);
@@ -90,22 +107,11 @@ class EditorApplicationWeapon
     bool WeaponNewFrameCancelClicked(const CEGUI::EventArgs &e);
     bool WeaponNewFrameOKClicked(const CEGUI::EventArgs &e);
 
-    //window for editing projectiles
+    //window for editing weapons
     void showWeaponEditWindow(void);
     //callbacks of window for editing weapons
     bool WeaponEditFrameCancelClicked(const CEGUI::EventArgs &e);
     bool WeaponEditFrameOKClicked(const CEGUI::EventArgs &e);
-
-    /* destroys all windows that might currently be open, because they were
-       created by this class
-    */
-    void closeEditWindowsWeapon(void);
-
-    /* clears weapons in catalogue and re-lists every present weapon */
-    void refreshWeaponList(void);
-
-    //method to visually add a weapon record to the catalogue
-    void addWeaponRecordToCatalogue(const std::string& ID, const WeaponRecord& record);
 
     //string for keeping ID of the weapon that has to be deleted
     std::string ID_of_Weapon_to_delete;

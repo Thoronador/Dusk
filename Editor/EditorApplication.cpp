@@ -30,6 +30,8 @@
 #include "../Engine/ObjectBase.h"
 #include "../Engine/ItemBase.h"
 #include "../Engine/ProjectileBase.h"
+#include "../Engine/VehicleBase.h"
+#include "../Engine/Vehicle.h"
 #include "../Engine/WeaponBase.h"
 #include "../Engine/Weather.h"
 #include "../Engine/InjectionManager.h"
@@ -287,7 +289,6 @@ void EditorApplication::createCEGUIRootWindow(void)
   sheet->subscribeEvent(CEGUI::Window::EventMouseButtonUp, CEGUI::Event::Subscriber(&EditorApplication::RootMouseUp, this));
   sheet->subscribeEvent(CEGUI::Window::EventMouseMove, CEGUI::Event::Subscriber(&EditorApplication::RootMouseMove, this));
   sheet->subscribeEvent(CEGUI::Window::EventMouseDoubleClick, CEGUI::Event::Subscriber(&EditorApplication::RootDoubleClicked, this));
-
 }
 
 void EditorApplication::createCEGUIMenuBar(void)
@@ -476,6 +477,9 @@ void EditorApplication::createCEGUICatalogue(void)
 
   //weapons
   createWeaponCatalogueTab(winmgr, tab);
+
+  //vehicles
+  createVehicleCatalogueTab(winmgr, tab);
 }
 
 void EditorApplication::createPopupMenus(void)
@@ -497,6 +501,9 @@ void EditorApplication::createPopupMenus(void)
 
   //PopUp Menu for Weapons' tab
   createPopupMenuWeaponTab();
+
+  //PopUp Menu for vehicle tab
+  createPopupMenuVehicleTab();
 }
 
 void EditorApplication::showCEGUILoadWindow(void)
@@ -622,6 +629,9 @@ void EditorApplication::clearCatalogue(void)
   mcl = static_cast<CEGUI::MultiColumnList*>
            (CEGUI::WindowManager::getSingleton().getWindow("Editor/Catalogue/Tab/Weapon/List"));
   mcl->resetList();
+  mcl = static_cast<CEGUI::MultiColumnList*>
+           (CEGUI::WindowManager::getSingleton().getWindow("Editor/Catalogue/Tab/Vehicle/List"));
+  mcl->resetList();
 }
 
 //callbacks for buttons
@@ -743,6 +753,8 @@ bool EditorApplication::LoadFrameOKClicked(const CEGUI::EventArgs &e)
     refreshProjectileList();
     // --- weapons
     refreshWeaponList();
+    // --- vehicles
+    refreshVehicleList();
 
     //  --- make loaded stuff visible via Ogre
     std::cout << "DEBUG: sendToEngine...\n";
@@ -840,6 +852,8 @@ void EditorApplication::closeAllEditWindows(void)
   closeEditWindowsProjectile();
   //frames for weapons
   closeEditWindowsWeapon();
+  //frames for vehicles
+  closeEditWindowsVehicle();
 }
 
 bool EditorApplication::RootMouseDown(const CEGUI::EventArgs &e)
@@ -917,10 +931,12 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
       if (mcl->getName() != "Editor/Catalogue/Tab/Object/List" &&
           mcl->getName() != "Editor/Catalogue/Tab/Light/List" &&
           mcl->getName() != "Editor/Catalogue/Tab/Item/List" &&
-          mcl->getName() != "Editor/Catalogue/Tab/NPC/List")
+          mcl->getName() != "Editor/Catalogue/Tab/NPC/List" &&
+          mcl->getName() != "Editor/Catalogue/Tab/Weapon/List" &&
+          mcl->getName() != "Editor/Catalogue/Tab/Vehicle/List")
       {
         std::cout << "Debug: List \""<< mcl->getName()+"/List" << "\" found, "
-                  << "but that's not the Object, Light, Item or NPC list.\n";
+                  << "but that's not the Object, Light, Item, NPC or Weapon list.\n";
         return true;
       }
 
@@ -930,7 +946,7 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
       if (lbi != NULL)
       {
         //we got something, i.e. user wants to place an object
-        std::cout << "DEBUG: placing new referenced object/ light/ item of ID \""
+        std::cout << "DEBUG: placing new referenced object/ light/ item/ NPC of ID \""
                   <<std::string(lbi->getText().c_str())<<"\"\n";
         ObjectTypes PlaceType = otUndefined;
         //bool PlaceLight = (mcl->getName() == "Editor/Catalogue/Tab/Light/List");
@@ -949,6 +965,14 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
         else if (mcl->getName() == "Editor/Catalogue/Tab/NPC/List")
         {
           PlaceType = otNPC;
+        }
+        else if (mcl->getName() == "Editor/Catalogue/Tab/Weapon/List")
+        {
+          PlaceType = otWeapon;
+        }
+        else if (mcl->getName() == "Editor/Catalogue/Tab/Vehicle/List")
+        {
+          PlaceType = otVehicle;
         }
         else
         {
@@ -997,6 +1021,26 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
             return true;
           }
         }
+        else if (PlaceType==otWeapon)
+        { //place a weapon
+          if (!WeaponBase::getSingleton().hasWeapon(std::string(lbi->getText().c_str())))
+          {
+            showWarning("There is no weapon with the ID \""
+                        +std::string(lbi->getText().c_str())+"\", thus you can't "
+                        +"place it.");
+            return true;
+          }
+        }
+        else if (PlaceType==otVehicle)
+        { //place a vehicle
+          if (!VehicleBase::getSingleton().hasVehicle(std::string(lbi->getText().c_str())))
+          {
+            showWarning("There is no vehicle with the ID \""
+                        +std::string(lbi->getText().c_str())+"\", thus you can't "
+                        +"place it.");
+            return true;
+          }
+        }
         else
         {
           showWarning(std::string("Error: No associated object type for \"")
@@ -1030,6 +1074,20 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
         {
           temp =
           InjectionManager::getSingleton().addNPCReference(std::string(lbi->getText().c_str()),
+                     EditorCamera::getSingleton().getPosition() + quat*Ogre::Vector3(0.0f, 0.0f, -100.0f),
+                     Ogre::Quaternion::IDENTITY, 1.0f);
+        }
+        else if (PlaceType==otWeapon)
+        {
+          temp =
+          ObjectManager::getSingleton().addWeaponReference(std::string(lbi->getText().c_str()),
+                     EditorCamera::getSingleton().getPosition() + quat*Ogre::Vector3(0.0f, 0.0f, -100.0f),
+                     Ogre::Quaternion::IDENTITY, 1.0f);
+        }
+        else if (PlaceType==otVehicle)
+        {
+          temp =
+          InjectionManager::getSingleton().addVehicleReference(std::string(lbi->getText().c_str()),
                      EditorCamera::getSingleton().getPosition() + quat*Ogre::Vector3(0.0f, 0.0f, -100.0f),
                      Ogre::Quaternion::IDENTITY, 1.0f);
         }
