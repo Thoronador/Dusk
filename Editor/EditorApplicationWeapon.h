@@ -27,10 +27,10 @@
           elements associated with creating/ editing weapons.
 
  History:
-     - 2010-05-13 (rev 288) - initial version (by thoronador)
-     - 2010-05-14 (rev 289) - window for creating new weapons added
-     - 2010-05-17 (rev 290) - window for editing weapons added
-     - 2010-05-18 (rev 291) - minor improvements
+     - 2011-05-13 (rev 288) - initial version (by thoronador)
+     - 2011-05-14 (rev 289) - window for creating new weapons added
+     - 2011-05-17 (rev 290) - window for editing weapons added
+     - 2011-05-18 (rev 291) - minor improvements
 
  ToDo list:
      - ???

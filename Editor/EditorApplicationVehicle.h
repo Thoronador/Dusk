@@ -27,7 +27,7 @@
           elements associated with creating/ editing vehicles.
 
  History:
-     - 2010-05-18 (rev 291) - initial version (by thoronador)
+     - 2011-05-18 (rev 291) - initial version (by thoronador)
 
  ToDo list:
      - add possibility to create and edit vehicles

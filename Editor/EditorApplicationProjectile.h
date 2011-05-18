@@ -27,11 +27,11 @@
           elements associated with creating/ editing projectiles.
 
  History:
-     - 2010-05-10 (rev 284) - initial version (by thoronador)
-     - 2010-05-11 (rev 286) - windows for creating and editing projectiles added
-     - 2010-05-13 (rev 288) - added missing frame windows to function
+     - 2011-05-10 (rev 284) - initial version (by thoronador)
+     - 2011-05-11 (rev 286) - windows for creating and editing projectiles added
+     - 2011-05-13 (rev 288) - added missing frame windows to function
                               closeEditWindowsProjectile()
-     - 2010-05-17 (rev 290) - minor fixes
+     - 2011-05-17 (rev 290) - minor fixes
 
  ToDo list:
      - ???
