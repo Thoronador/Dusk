@@ -22,6 +22,7 @@
 #include "DuskConstants.h"
 #include "Messages.h"
 #include <sstream>
+#include <limits>
 #ifndef NO_OGRE_IN_LANDSCAPE
   #include <OgreMath.h>
 #endif
@@ -315,8 +316,8 @@ bool LandscapeRecord::generateByFunction( float (*func) (const float x, const fl
 
   unsigned int i,j;
 
-  m_Highest = -(1.0f/0.0f); //negative infinity
-  m_Lowest = 1.0f/0.0f; //positive infinity
+  m_Highest = -std::numeric_limits<float>::infinity(); //negative infinity
+  m_Lowest = std::numeric_limits<float>::infinity(); //positive infinity
   for (i=0; i<65; ++i)
   {
     for (j=0; j<65; ++j)
@@ -448,7 +449,7 @@ bool LandscapeRecord::setColourRadial(const float x, const float z, const unsign
     const int x_idx = static_cast<int>((x-m_OffsetX)/m_Stride);
     const int y_idx = static_cast<int>((z-m_OffsetY)/m_Stride);
     //get range of radius by means of indices
-    const int range = radius/m_Stride;
+    const int range = static_cast<int>(radius/m_Stride);
     //calculate minimum indices that are affected
     unsigned int x_min, y_min;
     if (range>=x_idx)

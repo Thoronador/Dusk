@@ -48,6 +48,7 @@
      - 2010-11-13 (rev 254) - naming guidelines enforced
      - 2010-12-04 (rev 268) - use DuskLog/Messages class for logging
      - 2011-01-19 (rev 275) - setColourRadial() added
+     - 2011-06-13 (rev 293) - improvements to get rid of some compiler warnings
 
  ToDo list:
      - implement LoadRecordFromStream() for Landscape class
