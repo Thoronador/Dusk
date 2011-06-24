@@ -215,8 +215,8 @@ std::vector<FileEntry> get_DirectoryFileList(const std::string& Directory)
         && entry->d_type != DT_CHR)
     {
       result.push_back(one);
-      entry = readdir(direc);
     }
+    entry = readdir(direc);
   }//while
   closedir(direc);
   #else

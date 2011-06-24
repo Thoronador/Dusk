@@ -39,6 +39,8 @@
      - 2010-12-01 (rev 264) - faster version of FileExists()
      - 2010-12-01 (rev 265) - double-precision version of FloatToString()
      - 2011-01-19 (rev 276) - function to sort file entries added
+     - 2011-06-24 (rev 294) - fixed error in get_DirectoryFileList() (Linux
+                              version only)
 
  ToDo list:
      - ???
