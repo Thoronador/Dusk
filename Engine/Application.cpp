@@ -99,6 +99,22 @@ namespace Dusk
         if (Sound::get().init())
         {
           DuskLog() << "Soundsystem successfully initialised.\n";
+          std::string device_name;
+          if (Sound::get().getCurrentDeviceName(device_name))
+          {
+            DuskLog() << "Current output device is \""<<device_name<<"\".\n";
+            std::vector<std::string> devices;
+            if (Sound::get().getAvailableDevices(devices))
+            {
+              DuskLog() << "Available devices:\n";
+              unsigned int i;
+              for (i=0; i<devices.size(); ++i)
+              {
+                DuskLog() << "  " << devices[i]<<"\n";
+              }
+              DuskLog() <<devices.size()<< " audio device(s) in total.\n";
+            }
+          }
         }
         else
         {

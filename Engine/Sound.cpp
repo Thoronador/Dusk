@@ -1014,7 +1014,9 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
   //just for curiosity/ debug reasons: get extension string
   DuskLog() << "Debug: Available AL extensions are:\n"
             << alGetString(AL_EXTENSIONS) << "\nEnd of extension list.\n"
-            <<"IsExtPresent(AL_EXT_VORBIS): "<<(int)alIsExtensionPresent("AL_EXT_VORBIS")
+            << "Available ALC extensions are:\n"
+            << alcGetString(pDevice, ALC_EXTENSIONS) << "\nEnd of ALC extension list.\n"
+            <<"alIsExtensionPresent(AL_EXT_VORBIS): "<<(int)alIsExtensionPresent("AL_EXT_VORBIS")
             << "\nEnum of AL_FORMAT_VORBIS_EXT: "<<alGetEnumValue("AL_FORMAT_VORBIS_EXT")
             << "\n";
   //all (up to this point) neccessary Vorbis functions are initialized
@@ -3779,6 +3781,78 @@ bool Sound::rotateListener(const float x_axis, const float y_axis, const float z
     return false;
   }//if
   return true; //seems like wie made it :)
+}
+
+bool Sound::getCurrentDeviceName(std::string& result) const
+{
+  if (!AL_Ready)
+  {
+    DuskLog() << "Sound::getCurrentDeviceName: Warning: OpenAL is not initialized, "
+              << "thus we cannot retrieve a device name yet.\n";
+    return false;
+  }
+  if (InitInProgress)
+  {
+    DuskLog() << "Sound::getCurrentDeviceName: ERROR: (De-)Initialization of OpenAL"
+              << " is in progress, thus we cannot retrieve a device name.\n";
+    return false;
+  }
+  if (pDevice==NULL)
+  {
+    DuskLog() << "Sound::getCurrentDeviceName: ERROR: there is no current device.\n";
+    return false;
+  }
+
+  alcGetError(pDevice); //clear error state
+  const ALCchar * ptrName = alcGetString(pDevice, ALC_DEVICE_SPECIFIER);
+  const ALCenum error_state = alcGetError(pDevice);
+  if (error_state==ALC_NO_ERROR)
+  {
+    result = ptrName;
+    return true;
+  }
+  //error occured
+  DuskLog() << "Sound::getCurrentDeviceName: ERROR: Could not get device name.\n";
+  switch(error_state)
+  {
+    case ALC_INVALID_ENUM:
+         DuskLog() << "    Invalid enum parameter.\n"; break;
+    default:
+         DuskLog() << "    Unknown error. Error code: "<<(int)error_state
+                   << ".\n"; break;
+  }//swi
+  return false;
+}
+
+bool Sound::getAvailableDevices(std::vector<std::string>& result) const
+{
+  if (!AL_Ready)
+  {
+    DuskLog() << "Sound::getAvailableDevices: Warning: OpenAL is not initialized, "
+              << "thus we cannot retrieve a device name yet.\n";
+    return false;
+  }
+  if (InitInProgress)
+  {
+    DuskLog() << "Sound::getAvailableDevices: ERROR: (De-)Initialization of OpenAL"
+              << " is in progress, thus we cannot retrieve a device name.\n";
+    return false;
+  }
+
+  const ALCchar * ptrName = alcGetString(NULL, ALC_DEVICE_SPECIFIER);
+  result.clear();
+  unsigned int offset = 0;
+  std::string last;
+  do
+  {
+    last = &ptrName[offset];
+    if (not last.empty())
+    {
+      result.push_back(last);
+    }
+    offset = offset + last.length()+1;
+  } while (not last.empty());
+  return true;
 }
 
 //sets all AL function pointers to NULL

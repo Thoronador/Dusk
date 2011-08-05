@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2007, 2008, 2009, 2010 ssj5000, walljumper, DaSteph, thoronador
+    Copyright (C) 2007, 2008, 2009, 2010, 2011 ssj5000, walljumper, DaSteph, thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -52,6 +52,7 @@
      - 2010-11-12 (rev 252) - screenshot can now be JPEG or PNG
      - 2010-11-12 (rev 253) - minor fix to properly display fog in screenshots
      - 2010-12-01 (rev 265) - use DuskLog/Messages class for logging
+     - 2011-08-05 (rev 295) - info about sound device names added
 
  ToDo list:
      - ???

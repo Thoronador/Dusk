@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2008, 2009, 2010 thoronador, walljumper, ssj5000
+    Copyright (C) 2008, 2009, 2010, 2011 thoronador, walljumper, ssj5000
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -67,6 +67,7 @@
      - 2010-12-01 (rev 265) - Sound is now in namespace Dusk
                             - usage of DuskLog/Messages class
      - 2010-12-03 (rev 266) - unneccessary #include removed
+     - 2011-08-05 (rev 295) - functions to retrieve device names added
 
  ToDo list:
      - ???
@@ -183,7 +184,7 @@ class Sound
        remarks:
            If this function returns false, you will not be able to load any
            OggVorbis files. However, you still might be able to load Wave files,
-           depending on the return value of IsInitialised().
+           depending on the return value of isInitialized().
     */
     bool hasVorbis() const;
 
@@ -327,6 +328,19 @@ class Sound
       //   orientation of listener
       std::vector<float> getListenerOrientation() const;
       bool rotateListener(const float x_axis, const float y_axis=0.0f, const float z_axis=0.0f);
+
+    //device query functions
+    /* tries to return the current device's name in result and returns true, if
+       successful. If the function fails, it will return false and the content
+       of result will not be changed.
+    */
+    bool getCurrentDeviceName(std::string& result) const;
+
+    /* tries to return a list of the names of all available devices in result
+       and returns true, if successful. If the function fails, it will return
+       false and the content of result will not be changed.
+    */
+    bool getAvailableDevices(std::vector<std::string>& result) const;
 
     //singleton access method
     static Sound& get();
