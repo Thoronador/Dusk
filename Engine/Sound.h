@@ -68,6 +68,7 @@
                             - usage of DuskLog/Messages class
      - 2010-12-03 (rev 266) - unneccessary #include removed
      - 2011-08-05 (rev 295) - functions to retrieve device names added
+     - 2011-08-05 (rev 296) - function to retrieve default device name added
 
  ToDo list:
      - ???
@@ -336,6 +337,12 @@ class Sound
     */
     bool getCurrentDeviceName(std::string& result) const;
 
+    /* tries to return the default device's name in result and returns true, if
+       successful. If the function fails, it will return false and the content
+       of result will not be changed.
+    */
+    bool getDefaultDeviceName(std::string& result) const;
+
     /* tries to return a list of the names of all available devices in result
        and returns true, if successful. If the function fails, it will return
        false and the content of result will not be changed.
@@ -417,8 +424,8 @@ class Sound
     LPALCGETERROR alcGetError;
 
     //**** Extension handling functions (ALC)
-    /* Disabled for now
     LPALCISEXTENSIONPRESENT alcIsExtensionPresent;
+    /* Disabled for now
     LPALCGETPROCADDRESS alcGetProcAddress;
     LPALCGETENUMVALUE alcGetEnumValue;
     */

@@ -162,6 +162,7 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
   alcOpenDevice = (LPALCOPENDEVICE) GetProcAddress(libHandleAL, "alcOpenDevice");
   alcCloseDevice = (LPALCCLOSEDEVICE) GetProcAddress(libHandleAL, "alcCloseDevice");
   alcGetError = (LPALCGETERROR) GetProcAddress(libHandleAL, "alcGetError");
+  alcIsExtensionPresent = (LPALCISEXTENSIONPRESENT) GetProcAddress(libHandleAL, "alcIsExtensionPresent");
   alcGetString = (LPALCGETSTRING) GetProcAddress(libHandleAL, "alcGetString");
   alcGetIntegerv = (LPALCGETINTEGERV) GetProcAddress(libHandleAL, "alcGetIntegerv");
   #else
@@ -169,6 +170,7 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
   alcOpenDevice = (LPALCOPENDEVICE) dlsym(libHandleAL, "alcOpenDevice");
   alcCloseDevice = (LPALCCLOSEDEVICE) dlsym(libHandleAL, "alcCloseDevice");
   alcGetError = (LPALCGETERROR) dlsym(libHandleAL, "alcGetError");
+  alcIsExtensionPresent = (LPALCISEXTENSIONPRESENT) dlsym(libHandleAL, "alcIsExtensionPresent");
   alcGetString = (LPALCGETSTRING) dlsym(libHandleAL, "alcGetString");
   alcGetIntegerv = (LPALCGETINTEGERV) dlsym(libHandleAL, "alcGetIntegerv");
   #endif
@@ -188,6 +190,12 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
   if (alcGetError == NULL)
   {
     DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alcGetError\" address.\n";
+    InitInProgress = false;
+    return false;
+  }
+  if (alcIsExtensionPresent == NULL)
+  {
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alcIsExtensionPresent\" address.\n";
     InitInProgress = false;
     return false;
   }
@@ -3824,6 +3832,44 @@ bool Sound::getCurrentDeviceName(std::string& result) const
   return false;
 }
 
+bool Sound::getDefaultDeviceName(std::string& result) const
+{
+  if (!AL_Ready)
+  {
+    DuskLog() << "Sound::getDefaultDeviceName: Warning: OpenAL is not initialized, "
+              << "thus we cannot retrieve a device name yet.\n";
+    return false;
+  }
+  if (InitInProgress)
+  {
+    DuskLog() << "Sound::getDefaultDeviceName: ERROR: (De-)Initialization of OpenAL"
+              << " is in progress, thus we cannot retrieve a device name.\n";
+    return false;
+  }
+
+  const ALCchar * ptrName;
+  //check for extension ALC_ENUMERATE_ALL_EXT, that might give different devices
+  if (alcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT"))
+  {
+    //use extension-provided name
+    ptrName = alcGetString(pDevice, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
+  }
+  else
+  {
+    //use standard
+    ptrName = alcGetString(pDevice, ALC_DEFAULT_DEVICE_SPECIFIER);
+  }
+  if (ptrName==NULL)
+  {
+    //system has no output device
+    DuskLog() << "Sound::getDefaultDeviceName: ERROR: There is no audio output"
+              << " device on that system.\n";
+    return false;
+  }
+  result = ptrName;
+  return true;
+}
+
 bool Sound::getAvailableDevices(std::vector<std::string>& result) const
 {
   if (!AL_Ready)
@@ -3839,7 +3885,18 @@ bool Sound::getAvailableDevices(std::vector<std::string>& result) const
     return false;
   }
 
-  const ALCchar * ptrName = alcGetString(NULL, ALC_DEVICE_SPECIFIER);
+  const ALCchar * ptrName;
+  //check for extension ALC_ENUMERATE_ALL_EXT, that might give more devices
+  if (alcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT"))
+  {
+    //use extension
+    ptrName = alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
+  }
+  else
+  {
+    //use standard
+    ptrName = alcGetString(NULL, ALC_DEVICE_SPECIFIER);
+  }
   result.clear();
   unsigned int offset = 0;
   std::string last;
@@ -3870,8 +3927,9 @@ void Sound::AllFuncPointersToNULL(void)
   alcCloseDevice = NULL;
   //****Error handling
   alcGetError = NULL;
-  /* Disabled for now
+  //****Extension handling functions (ALC)
   alcIsExtensionPresent = NULL;
+  /* Disabled for now
   alcGetProcAddress = NULL;
   alcGetEnumValue = NULL;  */
   //****Query functions

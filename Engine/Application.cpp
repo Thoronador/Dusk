@@ -115,7 +115,11 @@ namespace Dusk
               DuskLog() <<devices.size()<< " audio device(s) in total.\n";
             }
           }
-        }
+          if (Sound::get().getDefaultDeviceName(device_name))
+          {
+             std::cout << "Default device name is \""<<device_name<<"\".\n";
+          }
+        }//if init was successful
         else
         {
           DuskLog() << "ERROR: Soundsystem could not be initialised properly.\n";

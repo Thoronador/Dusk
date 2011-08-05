@@ -53,6 +53,7 @@
      - 2010-11-12 (rev 253) - minor fix to properly display fog in screenshots
      - 2010-12-01 (rev 265) - use DuskLog/Messages class for logging
      - 2011-08-05 (rev 295) - info about sound device names added
+     - 2011-08-05 (rev 296) - info about default sound device name added
 
  ToDo list:
      - ???
