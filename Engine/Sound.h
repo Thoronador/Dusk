@@ -69,6 +69,7 @@
      - 2010-12-03 (rev 266) - unneccessary #include removed
      - 2011-08-05 (rev 295) - functions to retrieve device names added
      - 2011-08-05 (rev 296) - function to retrieve default device name added
+     - 2011-08-13 (rev 297) - minor fix in getAvailableDevices() function
 
  ToDo list:
      - ???

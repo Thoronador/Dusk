@@ -3892,10 +3892,18 @@ bool Sound::getAvailableDevices(std::vector<std::string>& result) const
     //use extension
     ptrName = alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
   }
+  else if (alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT"))
+  {
+    //use standard extension
+    ptrName = alcGetString(NULL, ALC_DEVICE_SPECIFIER);
+  }
   else
   {
-    //use standard
-    ptrName = alcGetString(NULL, ALC_DEVICE_SPECIFIER);
+    //no suitable extension present
+    DuskLog() << "Sound::getAvailableDevices: ERROR: No known enumeration "
+              << " extension is available, thus we cannot retrieve a list of "
+              << "device names.\n";
+    return false;
   }
   result.clear();
   unsigned int offset = 0;
