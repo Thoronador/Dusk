@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010 thoronador
+    Copyright (C) 2009, 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -124,6 +124,11 @@ unsigned int DiceBox::d20(const unsigned short int n)
     result += d20();
   }
   return result;
+}
+
+float DiceBox::random()
+{
+  return rand()/float(RAND_MAX);
 }
 
 } //namespace

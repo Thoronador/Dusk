@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2007, 2008, 2009, 2010 ssj5000, walljumper, thoronador
+    Copyright (C) 2007, 2008, 2009, 2010, 2011 ssj5000, walljumper, thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -280,6 +280,60 @@ void Scene::createGrassMesh()
         QuestLog::getSingleton().addQuestEntry("test_quest", 2);
         QuestLog::getSingleton().addQuestEntry("test_quest", 3);
         // ---- end of questlog test
+
+
+        // ---- diamond square algorithm test
+        LandscapeRecord* lrec = Landscape::getSingleton().createRecord();
+        if (lrec->generateByDiamondSquare(-10.0, LandscapeRecord::cDefaultStride*64*0.5, 1.0))
+        {
+          std::cout << "Diamond square generation successful!\n";
+          lrec->moveTo(LandscapeRecord::cDefaultStride*64*-1.5, 0.0);
+          if (lrec->enable(m_SceneManager, true))
+          {
+            std::cout << "Enabling wire frame successful!\n";
+          }//if
+          else
+          {
+            std::cout << "Enabling wire framed terrain failed!\n";
+          }
+
+        }//if
+        // ------ next
+        lrec = Landscape::getSingleton().createRecord();
+        if (lrec->generateByDiamondSquare(-10.0, LandscapeRecord::cDefaultStride*64*0.5, 0.75))
+        {
+          std::cout << "Diamond square generation successful!\n";
+          lrec->moveTo(LandscapeRecord::cDefaultStride*64*-1.5, LandscapeRecord::cDefaultStride*64*1.5);
+          if (lrec->enable(m_SceneManager, true))
+          {
+            std::cout << "Enabling wire frame successful!\n";
+          }//if
+          else
+          {
+            std::cout << "Enabling wire framed terrain failed!\n";
+          }
+
+        }//if
+        // ------ next
+        lrec = Landscape::getSingleton().createRecord();
+        if (lrec->generateByDiamondSquare(-10.0, LandscapeRecord::cDefaultStride*64*0.5, 0.25))
+        {
+          std::cout << "Diamond square generation successful!\n";
+          lrec->moveTo(LandscapeRecord::cDefaultStride*64*-1.5, LandscapeRecord::cDefaultStride*64*3.0);
+          if (lrec->enable(m_SceneManager, true))
+          {
+            std::cout << "Enabling wire frame successful!\n";
+          }//if
+          else
+          {
+            std::cout << "Enabling wire framed terrain failed!\n";
+          }
+
+        }//if
+
+        // ---- end of diamond square algorithm test
+
+
         /*
         //object test
         createArcMesh();

@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2007, 2008, 2009, 2010 ssj5000, walljumper, thoronador
+    Copyright (C) 2007, 2008, 2009, 2010, 2011 ssj5000, walljumper, thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -54,6 +54,7 @@
                               Landscape class
      - 2010-11-20 (rev 255) - rotation is now handled as Quaternion
      - 2010-12-04 (rev 268) - use DuskLog/Messages class for logging
+     - 2011-08-28 (rev 298) - generating a few more landscape records in createScene()
 
  ToDo list:
      - ???

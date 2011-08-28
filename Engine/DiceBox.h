@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010 thoronador
+    Copyright (C) 2009, 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@
      - 2009-12-23 (rev 144) - initial version; contains d4, d6, d10 and d20
      - 2010-06-06 (rev 215) - d8() added
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
+     - 2011-08-28 (rev 298) - function random() added for random floats
 
  ToDo list:
      - add more functions/ dice, if needed
@@ -85,6 +86,9 @@ namespace Dusk
 
       /* "Throws" n six-sided dice and returns the sum of all */
       unsigned int d20(const unsigned short int n);
+
+      /* returns a random floating point value from within [0;1) */
+      float random();
     private:
       //constructor
       DiceBox();

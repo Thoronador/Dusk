@@ -49,6 +49,8 @@
      - 2010-12-04 (rev 268) - use DuskLog/Messages class for logging
      - 2011-01-19 (rev 275) - setColourRadial() added
      - 2011-06-13 (rev 293) - improvements to get rid of some compiler warnings
+     - 2011-08-28 (rev 298) - function generateByDiamondSquare() added to
+                              LandscapeRecord to allow random terrain generation
 
  ToDo list:
      - implement LoadRecordFromStream() for Landscape class
@@ -92,6 +94,8 @@ namespace Dusk
   };
   */
 
+  const unsigned int cRecordWidth = 65;
+
   class LandscapeRecord
   {
     public:
@@ -115,8 +119,8 @@ namespace Dusk
       /* returns the distance between two adjacent points */
       float getStride() const;
 
-      float Height[65][65]; //height of the land
-      unsigned char Colour[65][65][3]; //colour of the land in RGB-byte values
+      float Height[cRecordWidth][cRecordWidth]; //height of the land
+      unsigned char Colour[cRecordWidth][cRecordWidth][3]; //colour of the land in RGB-byte values
 
       /*returns highest altitude in record (calculated during loading process)*/
       float getHighest() const;
@@ -191,6 +195,24 @@ namespace Dusk
              The function has to be able to produce values for both x and z in [0;1].
       */
       bool generateByFunction( float (*func) (const float x, const float z));
+
+      /* creates landscape data via diamond square algorithm; returns true on success
+
+         parameters:
+             edge_height  - height value that is used to initialize the edges of
+                            the landscape covered by the record; must not be NaN
+             displacement - displacement range for initial step (must not be NaN
+                            and has to be a positive number)
+             smoothness   - smoothness of the terrain, has to be in [0;1]
+
+         remarks:
+             If any of the parameters are not in the given range or are NaN, no
+             terrain will be generated.
+             The 'smoothness' parameter affects how "spiky" the generated
+             landscape will be. Low values (near zero) will cause many spikes,
+             high values (near one) will generate a "softer", flatter landscape.
+      */
+      bool generateByDiamondSquare(const float edge_height, float displacement, const float smoothness);
 
       /* colour landscape by generator function; returns true on success
 

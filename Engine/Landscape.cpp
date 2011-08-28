@@ -21,6 +21,7 @@
 #include "Landscape.h"
 #include "DuskConstants.h"
 #include "Messages.h"
+#include "DiceBox.h"
 #include <sstream>
 #include <limits>
 #ifndef NO_OGRE_IN_LANDSCAPE
@@ -144,7 +145,7 @@ bool LandscapeRecord::loadFromStream(std::ifstream &AStream)
   }//if
 
   //read the height data
-  AStream.read((char*) &Height[0][0], 65*65*sizeof(float));
+  AStream.read((char*) &Height[0][0], cRecordWidth*cRecordWidth*sizeof(float));
   if (!AStream.good())
   {
     DuskLog() << "LandscapeRecord::loadFromStream: ERROR: Stream seems to have"
@@ -153,7 +154,7 @@ bool LandscapeRecord::loadFromStream(std::ifstream &AStream)
   }
 
   //colour data
-  AStream.read((char*) &Colour[0][0][0], 65*65*3);
+  AStream.read((char*) &Colour[0][0][0], cRecordWidth*cRecordWidth*3);
   if (!AStream.good())
   {
     DuskLog() << "LandscapeRecord::loadFromStream: ERROR: Stream seems to "
@@ -166,9 +167,9 @@ bool LandscapeRecord::loadFromStream(std::ifstream &AStream)
 
   m_Highest= Height[0][0];
   m_Lowest = Height[0][0];
-  for (i=0; i<65; i++)
+  for (i=0; i<cRecordWidth; i++)
   {
-    for (j=0; j<65; j++)
+    for (j=0; j<cRecordWidth; j++)
     {
       if (Height[i][j]>m_Highest)
       {
@@ -205,9 +206,9 @@ bool LandscapeRecord::saveToStream(std::ofstream &AStream) const
   //stride
   AStream.write((char*) &m_Stride, sizeof(float));
   //height data
-  AStream.write((char*) &Height[0][0], 65*65*sizeof(float));
+  AStream.write((char*) &Height[0][0], cRecordWidth*cRecordWidth*sizeof(float));
   //colour data
-  AStream.write((char*) &Colour[0][0][0], 65*65*3);
+  AStream.write((char*) &Colour[0][0][0], cRecordWidth*cRecordWidth*3);
   if (!AStream.good())
   {
     DuskLog() << "LandscapeRecord::saveToStream: Error while writing record to"
@@ -231,9 +232,9 @@ bool LandscapeRecord::shift(const float delta)
 {
   unsigned int i,j;
 
-  for (i=0; i<65; i++)
+  for (i=0; i<cRecordWidth; i++)
   {
-    for (j=0; j<65; j++)
+    for (j=0; j<cRecordWidth; j++)
     {
       Height[i][j] = Height[i][j]+delta;
     }
@@ -259,9 +260,9 @@ bool LandscapeRecord::scale(const float factor)
   }
   unsigned int i,j;
 
-  for (i=0; i<65; i++)
+  for (i=0; i<cRecordWidth; i++)
   {
-    for (j=0; j<65; j++)
+    for (j=0; j<cRecordWidth; j++)
     {
       Height[i][j] = Height[i][j]*factor;
     }
@@ -281,9 +282,9 @@ bool LandscapeRecord::makePlain(const float value)
 {
   unsigned int i,j;
 
-  for (i=0; i<65; i++)
+  for (i=0; i<cRecordWidth; i++)
   {
-    for (j=0; j<65; j++)
+    for (j=0; j<cRecordWidth; j++)
     {
       Height[i][j] = value;
     }
@@ -318,9 +319,9 @@ bool LandscapeRecord::generateByFunction( float (*func) (const float x, const fl
 
   m_Highest = -std::numeric_limits<float>::infinity(); //negative infinity
   m_Lowest = std::numeric_limits<float>::infinity(); //positive infinity
-  for (i=0; i<65; ++i)
+  for (i=0; i<cRecordWidth; ++i)
   {
-    for (j=0; j<65; ++j)
+    for (j=0; j<cRecordWidth; ++j)
     {
       Height[i][j] = func((float)i/64.0f, (float)j/64.0f);
       if (Height[i][j]>m_Highest)
@@ -343,6 +344,75 @@ bool LandscapeRecord::generateByFunction( float (*func) (const float x, const fl
   return true;
 }//function
 
+bool LandscapeRecord::generateByDiamondSquare(const float edge_height, float displacement, const float smoothness)
+{
+  //check parameters
+  if (edge_height!=edge_height)
+  {
+    DuskLog() << "LandscapeRecord::generateByDiamondSquare: ERROR: NaN is not "
+              << "allowed for edge_height!\n";
+    return false;
+  }
+  if ((displacement<0.0f) or (displacement!=displacement))
+  {
+    DuskLog() << "LandscapeRecord::generateByDiamondSquare: ERROR: NaN or "
+              << "negative value is not allowed as displacement parameter!\n";
+    return false;
+  }
+  if ((smoothness<0.0f) or (smoothness>1.0f))
+  {
+    DuskLog() << "LandscapeRecord::generateByDiamondSquare: ERROR: smoothness "
+              << "value has to be in [0;1]!\n";
+    return false;
+  }
+  //now start the algorithm
+  unsigned int i, j;
+  unsigned int width = cRecordWidth-1;
+  unsigned int steps = 1;
+  //initialize edges
+  Height[0][0] = edge_height;
+  Height[0][cRecordWidth-1] = edge_height;
+  Height[cRecordWidth-1][0] = edge_height;
+  Height[cRecordWidth-1][cRecordWidth-1] = edge_height;
+  //TODO: initialize random number generator
+  while (width>1)
+  {
+    for (i=0; i<steps; ++i)
+    {
+      for (j=0; j<steps; ++j)
+      {
+        // -- center point (diamond step)
+        Height[i*width+width/2][j*width+width/2] = (Height[i*width][j*width]
+                +Height[(i+1)*width][j*width]+Height[i*width][(j+1)*width]
+                +Height[(i+1)*width][(j+1)*width])/4.0f+(0.5-DiceBox::getSingleton().random())*displacement;
+        // -- "left" point (square step)
+        Height[i*width][j*width+width/2] = (Height[i*width][j*width]+Height[i*width][(j+1)*width]+Height[i*width+width/2][j*width+width/2])/3.0f
+                                          +(0.5-DiceBox::getSingleton().random())*displacement;
+        // -- "right" point (square step)
+        Height[(i+1)*width][j*width+width/2] = (Height[(i+1)*width][j*width]+Height[(i+1)*width][(j+1)*width]+Height[i*width+width/2][j*width+width/2])/3.0f
+                                              +(0.5-DiceBox::getSingleton().random())*displacement;
+        // -- "top" point (square step)
+        Height[i*width+width/2][j*width] = (Height[i*width][j*width]+Height[(i+1)*width][(j+1)*width]+Height[i*width+width/2][j*width+width/2])/3.0f
+                                          +(0.5-DiceBox::getSingleton().random())*displacement;
+        // -- "bottom" point (square step)
+        Height[i*width+width/2][(j+1)*width] = (Height[i*width][(j+1)*width]+Height[(i+1)*width][(j+1)*width]+Height[i*width+width/2][j*width+width/2])/3.0f
+                                              +(0.5-DiceBox::getSingleton().random())*displacement;
+      }//for j
+    }//for i
+    width = width/2;
+    steps = steps*2;
+    displacement = displacement * pow(2.0f, -smoothness);
+  }//while
+  setLoadedState(true);
+  #ifndef NO_OGRE_IN_LANDSCAPE
+  if (isEnabled())
+  {
+    Landscape::getSingleton().requestUpdate(this);
+  }
+  #endif
+  return true;
+}//func
+
 bool LandscapeRecord::colourByFunction(ColourData (*func) (const float x, const float z))
 {
   if (func==NULL)
@@ -353,9 +423,9 @@ bool LandscapeRecord::colourByFunction(ColourData (*func) (const float x, const 
   }
 
   unsigned int i,j;
-  for (i=0; i<65; ++i)
+  for (i=0; i<cRecordWidth; ++i)
   {
-    for (j=0; j<65; ++j)
+    for (j=0; j<cRecordWidth; ++j)
     {
       const ColourData cd = func((float)i/64.0f, (float)j/64.0f);
       Colour[i][j][0] = cd.red;
@@ -386,8 +456,8 @@ void LandscapeRecord::moveTo(const float Offset_X, const float Offset_Y)
 
 bool LandscapeRecord::terraform(const float x, const float z, const float delta)
 {
-  if (x>=m_OffsetX && x<=m_OffsetX+64*m_Stride
-     && z>=m_OffsetY && z<=m_OffsetY+64*m_Stride)
+  if (x>=m_OffsetX && x<=m_OffsetX+(cRecordWidth-1)*m_Stride
+     && z>=m_OffsetY && z<=m_OffsetY+(cRecordWidth-1)*m_Stride)
   {
     unsigned int x_idx, y_idx;
     x_idx = (unsigned int)((x-m_OffsetX)/m_Stride);
@@ -415,8 +485,8 @@ bool LandscapeRecord::terraform(const float x, const float z, const float delta)
 
 bool LandscapeRecord::setColour(const float x, const float z, const unsigned char r,const unsigned char g, const unsigned char b)
 {
-  if (x>=m_OffsetX && x<=m_OffsetX+64*m_Stride
-     && z>=m_OffsetY && z<=m_OffsetY+64*m_Stride)
+  if (x>=m_OffsetX && x<=m_OffsetX+(cRecordWidth-1)*m_Stride
+     && z>=m_OffsetY && z<=m_OffsetY+(cRecordWidth-1)*m_Stride)
   {
     unsigned int x_idx, y_idx;
     x_idx = (unsigned int)((x-m_OffsetX)/m_Stride);
@@ -441,8 +511,8 @@ bool LandscapeRecord::setColourRadial(const float x, const float z, const unsign
                            const unsigned char g, const unsigned char b,
                            const float radius)
 {
-  if (x>=m_OffsetX && x<=m_OffsetX+64*m_Stride
-     && z>=m_OffsetY && z<=m_OffsetY+64*m_Stride
+  if (x>=m_OffsetX && x<=m_OffsetX+(cRecordWidth-1)*m_Stride
+     && z>=m_OffsetY && z<=m_OffsetY+(cRecordWidth-1)*m_Stride
      && radius>0.0f)
   {
     //get indices at center
@@ -464,14 +534,14 @@ bool LandscapeRecord::setColourRadial(const float x, const float z, const unsign
     else y_min = y_idx-range;
     //calculate maximum indices that are affected
     unsigned int x_max, y_max;
-    if (range+x_idx>=64)
+    if (range+x_idx>=cRecordWidth-1)
     {
-      x_max = 64;
+      x_max = cRecordWidth-1;
     }
     else x_max = x_idx+range;
-    if (range+y_idx>=64)
+    if (range+y_idx>=cRecordWidth-1)
     {
-      y_max = 64;
+      y_max = cRecordWidth-1;
     }
     else y_max = y_idx+range;
     DuskLog() << "DEBUG: LandscapeRecord::setColourRadial(): call with: x_idx: "
@@ -554,14 +624,14 @@ bool LandscapeRecord::enable(Ogre::SceneManager * scm, const bool WireFrame)
   convert << getID();
 
   m_OgreObject = scm->createManualObject(cLandscapeNamePrefix+convert.str());
-  m_OgreObject->estimateVertexCount(65*65);
+  m_OgreObject->estimateVertexCount(cRecordWidth*cRecordWidth);
   if (WireFrame)
   {
-    m_OgreObject->estimateIndexCount(64*64*4);
+    m_OgreObject->estimateIndexCount((cRecordWidth-1)*(cRecordWidth-1)*4);
   }
   else
   {
-    m_OgreObject->estimateIndexCount(64*64*6);
+    m_OgreObject->estimateIndexCount((cRecordWidth-1)*(cRecordWidth-1)*6);
   }
   m_OgreObject->setDynamic(false);
   unsigned int j, k;
@@ -569,9 +639,9 @@ bool LandscapeRecord::enable(Ogre::SceneManager * scm, const bool WireFrame)
   { //wire frame model
     m_OgreObject->begin("Landscape/VertexColour", Ogre::RenderOperation::OT_LINE_LIST);
     //vertices
-    for (j=0; j<65; ++j)
+    for (j=0; j<cRecordWidth; ++j)
     {
-      for (k=0; k<65; ++k)
+      for (k=0; k<cRecordWidth; ++k)
       {
         m_OgreObject->position(m_OffsetX+m_Stride*j,
                                Height[j][k],
@@ -581,24 +651,24 @@ bool LandscapeRecord::enable(Ogre::SceneManager * scm, const bool WireFrame)
     }//for j
 
     //lines in one direction
-    for(j=0; j<64; ++j)
+    for(j=0; j<cRecordWidth-1; ++j)
     {
-      for(k=0; k<65; ++k)
+      for(k=0; k<cRecordWidth; ++k)
       {
         //line: [j][k] to [j+1][k]
-        m_OgreObject->index(j*65+k);
-        m_OgreObject->index((j+1)*65+k);
+        m_OgreObject->index(j*cRecordWidth+k);
+        m_OgreObject->index((j+1)*cRecordWidth+k);
       }//for
     }//for
 
     //lines in other direction
-    for(j=0; j<65; ++j)
+    for(j=0; j<cRecordWidth; ++j)
     {
-      for(k=0; k<64; ++k)
+      for(k=0; k<cRecordWidth-1; ++k)
       {
         //line: [j][k] to [j][k+1]
-        m_OgreObject->index(j*65+k);
-        m_OgreObject->index(j*65+k+1);
+        m_OgreObject->index(j*cRecordWidth+k);
+        m_OgreObject->index(j*cRecordWidth+k+1);
       }//for
     }//for
   }//if WireFrame
@@ -606,9 +676,9 @@ bool LandscapeRecord::enable(Ogre::SceneManager * scm, const bool WireFrame)
   { //"solid" landscape
     m_OgreObject->begin("Landscape/VertexColour", Ogre::RenderOperation::OT_TRIANGLE_LIST);
     //vertices
-    for (j=0; j<65; ++j)
+    for (j=0; j<cRecordWidth; ++j)
     {
-      for (k=0; k<65; ++k)
+      for (k=0; k<cRecordWidth; ++k)
       {
         m_OgreObject->position(m_OffsetX+m_Stride*j,
                                Height[j][k],
@@ -620,18 +690,18 @@ bool LandscapeRecord::enable(Ogre::SceneManager * scm, const bool WireFrame)
     }//for j
 
     //triangles
-    for (j=0; j<64; ++j)
+    for (j=0; j<cRecordWidth-1; ++j)
     {
-      for (k=0; k<64; ++k)
+      for (k=0; k<cRecordWidth-1; ++k)
       {
         //first triangle: [j][k], [j][k+1], [j+1][k]
-        m_OgreObject->index(j*65+k);
-        m_OgreObject->index(j*65+k+1);
-        m_OgreObject->index((j+1)*65+k);
+        m_OgreObject->index(j*cRecordWidth+k);
+        m_OgreObject->index(j*cRecordWidth+k+1);
+        m_OgreObject->index((j+1)*cRecordWidth+k);
         //second triangle: [j+1][k], [j][k+1], [j+1][k+1]
-        m_OgreObject->index((j+1)*65+k);
-        m_OgreObject->index(j*65+k+1);
-        m_OgreObject->index((j+1)*65+k+1);
+        m_OgreObject->index((j+1)*cRecordWidth+k);
+        m_OgreObject->index(j*cRecordWidth+k+1);
+        m_OgreObject->index((j+1)*cRecordWidth+k+1);
       }//for k
     }//for j
   }//if not wire frame
@@ -724,9 +794,9 @@ bool LandscapeRecord::isHitByRay(const Ogre::Ray& ray, Ogre::Vector3& HitPoint) 
 {
   Ogre::Real minDistance = -1.0f;
   unsigned int i, j;
-  for (i=0; i<64; i=i+1)
+  for (i=0; i<cRecordWidth-1; i=i+1)
   {
-    for (j=0; j<64; j=j+1)
+    for (j=0; j<cRecordWidth-1; j=j+1)
     {
       //first triangle: [i][j], [i][j+1], [i+1][j]
       std::pair<bool, Ogre::Real> hit = Ogre::Math::intersects(ray,
@@ -763,7 +833,7 @@ bool LandscapeRecord::isHitByRay(const Ogre::Ray& ray, Ogre::Vector3& HitPoint) 
 
 const Ogre::Vector3 LandscapeRecord::getPositionOfIndex(const unsigned int i, const unsigned int j) const
 {
-  if (i<65 and j<65)
+  if ((i<cRecordWidth) and (j<cRecordWidth))
   {
     return Ogre::Vector3(m_OffsetX+i*m_Stride, Height[i][j], m_OffsetY+j*m_Stride);
   }
@@ -1056,8 +1126,8 @@ LandscapeRecord* Landscape::getRecordAtXZ(const float x, const float z) const
   unsigned int i;
   for(i=0; i<m_numRec; i++)
   {
-    if ((x>=m_RecordList[i]->getOffsetX()) && (x<=m_RecordList[i]->getOffsetX()+64*LandscapeRecord::cDefaultStride)
-       &&(z>=m_RecordList[i]->getOffsetY()) && (z<=m_RecordList[i]->getOffsetY()+64*LandscapeRecord::cDefaultStride))
+    if ((x>=m_RecordList[i]->getOffsetX()) && (x<=m_RecordList[i]->getOffsetX()+(cRecordWidth-1)*LandscapeRecord::cDefaultStride)
+       &&(z>=m_RecordList[i]->getOffsetY()) && (z<=m_RecordList[i]->getOffsetY()+(cRecordWidth-1)*LandscapeRecord::cDefaultStride))
     {
       return m_RecordList[i];
     }//if
@@ -1193,8 +1263,8 @@ float Landscape::getHeightAtPosition(const float x, const float y) const
   for(i=0; i<m_numRec; i++)
   {
     const float stride = m_RecordList[i]->getStride();
-    if ((x>=m_RecordList[i]->getOffsetX()) && (x<=m_RecordList[i]->getOffsetX()+64*stride)
-       &&(y>=m_RecordList[i]->getOffsetY()) && (y<=m_RecordList[i]->getOffsetY()+64*stride))
+    if ((x>=m_RecordList[i]->getOffsetX()) && (x<=m_RecordList[i]->getOffsetX()+(cRecordWidth-1)*stride)
+       &&(y>=m_RecordList[i]->getOffsetY()) && (y<=m_RecordList[i]->getOffsetY()+(cRecordWidth-1)*stride))
     {
       //got it
       //not implemented exactly yet, but at least we have a return value which
@@ -1202,7 +1272,7 @@ float Landscape::getHeightAtPosition(const float x, const float y) const
       x_idx = (unsigned int)((x-m_RecordList[i]->getOffsetX())/stride);
       y_idx = (unsigned int)((y-m_RecordList[i]->getOffsetY())/stride);
 
-      if (x_idx==64 or y_idx==64)
+      if ((x_idx==(cRecordWidth-1)) or (y_idx==(cRecordWidth-1)))
       {
         return m_RecordList[i]->Height[x_idx][y_idx];
       }
