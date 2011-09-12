@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010 thoronador
+    Copyright (C) 2009, 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -57,6 +57,7 @@ namespace Dusk
   const unsigned int cHeaderMean = 1851876685; //"Mean" (for "mean" save game type)
   const unsigned int cHeaderNPC_ = 1598246990; //"NPC_" (for NPC(Base) records)
   const unsigned int cHeaderObjS = 1399480911; //"ObjS" (for static objects)
+  const unsigned int cHeaderPlay = 2036427856; //"Play" (for Player object)
   const unsigned int cHeaderProj = 1785688656; //"Proj" (for projectiles)
   const unsigned int cHeaderQLog = 1735347281; //"QLog" (for QuestLog)
   const unsigned int cHeaderRefA = 1097229650; //"RefA" (for Referenced AnimatedObject)

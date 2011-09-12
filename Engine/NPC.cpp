@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010 thoronador
+    Copyright (C) 2009, 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -688,6 +688,77 @@ bool NPC::enable(Ogre::SceneManager* scm)
   return AnimatedObject::enable(scm);
 }
 
+bool NPC::saveNPCPart(std::ofstream& output) const
+{
+  if (!output.good())
+  {
+    DuskLog() << "NPC::saveNPCPart: ERROR: bad stream given!\n";
+    return false;
+  }
+  //health
+  output.write((char*) &m_Health, sizeof(float));
+  //level
+  output.write((char*) &m_Level, 1);
+  //attributes
+  output.write((char*) &m_Strength, 1);
+  output.write((char*) &m_Agility, 1);
+  output.write((char*) &m_Vitality, 1);
+  output.write((char*) &m_Intelligence, 1);
+  output.write((char*) &m_Willpower, 1);
+  output.write((char*) &m_Charisma, 1);
+  output.write((char*) &m_Luck, 1);
+
+  if (!output.good())
+  {
+    DuskLog() << "NPC::saveNPCPart: ERROR while writing character data.\n";
+    return false;
+  }
+  if (!(m_Inventory.saveToStream(output)))
+  {
+    DuskLog() << "NPC::saveNPCPart: ERROR while writing inventory data.\n";
+    return false;
+  }
+
+  //attack flags and times
+  output.write((char*) &m_AttackFlags, sizeof(unsigned char));
+  output.write((char*) &m_TimeToNextAttackRight, sizeof(float));
+  output.write((char*) &m_TimeToNextAttackLeft, sizeof(float));
+  if (!output.good())
+  {
+    DuskLog() << "NPC::saveNPCPart: ERROR while writing attack data.\n";
+    return false;
+  }
+  //equipped items
+  unsigned int equipCount = 0;
+  if (m_EquippedRight!=NULL) equipCount = 1;
+  if (m_EquippedLeft!=NULL) ++equipCount;
+  output.write((char*) &equipCount, sizeof(unsigned int));
+  if (m_EquippedRight!=NULL)
+  {
+    //write ID of right hand item
+    equipCount = m_EquippedRight->getID().length();
+    output.write((char*) &equipCount, sizeof(unsigned int));
+    output.write(m_EquippedRight->getID().c_str(), equipCount);
+  }
+  if (m_EquippedLeft!=NULL)
+  {
+    //write ID of left hand item
+    equipCount = m_EquippedLeft->getID().length();
+    output.write((char*) &equipCount, sizeof(unsigned int));
+    output.write(m_EquippedLeft->getID().c_str(), equipCount);
+  }
+  //jumping info
+  output.write((char*) &m_Jump, sizeof(bool));
+  output.write((char*) &m_JumpVelocity, sizeof(float));
+  if (!output.good())
+  {
+    DuskLog() << "NPC::saveNPCPart: ERROR while writing equipped items or "
+              << "jump data.\n";
+    return false;
+  }
+  return output.good();
+}
+
 bool NPC::saveToStream(std::ofstream& OutStream) const
 {
   if (!OutStream.good())
@@ -722,68 +793,115 @@ bool NPC::saveToStream(std::ofstream& OutStream) const
     return false;
   }
   //done with inherited data members; go on with NPC stuff
-  //health
-  OutStream.write((char*) &m_Health, sizeof(float));
-  //level
-  OutStream.write((char*) &m_Level, 1);
-  //attributes
-  OutStream.write((char*) &m_Strength, 1);
-  OutStream.write((char*) &m_Agility, 1);
-  OutStream.write((char*) &m_Vitality, 1);
-  OutStream.write((char*) &m_Intelligence, 1);
-  OutStream.write((char*) &m_Willpower, 1);
-  OutStream.write((char*) &m_Charisma, 1);
-  OutStream.write((char*) &m_Luck, 1);
-
-  if (!OutStream.good())
+  if (!saveNPCPart(OutStream))
   {
-    DuskLog() << "NPC::saveToStream: ERROR while writing character data.\n";
+    DuskLog() << "NPC::saveToStream: ERROR while saving NPC data!\n";
     return false;
   }
-  if (!(m_Inventory.saveToStream(OutStream)))
+  return OutStream.good();
+}
+
+bool NPC::loadNPCPart(std::ifstream& InStream)
+{
+  if (!InStream.good())
   {
-    DuskLog() << "NPC::saveToStream: ERROR while writing inventory data.\n";
+    DuskLog() << "NPC::loadNPCPart: ERROR: bad stream given!\n";
+    return false;
+  }
+  //health
+  InStream.read((char*) &m_Health, sizeof(float));
+  //level
+  InStream.read((char*) &m_Level, 1);
+  //attributes
+  InStream.read((char*) &m_Strength, 1);
+  InStream.read((char*) &m_Agility, 1);
+  InStream.read((char*) &m_Vitality, 1);
+  InStream.read((char*) &m_Intelligence, 1);
+  InStream.read((char*) &m_Willpower, 1);
+  InStream.read((char*) &m_Charisma, 1);
+  InStream.read((char*) &m_Luck, 1);
+
+  if (!InStream.good())
+  {
+    DuskLog() << "NPC::loadNPCPart: ERROR while reading character data.\n";
+    return false;
+  }
+  if (!(m_Inventory.loadFromStream(InStream)))
+  {
+    DuskLog() << "NPC::loadNPCPart: ERROR while reading inventory data.\n";
     return false;
   }
 
   //attack flags and times
-  OutStream.write((char*) &m_AttackFlags, sizeof(unsigned char));
-  OutStream.write((char*) &m_TimeToNextAttackRight, sizeof(float));
-  OutStream.write((char*) &m_TimeToNextAttackLeft, sizeof(float));
-  if (!OutStream.good())
+  InStream.read((char*) &m_AttackFlags, sizeof(unsigned char));
+  InStream.read((char*) &m_TimeToNextAttackRight, sizeof(float));
+  InStream.read((char*) &m_TimeToNextAttackLeft, sizeof(float));
+  if (!InStream.good())
   {
-    DuskLog() << "NPC::saveToStream: ERROR while writing attack data.\n";
+    DuskLog() << "NPC::loadNPCPart: ERROR while reading attack data.\n";
     return false;
   }
   //equipped items
   unsigned int equipCount = 0;
-  if (m_EquippedRight!=NULL) equipCount = 1;
-  if (m_EquippedLeft!=NULL) ++equipCount;
-  OutStream.write((char*) &equipCount, sizeof(unsigned int));
-  if (m_EquippedRight!=NULL)
+  InStream.read((char*) &equipCount, sizeof(unsigned int));
+  if (equipCount>0)
   {
-    //write ID of right hand item
-    equipCount = m_EquippedRight->getID().length();
-    OutStream.write((char*) &equipCount, sizeof(unsigned int));
-    OutStream.write(m_EquippedRight->getID().c_str(), equipCount);
-  }
-  if (m_EquippedLeft!=NULL)
-  {
-    //write ID of left hand item
-    equipCount = m_EquippedLeft->getID().length();
-    OutStream.write((char*) &equipCount, sizeof(unsigned int));
-    OutStream.write(m_EquippedLeft->getID().c_str(), equipCount);
-  }
+    //read ID of right hand item
+    unsigned int len = 0;
+    InStream.read((char*) &len, sizeof(unsigned int));
+    if (len>255)
+    {
+      DuskLog() << "NPC::loadNPCPart: ERROR: ID of right hand item seems "
+                << "to be longer than 255 characters.\n";
+      return false;
+    }
+    char Buffer[256];
+    Buffer[0] = Buffer[255] = '\0';
+    InStream.read(Buffer, len);
+    Buffer[len] = '\0';
+    if (!InStream.good())
+    {
+      DuskLog() << "NPC::loadNPCPart: ERROR while reading ID of right hand "
+                << "item.\n";
+      return false;
+    }
+    if (!equip(std::string(Buffer)))
+    {
+      DuskLog() << "NPC::loadNPCPart: ERROR while equipping right hand item.\n";
+      return false;
+    }
+    //check for presence of another item
+    if (equipCount>1)
+    {
+      //read ID of left hand item
+      len = 0;
+      InStream.read((char*) &len, sizeof(unsigned int));
+      if (len>255)
+      {
+        DuskLog() << "NPC::loadNPCPart: ERROR: ID of left hand item seems "
+                  << "to be longer than 255 characters.\n";
+        return false;
+      }
+      Buffer[0] = Buffer[255] = '\0';
+      InStream.read(Buffer, len);
+      Buffer[len] = '\0';
+      if (!InStream.good())
+      {
+        DuskLog() << "NPC::loadNPCPart: ERROR while reading ID of left hand "
+                  << "item.\n";
+        return false;
+      }
+      if (!equip(std::string(Buffer)))
+      {
+        DuskLog() << "NPC::loadNPCPart: ERROR while equipping left hand item.\n";
+        return false;
+      }
+    }//second item
+  }//have something equipped
   //jumping info
-  OutStream.write((char*) &m_Jump, sizeof(bool));
-  OutStream.write((char*) &m_JumpVelocity, sizeof(float));
-  if (!OutStream.good())
-  {
-    DuskLog() << "NPC::saveToStream: ERROR while writing equipped items or "
-              << "jump data.\n";
-    return false;
-  }
-  return OutStream.good();
+  InStream.read((char*) &m_Jump, sizeof(bool));
+  InStream.read((char*) &m_JumpVelocity, sizeof(float));
+  return InStream.good();
 }
 
 bool NPC::loadFromStream(std::ifstream& InStream)
@@ -805,7 +923,7 @@ bool NPC::loadFromStream(std::ifstream& InStream)
   if (Header!=cHeaderRefN)
   {
     DuskLog() << "NPC::loadFromStream: ERROR: Stream contains invalid reference"
-              << "header.\n";
+              << " header.\n";
     return false;
   }
   //read DuskObject stuff
@@ -833,100 +951,11 @@ bool NPC::loadFromStream(std::ifstream& InStream)
     return false;
   }
   //done with inherited data, go on with NPC data
-
-  //health
-  InStream.read((char*) &m_Health, sizeof(float));
-  //level
-  InStream.read((char*) &m_Level, 1);
-  //attributes
-  InStream.read((char*) &m_Strength, 1);
-  InStream.read((char*) &m_Agility, 1);
-  InStream.read((char*) &m_Vitality, 1);
-  InStream.read((char*) &m_Intelligence, 1);
-  InStream.read((char*) &m_Willpower, 1);
-  InStream.read((char*) &m_Charisma, 1);
-  InStream.read((char*) &m_Luck, 1);
-
-  if (!InStream.good())
+  if (!loadNPCPart(InStream))
   {
-    DuskLog() << "NPC::loadFromStream: ERROR while reading character data.\n";
+    DuskLog() << "NPC::loadFromStream: ERROR while loading NPC data.\n";
     return false;
   }
-  if (!(m_Inventory.loadFromStream(InStream)))
-  {
-    DuskLog() << "NPC::loadFromStream: ERROR while reading inventory data.\n";
-    return false;
-  }
-
-  //attack flags and times
-  InStream.read((char*) &m_AttackFlags, sizeof(unsigned char));
-  InStream.read((char*) &m_TimeToNextAttackRight, sizeof(float));
-  InStream.read((char*) &m_TimeToNextAttackLeft, sizeof(float));
-  if (!InStream.good())
-  {
-    DuskLog() << "NPC::loadFromStream: ERROR while reading attack data.\n";
-    return false;
-  }
-  //equipped items
-  unsigned int equipCount = 0;
-  InStream.read((char*) &equipCount, sizeof(unsigned int));
-  if (equipCount>0)
-  {
-    //read ID of right hand item
-    unsigned int len = 0;
-    InStream.read((char*) &len, sizeof(unsigned int));
-    if (len>255)
-    {
-      DuskLog() << "NPC::loadFromStream: ERROR: ID of right hand item seems "
-                << "to be longer than 255 characters.\n";
-      return false;
-    }
-    char Buffer[256];
-    Buffer[0] = Buffer[255] = '\0';
-    InStream.read(Buffer, len);
-    Buffer[len] = '\0';
-    if (!InStream.good())
-    {
-      DuskLog() << "NPC::loadFromStream: ERROR while reading ID of right hand "
-                << "item.\n";
-      return false;
-    }
-    if (!equip(std::string(Buffer)))
-    {
-      DuskLog() << "NPC::loadFromStream: ERROR while equipping right hand item.\n";
-      return false;
-    }
-    //check for presence of another item
-    if (equipCount>1)
-    {
-      //read ID of left hand item
-      len = 0;
-      InStream.read((char*) &len, sizeof(unsigned int));
-      if (len>255)
-      {
-        DuskLog() << "NPC::loadFromStream: ERROR: ID of left hand item seems "
-                  << "to be longer than 255 characters.\n";
-        return false;
-      }
-      Buffer[0] = Buffer[255] = '\0';
-      InStream.read(Buffer, len);
-      Buffer[len] = '\0';
-      if (!InStream.good())
-      {
-        DuskLog() << "NPC::loadFromStream: ERROR while reading ID of left hand "
-                  << "item.\n";
-        return false;
-      }
-      if (!equip(std::string(Buffer)))
-      {
-        DuskLog() << "NPC::loadFromStream: ERROR while equipping left hand item.\n";
-        return false;
-      }
-    }//second item
-  }//have something equipped
-  //jumping info
-  InStream.read((char*) &m_Jump, sizeof(bool));
-  InStream.read((char*) &m_JumpVelocity, sizeof(float));
   return InStream.good();
 }
 

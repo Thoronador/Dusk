@@ -30,6 +30,7 @@
 #include "NPCBase.h"
 #include "ObjectBase.h"
 #include "ObjectManager.h"
+#include "Player.h"
 #include "QuestLog.h"
 #include "ProjectileBase.h"
 #include "VehicleBase.h"
@@ -84,7 +85,10 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
   }
   if ((bits & INJECTION_BIT) !=0)
   {
+    //animated objects
     data_records += InjectionManager::getSingleton().getNumberOfReferences();
+    //player object
+    data_records += 1;
   }
   if ((bits & ITEM_BIT) !=0)
   {
@@ -120,6 +124,7 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
   }
   if ((bits & REFERENCE_BIT) !=0)
   {
+    //static objects
     data_records += ObjectManager::getSingleton().getNumberOfReferences();
   }
   if ((bits & VEHICLE_BIT) !=0)
@@ -281,9 +286,18 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
   //save animated objects/ injection objects
   if ((bits & INJECTION_BIT)!=0)
   {
+    //animated objects
     if (!InjectionManager::getSingleton().saveAllToStream(output))
     {
       DuskLog() << "DataLoader::saveToFile: ERROR: could not write Injection "
+                << "reference data to file \""<<FileName<<"\".\n";
+      output.close();
+      return false;
+    }
+    //save player object, too
+    if (!Player::getSingleton().saveToStream(output))
+    {
+      DuskLog() << "DataLoader::saveToFile: ERROR: could not write Player "
                 << "reference data to file \""<<FileName<<"\".\n";
       output.close();
       return false;
@@ -378,6 +392,9 @@ bool DataLoader::loadFromFile(const std::string& FileName)
            break;
       case cHeaderObjS:
            success = ObjectBase::getSingleton().loadFromStream(input);
+           break;
+      case cHeaderPlay:
+           success = Player::getSingleton().loadFromStream(input);
            break;
       case cHeaderQLog:
            success = QuestLog::getSingleton().loadFromStream(input);
@@ -665,6 +682,9 @@ bool DataLoader::loadSaveGame(const std::string& FileName)
       case cHeaderQLog: //questlog
            success = QuestLog::getSingleton().loadFromStream(input);
            break;
+      case cHeaderPlay:
+           success = Player::getSingleton().loadFromStream(input);
+           break;
       default:
            DuskLog() <<"DataLoader::loadSaveGame: ERROR: Got unexpected header "
                      <<Header << " in file \""<<FileName<<"\" at position "
@@ -702,7 +722,8 @@ bool DataLoader::saveGame(const std::string& FileName) const
   output.write((char*) &cHeaderDusk, sizeof(unsigned int));
   //determine and write number of records
   unsigned int data_records = 1 /*QuestLog*/ + ObjectManager::getSingleton().getNumberOfReferences()
-                              + InjectionManager::getSingleton().getNumberOfReferences();
+                              + InjectionManager::getSingleton().getNumberOfReferences()
+                              +1 /* Player */;
   output.write((char*) &data_records, sizeof(unsigned int));
   //write headers to identify file as save game
   output.write((char*) &cHeaderSave, sizeof(unsigned int));
@@ -736,6 +757,13 @@ bool DataLoader::saveGame(const std::string& FileName) const
   if (!InjectionManager::getSingleton().saveAllToStream(output))
   {
     DuskLog() << "DataLoader::saveGame: ERROR while writing animation data to "
+              << "file \""<<FileName<<"\".\n";
+    output.close();
+    return false;
+  }
+  if (!Player::getSingleton().saveToStream(output))
+  {
+    DuskLog() << "DataLoader::saveGame: ERROR while writing player data to "
               << "file \""<<FileName<<"\".\n";
     output.close();
     return false;

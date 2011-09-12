@@ -54,8 +54,9 @@
      - 2010-11-13 (rev 254) - update due to renaming of some functions in
                               Landscape class
      - 2010-12-01 (rev 265) - use DuskLog/Messages class for logging
-     - 2011-05-11 (rev 287) - update to to renaming of some functions in other
+     - 2011-05-11 (rev 287) - update due to renaming of some functions in other
                               singleton classes
+     - 2011-09-12 (rev 299) - player object will now be saved/loaded, too
 
  ToDo list:
      - extend class when further classes for data management are added

@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010 thoronador
+    Copyright (C) 2009, 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -66,6 +66,7 @@
      - 2010-12-01 (rev 263) - other objects than landscape are now considered
                               during movement, too
      - 2010-12-04 (rev 267) - use DuskLog/Messages class for logging
+     - 2011-09-12 (rev 299) - loadNPCPart() and saveNPCPart() added
 
  ToDo list:
      - add possibility to equip weapons, clothes, armour, etc.
@@ -414,6 +415,30 @@ namespace Dusk
       bool canAttackLeft() const;
       /* utility function to check for attack flag - right hand */
       bool canAttackRight() const;
+
+      /* Utility function which saves all data that is specific to an NPC to
+         the given stream. Returns true on success.
+
+         parameters:
+             output - the output stream that is used to save the object
+
+         remarks:
+             Derived classes will (most likely) call this function as part of
+             their implementation of saveToStream().
+      */
+      bool saveNPCPart(std::ofstream& output) const;
+
+      /* Utility function which loads all data that is specific to an NPC object
+         from the given stream. Returns true on success.
+
+         parameters:
+             InStream - the input stream that is used to load the object
+
+         remarks:
+             Derived classes will (most likely) call this function as part of
+             their implementation of loadFromStream().
+      */
+      bool loadNPCPart(std::ifstream& InStream);
   }; //class
 
 } //namespace

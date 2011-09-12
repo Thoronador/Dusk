@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -39,9 +39,9 @@
      - 2010-09-03 (rev 240) - adjustments for Editor
      - 2010-11-20 (rev 255) - rotation is now stored as Quaternion
      - 2010-12-04 (rev 268) - use DuskLog/Messages class for logging
+     - 2011-09-12 (rev 299) - loadFromStream() and saveToStream() implemented
 
  ToDo list:
-     - actually implement loadFromStream() and saveToStream()
      - ???
 
  Bugs:

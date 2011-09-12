@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #include "Player.h"
 #include "API.h"
 #include "Messages.h"
+#include "DuskConstants.h"
 #ifndef DUSK_EDITOR
   #include "Camera.h"
 #endif
@@ -178,14 +179,115 @@ bool Player::enable(Ogre::SceneManager* scm)
 
 bool Player::saveToStream(std::ofstream& OutStream) const
 {
-  //not implemented yet
-  return false;
+  /*This function is basically copied from NPC::saveToStream(). The only
+    difference is the different header ("Play" instead of "RefN"). */
+  if (!OutStream.good())
+  {
+    DuskLog() << "Player::saveToStream: ERROR: Stream contains errors!\n";
+    return false;
+  }
+  //write header "Play" (Player)
+  OutStream.write((char*) &cHeaderPlay, sizeof(unsigned int));
+  //save stuff inherited from DuskObject
+  if (!saveDuskObjectPart(OutStream))
+  {
+    DuskLog() << "Player::saveToStream: ERROR while saving basic data!\n";
+    return false;
+  }
+  // go on with new data members from AnimatedObject
+  if (!saveAnimatedObjectPart(OutStream))
+  {
+    DuskLog() << "Player::saveToStream: ERROR while saving animation data!\n";
+    return false;
+  }
+  // go on with new data members from UniformMotionObject
+  if (!saveUniformMotionObjectPart(OutStream))
+  {
+    DuskLog() << "Player::saveToStream: ERROR while saving basic motion data!\n";
+    return false;
+  }
+  // go on with new data members from WaypointObject
+  if (!saveWaypointObjectPart(OutStream))
+  {
+    DuskLog() << "Player::saveToStream: ERROR while saving waypoint data!\n";
+    return false;
+  }
+  //done with inherited data members; go on with NPC stuff
+  if (!saveNPCPart(OutStream))
+  {
+    DuskLog() << "Player::saveToStream: ERROR while saving NPC data!\n";
+    return false;
+  }
+  return OutStream.good();
 }
 
 bool Player::loadFromStream(std::ifstream& InStream)
 {
-  //not implemented yet
-  return false;
+  /*This function is basically copied from NPC::loadFromStream(). The only
+    difference is the different header ("Play" instead of "RefN"). */
+  if (!InStream.good())
+  {
+    DuskLog() << "Player::loadFromStream: ERROR: Stream contains errors!\n";
+    return false;
+  }
+  //read header "Play"
+  unsigned int Header = 0;
+  InStream.read((char*) &Header, sizeof(unsigned int));
+  if (Header!=cHeaderPlay)
+  {
+    DuskLog() << "Player::loadFromStream: ERROR: Stream contains invalid "
+              << "reference header.\n";
+    return false;
+  }
+  //read DuskObject stuff
+  if (!loadDuskObjectPart(InStream))
+  {
+    DuskLog() << "Player::loadFromStream: ERROR while reading basic data.\n";
+    return false;
+  }
+  // go on with data members from AnimatedObject
+  if (!loadAnimatedObjectPart(InStream))
+  {
+    DuskLog() << "Player::loadFromStream: ERROR while loading animation data.\n";
+    return false;
+  }
+  // go on with data members from UniformMotionObject
+  if (!loadUniformMotionObjectPart(InStream))
+  {
+    DuskLog() << "Player::loadFromStream: ERROR while loading motion data.\n";
+    return false;
+  }
+  // go on with data members from WaypointObject
+  if (!loadWaypointObjectPart(InStream))
+  {
+    DuskLog() << "Player::loadFromStream: ERROR while loading waypoint data.\n";
+    return false;
+  }
+  //done with inherited data, go on with NPC data
+  if (!loadNPCPart(InStream))
+  {
+    DuskLog() << "Player::loadFromStream: ERROR while loading NPC data.\n";
+    return false;
+  }
+  //if player was enabled during loading (which he is most likely), we will have
+  // to re-enable the object for the changes to take effect
+  if (entity!=NULL)
+  {
+    //get scene manager for later use
+    Ogre::SceneManager* scm = entity->getParentSceneNode()->getCreator();
+    if (scm==NULL)
+    {
+      DuskLog() << "Player::loadFromStream: ERROR: No scene manager found.\n";
+      return false;
+    }
+    disable();
+    if (!enable(scm))
+    {
+      DuskLog() << "Player::loadFromStream: ERROR: Could not re-enable object.\n";
+      return false;
+    }
+  }
+  return InStream.good();
 }
 
 } //namespace
