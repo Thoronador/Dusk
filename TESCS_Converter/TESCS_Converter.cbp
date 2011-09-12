@@ -33,6 +33,8 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="../Engine/DiceBox.cpp" />
+		<Unit filename="../Engine/DiceBox.h" />
 		<Unit filename="../Engine/DuskFunctions.cpp" />
 		<Unit filename="../Engine/DuskFunctions.h" />
 		<Unit filename="../Engine/Landscape.cpp" />
@@ -46,6 +48,7 @@
 			<code_completion />
 			<debugger />
 			<lib_finder disable_auto="1" />
+			<envvars />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

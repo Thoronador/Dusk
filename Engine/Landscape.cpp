@@ -22,6 +22,7 @@
 #include "DuskConstants.h"
 #include "Messages.h"
 #include "DiceBox.h"
+#include <cmath>
 #include <sstream>
 #include <limits>
 #ifndef NO_OGRE_IN_LANDSCAPE

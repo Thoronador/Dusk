@@ -1388,14 +1388,17 @@
 1231621552 d:\wopcp\trunk\engine\framelistener.h
 	<Ogre.h>
 
-1291481045 source:/home/dirk/wopcp/trunk/Engine/Landscape.cpp
+1315787938 source:/home/dirk/wopcp/trunk/Engine/Landscape.cpp
 	"Landscape.h"
 	"DuskConstants.h"
 	"Messages.h"
+	"DiceBox.h"
+	<cmath>
 	<sstream>
+	<limits>
 	<OgreMath.h>
 
-1291481066 /home/dirk/wopcp/trunk/Engine/Landscape.h
+1314568465 /home/dirk/wopcp/trunk/Engine/Landscape.h
 	<fstream>
 	<string>
 	<OgreRay.h>
@@ -1405,42 +1408,43 @@
 	<vector>
 	"DuskTypes.h"
 
-1289586227 /home/dirk/wopcp/trunk/Engine/DuskTypes.h
+1289008449 /home/dirk/wopcp/trunk/Engine/DuskTypes.h
 
-1291400862 /home/dirk/wopcp/trunk/Engine/DuskConstants.h
+1315784178 /home/dirk/wopcp/trunk/Engine/DuskConstants.h
 	<string>
 
-1291400862 source:/home/dirk/wopcp/trunk/TESCS_Converter/Converter.cpp
+1289609455 source:/home/dirk/wopcp/trunk/TESCS_Converter/Converter.cpp
 	"Converter.h"
 	<iostream>
 	<fstream>
 	<cstring>
 	"../Engine/Landscape.h"
 
-1240576449 /home/dirk/wopcp/trunk/TESCS_Converter/Converter.h
+1248965861 /home/dirk/wopcp/trunk/TESCS_Converter/Converter.h
 	<string>
 
-1240576449 source:/home/dirk/wopcp/trunk/TESCS_Converter/main.cpp
+1248965861 source:/home/dirk/wopcp/trunk/TESCS_Converter/main.cpp
 	<iostream>
 	<fstream>
 	<string>
 	"Converter.h"
 
-1291400862 /home/dirk/wopcp/trunk/Engine/Messages.h
+1297011399 /home/dirk/wopcp/trunk/Engine/Messages.h
 	<string>
 	<fstream>
 	<deque>
+	<stdint.h>
 
-1291400862 source:/home/dirk/wopcp/trunk/Engine/Messages.cpp
+1291196140 source:/home/dirk/wopcp/trunk/Engine/Messages.cpp
 	"Messages.h"
 	<iostream>
 	"DuskFunctions.h"
 
-1291400862 /home/dirk/wopcp/trunk/Engine/DuskFunctions.h
+1309288524 /home/dirk/wopcp/trunk/Engine/DuskFunctions.h
 	<string>
 	<vector>
 
-1291400862 source:/home/dirk/wopcp/trunk/Engine/DuskFunctions.cpp
+1309288524 source:/home/dirk/wopcp/trunk/Engine/DuskFunctions.cpp
 	"DuskFunctions.h"
 	<iostream>
 	<fstream>
@@ -1448,4 +1452,12 @@
 	<io.h>
 	<dirent.h>
 	<unistd.h>
+	<cstring>
+
+1314566353 /home/dirk/wopcp/trunk/Engine/DiceBox.h
+
+1314566086 source:/home/dirk/wopcp/trunk/Engine/DiceBox.cpp
+	"DiceBox.h"
+	<ctime>
+	<cstdlib>
 
