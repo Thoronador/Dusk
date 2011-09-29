@@ -31,6 +31,7 @@
      - 2010-11-20 (rev 255) - rotation is now stored as Quaternion
      - 2010-12-04 (rev 267) - use DuskLog/Messages class for logging
      - 2011-05-18 (rev 291) - getFirst() and getEnd() added
+     - 2011-09-29 (rev 301) - removed unnecessary data member
 
  ToDo list:
      - ???
@@ -62,7 +63,6 @@ struct VehicleRecord
   std::string Mesh;
   std::string Name;
   float MaxSpeed;
-  unsigned int MountpointCount;
   std::vector<MountpointData> Mountpoints;
 }; //struct
 

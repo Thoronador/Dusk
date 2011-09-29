@@ -42,7 +42,7 @@ VehicleBase::~VehicleBase()
 void VehicleBase::addVehicle(const std::string& ID, const VehicleRecord& data)
 {
   if (ID!="" and data.Mesh!="" and data.Name!="" and data.MaxSpeed>=0.0f
-      and data.MountpointCount==data.Mountpoints.size())
+      and data.Mountpoints.size()>0 and data.Mountpoints.size()<=cMaxMountpointCount)
   {
     m_Vehicles[ID] = data;
   }
@@ -115,7 +115,7 @@ unsigned int VehicleBase::getVehicleMountpoints(const std::string& ID) const
       m_Vehicles.find(ID);
   if (cIter!=m_Vehicles.end())
   {
-    return cIter->second.MountpointCount;
+    return cIter->second.Mountpoints.size();
   }
   DuskLog() << "VehicleBase::getVehicleMountpoints: ERROR: no vehicle with ID \""
             << ID <<"\" found. Returning zero.\n";
@@ -128,9 +128,10 @@ const Ogre::Vector3& VehicleBase::getMountpointOffset(const std::string& ID, con
       m_Vehicles.find(ID);
   if (cIter!=m_Vehicles.end())
   {
-    if (idx< cIter->second.MountpointCount) return cIter->second.Mountpoints.at(idx).offset;
+    if (idx< cIter->second.Mountpoints.size()) return cIter->second.Mountpoints.at(idx).offset;
     DuskLog() << "VehicleBase::getMountpointOffset: ERROR: index is out of "
-              << "range. Returning zero vector.\n";
+              << "range for vehicle \""<<ID<<"\". Returning zero vector.\n";
+    return Ogre::Vector3::ZERO;
   }
   DuskLog() << "VehicleBase::getMountpointOffset: ERROR: no vehicle with ID \""
             << ID<<"\" found. Returning zero vector.\n";
@@ -143,9 +144,10 @@ const Ogre::Quaternion& VehicleBase::getMountpointRotation(const std::string& ID
       m_Vehicles.find(ID);
   if (cIter!=m_Vehicles.end())
   {
-    if (idx< cIter->second.MountpointCount) return cIter->second.Mountpoints.at(idx).rotation;
+    if (idx< cIter->second.Mountpoints.size()) return cIter->second.Mountpoints.at(idx).rotation;
     DuskLog() << "VehicleBase::getMountpointRotation: ERROR: index is out of "
-              << "range. Returning identity quaternion.\n";
+              << "range for vehicle \""<<ID<<"\". Returning identity quaternion.\n";
+    return Ogre::Quaternion::IDENTITY;
   }
   DuskLog() << "VehicleBase::getMountpointRotation: ERROR: no vehicle with ID \""
             << ID<<"\" found. Returning identity quaternion.\n";
@@ -158,9 +160,10 @@ const MountpointData& VehicleBase::getMountpointData(const std::string& ID, cons
       m_Vehicles.find(ID);
   if (cIter!=m_Vehicles.end())
   {
-    if (idx< cIter->second.MountpointCount) return cIter->second.Mountpoints.at(idx);
+    if (idx< cIter->second.Mountpoints.size()) return cIter->second.Mountpoints.at(idx);
     DuskLog() << "VehicleBase::getMountpointData: ERROR: index is out of range."
               << " Returning predefined data.\n";
+    return mp_null;
   }
   DuskLog() << "VehicleBase::getMountpointData: ERROR: no vehicle with ID \""
             << ID<<"\" found. Returning predefined values.\n";
@@ -219,9 +222,10 @@ bool VehicleBase::saveAllToStream(std::ofstream& OutStream) const
     //MaxSpeed
     OutStream.write((char*) &(iter->second.MaxSpeed), sizeof(iter->second.MaxSpeed));
     //number of Mountpoints
-    OutStream.write((char*) &(iter->second.MountpointCount), sizeof(iter->second.MountpointCount));
+    len = iter->second.Mountpoints.size();
+    OutStream.write((char*) &len, sizeof(len));
     //write mountpoint data
-    for (len=0; len<iter->second.MountpointCount; ++len)
+    for (len=0; len<iter->second.Mountpoints.size(); ++len)
     {
       // -- offset
       temp = iter->second.Mountpoints.at(len).offset.x;
@@ -329,25 +333,28 @@ bool VehicleBase::loadNextVehicleFromStream(std::ifstream& InStream)
     return false;
   }
   //number of Mountpoints
-  InStream.read((char*) &(vRec.MountpointCount), sizeof(vRec.MountpointCount));
+  len = 0;
+  InStream.read((char*) &len, sizeof(len));
   if (!InStream.good())
   {
     DuskLog() << "VehicleBase::loadNextVehicleFromStream: ERROR while reading "
               << "data from stream!\n";
     return false;
   }
-  if (vRec.MountpointCount>cMaxMountpointCount)
+  if (len>cMaxMountpointCount)
   {
     DuskLog() << "VehicleBase::loadNextVehicleFromStream: ERROR while reading "
-              << "data from stream! Number of mountpoints is to big. Current "
-              << "value is "<<vRec.MountpointCount<<", but only up to "
+              << "data from stream! Number of mountpoints is too big. Current "
+              << "value is "<<len<<", but only up to "
               << cMaxMountpointCount << " are allowed.\n";
     return false;
   }
   //read the mountpoint data
   float w, x, y, z;
   MountpointData mpd;
-  for (len=0; len<vRec.MountpointCount; ++len)
+  vRec.Mountpoints.clear(); //better be safe than sorry
+  unsigned int i;
+  for (i=0; i<len; ++i)
   {
     // -- offset first
     InStream.read((char*) &x, sizeof(float));

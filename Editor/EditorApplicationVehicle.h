@@ -28,6 +28,7 @@
 
  History:
      - 2011-05-18 (rev 291) - initial version (by thoronador)
+     - 2011-09-29 (rev 301) - window for creating new vehicles added
 
  ToDo list:
      - add possibility to create and edit vehicles
@@ -97,6 +98,10 @@ class EditorApplicationVehicle
 
     //window for creating new vehicles
     void showVehicleNewWindow(void);
+    //callbacks for deletion window
+    bool VehicleNewFrameOKClicked(const CEGUI::EventArgs &e);
+    bool VehicleNewFrameCancelClicked(const CEGUI::EventArgs &e);
+    bool VehicleNewFrameMountpointsClicked(const CEGUI::EventArgs &e);
 
     //window for editing vehicles
     void showVehicleEditWindow(void);
@@ -106,7 +111,6 @@ class EditorApplicationVehicle
     //callbacks for deletion window
     bool VehicleDeleteFrameNoClicked(const CEGUI::EventArgs &e);
     bool VehicleDeleteFrameYesClicked(const CEGUI::EventArgs &e);
-
 
     //string for keeping ID of the vehicle that was edited
     std::string ID_of_vehicle_to_edit;

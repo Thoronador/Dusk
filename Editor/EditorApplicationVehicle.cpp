@@ -272,6 +272,11 @@ void EditorApplicationVehicle::closeEditWindowsVehicle(void)
   {
     winmgr.destroyWindow("Editor/VehicleDeleteFrame");
   }
+  //delete creation window
+  if (winmgr.isWindowPresent("Editor/VehicleNewFrame"))
+  {
+    winmgr.destroyWindow("Editor/VehicleNewFrame");
+  }
 }
 
 void EditorApplicationVehicle::refreshVehicleList(void)
@@ -317,12 +322,143 @@ void EditorApplicationVehicle::addVehicleRecordToCatalogue(const std::string& ID
   lbi = new CEGUI::ListboxTextItem(FloatToString(record.MaxSpeed));
   lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
   mcl->setItem(lbi, 3, row);
-  lbi = new CEGUI::ListboxTextItem(IntToString(record.MountpointCount));
+  lbi = new CEGUI::ListboxTextItem(IntToString(record.Mountpoints.size()));
   lbi->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
   mcl->setItem(lbi, 4, row);
 }
 
 void EditorApplicationVehicle::showVehicleNewWindow(void)
+{
+  #warning Not implemented yet!
+
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  CEGUI::FrameWindow* frame;
+  if (winmgr.isWindowPresent("Editor/VehicleNewFrame"))
+  {
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.getWindow("Editor/VehicleNewFrame"));
+  }
+  else
+  {
+    //create frame and child windows
+    frame = static_cast<CEGUI::FrameWindow*> (winmgr.createWindow("TaharezLook/FrameWindow", "Editor/VehicleNewFrame"));
+    frame->setTitleBarEnabled(true);
+    frame->setText("New Weapon...");
+    frame->setCloseButtonEnabled(false);
+    frame->setFrameEnabled(true);
+    frame->setSizingEnabled(true);
+    frame->setInheritsAlpha(false);
+    winmgr.getWindow("Editor/Root")->addChildWindow(frame);
+
+    const float h = 2.5f/21.0f; //height of one element
+    const float d = 0.5f/21.0f; //distance between two adjacent elements
+    const float o = 2.25f/21.0f; //offset of first element
+
+    CEGUI::Window * button = NULL;
+    //static text for ID
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/VehicleNewFrame/ID_Label");
+    button->setText("ID:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //editbox for ID
+    button = winmgr.createWindow("TaharezLook/Editbox", "Editor/VehicleNewFrame/ID_Edit");
+    button->setText("");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //static text for name
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/VehicleNewFrame/Name_Label");
+    button->setText("Name:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o+h+d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //editbox for name
+    button = winmgr.createWindow("TaharezLook/Editbox", "Editor/VehicleNewFrame/Name_Edit");
+    button->setText("");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o+h+d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //static text for mesh
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/VehicleNewFrame/Mesh_Label");
+    button->setText("Mesh:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o+2*h+2*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //editbox for mesh
+    button = winmgr.createWindow("TaharezLook/Editbox", "Editor/VehicleNewFrame/Mesh_Edit");
+    button->setText("");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o+2*h+2*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //static text for max. speed
+    button = winmgr.createWindow("TaharezLook/StaticText", "Editor/VehicleNewFrame/MaxSpeed_Label");
+    button->setText("Max. speed:");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(o+3*h+3*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //editbox for max speed
+    button = winmgr.createWindow("TaharezLook/Editbox", "Editor/VehicleNewFrame/MaxSpeed_Edit");
+    button->setText("0");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(o+3*h+3*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(h, 0)));
+    frame->addChildWindow(button);
+
+    //button for opening separate mountpoint window
+    button = winmgr.createWindow("TaharezLook/Button", "Editor/VehicleNewFrame/MountpointsBtn");
+    button->setText("Mountpoints...");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(o+4*h+4*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(h, 0)));
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplicationVehicle::VehicleNewFrameMountpointsClicked, this));
+    frame->addChildWindow(button);
+
+    //OK button
+    button = winmgr.createWindow("TaharezLook/Button", "Editor/VehicleNewFrame/OK");
+    button->setText("OK");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(o+5*h+5*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(h, 0)));
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplicationVehicle::VehicleNewFrameOKClicked, this));
+    frame->addChildWindow(button);
+    //Cancel button
+    button = winmgr.createWindow("TaharezLook/Button", "Editor/VehicleNewFrame/Cancel");
+    button->setText("Cancel");
+    button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(o+5*h+5*d, 0)));
+    button->setSize(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(h, 0)));
+    button->subscribeEvent(CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorApplicationVehicle::VehicleNewFrameCancelClicked, this));
+    frame->addChildWindow(button);
+  }
+  frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.125, 0)));
+  frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.6, 0)));
+  frame->moveToFront();
+  #warning Not completely implemented yet!
+}
+
+bool EditorApplicationVehicle::VehicleNewFrameOKClicked(const CEGUI::EventArgs &e)
+{
+  #warning Not implemented yet!
+}
+
+bool EditorApplicationVehicle::VehicleNewFrameCancelClicked(const CEGUI::EventArgs &e)
+{
+  //close window
+  CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
+  if (winmgr.isWindowPresent("Editor/VehicleNewFrame"))
+  {
+    winmgr.destroyWindow("Editor/VehicleNewFrame");
+  }
+  return true;
+}
+
+bool EditorApplicationVehicle::VehicleNewFrameMountpointsClicked(const CEGUI::EventArgs &e)
 {
   #warning Not implemented yet!
 }
