@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -193,7 +193,7 @@ const Script& ScriptedTrigger::getEnterScript() const
   return m_EnterScript;
 }
 
-const Script& ScriptedTrigger::getWithingScript() const
+const Script& ScriptedTrigger::getWithinScript() const
 {
   return m_WithinScript;
 }

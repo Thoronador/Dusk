@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2011 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -41,6 +41,7 @@
                               (pointers to objects that are affected by trigger
                                can now be stored in trigger)
      - 2010-11-12 (rev 252) - checkForRemoval() added
+     - 2011-10-28 (rev 302) - fixed spelling error
 
  ToDo list:
      - provide a way for scripts of ScriptedTrigger to access the related
@@ -255,7 +256,7 @@ class ScriptedTrigger: public virtual Trigger
     virtual const Script& getEnterScript() const;
 
     /* returns the script that is called while within the trigger */
-    virtual const Script& getWithingScript() const;
+    virtual const Script& getWithinScript() const;
 
     /* returns the script that is called upon leaving the trigger */
     virtual const Script& getExitScript() const;
