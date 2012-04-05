@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010, 2011 thoronador
+    Copyright (C) 2009, 2010, 2011, 2012 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -41,6 +41,7 @@
      - 2011-01-19 (rev 276) - function to sort file entries added
      - 2011-06-24 (rev 294) - fixed error in get_DirectoryFileList() (Linux
                               version only)
+     - 2012-04-05 (rev 303) - function adjustDirectorySeperator() added
 
  ToDo list:
      - ???
@@ -119,6 +120,17 @@ void sortFileEntries(std::vector<FileEntry>& entries);
 
 /* Checks for existence of file FileName and returns true, if it exists.*/
 bool FileExists(const std::string& FileName);
+
+/* adjusts the given path by replacing invalid path seperators by their valid
+   counterpart
+
+   parameters:
+       path - the path that has to be adjusted
+
+   returns:
+       the proper path
+*/
+std::string adjustDirectorySeperator(const std::string& path);
 
 }//namespace
 

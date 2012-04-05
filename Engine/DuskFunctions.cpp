@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010, 2011 thoronador
+    Copyright (C) 2010, 2011, 2012 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -257,6 +257,27 @@ void sortFileEntries(std::vector<FileEntry>& entries)
     }//for
   }//for
   return;
+}
+
+std::string adjustDirectorySeperator(const std::string& path)
+{
+  std::string result = path;
+  #if defined(_WIN32)
+    const char invalid = '/';
+    const char valid = '\\';
+  #elif defined(__linux__) || defined(linux)
+    const char invalid = '\\';
+    const char valid = '/';
+  #else
+    #error "Unknown operating system!"
+  #endif
+  std::string::size_type pos = result.find(invalid);
+  while (pos!=std::string::npos)
+  {
+    result[pos] = valid;
+    pos = result.find(invalid);
+  }//while
+  return result;
 }
 
 } //namespace

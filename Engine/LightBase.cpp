@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010, 2011 thoronador
+    Copyright (C) 2009, 2010, 2011, 2012 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,7 +19,8 @@
 */
 
 #include "LightBase.h"
-#include "../Engine/DuskConstants.h"
+#include "DuskConstants.h"
+#include "DuskExceptions.h"
 #include "Messages.h"
 
 namespace Dusk
@@ -151,7 +152,7 @@ bool LightBase::hasLight(const std::string& ID) const
   return (m_LightList.find(ID)!=m_LightList.end());
 }
 
-LightRecord LightBase::getLightData(const std::string& ID) const
+const LightRecord& LightBase::getLightData(const std::string& ID) const
 {
   std::map<std::string, LightRecord>::const_iterator l_iter = m_LightList.find(ID);
   if (l_iter != m_LightList.end())
@@ -160,8 +161,8 @@ LightRecord LightBase::getLightData(const std::string& ID) const
   }
   //nothing found, so we give them a black light
   DuskLog() << "LightBase::getLightData: ERROR: no light with ID \""<<ID
-            << "\" found. Returning black light instead.\n";
-  return LightRecord::getBlack(0.0f);
+            << "\" found. Throwing exception instead.\n";
+  throw IDNotFound("LightBase", ID);
 }
 
 bool LightBase::deleteLight(const std::string& ID)

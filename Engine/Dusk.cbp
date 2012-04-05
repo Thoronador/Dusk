@@ -156,6 +156,8 @@
 		<Unit filename="Dispatcher.h" />
 		<Unit filename="Dusk.h" />
 		<Unit filename="DuskConstants.h" />
+		<Unit filename="DuskExceptions.cpp" />
+		<Unit filename="DuskExceptions.h" />
 		<Unit filename="DuskFunctions.cpp" />
 		<Unit filename="DuskFunctions.h" />
 		<Unit filename="DuskObject.cpp" />

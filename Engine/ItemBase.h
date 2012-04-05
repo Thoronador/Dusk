@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010 thoronador
+    Copyright (C) 2009, 2010, 2012 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -39,6 +39,8 @@
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-12-04 (rev 267) - use DuskLog/Messages class for logging
      - 2011-05-11 (rev 287) - iterator type for getFirst() and getEnd() added
+     - 2012-04-05 (rev 303) - non-existent IDs in query functions can now throw
+                              exceptions
 
  ToDo list:
      - ???
@@ -147,24 +149,24 @@ namespace Dusk
       /* returns the number of distinct items which are currently present */
       unsigned int getNumberOfItems() const;
 
-      /* returns the name of the given item, or an empty string if no such item
-         is present
+      /* returns the name of the given item. If no such item is present, the
+         function will throw an exception.
 
          parameters:
              itemID - ID of the item whose (ingame) name is requested
       */
       std::string getItemName(const std::string& itemID) const;
 
-      /* returns the value of the item with ID itemID, or -1 if no item with
-         that ID is present.
+      /* returns the value of the item with ID itemID, or throws an exception,
+         if no item with that ID is present.
 
          parameters:
              itemID - ID of the item whose value is requested
       */
       int getItemValue(const std::string& itemID) const;
 
-      /* returns the weight of the item with ID itemID, or zero if no item with
-         that ID is present.
+      /* returns the weight of the item with ID itemID, or throws an exception,
+         if no item with that ID is present.
 
          parameters:
              itemID - ID of the item whose weight is requested
@@ -175,13 +177,18 @@ namespace Dusk
       */
       float getItemWeight(const std::string& itemID) const;
 
-      /* returns the mesh path of the given item, or an empty string, if no
-          item with that ID is present. However, if UseMarkerOnError is set to
-          true (default), this function will return the path to a predefined
-          error mesh instead.
+      /* returns the mesh path of the given item, or throws an exception, if no
+         item with that ID is present. However, if UseMarkerOnError is set to
+         true (default), this function will return the path to a predefined
+         error mesh instead.
 
-          parameters:
-             itemID - ID of the item whose mesh path is requested
+         parameters:
+             itemID           - ID of the item whose mesh path is requested
+             UseMarkerOnError - if UseMarkerOnError is set to true (default),
+                                this function will return the path to a pre-
+                                defined error mesh for non-existent items.
+                                If set to false, requesting non-existent items
+                                will throw an exceptions.
       */
       std::string getMeshName(const std::string& itemID, const bool UseMarkerOnError=true) const;
 

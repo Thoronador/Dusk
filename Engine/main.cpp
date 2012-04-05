@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2007, 2008, 2008, 2010 ssj5000, DaSteph, walljumper, thoronador
+    Copyright (C) 2007, 2008, 2008, 2010, 2012 ssj5000, DaSteph, walljumper, thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@
 #include <OgreException.h>
 
 #include "Application.h"
+#include "DuskExceptions.h"
 
 // ----------------------------------------------------------------------------
 // Main function, just boots the application object
@@ -60,14 +61,30 @@ int main(int argc, char **argv)
     {
         app.go(pluginFileName);
     }
+    catch(Dusk::IDNotFound& e)
+    {
+      #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+      MessageBox(NULL, e.what().c_str(), "A Dusk-specific exception has occured!", MB_OK | MB_ICONERROR | MB_TASKMODAL);
+      #else
+      std::cerr << "A Dusk-specific exception has occured: " << e.what();
+      #endif
+    }
     catch( Ogre::Exception& e )
     {
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-        MessageBox( NULL, e.getFullDescription().c_str(), "An exception has occured!", MB_OK | MB_ICONERROR | MB_TASKMODAL);
+        MessageBox( NULL, e.getFullDescription().c_str(), "An Ogre exception has occured!", MB_OK | MB_ICONERROR | MB_TASKMODAL);
 #else
 
-        std::cerr << "An exception has occured: " << e.getFullDescription();
+        std::cerr << "An Ogre exception has occured: " << e.getFullDescription();
 #endif
+    }
+    catch(...)
+    {
+      #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+      MessageBox(NULL, "unknown exception", "An unknown exception has occured!", MB_OK | MB_ICONERROR | MB_TASKMODAL);
+      #else
+      std::cerr << "An unknown exception has occured!\n";
+      #endif
     }
 
     return 0;

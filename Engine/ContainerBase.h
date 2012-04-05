@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010 thoronador
+    Copyright (C) 2009, 2010, 2012 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -34,6 +34,8 @@
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-11-21 (rev 257) - minor optimization
      - 2010-12-01 (rev 265) - use DuskLog/Messages class for logging
+     - 2012-04-05 (rev 303) - non-existent IDs in query functions now get logged
+                              to DuskLog and might throw exceptions
 
  ToDo list:
      - ???
@@ -96,14 +98,17 @@ namespace Dusk
       */
       bool hasContainer(const std::string& ID) const;
 
-      /* Returns the mesh of container with given ID, if present.
+      /* Returns the mesh of container with given ID, if present. If no
+         container with the given ID is present, the function will return the
+         error marker mesh's path, if UseMarkerOnError is true. Otherwise it
+         will throw an exception.
 
          parameters:
              ID               - ID of the container whose mesh shall be returned
              UseMarkerOnError - If the requested container does not exist and
                                 this parameter is set to true, the function will
                                 return the path of the error marker mesh instead
-                                of returning an empty string.
+                                of throwing an eexception.
       */
       std::string getContainerMesh(const std::string& ID, const bool UseMarkerOnError=true) const;
 

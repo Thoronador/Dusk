@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010 thoronador
+    Copyright (C) 2009, 2010, 2012 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@
 
 #include "ContainerBase.h"
 #include "DuskConstants.h"
+#include "DuskExceptions.h"
+#include "DuskFunctions.h"
 #include "Messages.h"
 
 namespace Dusk{
@@ -45,7 +47,7 @@ void ContainerBase::addContainer(const std::string& ID, const std::string& _mesh
 {
   if (ID=="" or _mesh=="")
   {
-    DuskLog() << "ContainerBase::AddContainer: ERROR: ID or Mesh is empty string!\n";
+    DuskLog() << "ContainerBase::addContainer: ERROR: ID or Mesh is empty string!\n";
     return;
   }
   std::map<std::string, ContainerRecord>::iterator iter;
@@ -53,12 +55,12 @@ void ContainerBase::addContainer(const std::string& ID, const std::string& _mesh
   if (iter==m_ContainerList.end())
   {
     //not present, so create it
-    m_ContainerList[ID].Mesh = _mesh;
+    m_ContainerList[ID].Mesh = adjustDirectorySeperator(_mesh);
     m_ContainerList[ID].ContainerInventory = Inventory();
     contents.addAllItemsTo(m_ContainerList[ID].ContainerInventory);
     return;
   }//if
-  iter->second.Mesh = _mesh;
+  iter->second.Mesh = adjustDirectorySeperator(_mesh);
   iter->second.ContainerInventory.makeEmpty();
   contents.addAllItemsTo(iter->second.ContainerInventory);
   return;
@@ -92,11 +94,15 @@ std::string ContainerBase::getContainerMesh(const std::string& ID, const bool Us
   {
     return iter->second.Mesh;
   }
+  DuskLog() << "ContainerBase::getContainerMesh: ERROR: no container with ID \""
+            << ID << "\" found.";
   if (UseMarkerOnError)
   {
+    DuskLog() << "Returning empty string.\n";
     return cErrorMesh;
   }
-  return "";
+  DuskLog() << "Exception will be thrown.\n";
+  throw IDNotFound("ContainerBase", ID);
 }
 
 const Inventory& ContainerBase::getContainerInventory(const std::string& ID) const
@@ -107,6 +113,8 @@ const Inventory& ContainerBase::getContainerInventory(const std::string& ID) con
   {
     return iter->second.ContainerInventory;
   }
+  DuskLog() << "ContainerBase::getContainerInventory: ERROR: no container with ID \""
+            << ID << "\" found. Returning empty inventory.\n";
   return Inventory::getEmptyInventory();
 }
 
@@ -194,6 +202,7 @@ bool ContainerBase::loadNextContainerFromStream(std::ifstream& InStream)
               << "reading ID from stream!\n";
     return false;
   }
+  ID_Buffer[len] = '\0';
   //read Mesh
   char Mesh_Buffer[256];
   Mesh_Buffer[0] = Mesh_Buffer[255] = '\0';
@@ -212,6 +221,7 @@ bool ContainerBase::loadNextContainerFromStream(std::ifstream& InStream)
               << "reading mesh path from stream!\n";
     return false;
   }
+  Mesh_Buffer[len] = '\0';
   Inventory temp;
   if (!temp.loadFromStream(InStream))
   {

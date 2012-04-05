@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010, 2011 thoronador
+    Copyright (C) 2009, 2010, 2011, 2012 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -37,6 +37,8 @@
      - 2010-11-21 (rev 257) - minor optimization
      - 2010-12-03 (rev 266) - use DuskLog/Messages class for logging
      - 2011-05-11 (rev 287) - iterator type for getFirst() and getEnd() added
+     - 2012-04-05 (rev 303) - non-existent IDs in getLightData() will now throw
+                              exceptions
 
  ToDo list:
      - ???
@@ -161,11 +163,11 @@ namespace Dusk
       /* returns the light record of the Light with ID 'ID'
 
          remarks:
-             If no record with that given ID exists, a black point light with
-             range zero is returned. You can use LightRecord's IsBlack() method
-             to check for such a return value.
+             If no record with that given ID exists, an exception will be
+             thrown. You can use the hasLight() method to check for existing
+             light records.
       */
-      LightRecord getLightData(const std::string& ID) const;
+      const LightRecord& getLightData(const std::string& ID) const;
 
       /* tries to delete the light record with the given ID and returns true,
          if a record with that ID was deleted

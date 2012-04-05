@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010, 2011 thoronador
+    Copyright (C) 2009, 2010, 2011, 2012 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@
 
 #include "ItemBase.h"
 #include "DuskConstants.h"
+#include "DuskExceptions.h"
+#include "DuskFunctions.h"
 #include "Messages.h"
 
 namespace Dusk
@@ -60,7 +62,7 @@ void ItemBase::addItem(const std::string& ID, const std::string& name,
     DuskLog() << "ItemBase::addItem: ERROR: invalid weight or value given.\n";
     return;
   }
-  m_ItemList[ID] = (ItemRecord){name, value, weight, Mesh};
+  m_ItemList[ID] = (ItemRecord){name, value, weight, adjustDirectorySeperator(Mesh)};
 }
 
 void ItemBase::addItem(const std::string& ID, const ItemRecord& record)
@@ -98,8 +100,8 @@ std::string ItemBase::getItemName(const std::string& itemID) const
     return iter->second.Name;
   }
   DuskLog() << "ItemBase::getItemName: ERROR: No item with ID \""<<itemID
-            << "\" found. Returning empty string.\n";
-  return "";
+            << "\" found. Throwing exception.\n";
+  throw IDNotFound("ItemBase", itemID);
 }
 
 int ItemBase::getItemValue(const std::string& itemID) const
@@ -111,8 +113,8 @@ int ItemBase::getItemValue(const std::string& itemID) const
     return iter->second.value;
   }
   DuskLog() << "ItemBase::getItemValue: ERROR: No item with ID \""<<itemID
-            << "\" found. Returning -1.\n";
-  return -1;
+            << "\" found. Throwing exception.\n";
+  throw IDNotFound("ItemBase", itemID);
 }
 
 float ItemBase::getItemWeight(const std::string& itemID) const
@@ -124,8 +126,8 @@ float ItemBase::getItemWeight(const std::string& itemID) const
     return iter->second.weight;
   }
   DuskLog() << "ItemBase::getItemWeight: ERROR: No item with ID \""<<itemID
-            << "\" found. Returning zero.\n";
-  return 0.0;
+            << "\" found. Throwing exception.\n";
+  throw IDNotFound("ItemBase", itemID);
 }
 
 std::string ItemBase::getMeshName(const std::string& itemID, const bool UseMarkerOnError) const
@@ -146,8 +148,8 @@ std::string ItemBase::getMeshName(const std::string& itemID, const bool UseMarke
   else
   {
     DuskLog() << "ItemBase::getMeshName: ERROR: No item with ID \""<<itemID
-            << "\" found. Returning empty string.\n";
-    return "";
+            << "\" found. Throwing exception.\n";
+    throw IDNotFound("ItemBase", itemID);
   }
 }
 
