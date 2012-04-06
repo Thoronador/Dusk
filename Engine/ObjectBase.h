@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010, 2011 thoronador
+    Copyright (C) 2009, 2010, 2011, 2012 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -41,6 +41,8 @@
      - 2010-12-03 (rev 266) - use DuskLog/Messages class for logging
      - 2011-05-11 (rev 287) - renamed numberOfObjects() to getNumberOfObjects()
                             - iterator type for getFirst() and getEnd()
+     - 2012-04-06 (rev 304) - non-existent IDs in get-function will now throw
+                              exceptions
 
  ToDo list:
      - ???
@@ -78,11 +80,11 @@ namespace Dusk
 
            Think of ObjectBase as a sort of look-up table, e.g.:
 
-             ID  |  Mesh
-           ------+------------------
-           tree  | tree_oak.mesh
-           Chair | wooden_chair.mesh
-            ...  | ...
+             ID  |  Mesh             | collision
+           ------+-------------------+-----------
+           tree  | tree_oak.mesh     | no
+           Chair | wooden_chair.mesh | yes
+            ...  | ...               | ...
   */
   class ObjectBase
   {
@@ -127,15 +129,16 @@ namespace Dusk
       /* returns the number of objects which are currently present */
       unsigned int getNumberOfObjects() const;
 
-      /* returns the mesh path of the given object, or an empty string, if no
-          object with that ID is present. However, if UseMarkerOnError is set
-          to true (default), this function will return the path to a predefined
-          error mesh instead.
+      /* returns the mesh path of the given object, or throws an exception, if
+         no object with that ID is present. However, if UseMarkerOnError is set
+         to true (default), this function will return the path to a predefined
+         error mesh instead.
       */
-      std::string getMeshName(const std::string& ID, const bool UseMarkerOnError=true) const;
+      const std::string& getMeshName(const std::string& ID, const bool UseMarkerOnError=true) const;
 
       /* returns whether an object of the given ID is considered during
-         collision detection or not
+         collision detection or not. If not object with that ID is present, an
+         exception is thrown.
       */
       bool getObjectCollision(const std::string& ID) const;
 

@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010, 2011 thoronador
+    Copyright (C) 2010, 2011, 2012 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,6 +30,8 @@
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-12-03 (rev 266) - use DuskLog/Messages class for logging
      - 2011-05-11 (rev 286) - getFirst() and getEnd() added
+     - 2012-04-06 (rev 304) - non-existent IDs in get-function will now throw
+                              exceptions
 
  ToDo list:
      - ???
@@ -130,15 +132,27 @@ namespace Dusk
       */
       bool hasProjectile(const std::string& ID) const;
 
-      /* Returns the mesh of projectile with given ID, if present. */
-      std::string getProjectileMesh(const std::string& ID, const bool UseMarkerOnError=true) const;
+      /* Returns the mesh of projectile with given ID, if present. If no record
+         for the requested ID is present, the function throws an exception.
+         However, if UseMarkerOnError is set to true, the function will return
+         the path of a predefined error marker mesh instead.
 
-      /* Returns the data of projectile with given ID, if present.
+         parameters:
+             ID               - the ID of the projectile whose mesh path is
+                                requested
+             UseMarkerOnError - if set to true, requests for non-existent IDs
+                                will return the path of an error marker. If set
+                                to false, the function will throw instead.
+      */
+      const std::string& getProjectileMesh(const std::string& ID, const bool UseMarkerOnError=true) const;
+
+      /* Returns the data of projectile with given ID, if present. If no record
+         for the requested ID is present, the function will throw an exception.
 
          parameter(s):
              ID - ID of the projectile
       */
-      ProjectileRecord getProjectileData(const std::string& ID) const;
+      const ProjectileRecord& getProjectileData(const std::string& ID) const;
 
       /* deletes a projectile by ID and returns true, if a projectile was deleted
 

@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010, 2011 thoronador
+    Copyright (C) 2009, 2010, 2011, 2012 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@
 #include "NPCBase.h"
 #include "Messages.h"
 #include "DuskConstants.h"
+#include "DuskExceptions.h"
+#include "DuskFunctions.h"
 
 namespace Dusk
 {
@@ -78,7 +80,7 @@ void NPCBase::addNPC(const std::string& ID, const std::string& Name,
   if (iter!= m_NPCList.end())
   {
     iter->second.Name = Name;
-    iter->second.Mesh = Mesh;
+    iter->second.Mesh = adjustDirectorySeperator(Mesh);
     iter->second.Level = Level;
     iter->second.Attributes = Attr;
     iter->second.Female = female;
@@ -90,7 +92,7 @@ void NPCBase::addNPC(const std::string& ID, const std::string& Name,
   }
   NPCRecord temp;
   temp.Name = Name;
-  temp.Mesh = Mesh;
+  temp.Mesh = adjustDirectorySeperator(Mesh);
   temp.Level = Level;
   temp.Attributes = Attr;
   temp.Female = female;
@@ -126,7 +128,7 @@ unsigned int NPCBase::getNumberOfNPCs() const
   return m_NPCList.size();
 }
 
-std::string NPCBase::getNPCName(const std::string& NPC_ID) const
+const std::string& NPCBase::getNPCName(const std::string& NPC_ID) const
 {
   std::map<std::string, NPCRecord>::const_iterator iter = m_NPCList.find(NPC_ID);
   if (iter!=m_NPCList.end())
@@ -134,11 +136,11 @@ std::string NPCBase::getNPCName(const std::string& NPC_ID) const
     return iter->second.Name;
   }
   DuskLog() << "NPCBase::getNPCName: ERROR: no NPC with ID \""<<NPC_ID
-            << "\" found. Returning empty string.\n";
-  return "";
+            << "\" found. Throwing exception.\n";
+  throw IDNotFound("NPCBase", NPC_ID);
 }
 
-std::string NPCBase::getNPCMesh(const std::string& NPC_ID, const bool UseMarkerOnError) const
+const std::string& NPCBase::getNPCMesh(const std::string& NPC_ID, const bool UseMarkerOnError) const
 {
   std::map<std::string, NPCRecord>::const_iterator iter = m_NPCList.find(NPC_ID);
   if (iter!=m_NPCList.end())
@@ -153,8 +155,8 @@ std::string NPCBase::getNPCMesh(const std::string& NPC_ID, const bool UseMarkerO
     return cErrorMesh;
   }
   DuskLog() << "NPCBase::getNPCMesh: ERROR: no NPC with ID \""<<NPC_ID
-            << "\" found. Returning empty string.\n";
-  return "";
+            << "\" found. Throwing exception.\n";
+  throw IDNotFound("NPCBase", NPC_ID);
 }
 
 uint8 NPCBase::getLevel(const std::string& NPC_ID) const
@@ -165,11 +167,11 @@ uint8 NPCBase::getLevel(const std::string& NPC_ID) const
     return iter->second.Level;
   }
   DuskLog() << "NPCBase::getLevel: ERROR: no NPC with ID \""<<NPC_ID
-            << "\" found. Returning zero.\n";
-  return 0;
+            << "\" found. Throwing exception.\n";
+  throw IDNotFound("NPCBase", NPC_ID);
 }
 
-NPCAttributes NPCBase::getAttributes(const std::string& NPC_ID) const
+const NPCAttributes& NPCBase::getAttributes(const std::string& NPC_ID) const
 {
   std::map<std::string, NPCRecord>::const_iterator iter = m_NPCList.find(NPC_ID);
   if (iter!=m_NPCList.end())
@@ -177,8 +179,8 @@ NPCAttributes NPCBase::getAttributes(const std::string& NPC_ID) const
     return iter->second.Attributes;
   }
   DuskLog() << "NPCBase::getAttributes: ERROR: no NPC with ID \""<<NPC_ID
-            << "\" found. Returning zero attributes.\n";
-  return NPCAttributes::getNullAttributes();
+            << "\" found. Throwing exception.\n";
+  throw IDNotFound("NPCBase", NPC_ID);
 }
 
 bool  NPCBase::isNPCFemale(const std::string& NPC_ID) const
@@ -201,8 +203,9 @@ const Inventory& NPCBase::getNPCInventory(const std::string& NPC_ID) const
     return iter->second.InventoryAtStart;
   }
   DuskLog() << "NPCBase::getNPCInventory: ERROR: no NPC with ID \""<<NPC_ID
-            << "\" found. Returning empty inventory.\n";
-  return Inventory::getEmptyInventory();
+            << "\" found. Throwing exception.\n";
+  throw IDNotFound("NPCBase", NPC_ID);
+  //return Inventory::getEmptyInventory();
 }
 
 const NPCAnimations& NPCBase::getNPCAnimations(const std::string& NPC_ID) const
@@ -213,8 +216,9 @@ const NPCAnimations& NPCBase::getNPCAnimations(const std::string& NPC_ID) const
     return iter->second.Animations;
   }
   DuskLog() << "NPCBase::getNPCAnimations: ERROR: no NPC with ID \""<<NPC_ID
-            << "\" found. Returning null animations.\n";
-  return NPCAnimations::getNullAnimations();
+            << "\" found. Throwing exception.\n";
+  throw IDNotFound("NPCBase", NPC_ID);
+  //return NPCAnimations::getNullAnimations();
 }
 
 const NPCTagPoints& NPCBase::getNPCTagPoints(const std::string& NPC_ID) const
@@ -225,8 +229,9 @@ const NPCTagPoints& NPCBase::getNPCTagPoints(const std::string& NPC_ID) const
     return iter->second.TagPoints;
   }
   DuskLog() << "NPCBase::getNPCTagPoints: ERROR: no NPC with ID \""<<NPC_ID
-            << "\" found. Returning empty tag points.\n";
-  return NPCTagPoints::getNullTagPoints();
+            << "\" found. Throwing exception.\n";
+  throw IDNotFound("NPCBase", NPC_ID);
+  //return NPCTagPoints::getNullTagPoints();
 }
 
 bool NPCBase::saveToStream(std::ofstream& output) const

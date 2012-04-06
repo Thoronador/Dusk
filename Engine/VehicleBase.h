@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010, 2011 thoronador
+    Copyright (C) 2010, 2011, 2012 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -32,6 +32,8 @@
      - 2010-12-04 (rev 267) - use DuskLog/Messages class for logging
      - 2011-05-18 (rev 291) - getFirst() and getEnd() added
      - 2011-09-29 (rev 301) - removed unnecessary data member
+     - 2012-04-06 (rev 304) - non-existent IDs in get-function will now throw
+                              exceptions
 
  ToDo list:
      - ???
@@ -96,27 +98,28 @@ class VehicleBase
     */
     bool hasVehicle(const std::string& ID) const;
 
-    /* Returns the mesh of vehicle with given ID, if present. */
-    std::string getVehicleMesh(const std::string& ID, const bool UseMarkerOnError=true) const;
+    /* Returns the mesh of vehicle with given ID. If not vehicle with the given
+       ID is present, the function will throw an excpetion. */
+    const std::string& getVehicleMesh(const std::string& ID, const bool UseMarkerOnError=true) const;
 
-    /* returns the name of the given vehicle, or an empty string if no vehicle
-       with that ID is present
+    /* returns the name of the given vehicle, or throws an exception if no
+       vehicle with that ID is present
 
        parameters:
            ID - the ID of the vehicle
     */
-    std::string getVehicleName(const std::string& ID) const;
+    const std::string& getVehicleName(const std::string& ID) const;
 
-    /* returns the maximum speed of the given vehicle, or zero if no vehicle
-       with that ID is present
+    /* returns the maximum speed of the given vehicle, or throws an excpetion
+       if no vehicle with that ID is present
 
        parameters:
            ID - the ID of the vehicle
     */
     float getVehicleSpeed(const std::string& ID) const;
 
-    /* returns the number of mountpoints for the given vehicle, or zero if no
-       vehicle with that ID is present
+    /* returns the number of mountpoints for the given vehicle, or throws an
+       exception if no vehicle with that ID is present.
 
        parameters:
            ID - the ID of the vehicle
@@ -124,7 +127,7 @@ class VehicleBase
     unsigned int getVehicleMountpoints(const std::string& ID) const;
 
     /* returns the offset of a specified mountpoint for the given vehicle.
-       If no vehicle of with that ID is present, the return value is undefined.
+       If no vehicle of with that ID is present, the function throws an exception.
 
        parameters:
            ID  - the ID of the vehicle
@@ -137,7 +140,7 @@ class VehicleBase
     const Ogre::Vector3& getMountpointOffset(const std::string& ID, const unsigned int idx) const;
 
     /* returns the rotation of a specified mountpoint for the given vehicle.
-       If no vehicle of with that ID is present, the return value is undefined.
+       If no vehicle of with that ID is present, the function throws an exception.
 
        parameters:
            ID  - the ID of the vehicle
@@ -151,7 +154,8 @@ class VehicleBase
 
     /* returns the data of a specified mountpoint for the given vehicle.
        If no vehicle of with that ID is present, or mountpoint is not within the
-       acceptable range, the return value is undefined.
+       acceptable range, the return value is undefined and the function may
+       throw an exception.
 
        parameters:
            ID  - the ID of the vehicle

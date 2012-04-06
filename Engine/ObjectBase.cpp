@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010, 2011 thoronador
+    Copyright (C) 2009, 2010, 2011, 2012 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@
 
 #include "ObjectBase.h"
 #include "DuskConstants.h"
+#include "DuskExceptions.h"
+#include "DuskFunctions.h"
 #include "Messages.h"
 
 namespace Dusk
@@ -54,7 +56,7 @@ void ObjectBase::addObject(const std::string& ID, const std::string& Mesh, const
     return;
   }
   ObjectRecord temp;
-  temp.Mesh = Mesh;
+  temp.Mesh = adjustDirectorySeperator(Mesh);
   temp.collide = collision;
   m_ObjectList[ID] = temp;
 }
@@ -81,7 +83,7 @@ unsigned int ObjectBase::getNumberOfObjects() const
   return m_ObjectList.size();
 }
 
-std::string ObjectBase::getMeshName(const std::string& ID, const bool UseMarkerOnError) const
+const std::string& ObjectBase::getMeshName(const std::string& ID, const bool UseMarkerOnError) const
 {
   std::map<std::string, ObjectRecord>::const_iterator iter = m_ObjectList.find(ID);
   if (iter!=m_ObjectList.end())
@@ -96,8 +98,8 @@ std::string ObjectBase::getMeshName(const std::string& ID, const bool UseMarkerO
     return cErrorMesh;
   }
   DuskLog() << "ObjectBase::getMeshName: ERROR! No object with ID \""<<ID
-            << "\" found. Returning empty string.\n";
-  return "";
+            << "\" found. Throwing exception.\n";
+  throw IDNotFound("ObjectBase", ID);
 }
 
 bool ObjectBase::getObjectCollision(const std::string& ID) const
@@ -109,8 +111,8 @@ bool ObjectBase::getObjectCollision(const std::string& ID) const
   }
   //nothing found here, so throw?
   DuskLog() << "ObjectBase::getObjectCollision: No object with ID \""<<ID
-            << "\" found!\n";
-  throw 42;
+            << "\" found! Throwing exception.\n";
+  throw IDNotFound("ObjectBase", ID);
   return true;
 }
 

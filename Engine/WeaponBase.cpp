@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010, 2011 thoronador
+    Copyright (C) 2010, 2011, 2012 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@
 
 #include "WeaponBase.h"
 #include "DuskConstants.h"
+#include "DuskExceptions.h"
+#include "DuskFunctions.h"
 #include "Messages.h"
 
 namespace Dusk
@@ -49,6 +51,7 @@ void WeaponBase::addWeapon(const std::string& ID, const WeaponRecord& data)
     return;
   }
   m_Weapons[ID] = data;
+  m_Weapons[ID].Mesh = adjustDirectorySeperator(data.Mesh);
 }
 
 bool WeaponBase::hasWeapon(const std::string& ID) const
@@ -56,7 +59,7 @@ bool WeaponBase::hasWeapon(const std::string& ID) const
   return (m_Weapons.find(ID) != m_Weapons.end());
 }
 
-std::string WeaponBase::getWeaponMesh(const std::string& ID, const bool UseMarkerOnError) const
+const std::string& WeaponBase::getWeaponMesh(const std::string& ID, const bool UseMarkerOnError) const
 {
   std::map<std::string, WeaponRecord>::const_iterator iter;
   iter = m_Weapons.find(ID);
@@ -68,17 +71,21 @@ std::string WeaponBase::getWeaponMesh(const std::string& ID, const bool UseMarke
   {
     return cErrorMesh;
   }
-  return "";
+  DuskLog() << "WeaponBase::getWeaponMesh: ERROR! No Weapon with ID \""<<ID
+            << "\" found. Throwing exception.\n";
+  throw IDNotFound("WeaponBase", ID);
 }
 
-std::string WeaponBase::getWeaponName(const std::string& ID) const
+const std::string& WeaponBase::getWeaponName(const std::string& ID) const
 {
   std::map<std::string, WeaponRecord>::const_iterator iter = m_Weapons.find(ID);
   if (iter!=m_Weapons.end())
   {
     return iter->second.Name;
   }
-  return "";
+  DuskLog() << "WeaponBase::getWeaponName: ERROR! No weapon with ID \""<<ID
+            << "\" found. Throwing exception.\n";
+  throw IDNotFound("WeaponBase", ID);
 }
 
 int WeaponBase::getWeaponValue(const std::string& weaponID) const
@@ -88,7 +95,9 @@ int WeaponBase::getWeaponValue(const std::string& weaponID) const
   {
     return iter->second.value;
   }
-  return -1;
+  DuskLog() << "WeaponBase::getWeaponValue: ERROR! No weapon with ID \""
+            << weaponID << "\" found. Throwing exception.\n";
+  throw IDNotFound("WeaponBase", weaponID);
 }
 
 float WeaponBase::getWeaponWeight(const std::string& weaponID) const
@@ -98,27 +107,21 @@ float WeaponBase::getWeaponWeight(const std::string& weaponID) const
   {
     return iter->second.weight;
   }
-  return 0.0f;
+  DuskLog() << "WeaponBase::getWeaponWeight: ERROR! No weapon with ID \""
+            << weaponID << "\" found. Throwing exception.\n";
+  throw IDNotFound("WeaponBase", weaponID);
 }
 
-WeaponRecord WeaponBase::getWeaponData(const std::string& ID) const
+const WeaponRecord& WeaponBase::getWeaponData(const std::string& ID) const
 {
   std::map<std::string, WeaponRecord>::const_iterator iter = m_Weapons.find(ID);
   if (iter!=m_Weapons.end())
   {
     return iter->second;
   }
-  WeaponRecord temp;
-  temp.Mesh = temp.Name = "";
-  temp.value = -1;
-  temp.weight = 0.0f;
-  temp.Type = wtMelee;
-  temp.Range = -1.0f;
-  temp.TimeBetweenAttacks = 1.0e20; //long time, because weapon cannot attack
-  temp.ProjectileID = "";
-  temp.DamageTimes = 0;
-  temp.DamageDice = 0;
-  return temp;
+  DuskLog() << "WeaponBase::getWeaponData: ERROR! No weapon with ID \""<<ID
+            << "\" found. Throwing exception.\n";
+  throw IDNotFound("WeaponBase", ID);
 }
 
 bool WeaponBase::deleteWeapon(const std::string& ID)

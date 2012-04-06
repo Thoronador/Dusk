@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010, 2011 thoronador
+    Copyright (C) 2010, 2011, 2012 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@
 #include "VehicleBase.h"
 #include "Messages.h"
 #include "DuskConstants.h"
+#include "DuskExceptions.h"
+#include "DuskFunctions.h"
 
 namespace Dusk
 {
@@ -45,6 +47,7 @@ void VehicleBase::addVehicle(const std::string& ID, const VehicleRecord& data)
       and data.Mountpoints.size()>0 and data.Mountpoints.size()<=cMaxMountpointCount)
   {
     m_Vehicles[ID] = data;
+    m_Vehicles[ID].Mesh = adjustDirectorySeperator(data.Mesh);
   }
   else
   {
@@ -58,7 +61,7 @@ bool VehicleBase::hasVehicle(const std::string& ID) const
   return m_Vehicles.find(ID)!=m_Vehicles.end();
 }
 
-std::string VehicleBase::getVehicleMesh(const std::string& ID, const bool UseMarkerOnError) const
+const std::string& VehicleBase::getVehicleMesh(const std::string& ID, const bool UseMarkerOnError) const
 {
   const std::map<std::string, VehicleRecord>::const_iterator cIter =
       m_Vehicles.find(ID);
@@ -74,11 +77,11 @@ std::string VehicleBase::getVehicleMesh(const std::string& ID, const bool UseMar
     return cErrorMesh;
   }
   DuskLog() << "VehicleBase::getMeshName: ERROR! No vehicle with ID \""<<ID
-            << "\" found. Returning empty string.\n";
-  return "";
+            << "\" found. Throwing exception.\n";
+  throw IDNotFound("VehicleBase", ID);
 }
 
-std::string VehicleBase::getVehicleName(const std::string& ID) const
+const std::string& VehicleBase::getVehicleName(const std::string& ID) const
 {
   const std::map<std::string, VehicleRecord>::const_iterator cIter =
       m_Vehicles.find(ID);
@@ -87,8 +90,8 @@ std::string VehicleBase::getVehicleName(const std::string& ID) const
     return cIter->second.Name;
   }
   DuskLog() << "VehicleBase::getVehicleName: ERROR! No vehicle with ID \""<<ID
-            << "\" found. Returning empty string.\n";
-  return "";
+            << "\" found. Throwing exception.\n";
+  throw IDNotFound("VehicleBase", ID);
 }
 
 float VehicleBase::getVehicleSpeed(const std::string& ID) const
@@ -100,13 +103,15 @@ float VehicleBase::getVehicleSpeed(const std::string& ID) const
     return cIter->second.MaxSpeed;
   }
   DuskLog() << "VehicleBase::getVehicleSpeed: Hint: no vehicle with ID \""
-            << ID<<"\" found. Returning zero.\n";
-  return 0.0f;
+            << ID<<"\" found. Throwing exception.\n";
+  throw IDNotFound("VehicleBase", ID);
 }
 
 VehicleBase::VehicleBase()
 {
   m_Vehicles.clear();
+  mp_null.offset = Ogre::Vector3::ZERO;
+  mp_null.rotation = Ogre::Quaternion::IDENTITY;
 }
 
 unsigned int VehicleBase::getVehicleMountpoints(const std::string& ID) const
@@ -118,8 +123,8 @@ unsigned int VehicleBase::getVehicleMountpoints(const std::string& ID) const
     return cIter->second.Mountpoints.size();
   }
   DuskLog() << "VehicleBase::getVehicleMountpoints: ERROR: no vehicle with ID \""
-            << ID <<"\" found. Returning zero.\n";
-  return 0;
+            << ID <<"\" found. Throwing exception.\n";
+  throw IDNotFound("VehicleBase", ID);
 }
 
 const Ogre::Vector3& VehicleBase::getMountpointOffset(const std::string& ID, const unsigned int idx) const
@@ -135,7 +140,7 @@ const Ogre::Vector3& VehicleBase::getMountpointOffset(const std::string& ID, con
   }
   DuskLog() << "VehicleBase::getMountpointOffset: ERROR: no vehicle with ID \""
             << ID<<"\" found. Returning zero vector.\n";
-  return Ogre::Vector3::ZERO;
+  throw IDNotFound("VehicleBase", ID);
 }
 
 const Ogre::Quaternion& VehicleBase::getMountpointRotation(const std::string& ID, const unsigned int idx) const
@@ -150,8 +155,8 @@ const Ogre::Quaternion& VehicleBase::getMountpointRotation(const std::string& ID
     return Ogre::Quaternion::IDENTITY;
   }
   DuskLog() << "VehicleBase::getMountpointRotation: ERROR: no vehicle with ID \""
-            << ID<<"\" found. Returning identity quaternion.\n";
-  return Ogre::Quaternion::IDENTITY;
+            << ID<<"\" found. Throwing exception.\n";
+  throw IDNotFound("VehicleBase", ID);
 }
 
 const MountpointData& VehicleBase::getMountpointData(const std::string& ID, const unsigned int idx) const
@@ -166,8 +171,8 @@ const MountpointData& VehicleBase::getMountpointData(const std::string& ID, cons
     return mp_null;
   }
   DuskLog() << "VehicleBase::getMountpointData: ERROR: no vehicle with ID \""
-            << ID<<"\" found. Returning predefined values.\n";
-  return mp_null;
+            << ID<<"\" found. Throwing exception.\n";
+  throw IDNotFound("VehicleBase", ID);
 }
 
 bool VehicleBase::deleteVehicle(const std::string& ID)

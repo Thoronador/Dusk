@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010, 2011 thoronador
+    Copyright (C) 2009, 2010, 2011, 2012 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -34,6 +34,8 @@
      - 2010-12-04 (rev 267) - use DuskLog/Messages class for logging
      - 2011-05-11 (rev 286) - iterator type for getFirst() and getEnd() added
      - 2011-05-11 (rev 287) - renamed numberOfNPCs() to getNumberOfNPCs()
+     - 2012-04-06 (rev 304) - non-existent IDs in get-function will now throw
+                              exceptions
 
  ToDo list:
      - ???
@@ -184,42 +186,49 @@ namespace Dusk
       /* Returns the current number of NPC entries (for statistics only) */
       unsigned int getNumberOfNPCs() const;
 
-      /* Returns the name of the NPC with ID 'NPC_ID', or an empty string if no
-         such record is present.
+      /* Returns the name of the NPC with ID 'NPC_ID', or throws an exception
+         if no such record is present.
       */
-      std::string getNPCName(const std::string& NPC_ID) const;
+      const std::string& getNPCName(const std::string& NPC_ID) const;
 
-      /* Returns the mesh name of the NPC with the given ID.
+      /* Returns the mesh name of the NPC with the given ID. If no NPC with that
+         ID is present, the function might throw an exception.
 
-         params:
+         parameters:
            UseMarkerOnError - if set to true (default), the function will return
                               a special error mesh name should no record for
-                              'NPC_ID' exist. Otherwise it returns an empty
-                              string in that case.
+                              'NPC_ID' exist. Otherwise it throws an exception
+                              in that case.
       */
-      std::string getNPCMesh(const std::string& NPC_ID, const bool UseMarkerOnError=true) const;
+      const std::string& getNPCMesh(const std::string& NPC_ID, const bool UseMarkerOnError=true) const;
 
-      /* Returns the level of the requested NPC, or zero if no such record is
-         present.
+      /* Returns the level of the requested NPC, or throws an exception if no
+         such record is present.
       */
       uint8 getLevel(const std::string& NPC_ID) const;
 
       /* Returns the attributes of the given NPC. If no record for that ID
-         exists, a record with all attribute values set to zero is returned. */
-      NPCAttributes getAttributes(const std::string& NPC_ID) const;
+         exists, the function will throw an exception. */
+      const NPCAttributes& getAttributes(const std::string& NPC_ID) const;
 
       /* returns true, if the given NPC has is female/ has the female flag set.
          If the NPC with the given ID is not present, false is returned.
       */
       bool isNPCFemale(const std::string& NPC_ID) const;
 
-      /* Returns the inventory of the NPC, if present. */
+      /* Returns the standard inventory of the NPC. If no record for that ID
+         exists, the function will throw an exception.
+      */
       const Inventory& getNPCInventory(const std::string& NPC_ID) const;
 
-      /* returns the animations of the given NPC */
+      /* returns the animations of the given NPC. If no record for that ID
+         exists, the function will throw an exception.
+      */
       const NPCAnimations& getNPCAnimations(const std::string& NPC_ID) const;
 
-      /* returns the names of the tag points of the NPC with the given ID */
+      /* returns the names of the tag points of the NPC with the given ID.
+         If no record for that ID exists, the function will throw an exception.
+      */
       const NPCTagPoints& getNPCTagPoints(const std::string& NPC_ID) const;
 
       /* Tries to save all data to the given stream and returns true on success,

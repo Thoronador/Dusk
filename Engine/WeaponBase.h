@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010, 2011 thoronador
+    Copyright (C) 2010, 2011, 2012 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -34,6 +34,8 @@
      - 2010-12-01 (rev 265) - use DuskLog/Messages class for logging
      - 2011-05-11 (rev 287) - getFirst() and getEnd() added
      - 2011-05-17 (rev 290) - updateProjectilesAfterIDChange() added
+     - 2012-04-06 (rev 304) - non-existent IDs in get-function will now throw
+                              exceptions
 
  ToDo list:
      - ???
@@ -110,44 +112,50 @@ class WeaponBase
     */
     bool hasWeapon(const std::string& ID) const;
 
-    /* Returns the mesh of weapon with given ID, if present. */
-    std::string getWeaponMesh(const std::string& ID, const bool UseMarkerOnError=true) const;
+    /* Returns the mesh of weapon with given ID. If no weapon with the given ID
+       is present, the function will throw an exception. However, if the
+       UseMarkerOnError parameter is true, it will return an error marker mesh
+       instead.
 
-    /* returns the name of the given weapon, or an empty string if no weapon
-       with that ID is present
+       parameters:
+           ID               - ID of the weapon
+           UseMarkerOnError - If set to true, the function will return an error
+                              marker's mesh for non-existent weapons. Otherwise
+                              it will throw for non-existent weapons.
+    */
+    const std::string& getWeaponMesh(const std::string& ID, const bool UseMarkerOnError=true) const;
+
+    /* returns the name of the given weapon, or an throws an exception if no
+       weapon with that ID is present.
 
        parameters:
            ID - the ID of the weapon
     */
-    std::string getWeaponName(const std::string& ID) const;
+    const std::string& getWeaponName(const std::string& ID) const;
 
-    /* returns the value of the weapon with ID weaponID, or -1 if no weapon with
-       that ID is present.
+    /* returns the value of the weapon with ID weaponID, or throws an exception
+       if no weapon with that ID is present.
 
        parameters:
            weaponID - the ID of the weapon whose value is requested
     */
     int getWeaponValue(const std::string& weaponID) const;
 
-    /* returns the weight of the weapon with ID weaponID, or zero if no weapon
-       with that ID is present.
+    /* returns the weight of the weapon with ID weaponID, or throws an exception
+       if no weapon with that ID is present.
 
        parameters:
            weaponID - the ID of the weapons whose weight is requested
-
-       remarks:
-           Since zero is also a valid weight value for weaponss, a return value
-           of zero is NOT a safe way to detect absence of a certain weapon.
     */
     float getWeaponWeight(const std::string& weaponID) const;
 
     /* returns all data of the weapon with the given ID. If no weapon with that
-       ID is present, the return value is undefined
+       ID is present, the function will throw an exception.
 
        parameters:
            ID - the ID of the weapon
     */
-    WeaponRecord getWeaponData(const std::string& ID) const;
+    const WeaponRecord& getWeaponData(const std::string& ID) const;
 
     /* deletes a weapon by ID and returns true, if a weapon was deleted */
     bool deleteWeapon(const std::string& ID);

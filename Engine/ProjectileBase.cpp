@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010, 2011 thoronador
+    Copyright (C) 2010, 2011, 2012 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@
 
 #include "ProjectileBase.h"
 #include "DuskConstants.h"
+#include "DuskFunctions.h"
+#include "DuskExceptions.h"
 #include "Messages.h"
 
 namespace Dusk
@@ -63,6 +65,7 @@ void ProjectileBase::addProjectile(const std::string& ID, const ProjectileRecord
   if (ID!="" and data.Mesh!="")
   {
     m_Projectiles[ID] = data;
+    m_Projectiles[ID].Mesh = adjustDirectorySeperator(m_Projectiles[ID].Mesh);
   }//if
 }
 
@@ -71,7 +74,7 @@ bool ProjectileBase::hasProjectile(const std::string& ID) const
   return (m_Projectiles.find(ID) != m_Projectiles.end());
 }
 
-std::string ProjectileBase::getProjectileMesh(const std::string& ID, const bool UseMarkerOnError) const
+const std::string& ProjectileBase::getProjectileMesh(const std::string& ID, const bool UseMarkerOnError) const
 {
   std::map<std::string, ProjectileRecord>::const_iterator iter;
   iter = m_Projectiles.find(ID);
@@ -87,11 +90,11 @@ std::string ProjectileBase::getProjectileMesh(const std::string& ID, const bool 
     return cErrorMesh;
   }
   DuskLog() << "ProjectileBase::getProjectileMesh: ERROR! No projectile with ID \""
-            << ID << "\" found. Returning empty string.\n";
-  return "";
+            << ID << "\" found. Throwing exception.\n";
+  throw IDNotFound("ProjectileBase", ID);
 }
 
-ProjectileRecord ProjectileBase::getProjectileData(const std::string& ID) const
+const ProjectileRecord& ProjectileBase::getProjectileData(const std::string& ID) const
 {
   std::map<std::string, ProjectileRecord>::const_iterator iter;
   iter = m_Projectiles.find(ID);
@@ -100,14 +103,8 @@ ProjectileRecord ProjectileBase::getProjectileData(const std::string& ID) const
     return iter->second;
   }
   DuskLog() << "ProjectileBase::getProjectileData: ERROR! No projectile with ID \""
-            << ID << "\" found. Returning predefined data instead.\n";
-  ProjectileRecord temp;
-  temp.Mesh = "";
-  temp.DefaultTTL = 0.00001;
-  temp.DefaultVelocity = 1.0f;
-  temp.dice = 0;
-  temp.times = 0;
-  return temp;
+            << ID << "\" found. Throwing exception.\n";
+  throw IDNotFound("ProjectileBase", ID);
 }
 
 bool ProjectileBase::deleteProjectile(const std::string& ID)

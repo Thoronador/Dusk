@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010, 2011 thoronador
+    Copyright (C) 2010, 2011, 2012 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -38,6 +38,8 @@
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-12-04 (rev 268) - use DuskLog/Messages class for logging
      - 2011-02-05 (rev 278) - flag for quest failure added
+     - 2012-04-06 (rev 304) - non-existent IDs in get-function will now throw
+                              exceptions
 
  ToDo list:
      - ???
@@ -199,14 +201,14 @@ class Journal
     bool changeQuestID(const std::string& oldID, const std::string& newID);
     #endif
 
-    /* returns the text of the given entry, or an empty string if no such entry
-       is present
+    /* returns the text of the given entry, or throws an exception if no such
+       entry is present
 
        parameters:
            JID    - ID if the quest
            jIndex - index of the quest entry
     */
-    std::string getText(const std::string& JID, const unsigned int jIndex) const;
+    const std::string& getText(const std::string& JID, const unsigned int jIndex) const;
 
     /* returns the flags of the given entry, or zero if no such entry is present
 
@@ -216,13 +218,13 @@ class Journal
     */
     uint8 getFlags(const std::string& JID, const unsigned int jIndex) const;
 
-    /* returns the quest name of quest with ID questID, or an empty string if
-       no quest with that ID is present
+    /* returns the quest name of quest with ID questID, or throws an exception
+       if no quest with that ID is present.
 
        parameters:
            questID - ID if the quest
     */
-    std::string getQuestName(const std::string& questID) const;
+    const std::string& getQuestName(const std::string& questID) const;
 
     #ifdef DUSK_EDITOR
     /* tries to delete the quest with the given quest ID and returns true, if

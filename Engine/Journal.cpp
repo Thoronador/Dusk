@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010, 2011 thoronador
+    Copyright (C) 2010, 2011, 2012 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@
 #include "Journal.h"
 #include "Messages.h"
 #include "DuskConstants.h"
+#include "DuskFunctions.h"
+#include "DuskExceptions.h"
 
 namespace Dusk
 {
@@ -192,17 +194,21 @@ bool Journal::changeQuestID(const std::string& oldID, const std::string& newID)
 }
 #endif
 
-std::string Journal::getText(const std::string& JID, const unsigned int jIndex) const
+const std::string& Journal::getText(const std::string& JID, const unsigned int jIndex) const
 {
   if (JID=="" or jIndex==0)
   { //we don't have empty IDs or index zero, so return "nothing"
-    return "";
+    DuskLog() << "Journal::getText: ERROR: No quest with empty ID or index zero"
+              << " is allowed. Throwing exception.\n";
+    throw IDNotFound("Journal", "(empty/"+JID+")");
   }
   std::map<const std::string, QuestRecord>::const_iterator iter;
   iter = m_Entries.find(JID);
   if (iter==m_Entries.end())
   {
-    return "";
+    DuskLog() << "Journal::getText: ERROR: No quest with empty ID \""<<JID
+              << "\" found. Throwing exception.\n";
+    throw IDNotFound("Journal", JID);
   }
   std::map<const unsigned int, JournalRecord>::const_iterator index_iter;
   index_iter = iter->second.Indices.find(jIndex);
@@ -210,7 +216,9 @@ std::string Journal::getText(const std::string& JID, const unsigned int jIndex) 
   {
     return index_iter->second.Text;
   }
-  return "";
+  DuskLog() << "Journal::getText: ERROR: No quest with ID \""<<JID
+            <<"\" and index "<<jIndex<<" found. Throwing exception.\n";
+  throw IDNotFound("Journal", JID+"["+IntToString(jIndex)+"]");
 }
 
 uint8 Journal::getFlags(const std::string& JID, const unsigned int jIndex) const
@@ -234,17 +242,22 @@ uint8 Journal::getFlags(const std::string& JID, const unsigned int jIndex) const
   return 0;
 }
 
-std::string Journal::getQuestName(const std::string& questID) const
+const std::string& Journal::getQuestName(const std::string& questID) const
 {
   if (questID=="")
   { //we don't have quests with empy string as ID
-    return "";
+    DuskLog() << "Journal::getQuestName: ERROR: No quest with empty ID is "
+              << "allowed. Throwing exception.\n";
+    throw IDNotFound("Journal", "(empty)");
   }
   std::map<const std::string, QuestRecord>::const_iterator iter;
   iter = m_Entries.find(questID);
   if (iter==m_Entries.end())
   {
-    return ""; //nothing found
+    //nothing found
+    DuskLog() << "Journal::getQuestName: ERROR: No quest with ID \""<<questID
+              << "\" was found. Throwing exception.\n";
+    throw IDNotFound("Journal", questID);
   }
   return iter->second.QuestName;
 }
