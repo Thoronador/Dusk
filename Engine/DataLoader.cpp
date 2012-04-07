@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010, 2011 thoronador
+    Copyright (C) 2009, 2010, 2011, 2012 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@
 #include "Player.h"
 #include "QuestLog.h"
 #include "ProjectileBase.h"
+#include "SoundBase.h"
 #include "VehicleBase.h"
 #include "WeaponBase.h"
 #include "DuskConstants.h"
@@ -126,6 +127,10 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
   {
     //static objects
     data_records += ObjectManager::getSingleton().getNumberOfReferences();
+  }
+  if ((bits & SOUND_BIT) !=0)
+  {
+    data_records += SoundBase::getSingleton().getNumberOfSounds();
   }
   if ((bits & VEHICLE_BIT) !=0)
   {
@@ -283,6 +288,18 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
     }//if
   }//if objects
 
+  //save sound data
+  if ((bits & SOUND_BIT) !=0)
+  {
+    if (!SoundBase::getSingleton().saveAllToStream(output))
+    {
+      DuskLog() << "DataLoader::saveToFile: ERROR: could not write sound "
+                << "data to file \""<<FileName<<"\".\n";
+      output.close();
+      return false;
+    }//if
+  }//if SoundBase
+
   //save animated objects/ injection objects
   if ((bits & INJECTION_BIT)!=0)
   {
@@ -413,6 +430,9 @@ bool DataLoader::loadFromFile(const std::string& FileName)
       case cHeaderRfWP:  //WaypointObject
            success = InjectionManager::getSingleton().loadNextFromStream(input, Header);
            break;
+      case cHeaderSoun:
+           success = SoundBase::getSingleton().loadNextSoundFromStream(input);
+           break;
       case cHeaderVehi:
            success = VehicleBase::getSingleton().loadNextVehicleFromStream(input);
            break;
@@ -509,6 +529,11 @@ void DataLoader::clearData(const unsigned int bits)
   {
     QuestLog::getSingleton().clearAllData();
   }//quest log
+
+  if ((bits & SOUND_BIT) != 0)
+  {
+    SoundBase::getSingleton().clearAll();
+  }//sound data
 
   if ((bits & VEHICLE_BIT) !=0)
   {

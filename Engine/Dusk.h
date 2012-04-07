@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2008, 2009, 2010 walljumper, thoronador
+    Copyright (C) 2008, 2009, 2010, 2012 walljumper, thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -703,6 +703,17 @@ status:
     Seems to work fine (until proven otherwise)
 */
 #include "Sound.h"
+
+
+/*
+This Header defines the SoundBase singleton class.
+
+description:
+    This class serves as a look-up table for sound file's data.
+status:
+    untested
+*/
+#include "SoundBase.h"
 
 
 /*

@@ -236,6 +236,8 @@
 		<Unit filename="Settings.h" />
 		<Unit filename="Sound.cpp" />
 		<Unit filename="Sound.h" />
+		<Unit filename="SoundBase.cpp" />
+		<Unit filename="SoundBase.h" />
 		<Unit filename="Sun.cpp" />
 		<Unit filename="Sun.h" />
 		<Unit filename="Trigger.cpp" />

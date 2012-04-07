@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010, 2011 thoronador
+    Copyright (C) 2009, 2010, 2011, 2012 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -71,6 +71,7 @@ namespace Dusk
   const unsigned int cHeaderRfWe = 1700226642; //"RfWe" (for Referenced Weapon)
   const unsigned int cHeaderRfWP = 1347905106; //"RfWP" (for Referenced WaypointObject)
   const unsigned int cHeaderSave = 1702256979; //"Save" (for SaveGame)
+  const unsigned int cHeaderSoun = 1853189971; //"Soun" (for SoundBase records)
   const unsigned int cHeaderVehi = 1768449366; //"Vehi" (for VehicleBase records)
   const unsigned int cHeaderWeap = 1885431127; //"Weap" (for Weapon(Base))
 }//namespace
