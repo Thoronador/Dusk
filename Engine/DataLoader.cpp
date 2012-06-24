@@ -33,6 +33,7 @@
 #include "Player.h"
 #include "QuestLog.h"
 #include "ProjectileBase.h"
+#include "ResourceBase.h"
 #include "SoundBase.h"
 #include "VehicleBase.h"
 #include "WeaponBase.h"
@@ -127,6 +128,10 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
   {
     //static objects
     data_records += ObjectManager::getSingleton().getNumberOfReferences();
+  }
+  if ((bits & RESOURCE_BIT) !=0)
+  {
+    data_records += ResourceBase::getSingleton().getNumberOfResources();
   }
   if ((bits & SOUND_BIT) !=0)
   {
@@ -288,6 +293,18 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
     }//if
   }//if objects
 
+  //save resources
+  if ((bits & RESOURCE_BIT)!=0)
+  {
+    if (!ResourceBase::getSingleton().saveAllToStream(output))
+    {
+      DuskLog() << "DataLoader::saveToFile: ERROR: could not write resource "
+                << "data to file \""<<FileName<<"\".\n";
+      output.close();
+      return false;
+    }
+  }//resources
+
   //save sound data
   if ((bits & SOUND_BIT) !=0)
   {
@@ -430,6 +447,9 @@ bool DataLoader::loadFromFile(const std::string& FileName)
       case cHeaderRfWP:  //WaypointObject
            success = InjectionManager::getSingleton().loadNextFromStream(input, Header);
            break;
+      case cHeaderRsrc:
+           success = ResourceBase::getSingleton().loadNextResourceFromStream(input);
+           break;
       case cHeaderSoun:
            success = SoundBase::getSingleton().loadNextSoundFromStream(input);
            break;
@@ -529,6 +549,11 @@ void DataLoader::clearData(const unsigned int bits)
   {
     QuestLog::getSingleton().clearAllData();
   }//quest log
+
+  if ((bits & RESOURCE_BIT) != 0)
+  {
+    ResourceBase::getSingleton().clearAll();
+  }//resource data
 
   if ((bits & SOUND_BIT) != 0)
   {

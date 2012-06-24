@@ -70,6 +70,7 @@ namespace Dusk
   const unsigned int cHeaderRefV = 1449551186; //"RefV" (for Referenced Vehicle)
   const unsigned int cHeaderRfWe = 1700226642; //"RfWe" (for Referenced Weapon)
   const unsigned int cHeaderRfWP = 1347905106; //"RfWP" (for Referenced WaypointObject)
+  const unsigned int cHeaderRsrc = 1668445010; //"Rsrc" (for ResourceBase records)
   const unsigned int cHeaderSave = 1702256979; //"Save" (for SaveGame)
   const unsigned int cHeaderSoun = 1853189971; //"Soun" (for SoundBase records)
   const unsigned int cHeaderVehi = 1768449366; //"Vehi" (for VehicleBase records)

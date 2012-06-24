@@ -58,6 +58,7 @@
                               singleton classes
      - 2011-09-12 (rev 299) - player object will now be saved/loaded, too
      - 2012-04-07 (rev 305) - update for SoundBase
+     - 2012-06-24 (rev 306) - update for ResourceBase
 
  ToDo list:
      - extend class when further classes for data management are added
@@ -88,15 +89,16 @@ namespace Dusk
   const unsigned int PROJECTILE_BIT = 512;
   const unsigned int QUEST_LOG_BIT = 1024;
   const unsigned int REFERENCE_BIT = 2048;
-  const unsigned int SOUND_BIT = 4096;
-  const unsigned int VEHICLE_BIT = 8192;
-  const unsigned int WEAPON_BIT = 16384;
+  const unsigned int RESOURCE_BIT = 4096;
+  const unsigned int SOUND_BIT = 8192;
+  const unsigned int VEHICLE_BIT = 16384;
+  const unsigned int WEAPON_BIT = 32768;
 
   const unsigned int ALL_BITS = CONTAINER_BIT | DIALOGUE_BIT | INJECTION_BIT |
                                 ITEM_BIT | JOURNAL_BIT | LANDSCAPE_BIT |
                                 LIGHT_BIT | NPC_BIT | OBJECT_BIT | PROJECTILE_BIT
-                                | QUEST_LOG_BIT | REFERENCE_BIT | SOUND_BIT
-                                | VEHICLE_BIT | WEAPON_BIT;
+                                | QUEST_LOG_BIT | REFERENCE_BIT | RESOURCE_BIT
+                                | SOUND_BIT | VEHICLE_BIT | WEAPON_BIT;
 
   const unsigned int SAVE_MEAN_BITS = INJECTION_BIT | QUEST_LOG_BIT | REFERENCE_BIT;
 
