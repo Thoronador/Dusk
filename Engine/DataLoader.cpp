@@ -443,6 +443,7 @@ bool DataLoader::loadFromFile(const std::string& FileName)
       case cHeaderRefA:  //AnimatedObject
       case cHeaderRefN:  //NPC
       case cHeaderRefP:  //Projectiles
+      case cHeaderRefR:  //Resource
       case cHeaderRefV:  //Vehicles
       case cHeaderRfWP:  //WaypointObject
            success = InjectionManager::getSingleton().loadNextFromStream(input, Header);
@@ -719,6 +720,7 @@ bool DataLoader::loadSaveGame(const std::string& FileName)
       case cHeaderRefA:  //AnimatedObject
       case cHeaderRefN:  //NPC
       case cHeaderRefP:  //Projectiles
+      case cHeaderRefR:  //Resource
       case cHeaderRfWP:  //WaypointObject
            success = InjectionManager::getSingleton().loadNextFromStream(input, Header);
            break;

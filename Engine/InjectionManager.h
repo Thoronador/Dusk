@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010 thoronador
+    Copyright (C) 2009, 2010, 2012 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -54,6 +54,7 @@
      - 2010-11-12 (rev 252) - getBegin() and getEnd() added
      - 2010-11-20 (rev 255) - rotation is now stored as quaternion
      - 2010-12-04 (rev 268) - use DuskLog/Messages class for logging
+     - 2012-06-30 (rev 307) - update for Resource class
 
  ToDo list:
      - ???
@@ -68,6 +69,8 @@
 #include "Projectile.h"
 #include "AnimatedObject.h"
 #include "NPC.h"
+#include "Resource.h"
+#include "Vehicle.h"
 #include <fstream>
 #include <vector>
 #include <map>
@@ -116,6 +119,19 @@ namespace Dusk
       NPC* addNPCReference(const std::string& ID, const Ogre::Vector3& position,
                            const Ogre::Quaternion& rot, const float Scale);
 
+      /* adds a new Resource with given ID at given position with rotation
+         and scale, and returns a pointer to the created Resource.
+
+         parameters:
+             ID       - ID of the new projectile
+             position - position of the object
+             rotation - rotation of the object
+             scale    - scaling factor of the object
+      */
+      Resource* addResourceReference(const std::string& ID, const Ogre::Vector3& position,
+                                         const Ogre::Quaternion& rotation, const float scale);
+
+
       /* adds a new Vehicle with given ID at given position with rotation and
          scale, and returns a pointer to the created Vehicle.
 
@@ -141,7 +157,7 @@ namespace Dusk
                                            const Ogre::Quaternion& rotation, const float scale);
 
       /* adds a new Projectile with given ID at given position with rotation
-         and scale, and returns a pointer to the created WaypointObject.
+         and scale, and returns a pointer to the created Projectile.
 
          parameters:
              ID       - ID of the new projectile
@@ -162,10 +178,20 @@ namespace Dusk
       */
       AnimatedObject* getAnimatedObjectReference(const std::string& ID) const;
 
-      /* same as GetAnimatedObjectReference, but with check for NPC -> if the
+      /* same as getAnimatedObjectReference, but with check for NPC -> if the
          referenced object is not a NPC, it returns NULL
       */
       NPC* getNPCReference(const std::string& ID) const;
+
+      /* returns a pointer to the first resource reference with the given ID, or
+         NULL if no such object is present
+      */
+      Resource* getResourceReference(const std::string& ID) const;
+
+      /* returns a pointer to the first vehicle reference with the given ID, or
+         NULL if no such object is present
+      */
+      Vehicle* getVehicleReference(const std::string& ID) const;
 
       #ifdef DUSK_EDITOR
       /* Deletes all objects with the given ID and returns the number of deleted objects.

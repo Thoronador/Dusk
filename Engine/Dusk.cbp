@@ -228,6 +228,8 @@
 		<Unit filename="ProjectileBase.h" />
 		<Unit filename="QuestLog.cpp" />
 		<Unit filename="QuestLog.h" />
+		<Unit filename="Resource.cpp" />
+		<Unit filename="Resource.h" />
 		<Unit filename="ResourceBase.cpp" />
 		<Unit filename="ResourceBase.h" />
 		<Unit filename="Scene.cpp" />

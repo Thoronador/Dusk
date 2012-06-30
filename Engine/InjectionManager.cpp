@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010 thoronador
+    Copyright (C) 2009, 2010, 2012  thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@
 #ifdef DUSK_EDITOR
   #include "NPCBase.h"
 #endif
-#include "Vehicle.h"
 #include "Messages.h"
 
 namespace Dusk
@@ -69,6 +68,15 @@ NPC* InjectionManager::addNPCReference(const std::string& ID,
   m_ReferenceMap[ID].push_back(NPCPointer);
   ++m_RefCount;
   return NPCPointer;
+}
+
+Resource* InjectionManager::addResourceReference(const std::string& ID, const Ogre::Vector3& position,
+                               const Ogre::Quaternion& rotation, const float scale)
+{
+  Resource* ptr = new Resource(ID, position, rotation, scale);
+  m_ReferenceMap[ID].push_back(ptr);
+  ++m_RefCount;
+  return ptr;
 }
 
 Vehicle* InjectionManager::addVehicleReference(const std::string& ID, const Ogre::Vector3& position,
@@ -141,6 +149,32 @@ NPC* InjectionManager::getNPCReference(const std::string& ID) const
     }
   }
   return (dynamic_cast<NPC*>(ap));
+}
+
+Resource* InjectionManager::getResourceReference(const std::string& ID) const
+{
+  InjectionObject* ip = getInjectionObjectReference(ID);
+  if (ip!=NULL)
+  {
+    if (ip->getDuskType() != otResource)
+    {
+      return NULL;
+    }
+  }
+  return static_cast<Resource*>(ip);
+}
+
+Vehicle* InjectionManager::getVehicleReference(const std::string& ID) const
+{
+  InjectionObject* ip = getInjectionObjectReference(ID);
+  if (ip!=NULL)
+  {
+    if (ip->getDuskType() != otVehicle)
+    {
+      return NULL;
+    }
+  }
+  return dynamic_cast<Vehicle*>(ip);
 }
 
 #ifdef DUSK_EDITOR
@@ -352,59 +386,35 @@ bool InjectionManager::loadNextFromStream(std::ifstream& Stream, const unsigned 
   {
     case cHeaderRefA:
          injectPtr = new AnimatedObject;
-         if (injectPtr->loadFromStream(Stream))
-         {
-           m_ReferenceMap[injectPtr->getID()].push_back(injectPtr);
-           ++m_RefCount;
-           return true;
-         }
-         delete injectPtr;
          break;
     case cHeaderRefN:
          injectPtr = new NPC;
-         if (injectPtr->loadFromStream(Stream))
-         {
-           m_ReferenceMap[injectPtr->getID()].push_back(injectPtr);
-           ++m_RefCount;
-           return true;
-         }
-         delete injectPtr;
          break;
     case cHeaderRefP:
          injectPtr = new Projectile;
-         if (injectPtr->loadFromStream(Stream))
-         {
-           m_ReferenceMap[injectPtr->getID()].push_back(injectPtr);
-           ++m_RefCount;
-           return true;
-         }
-         delete injectPtr;
+         break;
+    case cHeaderRefR:
+         injectPtr = new Resource;
          break;
     case cHeaderRefV:
          injectPtr = new Vehicle;
-         if (injectPtr->loadFromStream(Stream))
-         {
-           m_ReferenceMap[injectPtr->getID()].push_back(injectPtr);
-           ++m_RefCount;
-           return true;
-         }
-         delete injectPtr;
          break;
     case cHeaderRfWP:
          injectPtr = new WaypointObject;
-         if (injectPtr->loadFromStream(Stream))
-         {
-           m_ReferenceMap[injectPtr->getID()].push_back(injectPtr);
-           ++m_RefCount;
-           return true;
-         }
-         delete injectPtr;
          break;
     default:
          DuskLog() << "InjectionManager::loadNextFromStream: ERROR: unexpected"
                    << " header found.\n";
+         return false;
          break;
   }//swi
+  if (injectPtr->loadFromStream(Stream))
+  {
+    m_ReferenceMap[injectPtr->getID()].push_back(injectPtr);
+    ++m_RefCount;
+    return true;
+  }
+  delete injectPtr;
   DuskLog() << "InjectionManager::loadNextFromStream: ERROR while loading next "
             << " object from stream.\n";
   return false;
