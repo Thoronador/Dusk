@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2007, 2009, 2010 ssj5000, thoronador
+    Copyright (C) 2007, 2009, 2010, 2012  ssj5000, thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -141,7 +141,7 @@ bool DuskObject::changeID(const std::string& newID)
   return false;
 }
 
-std::string DuskObject::getObjectMesh() const
+const std::string& DuskObject::getObjectMesh() const
 {
   return ObjectBase::getSingleton().getMeshName(ID);
 }

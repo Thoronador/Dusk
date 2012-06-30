@@ -79,6 +79,7 @@
                               detections
      - 2010-12-04 (rev 268) - use DuskLog/Messages class for logging
      - 2012-06-30 (rev 307) - enumeration value for Resource added
+     - 2012-06-30 (rev 308) - update of getObjectMesh() definition
 
  ToDo list:
      - ???
@@ -260,7 +261,7 @@ class DuskObject: public Ogre::UserDefinedObject
                Every(!) derived, non-abstract class has to implement their own
                version of that function to ensure the use of the right meshes.
         */
-        virtual std::string getObjectMesh() const;
+        virtual const std::string& getObjectMesh() const;
 
         /* Helper function which saves all data in a DuskObject to the given
            stream. Returns true on success.

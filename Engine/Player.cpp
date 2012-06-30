@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010, 2011 thoronador
+    Copyright (C) 2010, 2011, 2012  thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -124,11 +124,12 @@ void Player::injectTime(const float SecondsPassed)
   #endif
 }
 
-std::string Player::getObjectMesh() const
+const std::string& Player::getObjectMesh() const
 {
   /* Until we have a proper player mesh, we use the Ogre mascot mesh from
      Zi Ye / omniter. */
-  return "Sinbad.mesh";
+  static const std::string playerMesh = "Sinbad.mesh";
+  return playerMesh;
 }
 
 bool Player::enable(Ogre::SceneManager* scm)

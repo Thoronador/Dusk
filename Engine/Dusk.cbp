@@ -80,6 +80,7 @@
 				<Option parameters="plugins-linux.cfg" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add option="`pkg-config --cflags OGRE`" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />

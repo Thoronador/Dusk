@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2012  thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@
      - 2010-11-20 (rev 255) - rotation is now stored as Quaternion
      - 2010-11-26 (rev 260) - canCollide() added (always returns true)
      - 2010-12-04 (rev 267) - use DuskLog/Messages class for logging
+     - 2012-06-30 (rev 308) - update of getObjectMesh() definition
 
  ToDo list:
      - position and orientation of passengers has to be adjusted during
@@ -196,7 +197,7 @@ class Vehicle: public AnimatedObject, public WaypointObject
            Every(!) derived, non-abstract class has to implement their own
            version of that function to ensure the use of the right meshes.
     */
-    virtual std::string getObjectMesh() const;
+    virtual const std::string& getObjectMesh() const;
 
     /* Enables the vehicle's passengers, i.e. tells the SceneManager to display
        them. Returns true on success, false on error.

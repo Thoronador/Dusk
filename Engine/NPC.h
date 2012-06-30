@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010, 2011 thoronador
+    Copyright (C) 2009, 2010, 2011, 2012  thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -67,6 +67,7 @@
                               during movement, too
      - 2010-12-04 (rev 267) - use DuskLog/Messages class for logging
      - 2011-09-12 (rev 299) - loadNPCPart() and saveNPCPart() added
+     - 2012-06-30 (rev 308) - update of getObjectMesh() definition
 
  ToDo list:
      - add possibility to equip weapons, clothes, armour, etc.
@@ -314,7 +315,7 @@ namespace Dusk
              Every(!) derived, non-abstract class has to implement their own
              version of that function to ensure the use of the right meshes.
       */
-      virtual std::string getObjectMesh() const;
+      virtual const std::string& getObjectMesh() const;
 
       /*enumeration type for equipment slots */
       enum SlotType { stRightHand, stLeftHand };

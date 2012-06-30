@@ -44,7 +44,7 @@ Item::~Item()
   disable();
 }
 
-std::string Item::getObjectMesh() const
+const std::string& Item::getObjectMesh() const
 {
   return ItemBase::getSingleton().getMeshName(ID);
 }

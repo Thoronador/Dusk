@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010, 2011 thoronador
+    Copyright (C) 2009, 2010, 2011, 2012  thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -674,7 +674,7 @@ bool NPC::stopAttack()
   return true;
 }
 
-std::string NPC::getObjectMesh() const
+const std::string& NPC::getObjectMesh() const
 {
   return NPCBase::getSingleton().getNPCMesh(ID);
 }

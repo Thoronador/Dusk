@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2012 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -39,6 +39,7 @@
      - 2010-11-26 (rev 260) - canCollide() added (always returns true)
      - 2010-11-30 (rev 262) - collision detection improved
      - 2010-12-03 (rev 266) - use DuskLog/Messages class for logging
+     - 2012-06-30 (rev 308) - update of getObjectMesh() definition
 
  ToDo list:
      - Improve collision detection for projectile. Currently only collisions
@@ -154,7 +155,7 @@ class Projectile: public UniformMotionObject
            Every(!) derived, non-abstract class has to implement their own
            version of that function to ensure the use of the right meshes.
     */
-    virtual std::string getObjectMesh() const;
+    virtual const std::string& getObjectMesh() const;
   private:
     // time to live before objet should be deleted
     float m_TTL;

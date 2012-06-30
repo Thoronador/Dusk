@@ -69,7 +69,8 @@ void Resource::injectTime(const float SecondsPassed)
     if (m_RespawnTime<=0.0f)
     {
       m_Spawned = true;
-      if ( isEnabled())
+      //update visualisation
+      if (isEnabled())
       {
         disable();
         enable(getAPI().getOgreSceneManager());
@@ -145,7 +146,7 @@ bool Resource::loadFromStream(std::ifstream& inStream)
   return true;
 }
 
-std::string Resource::getObjectMesh() const
+const std::string& Resource::getObjectMesh() const
 {
   if (m_Spawned) return ResourceBase::getSingleton().getResourceData(ID).meshSpawned;
   return ResourceBase::getSingleton().getResourceData(ID).meshHarvested;

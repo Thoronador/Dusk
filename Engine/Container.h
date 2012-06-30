@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010 thoronador
+    Copyright (C) 2009, 2010, 2012  thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@
      - 2010-11-20 (rev 255) - rotation is now stored as quaternion
      - 2010-11-26 (rev 260) - canCollide() added (always returns true)
      - 2010-12-01 (rev 265) - use DuskLog/Messages class for logging
+     - 2012-06-30 (rev 308) - update of getObjectMesh() definition
 
  ToDo list:
      - ???
@@ -139,7 +140,7 @@ namespace Dusk
              Every(!) derived, non-abstract class has to implement their own
              version of that function to ensure the use of the right meshes.
       */
-      virtual std::string getObjectMesh() const;
+      virtual const std::string& getObjectMesh() const;
 
       //holds the contents of this container
       Inventory m_Contents;

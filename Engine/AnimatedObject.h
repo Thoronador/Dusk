@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2007, 2009, 2010 ssj5000, thoronador
+    Copyright (C) 2007, 2009, 2010, 2012  ssj5000, thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -66,6 +66,7 @@
      - 2010-11-20 (rev 255) - rotation is now stored as quaternion
      - 2010-11-26 (rev 260) - canCollide() added
      - 2010-12-01 (rev 265) - use DuskLog/Messages class for logging
+     - 2012-06-30 (rev 308) - update of getObjectMesh() definition
 
  ToDo list:
      - review implementation of canCollide() at a later stage of development
@@ -268,7 +269,7 @@ namespace Dusk
                Every(!) derived, non-abstract class has to implement their own
                version of that function to ensure the use of the right meshes.
         */
-        virtual std::string getObjectMesh() const;
+        virtual const std::string& getObjectMesh() const;
 
         /* Utility function which saves all data that is specific to an
            AnimatedObject to the given stream. Returns true on success.

@@ -26,6 +26,7 @@
 
  History:
      - 2012-06-30 (rev 307) - initial version (by thoronador)
+     - 2012-06-30 (rev 308) - update of getObjectMesh() definition
 
  ToDo list:
      - ???
@@ -94,7 +95,7 @@ class Resource: public InjectionObject
            Every(!) derived, non-abstract class has to implement their own
            version of that function to ensure the use of the right meshes.
     */
-    virtual std::string getObjectMesh() const;
+    virtual const std::string& getObjectMesh() const;
   private:
     //spawn status
     bool m_Spawned;

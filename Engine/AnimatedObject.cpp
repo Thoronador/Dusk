@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2007, 2009, 2010 ssj5000, thoronador
+    Copyright (C) 2007, 2009, 2010, 2012  ssj5000, thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -73,7 +73,7 @@ AnimatedObject::~AnimatedObject()
   disable();
 }
 
-std::string AnimatedObject::getObjectMesh() const
+const std::string& AnimatedObject::getObjectMesh() const
 {
   return ObjectBase::getSingleton().getMeshName(ID);
 }

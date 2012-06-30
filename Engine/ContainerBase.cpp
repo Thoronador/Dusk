@@ -86,7 +86,7 @@ bool ContainerBase::hasContainer(const std::string& ID) const
   return (m_ContainerList.find(ID)!=m_ContainerList.end());
 }
 
-std::string ContainerBase::getContainerMesh(const std::string& ID, const bool UseMarkerOnError) const
+const std::string& ContainerBase::getContainerMesh(const std::string& ID, const bool UseMarkerOnError) const
 {
   std::map<std::string, ContainerRecord>::const_iterator iter;
   iter = m_ContainerList.find(ID);

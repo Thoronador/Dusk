@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2012 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ Weapon::~Weapon()
   disable();
 }
 
-std::string Weapon::getObjectMesh() const
+const std::string& Weapon::getObjectMesh() const
 {
   return WeaponBase::getSingleton().getWeaponMesh(ID);
 }

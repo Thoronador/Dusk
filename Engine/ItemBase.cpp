@@ -92,7 +92,7 @@ unsigned int ItemBase::getNumberOfItems() const
   return m_ItemList.size();
 }
 
-std::string ItemBase::getItemName(const std::string& itemID) const
+const std::string& ItemBase::getItemName(const std::string& itemID) const
 {
   std::map<std::string, ItemRecord>::const_iterator iter = m_ItemList.find(itemID);
   if (iter != m_ItemList.end())
@@ -130,7 +130,7 @@ float ItemBase::getItemWeight(const std::string& itemID) const
   throw IDNotFound("ItemBase", itemID);
 }
 
-std::string ItemBase::getMeshName(const std::string& itemID, const bool UseMarkerOnError) const
+const std::string& ItemBase::getMeshName(const std::string& itemID, const bool UseMarkerOnError) const
 {
   std::map<std::string, ItemRecord>::const_iterator iter;
   iter = m_ItemList.find(itemID);

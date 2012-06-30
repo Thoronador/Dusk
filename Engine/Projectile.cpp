@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2012  thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -243,7 +243,7 @@ void Projectile::injectTime(const float SecondsPassed)
   }//if
 }
 
-std::string Projectile::getObjectMesh() const
+const std::string& Projectile::getObjectMesh() const
 {
   return ProjectileBase::getSingleton().getProjectileMesh(ID);
 }

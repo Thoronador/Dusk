@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010 thoronador
+    Copyright (C) 2009, 2010, 2012 thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -89,7 +89,7 @@ bool Container::canCollide() const
   return true;
 }
 
-std::string Container::getObjectMesh() const
+const std::string& Container::getObjectMesh() const
 {
   return ContainerBase::getSingleton().getContainerMesh(ID);
 }

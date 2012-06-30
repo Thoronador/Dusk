@@ -36,6 +36,7 @@
      - 2010-12-01 (rev 265) - use DuskLog/Messages class for logging
      - 2012-04-05 (rev 303) - non-existent IDs in query functions now get logged
                               to DuskLog and might throw exceptions
+     - 2012-06-30 (rev 308) - update of getContainerMesh() definition
 
  ToDo list:
      - ???
@@ -110,7 +111,7 @@ namespace Dusk
                                 return the path of the error marker mesh instead
                                 of throwing an eexception.
       */
-      std::string getContainerMesh(const std::string& ID, const bool UseMarkerOnError=true) const;
+      const std::string& getContainerMesh(const std::string& ID, const bool UseMarkerOnError=true) const;
 
       /* Returns the inventory of the container, if present.
 

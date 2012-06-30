@@ -41,6 +41,8 @@
      - 2011-05-11 (rev 287) - iterator type for getFirst() and getEnd() added
      - 2012-04-05 (rev 303) - non-existent IDs in query functions can now throw
                               exceptions
+     - 2012-06-30 (rev 308) - update of getMeshName() and getItemName()
+                              definition
 
  ToDo list:
      - ???
@@ -155,7 +157,7 @@ namespace Dusk
          parameters:
              itemID - ID of the item whose (ingame) name is requested
       */
-      std::string getItemName(const std::string& itemID) const;
+      const std::string& getItemName(const std::string& itemID) const;
 
       /* returns the value of the item with ID itemID, or throws an exception,
          if no item with that ID is present.
@@ -190,7 +192,7 @@ namespace Dusk
                                 If set to false, requesting non-existent items
                                 will throw an exceptions.
       */
-      std::string getMeshName(const std::string& itemID, const bool UseMarkerOnError=true) const;
+      const std::string& getMeshName(const std::string& itemID, const bool UseMarkerOnError=true) const;
 
       /* tries to save all items to the stream and returns true on success
 

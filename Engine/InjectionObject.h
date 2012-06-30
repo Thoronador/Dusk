@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2012  thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@
      - 2010-07-31 (rev 220) - GetObjectMesh() added (pure virtual here)
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-11-26 (rev 260) - canCollide() added (abstract)
+     - 2012-06-30 (rev 308) - update of getObjectMesh() definition
 
  ToDo list:
      - ???
@@ -80,7 +81,7 @@ class InjectionObject: virtual public DuskObject
            We declare this pure virtual here to enforce implementation in all
            derived classes.
     */
-    virtual std::string getObjectMesh() const = 0;
+    virtual const std::string& getObjectMesh() const = 0;
 }; //class
 
 } //namespace
