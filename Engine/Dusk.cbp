@@ -149,6 +149,9 @@
 		<Unit filename="ContainerBase.h" />
 		<Unit filename="DataLoader.cpp" />
 		<Unit filename="DataLoader.h" />
+		<Unit filename="DataRecord.h" />
+		<Unit filename="Database.cpp" />
+		<Unit filename="Database.h" />
 		<Unit filename="Dialogue.cpp" />
 		<Unit filename="Dialogue.h" />
 		<Unit filename="DiceBox.cpp" />
