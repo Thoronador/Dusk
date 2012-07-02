@@ -98,6 +98,8 @@
 		<Unit filename="../Engine/DiceBox.cpp" />
 		<Unit filename="../Engine/DiceBox.h" />
 		<Unit filename="../Engine/DuskConstants.h" />
+		<Unit filename="../Engine/DuskExceptions.cpp" />
+		<Unit filename="../Engine/DuskExceptions.h" />
 		<Unit filename="../Engine/DuskFunctions.cpp" />
 		<Unit filename="../Engine/DuskFunctions.h" />
 		<Unit filename="../Engine/DuskObject.cpp" />
@@ -156,12 +158,18 @@
 		<Unit filename="../Engine/ProjectileBase.h" />
 		<Unit filename="../Engine/QuestLog.cpp" />
 		<Unit filename="../Engine/QuestLog.h" />
+		<Unit filename="../Engine/Resource.cpp" />
+		<Unit filename="../Engine/Resource.h" />
+		<Unit filename="../Engine/ResourceBase.cpp" />
+		<Unit filename="../Engine/ResourceBase.h" />
 		<Unit filename="../Engine/Script.cpp" />
 		<Unit filename="../Engine/Script.h" />
 		<Unit filename="../Engine/Settings.cpp" />
 		<Unit filename="../Engine/Settings.h" />
 		<Unit filename="../Engine/Sound.cpp" />
 		<Unit filename="../Engine/Sound.h" />
+		<Unit filename="../Engine/SoundBase.cpp" />
+		<Unit filename="../Engine/SoundBase.h" />
 		<Unit filename="../Engine/Sun.cpp" />
 		<Unit filename="../Engine/Sun.h" />
 		<Unit filename="../Engine/UniformMotionObject.cpp" />

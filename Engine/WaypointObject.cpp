@@ -19,6 +19,7 @@
 */
 
 #include "WaypointObject.h"
+#include "Database.h"
 #include "ObjectBase.h"
 #include "DuskConstants.h"
 #include "Messages.h"
@@ -122,7 +123,7 @@ bool WaypointObject::getPatrolMode() const
 
 const std::string& WaypointObject::getObjectMesh() const
 {
-  return ObjectBase::getSingleton().getMeshName(ID);
+  return Database::getSingleton().getTypedRecord<ObjectRecord, cHeaderObjS>(ID).Mesh;
 }
 
 ObjectTypes WaypointObject::getDuskType() const

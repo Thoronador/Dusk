@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010 thoronador
+    Copyright (C) 2009, 2010, 2012  thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 
 #include "Light.h"
 #include "LightBase.h"
+#include "Database.h"
 #include "DuskConstants.h"
 #include "Messages.h"
 #include <sstream>
@@ -57,7 +58,7 @@ bool Light::enable(Ogre::SceneManager* scm)
   entity_name << ID << GenerateUniqueObjectID();
 
   entity = scm->createLight(entity_name.str());
-  LightRecord lr = LightBase::getSingleton().getLightData(ID);
+  const LightRecord& lr = Database::getSingleton().getTypedRecord<LightRecord, cHeaderLight>(ID);
   entity->setType(lr.type);
   entity->setPosition(Ogre::Vector3::ZERO);
   if (lr.type!=Ogre::Light::LT_POINT)

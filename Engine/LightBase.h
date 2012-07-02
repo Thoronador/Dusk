@@ -21,9 +21,9 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
  Date:    2010-03-27
- Purpose: LightBase Singleton class
-          holds information about all distinct lights in the game
-          Think of it as a sort of look-up table for lights.
+ Purpose: LightRecord structure
+          holds information about one distinct light in the game
+          Think of it as a sort of record in a look-up table for lights.
 
  History:
      - 2009-09-13 (rev 128) - initial version (by thoronador)
@@ -39,6 +39,9 @@
      - 2011-05-11 (rev 287) - iterator type for getFirst() and getEnd() added
      - 2012-04-05 (rev 303) - non-existent IDs in getLightData() will now throw
                               exceptions
+     - 2012-07-02 (rev 310) - update of LightRecord to be a descendant of
+                              DataRecord
+                            - LightBase removed (Database will handle that)
 
  ToDo list:
      - ???
@@ -48,19 +51,18 @@
        to fix it as soon as possible.
  --------------------------------------------------------------------------*/
 
-#ifndef LIGHTBASE_H
-#define LIGHTBASE_H
+#ifndef DUSK_LIGHTRECORD_H
+#define DUSK_LIGHTRECORD_H
 
-#include <string>
-#include <map>
 #include <fstream>
 #include <OgreLight.h>
+#include "DataRecord.h"
 
 namespace Dusk
 {
 
   /* structure that holds the data of a light */
-  struct LightRecord
+  struct LightRecord: public DataRecord
   {
     public:
       /* red, green and blue colour values of light */
@@ -105,117 +107,33 @@ namespace Dusk
              d - range of light
       */
       static LightRecord getBlue(const float d=0.0f);
+
+      /* returns an integer value that uniquely identifies this record's type */
+      virtual uint32_t getRecordType() const;
+
+      /* Tries to save the data record to stream outStream and returns true on
+         success, false otherwise.
+
+         parameters:
+             outStream - the output stream to which the data will be saved
+      */
+      virtual bool saveToStream(std::ofstream& outStream) const;
+
+      /* Tries to load the data record from stream inStream and returns true on
+         success, false otherwise.
+
+         parameters:
+             inStream - the input stream from which the data will be read
+
+         remarks:
+             The record may have inconsistent data, if the function fails.
+      */
+      virtual bool loadFromStream(std::ifstream& inStream);
   };
 
   /* overloaded equality operator for light records */
   bool operator==(const LightRecord& l, const LightRecord& r);
 
-
-  /* the LightBase Singleton class */
-  class LightBase
-  {
-    public:
-      #ifdef DUSK_EDITOR
-      //iterator type for iterating through the lights
-      typedef std::map<std::string, LightRecord>::const_iterator Iterator;
-      #endif
-
-      /* destructor */
-      virtual ~LightBase();
-
-      /* singleton access method */
-      static LightBase& getSingleton();
-
-      /* adds a new light record to the database
-
-         parameters:
-             ID     - ID of the new light record
-             r      - red colour component of light (should be in [0;1])
-             g      - green colour component of light (should be in [0;1])
-             b      - blue colour component of light (should be in [0;1])
-             radius - range of light (should be greater than zero)
-             _type  - type of light (point, spotlight,...)
-
-         remarks:
-             This function will always succeed, except if the application runs
-             out of memory or the ID is an empty string. If a light record with
-             the given (not empty) ID already exists, this record will be over-
-             written.
-      */
-      void addLight(const std::string& ID, const float r, const float g, const float b, const float radius,
-                    const Ogre::Light::LightTypes _type = Ogre::Light::LT_POINT);
-
-      /* adds a new light record to the database
-
-         parameters:
-             ID     - ID of the new light record
-             record - LightRecord containing the light data
-
-         remarks:
-             This function variant is provided for convenience.
-             See prevoius version of addLight() for remarks.
-      */
-      void addLight(const std::string& ID, const LightRecord& record);
-
-      /* returns true, if a light record for the given ID exists */
-      bool hasLight(const std::string& ID) const;
-
-      /* returns the light record of the Light with ID 'ID'
-
-         remarks:
-             If no record with that given ID exists, an exception will be
-             thrown. You can use the hasLight() method to check for existing
-             light records.
-      */
-      const LightRecord& getLightData(const std::string& ID) const;
-
-      /* tries to delete the light record with the given ID and returns true,
-         if a record with that ID was deleted
-      */
-      bool deleteLight(const std::string& ID);
-
-      /* deletes all light records
-
-         remarks:
-             Currently only used be Editor and DataLoader.
-      */
-      void clearAllData();
-
-      /* returns the number of distinct light records */
-      unsigned int getNumberOfLights() const;
-
-      /* tries to save all light records to the given stream. Returns true, if
-         the operation was successful, and false if it failed.
-
-         parameters:
-             out_stream - the output stream that is used to save the data
-      */
-      bool saveAllToStream(std::ofstream& out_stream) const;
-
-      /* tries to load one single light record from the given stream and returns
-         true, if it was successful
-
-         parameters:
-             in_stream - the input stream that is used to load the light data
-      */
-      bool loadRecordFromStream(std::ifstream& in_stream);
-
-      #ifdef DUSK_EDITOR
-      /* utility functions to access internal map iterators - not used in-game,
-         only used by Editor application.
-      */
-      Iterator getFirst() const;
-      Iterator getEnd() const;
-      #endif
-    private:
-      /* private constructor (singleton pattern) */
-      LightBase();
-      /* empty copy constructor due to singleton pattern */
-      LightBase(const LightBase& op){}
-      //list of lights
-      std::map<std::string, LightRecord> m_LightList;
-  };//class
-
 }//namespace
 
-#endif // LIGHTBASE_H
+#endif // DUSK_LIGHTRECORD_H

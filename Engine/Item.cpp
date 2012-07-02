@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2012  thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 */
 
 #include "Item.h"
+#include "Database.h"
 #include "DuskConstants.h"
 #include "ItemBase.h"
 #include "API.h"
@@ -46,7 +47,7 @@ Item::~Item()
 
 const std::string& Item::getObjectMesh() const
 {
-  return ItemBase::getSingleton().getMeshName(ID);
+  return Database::getSingleton().getTypedRecord<ItemRecord, cHeaderItem>(ID).Mesh;
 }
 
 bool Item::enableWithoutSceneNode(Ogre::SceneManager* scm)

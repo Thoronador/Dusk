@@ -23,12 +23,10 @@
 #include "InjectionManager.h"
 #include "ContainerBase.h"
 #include "Dialogue.h"
-#include "ItemBase.h"
 #include "Journal.h"
 #include "Landscape.h"
-#include "LightBase.h"
 #include "NPCBase.h"
-#include "ObjectBase.h"
+#include "Database.h"
 #include "ObjectManager.h"
 #include "Player.h"
 #include "QuestLog.h"
@@ -81,6 +79,10 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
   {
     data_records += ContainerBase::getSingleton().numberOfContainers();
   }
+  if ((bits & DATABASE_BIT) !=0)
+  {
+    data_records += Database::getSingleton().getNumberOfRecords();
+  }
   if ((bits & DIALOGUE_BIT) !=0)
   {
     data_records += Dialogue::getSingleton().numberOfLines();
@@ -92,10 +94,6 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
     //player object
     data_records += 1;
   }
-  if ((bits & ITEM_BIT) !=0)
-  {
-    data_records += ItemBase::getSingleton().getNumberOfItems();
-  }
   if ((bits & JOURNAL_BIT) !=0)
   {
     data_records += Journal::getSingleton().numberOfDistinctQuests();
@@ -104,18 +102,11 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
   {
     data_records += Landscape::getSingleton().getNumberOfRecordsAvailable();
   }
-  if ((bits & LIGHT_BIT) !=0)
-  {
-    data_records += LightBase::getSingleton().getNumberOfLights();
-  }
   if ((bits & NPC_BIT) !=0)
   {
     data_records += NPCBase::getSingleton().getNumberOfNPCs();
   }
-  if ((bits & OBJECT_BIT) !=0)
-  {
-    data_records += ObjectBase::getSingleton().getNumberOfObjects();
-  }
+
   if ((bits & PROJECTILE_BIT) !=0)
   {
     data_records += ProjectileBase::getSingleton().getNumberOfProjectiles();
@@ -209,18 +200,6 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
     }
   }//dialogue
 
-  //save items
-  if ((bits & ITEM_BIT) !=0)
-  {
-    if (!ItemBase::getSingleton().saveToStream(output))
-    {
-      DuskLog() << "DataLoader::saveToFile: ERROR: could not write item data to"
-                << " file \""<<FileName<<"\".\n";
-      output.close();
-      return false;
-    }//if
-  }//if items
-
   //save journal entries
   if ((bits & JOURNAL_BIT)!=0)
   {
@@ -257,18 +236,6 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
     }//if
   }//if landscape
 
-  //save lights
-  if ((bits & LIGHT_BIT) !=0)
-  {
-    if(!LightBase::getSingleton().saveAllToStream(output))
-    {
-      DuskLog() << "DataLoader::saveToFile: ERROR: could not write Light data "
-                << "to file \""<<FileName<<"\".\n";
-      output.close();
-      return false;
-    }
-  }
-
   //save NPCs
   if ((bits & NPC_BIT) !=0)
   {
@@ -281,17 +248,17 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
     }//if
   }//if NPCs
 
-  //save objects
-  if ((bits & OBJECT_BIT) !=0)
+  //save database objects
+  if ((bits & DATABASE_BIT) !=0)
   {
-    if (!ObjectBase::getSingleton().saveToStream(output))
+    if (!Database::getSingleton().saveAllToStream(output))
     {
-      DuskLog() << "DataLoader::saveToFile: ERROR: could not write object data "
+      DuskLog() << "DataLoader::saveToFile: ERROR: could not write database entries "
                 << "to file \""<<FileName<<"\".\n";
       output.close();
       return false;
     }//if
-  }//if objects
+  }//if database
 
   //save resources
   if ((bits & RESOURCE_BIT)!=0)
@@ -404,9 +371,6 @@ bool DataLoader::loadFromFile(const std::string& FileName)
       case cHeaderDial:
            success = Dialogue::getSingleton().loadNextRecordFromStream(input);
            break;
-      case cHeaderItem:
-           success = ItemBase::getSingleton().loadFromStream(input);
-           break;
       case cHeaderJour:
            success = Journal::getSingleton().loadNextFromStream(input);
            break;
@@ -418,14 +382,13 @@ bool DataLoader::loadFromFile(const std::string& FileName)
              Landscape::getSingleton().destroyRecord(land_rec);
            }
            break;
-      case cHeaderLight:
-           success = LightBase::getSingleton().loadRecordFromStream(input);
-           break;
       case cHeaderNPC_:
            success = NPCBase::getSingleton().loadNextRecordFromStream(input);
            break;
+      case cHeaderItem:
+      case cHeaderLight:
       case cHeaderObjS:
-           success = ObjectBase::getSingleton().loadFromStream(input);
+           success = Database::getSingleton().loadNextRecordFromStream(input, Header);
            break;
       case cHeaderPlay:
            success = Player::getSingleton().loadFromStream(input);
@@ -496,9 +459,9 @@ void DataLoader::clearData(const unsigned int bits)
     ObjectManager::getSingleton().clearData();
   }//object references
 
-  if ((bits & OBJECT_BIT) != 0)
+  if ((bits & DATABASE_BIT) != 0)
   {
-    ObjectBase::getSingleton().clearAllObjects();
+    Database::getSingleton().deleteAllRecords();
   }//Object information
 
   if ((bits & INJECTION_BIT) != 0)
@@ -516,11 +479,6 @@ void DataLoader::clearData(const unsigned int bits)
     Dialogue::getSingleton().clearData();
   }//dialogue data
 
-  if ((bits & ITEM_BIT)!=0)
-  {
-    ItemBase::getSingleton().clearAllItems();
-  }//item data
-
   if ((bits & JOURNAL_BIT) !=0)
   {
     Journal::getSingleton().clearAllEntries();
@@ -530,11 +488,6 @@ void DataLoader::clearData(const unsigned int bits)
   {
     Landscape::getSingleton().clearAllRecords();
   }//landscape
-
-  if ((bits & LIGHT_BIT) !=0)
-  {
-    LightBase::getSingleton().clearAllData();
-  }//lights
 
   if ((bits & NPC_BIT)!=0)
   {

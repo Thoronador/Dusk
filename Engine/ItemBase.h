@@ -52,25 +52,46 @@
        soon as possible.
  --------------------------------------------------------------------------*/
 
-#ifndef ITEMBASE_H
-#define ITEMBASE_H
+#ifndef DUSK_ITEMRECORD_H
+#define DUSK_ITEMRECORD_H
 
-#include <map>
-#include <string>
 #include <fstream>
+#include "DataRecord.h"
 
 namespace Dusk
 {
   //structure that can hold the data of one item
-  struct ItemRecord
+  struct ItemRecord: public DataRecord
   {
     std::string Name;
     int value;
     float weight;
     std::string Mesh;
-  };
 
-  const ItemRecord cEmptyItemRecord = { "", 0, 0.0, ""};
+    /* returns an integer value that uniquely identifies this record's type */
+    virtual uint32_t getRecordType() const;
+
+    /* Tries to save the data record to stream outStream and returns true on
+       success, false otherwise.
+
+       parameters:
+           outStream - the output stream to which the data will be saved
+    */
+    virtual bool saveToStream(std::ofstream& outStream) const;
+
+    /* Tries to load the data record from stream inStream and returns true on
+       success, false otherwise.
+
+       parameters:
+           inStream - the input stream from which the data will be read
+
+       remarks:
+           The record may have inconsistent data, if the function fails.
+    */
+    virtual bool loadFromStream(std::ifstream& inStream);
+  }; //struct
+
+  //const ItemRecord cEmptyItemRecord = { "", 0, 0.0, ""};
 
   /* class ItemBase
            This class' purpose is to hold the IDs of all distinct items in the
@@ -92,140 +113,6 @@ namespace Dusk
 
   */
 
-  class ItemBase
-  {
-    public:
-      #ifdef DUSK_EDITOR
-      //iterator type for iterating through the items
-      typedef std::map<std::string, ItemRecord>::const_iterator Iterator;
-      #endif
-
-      /* destructor */
-      virtual ~ItemBase();
-
-      /* singleton access */
-      static ItemBase& getSingleton();
-
-      /* returns true, if information about item with given ID is present */
-      bool hasItem(const std::string& ID_of_item) const;
-
-      /* adds a new item with given ID, name, value, weight and mesh path
-
-         parameters:
-             ID     - ID of the new item
-             name   - name of the item (shown in game)
-             value  - value of the item
-             weight - weight of the item
-             Mesh   - mesh path of the item
-
-         remarks:
-             If one of ID, name and Mesh is an empty string, or if value or
-             weight is below zero, nothing will be added.
-             If an item with the given ID already exists, then it will be
-             replaced by the new one.
-      */
-      void addItem(const std::string& ID, const std::string& name, const int value,
-                   const float weight, const std::string& Mesh);
-
-      /* utility variant of previous function; see remarks of addItem() for more
-         information
-
-         parameters:
-             ID     - ID of the new item
-             record - structure that holds all data for the item
-      */
-      void addItem(const std::string& ID, const ItemRecord& record);
-
-      /* tries to delete the item with the given ID and returns true, if such
-         an item existed before deleting it. If no such item was present, the
-         funtion will return false.
-
-         parameters:
-             ID_of_item - ID of the item that shall be deleted
-      */
-      bool deleteItem(const std::string& ID_of_item);
-
-      /* deletes information of ALL items - use with caution (or not at all) */
-      void clearAllItems();
-
-      /* returns the number of distinct items which are currently present */
-      unsigned int getNumberOfItems() const;
-
-      /* returns the name of the given item. If no such item is present, the
-         function will throw an exception.
-
-         parameters:
-             itemID - ID of the item whose (ingame) name is requested
-      */
-      const std::string& getItemName(const std::string& itemID) const;
-
-      /* returns the value of the item with ID itemID, or throws an exception,
-         if no item with that ID is present.
-
-         parameters:
-             itemID - ID of the item whose value is requested
-      */
-      int getItemValue(const std::string& itemID) const;
-
-      /* returns the weight of the item with ID itemID, or throws an exception,
-         if no item with that ID is present.
-
-         parameters:
-             itemID - ID of the item whose weight is requested
-
-         remarks:
-             Since zero is also a valid weight value for items, a return value
-             of zero is NOT a safe way to detect absence of a certain item.
-      */
-      float getItemWeight(const std::string& itemID) const;
-
-      /* returns the mesh path of the given item, or throws an exception, if no
-         item with that ID is present. However, if UseMarkerOnError is set to
-         true (default), this function will return the path to a predefined
-         error mesh instead.
-
-         parameters:
-             itemID           - ID of the item whose mesh path is requested
-             UseMarkerOnError - if UseMarkerOnError is set to true (default),
-                                this function will return the path to a pre-
-                                defined error mesh for non-existent items.
-                                If set to false, requesting non-existent items
-                                will throw an exceptions.
-      */
-      const std::string& getMeshName(const std::string& itemID, const bool UseMarkerOnError=true) const;
-
-      /* tries to save all items to the stream and returns true on success
-
-         parameters:
-             Stream - output stream that is used to save all items
-      */
-      bool saveToStream(std::ofstream& Stream) const;
-
-      /* tries to read the next item from stream and returns true, if successful
-
-         parameters:
-             Stream - input stream that is used to load the next item
-      */
-      bool loadFromStream(std::ifstream& Stream);
-
-      #ifdef DUSK_EDITOR
-      /* helper functions to access internal map iterators - not used in-game,
-         only used by Editor application.
-      */
-      Iterator getFirst() const;
-      Iterator getEnd() const;
-      #endif
-    private:
-      /* constructor */
-      ItemBase();
-
-      /* empty copy constructor - we follow the singleton passtern */
-      ItemBase(const ItemBase& op){}
-
-      //item list
-      std::map<std::string, ItemRecord> m_ItemList;
-  };//class
-
 }//namespace
 
-#endif // ITEMBASE_H
+#endif // DUSK_ITEMRECORD_H

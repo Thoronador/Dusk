@@ -19,202 +19,105 @@
 */
 
 #include "ObjectBase.h"
+#include <cstring>
 #include "DuskConstants.h"
-#include "DuskExceptions.h"
-#include "DuskFunctions.h"
 #include "Messages.h"
 
 namespace Dusk
 {
 
-ObjectBase::ObjectBase()
+uint32_t ObjectRecord::getRecordType() const
 {
-  m_ObjectList = std::map<std::string, ObjectRecord>();
+  return cHeaderObjS;
 }
 
-ObjectBase::~ObjectBase()
+bool ObjectRecord::saveToStream(std::ofstream& outStream) const
 {
-  m_ObjectList.clear();
-}
-
-ObjectBase& ObjectBase::getSingleton()
-{
-  static ObjectBase Instance;
-  return Instance;
-}
-
-bool ObjectBase::hasObject(const std::string& IDOfObject) const
-{
-  return (m_ObjectList.find(IDOfObject) != m_ObjectList.end());
-}
-
-void ObjectBase::addObject(const std::string& ID, const std::string& Mesh, const bool collision)
-{
-  if (ID=="" or Mesh=="")
+  if (!outStream.good())
   {
-    DuskLog() << "ObjectBase::addObject: ERROR: ID or Mesh is empty string.\n";
-    return;
-  }
-  ObjectRecord temp;
-  temp.Mesh = adjustDirectorySeperator(Mesh);
-  temp.collide = collision;
-  m_ObjectList[ID] = temp;
-}
-
-bool ObjectBase::deleteObject(const std::string& ID_of_Object)
-{
-  std::map<std::string, ObjectRecord>::iterator iter;
-  iter = m_ObjectList.find(ID_of_Object);
-  if (iter==m_ObjectList.end())
-  {
-    return false;
-  }
-  m_ObjectList.erase(iter);
-  return true;
-}
-
-void ObjectBase::clearAllObjects()
-{
-  m_ObjectList.clear();
-}
-
-unsigned int ObjectBase::getNumberOfObjects() const
-{
-  return m_ObjectList.size();
-}
-
-const std::string& ObjectBase::getMeshName(const std::string& ID, const bool UseMarkerOnError) const
-{
-  std::map<std::string, ObjectRecord>::const_iterator iter = m_ObjectList.find(ID);
-  if (iter!=m_ObjectList.end())
-  {
-    return iter->second.Mesh;
-  }
-  //if we get to this point, object is not present in list
-  if (UseMarkerOnError)
-  {
-    DuskLog() << "ObjectBase::getMeshName: Warning! No object with ID \""<<ID
-              << "\" found. Using error marker's mesh instead.\n";
-    return cErrorMesh;
-  }
-  DuskLog() << "ObjectBase::getMeshName: ERROR! No object with ID \""<<ID
-            << "\" found. Throwing exception.\n";
-  throw IDNotFound("ObjectBase", ID);
-}
-
-bool ObjectBase::getObjectCollision(const std::string& ID) const
-{
-  const std::map<std::string, ObjectRecord>::const_iterator iter = m_ObjectList.find(ID);
-  if (iter!=m_ObjectList.end())
-  {
-    return iter->second.collide;
-  }
-  //nothing found here, so throw?
-  DuskLog() << "ObjectBase::getObjectCollision: No object with ID \""<<ID
-            << "\" found! Throwing exception.\n";
-  throw IDNotFound("ObjectBase", ID);
-  return true;
-}
-
-bool ObjectBase::saveToStream(std::ofstream& Stream) const
-{
-  if (!Stream.good())
-  {
-     DuskLog() << "ObjectBase::saveToStream: ERROR: Stream contains errors!\n";
+     DuskLog() << "ObjectRecord::saveToStream: ERROR: Stream contains errors!\n";
      return false;
   }
 
-  std::map<std::string, ObjectRecord>::const_iterator iter;
   unsigned int len;
-  for (iter = m_ObjectList.begin(); iter != m_ObjectList.end(); ++iter)
+  //write header "ObjS"
+  outStream.write((const char*) &cHeaderObjS, sizeof(uint32_t)); //Object, Static
+  //write ID
+  len = ID.length();
+  outStream.write((const char*) &len, sizeof(unsigned int));
+  outStream.write(ID.c_str(), len);
+  //write mesh
+  len = Mesh.length();
+  outStream.write((const char*) &len, sizeof(unsigned int));
+  outStream.write(Mesh.c_str(), len);
+  //write collision flag
+  outStream.write((const char*) &collide, sizeof(bool));
+  //check
+  if (!outStream.good())
   {
-    //write header "ObjS"
-    Stream.write((char*) &cHeaderObjS, sizeof(unsigned int)); //Object, Static
-    //write ID
-    len = iter->first.length();
-    Stream.write((char*) &len, sizeof(unsigned int));
-    Stream.write(iter->first.c_str(), len);
-    //write mesh
-    len = iter->second.Mesh.length();
-    Stream.write((char*) &len, sizeof(unsigned int));
-    Stream.write(iter->second.Mesh.c_str(), len);
-    //write collision flag
-    Stream.write((char*) &(iter->second.collide), sizeof(bool));
-    //check
-    if (!Stream.good())
-    {
-      DuskLog() << "ObjectBase::saveToStream: Error while writing data to "
-                << "stream. Current object is \""<<iter->first<<"\".\n";
-      return false;
-    }
-  }//for
-  return Stream.good();
+    DuskLog() << "ObjectRecord::saveToStream: Error while writing data to "
+              << "stream. Current object is \""<<ID<<"\".\n";
+    return false;
+  }
+  return outStream.good();
 }
 
-bool ObjectBase::loadFromStream(std::ifstream& Stream)
+bool ObjectRecord::loadFromStream(std::ifstream& inStream)
 {
   unsigned int len;
-  unsigned int Header = 0;
-  static char ID_Buffer[256], Mesh_Buffer[256];
+  uint32_t Header = 0;
+  char ID_Buffer[256], Mesh_Buffer[256];
 
   //read header "ObjS" (Object, Static)
-  Stream.read((char*) &Header, sizeof(unsigned int));
+  inStream.read((char*) &Header, sizeof(uint32_t));
   if (Header!=cHeaderObjS)
   {
-    DuskLog() << "ObjectBase::loadFromStream: ERROR: Stream contains invalid "
+    DuskLog() << "ObjectRecord::loadFromStream: ERROR: Stream contains invalid "
               << "record header.\n";
     return false;
   }//if
   //read length of ID
-  Stream.read((char*) &len, sizeof(unsigned int));
+  inStream.read((char*) &len, sizeof(unsigned int));
   if (len>255)
   {
-    DuskLog() << "ObjectBase::loadFromStream: ERROR: ID cannot be longer than "
+    DuskLog() << "ObjectRecord::loadFromStream: ERROR: ID cannot be longer than "
               << "255 characters.\n";
     return false;
   }
   //read ID
-  Stream.read(ID_Buffer, len);
+  memset(ID_Buffer, 0, 256);
+  inStream.read(ID_Buffer, len);
   ID_Buffer[len] = '\0'; //add terminating null character
-  if (!(Stream.good()))
+  if (!inStream.good())
   {
-    DuskLog() << "ObjectBase::loadFromStream: ERROR while reading data.\n";
+    DuskLog() << "ObjectRecord::loadFromStream: ERROR while reading data.\n";
     return false;
   }
   //read length of mesh name
-  Stream.read((char*) &len, sizeof(unsigned int));
+  inStream.read((char*) &len, sizeof(unsigned int));
   if (len>255)
   {
-    DuskLog() << "ObjectBase::loadFromStream: ERROR: Name of Mesh cannot be "
+    DuskLog() << "ObjectRecord::loadFromStream: ERROR: Name of Mesh cannot be "
               << "longer than 255 characters.\n";
     return false;
   }
   //read mesh
-  Stream.read(Mesh_Buffer, len);
+  memset(Mesh_Buffer, 0, 256);
+  inStream.read(Mesh_Buffer, len);
   Mesh_Buffer[len] = '\0'; //add terminating null character
   //read collision flag
   bool collision_flag = true;
-  Stream.read((char*) &collision_flag, sizeof(bool));
-  if (!(Stream.good()))
+  inStream.read((char*) &collision_flag, sizeof(bool));
+  if (!inStream.good())
   {
-    DuskLog() << "ObjectBase::loadFromStream: ERROR while reading data.\n";
+    DuskLog() << "ObjectRecord::loadFromStream: ERROR while reading data.\n";
     return false;
   }
-  //now add it to the data
-  addObject(std::string(ID_Buffer), std::string(Mesh_Buffer), collision_flag);
+  //now set the data
+  ID = std::string(ID_Buffer);
+  Mesh = std::string(Mesh_Buffer);
+  collide = collision_flag;
   return true;
 }
-
-#ifdef DUSK_EDITOR
-ObjectBase::Iterator ObjectBase::getFirst() const
-{
-  return m_ObjectList.begin();
-}
-
-ObjectBase::Iterator ObjectBase::getEnd() const
-{
-  return m_ObjectList.end();
-}
-#endif
 
 }//namespace

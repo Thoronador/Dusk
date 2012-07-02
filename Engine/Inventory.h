@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010 thoronador
+    Copyright (C) 2009, 2010, 2012  thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -42,6 +42,7 @@
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-11-21 (rev 257) - minor optimization
      - 2010-12-04 (rev 268) - use DuskLog/Messages class for logging
+     - 2012-07-02 (rev 310) - update to use Database instead of LightBase
 
  ToDo list:
      - Probably we should change the inventory class from a map of strings and

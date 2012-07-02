@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010 thoronador
+    Copyright (C) 2009, 2010, 2012  thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 */
 
 #include "Inventory.h"
+#include "Database.h"
 #include "ItemBase.h"
 #include "WeaponBase.h"
 #include "DuskConstants.h"
@@ -49,14 +50,13 @@ const Inventory& Inventory::getEmptyInventory()
 
 void Inventory::addItem(const std::string& ItemID, const unsigned int count)
 {
-  if (ItemID=="" or count==0)
+  if (ItemID.empty() or count==0)
   {
     DuskLog() << "Inventory::addItem: ERROR: ItemID is emtpy string or amount "
               << "is zero!\n";
     return;
   }
-  std::map<std::string, unsigned int>::iterator iter;
-  iter = m_Items.find(ItemID);
+  std::map<std::string, unsigned int>::iterator iter = m_Items.find(ItemID);
   if (iter!=m_Items.end())
   {
     //there are already items of given ID
@@ -67,9 +67,9 @@ void Inventory::addItem(const std::string& ItemID, const unsigned int count)
     m_Items[ItemID] = count;
   }
   //adjust weight of inventory according to added items
-  if (ItemBase::getSingleton().hasItem(ItemID))
+  if (Database::getSingleton().hasTypedRecord(ItemID, cHeaderItem))
   {
-    m_TotalWeight = m_TotalWeight +count*ItemBase::getSingleton().getItemWeight(ItemID);
+    m_TotalWeight = m_TotalWeight +count*Database::getSingleton().getTypedRecord<ItemRecord, cHeaderItem>(ItemID).weight;
   }
   else
   {
@@ -102,9 +102,9 @@ unsigned int Inventory::removeItem(const std::string& ItemID, const unsigned int
       m_Items.erase(iter);
     }
     //adjust weight of inventory according to removed items
-    if (ItemBase::getSingleton().hasItem(ItemID))
+    if (Database::getSingleton().hasTypedRecord(ItemID, cHeaderItem))
     {
-      m_TotalWeight = m_TotalWeight - removed*ItemBase::getSingleton().getItemWeight(ItemID);
+      m_TotalWeight = m_TotalWeight - removed*Database::getSingleton().getTypedRecord<ItemRecord, cHeaderItem>(ItemID).weight;
     }
     else
     {
@@ -159,9 +159,9 @@ int Inventory::getTotalValue() const
   iter = m_Items.begin();
   while (iter!=m_Items.end())
   {
-    if (ItemBase::getSingleton().hasItem(iter->first))
+    if (Database::getSingleton().hasTypedRecord(iter->first, cHeaderItem))
     { //it's an item
-      sum = sum + iter->second * ItemBase::getSingleton().getItemValue(iter->first);
+      sum = sum + iter->second * Database::getSingleton().getTypedRecord<ItemRecord, cHeaderItem>(iter->first).value;
     }
     else
     { //it's a weapon

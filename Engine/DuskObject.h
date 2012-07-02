@@ -80,6 +80,8 @@
      - 2010-12-04 (rev 268) - use DuskLog/Messages class for logging
      - 2012-06-30 (rev 307) - enumeration value for Resource added
      - 2012-06-30 (rev 308) - update of getObjectMesh() definition
+     - 2012-07-02 (rev 310) - update of getObjectMesh() and canCollide() to use
+                              Database instead of ObjectBase
 
  ToDo list:
      - ???

@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010, 2011 thoronador
+    Copyright (C) 2009, 2010, 2011, 2012  thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -57,6 +57,8 @@
      - 2010-11-20 (rev 255) - rotation is now stored as Quaternion
      - 2010-12-03 (rev 266) - use DuskLog/Messages class for logging
      - 2011-05-11 (rev 287) - renamed numberOfReferences() to getNumberOfReferences()
+     - 2012-07-02 (rev 310) - update to use Database instead of ItemBase,
+                              LightBase and ObjectBase
 
  ToDo list:
      - extend class when further classes for non-animated objects are added

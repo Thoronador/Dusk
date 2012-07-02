@@ -19,7 +19,8 @@
 */
 
 #include "AnimatedObject.h"
-#include "ObjectBase.h" //should replace this one later
+#include "ObjectBase.h" //should possibly replace this one later
+#include "Database.h"
 #include <OgreAnimationState.h>
 #include "DuskConstants.h"
 #include "VertexDataFunc.h"
@@ -75,7 +76,9 @@ AnimatedObject::~AnimatedObject()
 
 const std::string& AnimatedObject::getObjectMesh() const
 {
-  return ObjectBase::getSingleton().getMeshName(ID);
+  //TODO: adjust in future, if static and animated objects don't use the same
+  // type of data source.
+  return Database::getSingleton().getTypedRecord<ObjectRecord, cHeaderObjS>(ID).Mesh;
 }
 
 bool AnimatedObject::enable(Ogre::SceneManager* scm)
@@ -170,7 +173,7 @@ bool AnimatedObject::canCollide() const
 {
   //TODO: adjust in future, if static and animated objects don't use the same
   // data source.
-  return ObjectBase::getSingleton().getObjectCollision(ID);
+  return Database::getSingleton().getTypedRecord<ObjectRecord, cHeaderObjS>(ID).collide;
 }
 
 bool AnimatedObject::isHitByRay(const Ogre::Ray& ray, Ogre::Vector3& impact) const

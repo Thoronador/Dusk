@@ -21,8 +21,9 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
  Date:    2010-01-30
- Purpose: ObjectBase Singleton class
-          holds information about all distinct objects in the game
+ Purpose: ObjectRecord structure
+          holds information about one distinct object type in the game.
+          Think of it as a database entry.
 
  History:
      - 2009-07-01 (rev 101) - initial version (by thoronador)
@@ -43,6 +44,9 @@
                             - iterator type for getFirst() and getEnd()
      - 2012-04-06 (rev 304) - non-existent IDs in get-function will now throw
                               exceptions
+     - 2012-07-02 (rev 310) - update of ObjectRecord to be a descendant of
+                              DataRecord
+                            - ObjectBase removed (Database will handle that)
 
  ToDo list:
      - ???
@@ -52,128 +56,62 @@
        soon as possible.
  --------------------------------------------------------------------------*/
 
-#ifndef OBJECTBASE_H
-#define OBJECTBASE_H
+#ifndef DUSK_OBJECTRECORD_H
+#define DUSK_OBJECTRECORD_H
 
-#include <map>
-#include <string>
 #include <fstream>
+#include "DataRecord.h"
 
 namespace Dusk
 {
-  struct ObjectRecord
+  /* struct ObjectRecord
+            This struct's purpose is to hold all data of one distinct static
+            object type in the game, including its corresponding mesh name.
+            "Static objects" in the above context are all non-moving objects
+            which cannot be picked up by the player or a NPC. Examples of
+            static objects would be walls, trees, furniture (non-movable) and
+            so on. Things like an apple or a bottle are NOT "static objects",
+            they are "items", because they can be picked up and/or used by the
+            player. See the classes ItemRecord and Item for items.
+
+
+            Think of ObjectRecord as a sort of table entry, e.g.:
+
+              ID  |  Mesh             | collision
+            ------+-------------------+-----------
+            tree  | tree_oak.mesh     | no
+            Chair | wooden_chair.mesh | yes
+             ...  | ...               | ...
+  */
+
+  struct ObjectRecord: public DataRecord
   {
     std::string Mesh;
     bool collide;
-  };
 
-  /* class ObjectBase
-           This class' purpose is to hold the IDs of all distinct static objects
-           in the game and their corresponding mesh name. "Static objects" in
-           the above context are all non-moving objects which cannot be picked
-           up by the player or a NPC. Examples of static objects would be walls,
-           trees, furniture (non-movable) and so on.
-           Things like an apple or a bottle are NOT "static objects", they are
-           "items", because they can be picked up and/or used by the player. See
-           the class ItemBase for items.
+    /* returns an integer value that uniquely identifies this record's type */
+    virtual uint32_t getRecordType() const;
 
+    /* Tries to save the data record to stream outStream and returns true on
+       success, false otherwise.
 
-           Think of ObjectBase as a sort of look-up table, e.g.:
+       parameters:
+           outStream - the output stream to which the data will be saved
+    */
+    virtual bool saveToStream(std::ofstream& outStream) const;
 
-             ID  |  Mesh             | collision
-           ------+-------------------+-----------
-           tree  | tree_oak.mesh     | no
-           Chair | wooden_chair.mesh | yes
-            ...  | ...               | ...
-  */
-  class ObjectBase
-  {
-    public:
-      #ifdef DUSK_EDITOR
-      //iterator type for iterating through objects
-      typedef std::map<std::string, ObjectRecord>::const_iterator Iterator;
-      #endif
+    /* Tries to load the data record from stream inStream and returns true on
+       success, false otherwise.
 
-      /* destructor */
-      virtual ~ObjectBase();
+       parameters:
+           inStream - the input stream from which the data will be read
 
-      /* singleton access */
-      static ObjectBase& getSingleton();
-
-      /* returns true, if an object with the given ID exists */
-      bool hasObject(const std::string& IDOfObject) const;
-
-      /* adds object with given ID and mesh. If an object with that ID already
-         exists, it will be overwritten. If ID or mesh is an empty string,
-         nothing will be done.
-
-         parameters:
-             ID        - ID of the object
-             Mesh      - mesh path for the object
-             collision - boolean value that indicates whether the object will be
-                         considered for collision detection (true) or not (false)
-      */
-      void addObject(const std::string& ID, const std::string& Mesh, const bool collision);
-
-      /* tries to delete the object with the given ID and returns true if such
-         an object was present (before deleting it, that is)
-
-         parameters:
-             ID_of_Object - ID of the object that shall be deleted
-      */
-      bool deleteObject(const std::string& ID_of_Object);
-
-      /* deletes ALL objects, use with caution (or not at all) */
-      void clearAllObjects();
-
-      /* returns the number of objects which are currently present */
-      unsigned int getNumberOfObjects() const;
-
-      /* returns the mesh path of the given object, or throws an exception, if
-         no object with that ID is present. However, if UseMarkerOnError is set
-         to true (default), this function will return the path to a predefined
-         error mesh instead.
-      */
-      const std::string& getMeshName(const std::string& ID, const bool UseMarkerOnError=true) const;
-
-      /* returns whether an object of the given ID is considered during
-         collision detection or not. If not object with that ID is present, an
-         exception is thrown.
-      */
-      bool getObjectCollision(const std::string& ID) const;
-
-      /* tries to save all objects to the stream and returns true on success
-
-         parameters:
-             Stream - output stream that is used to save the data
-      */
-      bool saveToStream(std::ofstream& Stream) const;
-
-      /* tries to read the next object from stream and returns true, if successful
-
-         parameters:
-             Stream - input stream that is used to load the data
-      */
-      bool loadFromStream(std::ifstream& Stream);
-
-      #ifdef DUSK_EDITOR
-      /* helper functions to access internal map iterators - not used in-game,
-         only used by Editor application.
-      */
-      Iterator getFirst() const;
-      Iterator getEnd() const;
-      #endif
-    private:
-      /*  constuctor */
-      ObjectBase();
-
-      /* empty copy constructor - singleton pattern */
-      ObjectBase(const ObjectBase& op){}
-
-      //list of objects
-      std::map<std::string, ObjectRecord> m_ObjectList;
-  };//class
+       remarks:
+           The record may have inconsistent data, if the function fails.
+    */
+    virtual bool loadFromStream(std::ifstream& inStream);
+  }; //struct
 
 }//namespace
 
-#endif
+#endif // DUSK_OBJECTRECORD_H

@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010, 2011 thoronador
+    Copyright (C) 2009, 2010, 2011, 2012  thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,10 +20,8 @@
 
 #include "ObjectManager.h"
 #include "DuskConstants.h"
-#include "ObjectBase.h"
-#include "LightBase.h"
+#include "Database.h"
 #include "ContainerBase.h"
-#include "ItemBase.h"
 #include "Messages.h"
 
 namespace Dusk
@@ -312,15 +310,12 @@ unsigned int ObjectManager::reenableReferencesOfObject(const std::string& ID, Og
     DuskLog() << "ObjectManager::reenableReferencesOfObject: ERROR: Scene Manager is NULL pointer!";
     return 0;
   }
-  if (!ObjectBase::getSingleton().hasObject(ID) and
-      !LightBase::getSingleton().hasLight(ID) and
-      !ContainerBase::getSingleton().hasContainer(ID) and
-      !ItemBase::getSingleton().hasItem(ID))
+  if (!Database::getSingleton().hasRecord(ID) and
+      !ContainerBase::getSingleton().hasContainer(ID))
   {
     DuskLog() << "ObjectManager::reenableReferencesOfObject: ERROR: there is no"
               << " record about object with the new ID \""+ID+"\" within the"
-              << "ObjectBase, LightBase, ContainerBase or ItemBase classes. "
-              << "Aborting.\n";
+              << "Database or ContainerBase classes. Aborting.\n";
     return 0;
   }
   std::map<std::string, std::vector<DuskObject*> >::iterator iter;
@@ -361,15 +356,12 @@ unsigned int ObjectManager::updateReferencesAfterIDChange(const std::string& old
               << "is the same as new ID. No need to change anything here.\n";
     return 0;
   }
-  if (!ObjectBase::getSingleton().hasObject(newID) and
-      !LightBase::getSingleton().hasLight(newID) and
-      !ContainerBase::getSingleton().hasContainer(newID) and
-      !ItemBase::getSingleton().hasItem(newID))
+  if (!Database::getSingleton().hasRecord(newID) and
+      !ContainerBase::getSingleton().hasContainer(newID))
   {
     DuskLog() << "ObjectManager::updateReferencesAfterIDChange: ERROR: there is "
               << "no record about object with the new ID \""+newID+"\" within "
-              << "the ObjectBase, LightBase, ContainerBase or ItemBase classes."
-              << " Aborting.\n";
+              << "the Database or ContainerBase classes. Aborting.\n";
     return 0;
   }
   if (scm==NULL)

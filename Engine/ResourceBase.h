@@ -27,6 +27,7 @@
 
  History:
      - 2012-06-24 (rev 306) - initial version (by thoronador)
+     - 2012-07-02 (rev 310) - fixed iterator type
 
  ToDo list:
      - ???
@@ -145,7 +146,7 @@ namespace Dusk
 
       #ifdef DUSK_EDITOR
       //iterator type for iterating through the projectiles
-      typedef std::map<std::string, ProjectileRecord>::const_iterator Iterator;
+      typedef std::map<std::string, ResourceRecord>::const_iterator Iterator;
 
       /* returns constant iterator to first element in resource list*/
       Iterator getFirst() const;

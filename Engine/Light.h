@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010 thoronador
+    Copyright (C) 2009, 2010, 2012  thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@
      - 2010-11-20 (rev 255) - rotation is now stored as Quaternion
      - 2010-11-26 (rev 260) - canCollide() added (always returns false)
      - 2010-12-03 (rev 266) - use DuskLog/Messages class for logging
+     - 2012-07-02 (rev 310) - update to use Database instead of LightBase
 
  ToDo list:
      - ???
@@ -44,13 +45,10 @@
      - No known bugs. If you find one (or more), then tell me please.
  --------------------------------------------------------------------------*/
 
-#ifndef LIGHT_H
-#define LIGHT_H
+#ifndef DUSK_LIGHT_H
+#define DUSK_LIGHT_H
+
 #include "DuskObject.h"
-#include <string>
-#include <fstream>
-#include <OgreVector3.h>
-#include <OgreSceneManager.h>
 #include <OgreLight.h>
 
 namespace Dusk
@@ -137,4 +135,4 @@ namespace Dusk
 
 }//namespace
 
-#endif // LIGHT_H
+#endif // DUSK_LIGHT_H

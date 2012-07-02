@@ -19,8 +19,9 @@
 */
 
 #include "DuskObject.h"
-#include "ObjectBase.h"
+#include "Database.h"
 #include "DuskConstants.h"
+#include "ObjectBase.h"
 #include "Messages.h"
 #include <sstream>
 #include <OgreSceneNode.h>
@@ -143,7 +144,7 @@ bool DuskObject::changeID(const std::string& newID)
 
 const std::string& DuskObject::getObjectMesh() const
 {
-  return ObjectBase::getSingleton().getMeshName(ID);
+  return Database::getSingleton().getTypedRecord<ObjectRecord, cHeaderObjS>(ID).Mesh;
 }
 
 bool DuskObject::enable(Ogre::SceneManager* scm)
@@ -211,7 +212,7 @@ bool DuskObject::canPickUp() const
 
 bool DuskObject::canCollide() const
 {
-  return ObjectBase::getSingleton().getObjectCollision(ID);
+  return Database::getSingleton().getTypedRecord<ObjectRecord, cHeaderObjS>(ID).collide;
 }
 
 bool DuskObject::isHitByRay(const Ogre::Ray& ray, Ogre::Vector3& impact) const

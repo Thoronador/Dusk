@@ -21,7 +21,7 @@
 #include "NPC.h"
 #include <sstream>
 #include "NPCBase.h"
-#include "ItemBase.h"
+#include "Database.h"
 #include "WeaponBase.h"
 #include "Settings.h"
 #include "DuskConstants.h"
@@ -512,7 +512,7 @@ bool NPC::equip(const std::string& ItemID, const SlotType slot)
 {
   //protected version of equip()
   Item* pItem = NULL;
-  if (ItemBase::getSingleton().hasItem(ItemID))
+  if (Database::getSingleton().hasTypedRecord(ItemID, cHeaderItem))
   {
     pItem = new Item(ItemID, Ogre::Vector3::ZERO, Ogre::Quaternion::IDENTITY, 1.0f);
   }

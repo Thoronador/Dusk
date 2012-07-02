@@ -27,6 +27,7 @@
 
  History:
      - 2012-07-01 (rev 309) - initial version (by thoronador)
+     - 2012-07-02 (rev 310) - update for ItemRecord, LightRecord and ObjectRecord
 
  ToDo list:
      - ???
@@ -40,6 +41,8 @@
 
 #include <map>
 #include "DataRecord.h"
+#include "DuskExceptions.h"
+#include "Messages.h"
 
 namespace Dusk
 {
@@ -87,6 +90,14 @@ namespace Dusk
       */
       bool hasRecord(const std::string& ID) const;
 
+      /* Returns true, if a record with the given ID and type is present, false
+         otherwise.
+
+         parameters:
+             ID - ID of the record which will be checked
+      */
+      bool hasTypedRecord(const std::string& ID, const uint32_t type) const;
+
       /* returns the record with the given ID. If no such record is present, the
          function will throw an exception.
 
@@ -94,6 +105,20 @@ namespace Dusk
              recordID - ID of the requested record
       */
       const DataRecord& getRecord(const std::string& recordID) const;
+
+      /* returns the record with the given ID. If no such record is present, the
+         function will throw an exception. The difference to getRecord() is that
+         this function can return the derived, actual record type, not just the
+         abstract DataRecord type. However, if the getRecordType() function of
+         the found record does not return the value cHead, the function will
+         throw an exception. Otherwise the record is cast to recT type and will
+         be returned.
+
+         parameters:
+             recordID - ID of the requested record
+      */
+      template<typename recT, const uint32_t cHead>
+      const recT& getTypedRecord(const std::string& recordID) const;
 
       /* Removes all records. */
       void deleteAllRecords();
@@ -137,6 +162,26 @@ namespace Dusk
       Database(const Database& op) {}
       std::map<std::string, DataRecord*> m_Records;
   };//class
+
+  template<typename recT, const uint32_t cHead>
+  const recT& Database::getTypedRecord(const std::string& recordID) const
+  {
+    std::map<std::string, DataRecord*>::const_iterator iter = m_Records.find(recordID);
+    if (iter==m_Records.end())
+    {
+      DuskLog() << "Database::getTypedRecord: ERROR: no record with ID \""
+                << recordID << "\" found. Exception will be thrown.\n";
+      throw IDNotFound("Database", recordID);
+    }
+    if (iter->second->getRecordType()==cHead)
+    {
+      return static_cast<const recT&>(*(iter->second));
+    }
+    DuskLog() << "Database::getTypedRecord: ERROR: record with ID \""
+              << recordID << "\" does not have the specified type. Exception "
+              << "will be thrown.\n";
+    throw IDNotFound("Database", recordID);
+  }
 
 } //namespace
 

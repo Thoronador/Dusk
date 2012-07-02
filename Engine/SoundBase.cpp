@@ -142,7 +142,7 @@ bool SoundBase::loadNextSoundFromStream(std::ifstream& inStream)
   inStream.read((char*) &len, sizeof(unsigned int));
   if (len>255)
   {
-    DuskLog() << "ObjectBase::loadFromStream: ERROR: ID cannot be longer than "
+    DuskLog() << "SoundBase::loadFromStream: ERROR: ID cannot be longer than "
               << "255 characters.\n";
     return false;
   }

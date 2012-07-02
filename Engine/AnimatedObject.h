@@ -67,6 +67,8 @@
      - 2010-11-26 (rev 260) - canCollide() added
      - 2010-12-01 (rev 265) - use DuskLog/Messages class for logging
      - 2012-06-30 (rev 308) - update of getObjectMesh() definition
+     - 2012-07-02 (rev 310) - update of getObjectMesh() and canCollide() to use
+                              Database instead of ObjectBase
 
  ToDo list:
      - review implementation of canCollide() at a later stage of development
@@ -80,7 +82,6 @@
 #ifndef ANIMATEDOBJECT_H
 #define ANIMATEDOBJECT_H
 #include <OgreSceneManager.h>
-#include <OgreVector3.h>
 #include <vector>
 #include <map>
 #include <fstream>
@@ -130,9 +131,10 @@ namespace Dusk
            detection
 
            remarks:
-               Currently this function uses the data from ObjectBase. However,
-               animated objects might have their own data source in the future,
-               so we need to adjust the function implementation in that case..
+               Currently this function uses the ObjectRecord-type data from
+               Database. However, animated objects might have their own type of
+               data source in the future, so we need to adjust the function
+               implementation in that case.
         */
         virtual bool canCollide() const;
 

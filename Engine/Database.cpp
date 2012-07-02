@@ -19,8 +19,10 @@
 */
 
 #include "Database.h"
-#include "DuskExceptions.h"
-#include "Messages.h"
+#include "DuskConstants.h"
+#include "ItemBase.h"
+#include "LightBase.h"
+#include "ObjectBase.h"
 
 namespace Dusk
 {
@@ -84,16 +86,26 @@ bool Database::hasRecord(const std::string& ID) const
   return (m_Records.find(ID)!=m_Records.end());
 }
 
-const DataRecord& Database::getRecord(const std::string& ID) const
+bool Database::hasTypedRecord(const std::string& ID, const uint32_t type) const
 {
-  std::map<std::string, DataRecord*>::const_iterator iter = m_Records.find(ID);
+  const std::map<std::string, DataRecord*>::const_iterator iter = m_Records.find(ID);
+  if (iter!=m_Records.end())
+  {
+    return (iter->second->getRecordType()==type);
+  }
+  return false;
+}
+
+const DataRecord& Database::getRecord(const std::string& recordID) const
+{
+  std::map<std::string, DataRecord*>::const_iterator iter = m_Records.find(recordID);
   if (iter!=m_Records.end())
   {
     return *(iter->second);
   }
-  DuskLog() << "Dataase::getRecord: ERROR: no record with ID \"" << ID
+  DuskLog() << "Database::getRecord: ERROR: no record with ID \"" << recordID
             << "\" found. Exception will be thrown.\n";
-  throw IDNotFound("Database", ID);
+  throw IDNotFound("Database", recordID);
 }
 
 void Database::deleteAllRecords()
@@ -150,6 +162,15 @@ bool Database::loadNextRecordFromStream(std::ifstream& inStream, const uint32_t 
          recordPtr = new SomeRecordType;
          break;
     */
+    case cHeaderItem:
+         recordPtr = new ItemRecord;
+         break;
+    case cHeaderLight:
+         recordPtr = new LightRecord;
+         break;
+    case cHeaderObjS:
+         recordPtr = new ObjectRecord;
+         break;
     default:
          DuskLog() << "Database::loadNextRecordFromStream: ERROR: unexpected header.\n";
          return false;
