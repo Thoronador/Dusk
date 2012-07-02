@@ -20,9 +20,9 @@
 
 #include "Database.h"
 #include "DuskConstants.h"
-#include "ItemBase.h"
-#include "LightBase.h"
-#include "ObjectBase.h"
+#include "ItemRecord.h"
+#include "LightRecord.h"
+#include "ObjectRecord.h"
 
 namespace Dusk
 {

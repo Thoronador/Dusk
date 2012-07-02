@@ -18,7 +18,7 @@
  -----------------------------------------------------------------------------
 */
 
-#include "ItemBase.h"
+#include "ItemRecord.h"
 #include <cstring>
 #include "DuskConstants.h"
 #include "Messages.h"

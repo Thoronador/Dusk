@@ -20,7 +20,7 @@
 
 #include "WaypointObject.h"
 #include "Database.h"
-#include "ObjectBase.h"
+#include "ObjectRecord.h"
 #include "DuskConstants.h"
 #include "Messages.h"
 

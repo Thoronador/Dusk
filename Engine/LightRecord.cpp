@@ -18,7 +18,7 @@
  -----------------------------------------------------------------------------
 */
 
-#include "LightBase.h"
+#include "LightRecord.h"
 #include <cstring>
 #include "DuskConstants.h"
 #include "Messages.h"

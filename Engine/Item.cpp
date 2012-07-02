@@ -21,7 +21,7 @@
 #include "Item.h"
 #include "Database.h"
 #include "DuskConstants.h"
-#include "ItemBase.h"
+#include "ItemRecord.h"
 #include "API.h"
 #include "Messages.h"
 

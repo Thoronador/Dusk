@@ -19,7 +19,7 @@
 */
 
 #include "AnimatedObject.h"
-#include "ObjectBase.h" //should possibly replace this one later
+#include "ObjectRecord.h" //should possibly replace this one later
 #include "Database.h"
 #include <OgreAnimationState.h>
 #include "DuskConstants.h"

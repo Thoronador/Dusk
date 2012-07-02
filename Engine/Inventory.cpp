@@ -20,7 +20,7 @@
 
 #include "Inventory.h"
 #include "Database.h"
-#include "ItemBase.h"
+#include "ItemRecord.h"
 #include "WeaponBase.h"
 #include "DuskConstants.h"
 #include "Messages.h"

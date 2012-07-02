@@ -18,7 +18,7 @@
  -----------------------------------------------------------------------------
 */
 
-#include "ObjectBase.h"
+#include "ObjectRecord.h"
 #include <cstring>
 #include "DuskConstants.h"
 #include "Messages.h"

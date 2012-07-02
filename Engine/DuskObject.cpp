@@ -21,7 +21,7 @@
 #include "DuskObject.h"
 #include "Database.h"
 #include "DuskConstants.h"
-#include "ObjectBase.h"
+#include "ObjectRecord.h"
 #include "Messages.h"
 #include <sstream>
 #include <OgreSceneNode.h>

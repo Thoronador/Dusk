@@ -19,7 +19,7 @@
 */
 
 #include "Light.h"
-#include "LightBase.h"
+#include "LightRecord.h"
 #include "Database.h"
 #include "DuskConstants.h"
 #include "Messages.h"
