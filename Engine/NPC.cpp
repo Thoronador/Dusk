@@ -63,21 +63,21 @@ NPC::NPC()
 NPC::NPC(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Quaternion& rot, const float Scale)
  : AnimatedObject(_ID, pos, rot, Scale)
 {
-  if (NPCBase::getSingleton().hasNPC(ID))
+  if (Database::getSingleton().hasRecord(ID))
   {
     //feed the data from NPCBase
     //-- attributes
-    const NPCAttributes temp_attr = NPCBase::getSingleton().getAttributes(ID);
-    m_Strength = temp_attr.Str;
-    m_Agility = temp_attr.Agi;
-    m_Vitality = temp_attr.Vit;
-    m_Intelligence = temp_attr.Int;
-    m_Willpower = temp_attr.Will;
-    m_Charisma = temp_attr.Cha;
-    m_Luck = temp_attr.Luck;
+    const NPCRecord& temp = Database::getSingleton().getTypedRecord<NPCRecord, cHeaderNPC_>(ID);
+    m_Strength = temp.Attributes.Str;
+    m_Agility = temp.Attributes.Agi;
+    m_Vitality = temp.Attributes.Vit;
+    m_Intelligence = temp.Attributes.Int;
+    m_Willpower = temp.Attributes.Will;
+    m_Charisma = temp.Attributes.Cha;
+    m_Luck = temp.Attributes.Luck;
     //-- level
-    m_Level = NPCBase::getSingleton().getLevel(ID);
-    m_Inventory = NPCBase::getSingleton().getNPCInventory(ID);
+    m_Level = temp.Level;
+    m_Inventory = temp.InventoryAtStart;
   }
   else
   { //assume some random data
@@ -415,7 +415,7 @@ void NPC::setLuck(const uint8 luck)
 
 bool NPC::isFemale() const
 {
-  return NPCBase::getSingleton().isNPCFemale(ID);
+  return Database::getSingleton().getTypedRecord<NPCRecord, cHeaderNPC_>(ID).Female;
 }
 
 Inventory& NPC::getInventory()
@@ -531,17 +531,17 @@ bool NPC::equip(const std::string& ItemID, const SlotType slot)
   switch (slot)
   {
     case stRightHand:
-         bone_name = NPCBase::getSingleton().getNPCTagPoints(ID).HandRight;
+         bone_name = Database::getSingleton().getTypedRecord<NPCRecord, cHeaderNPC_>(ID).TagPoints.HandRight;
          break;
     case stLeftHand:
-         bone_name = NPCBase::getSingleton().getNPCTagPoints(ID).HandLeft;
+         bone_name = Database::getSingleton().getTypedRecord<NPCRecord, cHeaderNPC_>(ID).TagPoints.HandLeft;
          break;
     default:
          DuskLog() << "NPC::equip: ERROR: unknown slot type!\n";
          delete pItem;
          return false;
   } //swi
-  if (bone_name=="")
+  if (bone_name.empty())
   {
     DuskLog() << "NPC::equip: ERROR: received empty tag point identifier for "
               << "NPC \""<<ID<<"\".\n";
@@ -676,7 +676,7 @@ bool NPC::stopAttack()
 
 const std::string& NPC::getObjectMesh() const
 {
-  return NPCBase::getSingleton().getNPCMesh(ID);
+  return Database::getSingleton().getTypedRecord<NPCRecord, cHeaderNPC_>(ID).Mesh;
 }
 
 bool NPC::enable(Ogre::SceneManager* scm)
@@ -962,8 +962,8 @@ bool NPC::loadFromStream(std::ifstream& InStream)
 void NPC::playDeathAnimation()
 {
   stopAllAnimations();
-  const std::string anim = NPCBase::getSingleton().getNPCAnimations(ID).Death;
-  if (anim!="")
+  const std::string& anim = Database::getSingleton().getTypedRecord<NPCRecord, cHeaderNPC_>(ID).Animations.Death;
+  if (!anim.empty())
   {
     startAnimation(anim, false);
   }
@@ -971,8 +971,8 @@ void NPC::playDeathAnimation()
 
 void NPC::startWalkAnimation()
 {
-  const std::string anim = NPCBase::getSingleton().getNPCAnimations(ID).Walk;
-  if (anim!="")
+  const std::string& anim = Database::getSingleton().getTypedRecord<NPCRecord, cHeaderNPC_>(ID).Animations.Walk;
+  if (!anim.empty())
   {
     const std::vector<std::string> walk_list = CSVToVector(anim);
     unsigned int i;
@@ -985,8 +985,8 @@ void NPC::startWalkAnimation()
 
 void NPC::stopWalkAnimation()
 {
-  const std::string anim = NPCBase::getSingleton().getNPCAnimations(ID).Walk;
-  if (anim!="")
+  const std::string& anim = Database::getSingleton().getTypedRecord<NPCRecord, cHeaderNPC_>(ID).Animations.Walk;
+  if (!anim.empty())
   {
     const std::vector<std::string> walk_list = CSVToVector(anim);
     unsigned int i;
@@ -999,8 +999,8 @@ void NPC::stopWalkAnimation()
 
 void NPC::startJumpAnimation()
 {
-  const std::string anim = NPCBase::getSingleton().getNPCAnimations(ID).Jump;
-  if (anim!="")
+  const std::string& anim = Database::getSingleton().getTypedRecord<NPCRecord, cHeaderNPC_>(ID).Animations.Jump;
+  if (!anim.empty())
   {
     const std::vector<std::string> jump_list = CSVToVector(anim);
     unsigned int i;
@@ -1013,8 +1013,8 @@ void NPC::startJumpAnimation()
 
 void NPC::stopJumpAnimation()
 {
-  const std::string anim = NPCBase::getSingleton().getNPCAnimations(ID).Jump;
-  if (anim!="")
+  const std::string& anim = Database::getSingleton().getTypedRecord<NPCRecord, cHeaderNPC_>(ID).Animations.Jump;
+  if (!anim.empty())
   {
     const std::vector<std::string> jump_list = CSVToVector(anim);
     unsigned int i;
@@ -1027,8 +1027,8 @@ void NPC::stopJumpAnimation()
 
 void NPC::startIdleAnimation()
 {
-  const std::string anim = NPCBase::getSingleton().getNPCAnimations(ID).Idle;
-  if (anim!="")
+  const std::string& anim = Database::getSingleton().getTypedRecord<NPCRecord, cHeaderNPC_>(ID).Animations.Idle;
+  if (!anim.empty())
   {
     const std::vector<std::string> idle_list = CSVToVector(anim);
     unsigned int i;
@@ -1041,8 +1041,8 @@ void NPC::startIdleAnimation()
 
 void NPC::stopIdleAnimation()
 {
-  const std::string anim = NPCBase::getSingleton().getNPCAnimations(ID).Idle;
-  if (anim!="")
+  const std::string& anim = Database::getSingleton().getTypedRecord<NPCRecord, cHeaderNPC_>(ID).Animations.Idle;
+  if (!anim.empty())
   {
     const std::vector<std::string> idle_list = CSVToVector(anim);
     unsigned int i;
@@ -1055,7 +1055,7 @@ void NPC::stopIdleAnimation()
 
 void NPC::startAttackAnimation()
 {
-  const NPCAnimations& anim = NPCBase::getSingleton().getNPCAnimations(ID);
+  const NPCAnimations& anim = Database::getSingleton().getTypedRecord<NPCRecord, cHeaderNPC_>(ID).Animations;
   bool melee = false;
   if (m_EquippedRight!=NULL)
   {
@@ -1083,7 +1083,7 @@ void NPC::startAttackAnimation()
 
 void NPC::stopAttackAnimation()
 {
-  const NPCAnimations& anim_rec = NPCBase::getSingleton().getNPCAnimations(ID);
+  const NPCAnimations& anim_rec = Database::getSingleton().getTypedRecord<NPCRecord, cHeaderNPC_>(ID).Animations;
   stopAnimation(anim_rec.MeleeAttack);
   stopAnimation(anim_rec.ProjectileAttack);
 }

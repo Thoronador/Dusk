@@ -21,8 +21,8 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
  Date:    2010-04-21
- Purpose: NPCBase singleton class
-          holds information about all distinct NPCs in the game
+ Purpose: NPCRecord class
+          holds information about one distinct NPC type in the game
 
  History:
      - 2009-12-22 (rev 143) - initial version (by thoronador)
@@ -36,6 +36,9 @@
      - 2011-05-11 (rev 287) - renamed numberOfNPCs() to getNumberOfNPCs()
      - 2012-04-06 (rev 304) - non-existent IDs in get-function will now throw
                               exceptions
+     - 2012-07-05 (rev 313) - update of NPCRecord to be a descendant of
+                              DataRecord
+                            - NPCBase removed (Database will handle that)
 
  ToDo list:
      - ???
@@ -44,13 +47,11 @@
      - If you find one (or more), then tell me please.
  --------------------------------------------------------------------------*/
 
-#ifndef NPCBASE_H
-#define NPCBASE_H
+#ifndef DUSK_NPCRECORD_H
+#define DUSK_NPCRECORD_H
 
 #include <fstream>
-#include <map>
-#include <string>
-#include "DuskTypes.h"
+#include "DataRecord.h"
 #include "Inventory.h"
 
 namespace Dusk
@@ -59,7 +60,7 @@ namespace Dusk
   /* struct to summarize all attributes */
   struct NPCAttributes
   {
-    uint8 Str, Agi, Vit, Int, Will, Cha, Luck;
+    uint8_t Str, Agi, Vit, Int, Will, Cha, Luck;
     static NPCAttributes getNullAttributes();
   };
   /* struct to summarize all animations of NPC */
@@ -94,15 +95,37 @@ namespace Dusk
   }; //struct
 
   /* struct to summarize all properties of an NPC*/
-  struct NPCRecord
+  struct NPCRecord: public DataRecord
   {
     std::string Name, Mesh;
-    uint8 Level;
+    uint8_t Level;
     NPCAttributes Attributes;
     bool Female;
     Inventory InventoryAtStart;
     NPCAnimations Animations;
     NPCTagPoints TagPoints;
+
+    /* returns an integer value that uniquely identifies this record's type */
+    virtual uint32_t getRecordType() const;
+
+    /* Tries to save the data record to stream outStream and returns true on
+       success, false otherwise.
+
+       parameters:
+           outStream - the output stream to which the data will be saved
+    */
+    virtual bool saveToStream(std::ofstream& outStream) const;
+
+    /* Tries to load the data record from stream inStream and returns true on
+       success, false otherwise.
+
+       parameters:
+           inStream - the input stream from which the data will be read
+
+       remarks:
+           The record may have inconsistent data, if the function fails.
+    */
+    virtual bool loadFromStream(std::ifstream& inStream);
   }; //struct
 
 
@@ -125,144 +148,6 @@ namespace Dusk
          of changing attributes, inventory and so forth.
 */
 
-  class NPCBase
-  {
-    public:
-      #ifdef DUSK_EDITOR
-      //iterator type for iterating through the NPCs
-      typedef std::map<std::string, NPCRecord>::const_iterator Iterator;
-      #endif
-
-      /* static Singleton retrieval */
-      static NPCBase& getSingleton();
-
-      /* destructor */
-      virtual ~NPCBase();
-
-      /* Adds a new NPC record which uses the given ID, name, mesh, etc. to the
-         'table'.
-
-         parameters:
-             ID                - ID of the NPC
-             Name              - name of the NPC (shown in game)
-             Mesh              - mesh path of the NPC's mesh
-             Level             - level of the NPC
-             Attr              - record that contains the NPC's initial attributes
-             female            - set this to true, if NPC is female
-             StartingInventory - the initial inventory contents of the NPC
-             Anims             - animations for that NPC
-             TagPoints         - tag point names for that NPC
-
-         remarks:
-           Always succeeds (except if out of memory). If there already is a
-           record for a NPC with the given ID, this record is overwritten.
-           However, emtpy strings as ID, name or mesh are not allowed. In this
-           case nothing will be added to NPCBase.
-      */
-      void addNPC(const std::string& ID, const std::string& Name,
-                  const std::string& Mesh, const uint8 Level, const NPCAttributes& Attr,
-                  const bool female, const Inventory& StartingInventory,
-                  const NPCAnimations& Anims, const NPCTagPoints& TagPoints);
-
-      /* Tries to delete the NPC record with the given ID. Returns true, if such
-         a record was present, or false otherwise.
-
-         parameters:
-             NPC_ID - ID of the NPC data that has to be deleted
-      */
-      bool deleteNPC(const std::string& NPC_ID);
-
-      /* Returns true, if a record for NPC 'NPC_ID' is present. */
-      bool hasNPC(const std::string& NPC_ID) const;
-
-      /* Deletes ALL entries.
-
-         remarks:
-           Only use that before realoading from a file, or if you really know
-           what you are doing.
-      */
-      void clearAllNPCs();
-
-      /* Returns the current number of NPC entries (for statistics only) */
-      unsigned int getNumberOfNPCs() const;
-
-      /* Returns the name of the NPC with ID 'NPC_ID', or throws an exception
-         if no such record is present.
-      */
-      const std::string& getNPCName(const std::string& NPC_ID) const;
-
-      /* Returns the mesh name of the NPC with the given ID. If no NPC with that
-         ID is present, the function might throw an exception.
-
-         parameters:
-           UseMarkerOnError - if set to true (default), the function will return
-                              a special error mesh name should no record for
-                              'NPC_ID' exist. Otherwise it throws an exception
-                              in that case.
-      */
-      const std::string& getNPCMesh(const std::string& NPC_ID, const bool UseMarkerOnError=true) const;
-
-      /* Returns the level of the requested NPC, or throws an exception if no
-         such record is present.
-      */
-      uint8 getLevel(const std::string& NPC_ID) const;
-
-      /* Returns the attributes of the given NPC. If no record for that ID
-         exists, the function will throw an exception. */
-      const NPCAttributes& getAttributes(const std::string& NPC_ID) const;
-
-      /* returns true, if the given NPC has is female/ has the female flag set.
-         If the NPC with the given ID is not present, false is returned.
-      */
-      bool isNPCFemale(const std::string& NPC_ID) const;
-
-      /* Returns the standard inventory of the NPC. If no record for that ID
-         exists, the function will throw an exception.
-      */
-      const Inventory& getNPCInventory(const std::string& NPC_ID) const;
-
-      /* returns the animations of the given NPC. If no record for that ID
-         exists, the function will throw an exception.
-      */
-      const NPCAnimations& getNPCAnimations(const std::string& NPC_ID) const;
-
-      /* returns the names of the tag points of the NPC with the given ID.
-         If no record for that ID exists, the function will throw an exception.
-      */
-      const NPCTagPoints& getNPCTagPoints(const std::string& NPC_ID) const;
-
-      /* Tries to save all data to the given stream and returns true on success,
-         or false if an error occured.
-
-         parameters:
-             output - the output stream that is used to save the NPC data
-      */
-      bool saveToStream(std::ofstream& output) const;
-
-      /* Tries to load next NPCRecord from stream and returns true on success,
-         or false on failure.
-
-         parameters:
-             input - the input stream that is used to load the next NPC record
-      */
-      bool loadNextRecordFromStream(std::ifstream& input);
-
-      #ifdef DUSK_EDITOR
-      /* returns constant iterator to first element in NPC list*/
-      Iterator getFirst() const;
-
-      /* returns constant iterator to end of NPC list*/
-      Iterator getEnd() const;
-      #endif
-    private:
-      /* private constructor due to singleton pattern */
-      NPCBase();
-
-      /* empty, private copy constructor (singleton pattern) */
-      NPCBase(const NPCBase& op){}
-      std::map<std::string,NPCRecord> m_NPCList;
-  };//class
-
 } //namespace
 
-#endif // NPCBASE_H
+#endif // DUSK_NPCRECORD_H

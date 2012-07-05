@@ -20,6 +20,7 @@
 
 #include "Container.h"
 #include "ContainerBase.h"
+#include "Database.h"
 #include "DuskConstants.h"
 #include "Messages.h"
 
@@ -38,7 +39,7 @@ Container::Container(const std::string& _ID, const Ogre::Vector3& pos, const Ogr
 {
   m_Changed = false;
   m_Contents.makeEmpty();
-  ContainerBase::getSingleton().getContainerInventory(_ID).addAllItemsTo(m_Contents);
+  Database::getSingleton().getTypedRecord<ContainerRecord, cHeaderCont>(_ID).ContainerInventory.addAllItemsTo(m_Contents);
 }
 
 Container::~Container()
@@ -91,7 +92,7 @@ bool Container::canCollide() const
 
 const std::string& Container::getObjectMesh() const
 {
-  return ContainerBase::getSingleton().getContainerMesh(ID);
+  return Database::getSingleton().getTypedRecord<ContainerRecord, cHeaderCont>(ID).Mesh;
 }
 
 ObjectTypes Container::getDuskType() const
@@ -107,7 +108,7 @@ bool Container::saveToStream(std::ofstream& OutStream) const
     return false;
   }
   //write header "RefC" (reference of Container)
-  OutStream.write((char*) &cHeaderRefC, sizeof(unsigned int)); //header
+  OutStream.write((const char*) &cHeaderRefC, sizeof(uint32_t)); //header
   //write data inherited from DuskObject
   if (!saveDuskObjectPart(OutStream))
   {
@@ -116,7 +117,7 @@ bool Container::saveToStream(std::ofstream& OutStream) const
   }
   //write inventory
   // -- flags
-  OutStream.write((char*) &m_Changed, sizeof(bool));
+  OutStream.write((const char*) &m_Changed, sizeof(bool));
   // -- inventory (only if neccessary)
   if (m_Changed)
   {
@@ -144,8 +145,8 @@ bool Container::loadFromStream(std::ifstream& InStream)
   }
 
   //read header "RefC"
-  unsigned int Header = 0;
-  InStream.read((char*) &Header, sizeof(unsigned int));
+  uint32_t Header = 0;
+  InStream.read((char*) &Header, sizeof(uint32_t));
   if (Header!=cHeaderRefC)
   {
     DuskLog() << "Container::loadFromStream: ERROR: Stream contains invalid "
@@ -174,7 +175,7 @@ bool Container::loadFromStream(std::ifstream& InStream)
   else
   { //inventory was not changed, so get it from ContainerBase
     m_Contents.makeEmpty();
-    ContainerBase::getSingleton().getContainerInventory(ID).addAllItemsTo(m_Contents);
+    Database::getSingleton().getTypedRecord<ContainerRecord, cHeaderCont>(ID).ContainerInventory.addAllItemsTo(m_Contents);
   }
   return (InStream.good());
 }

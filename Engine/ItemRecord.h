@@ -21,8 +21,8 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
  Date:    2010-01-30
- Purpose: ItemBase Singleton class
-          holds information about all distinct items in the game
+ Purpose: ItemRecord class
+          holds information about one distinct item type in the game
 
  History:
      - 2009-07-02 (rev 102) - initial version (by thoronador)
@@ -43,6 +43,9 @@
                               exceptions
      - 2012-06-30 (rev 308) - update of getMeshName() and getItemName()
                               definition
+     - 2012-07-02 (rev 310) - update of ItemRecord to be a descendant of
+                              DataRecord
+                            - ItemBase removed (Database will handle that)
 
  ToDo list:
      - ???

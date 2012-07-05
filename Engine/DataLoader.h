@@ -61,6 +61,7 @@
      - 2012-06-24 (rev 306) - update for ResourceBase
      - 2012-07-02 (rev 310) - update to use Database instead of ItemBase,
                               LightBase and ObjectBase
+     - 2012-07-02 (rev 310) - update to use Database instead of LightBase
 
  ToDo list:
      - extend class when further classes for data management are added
@@ -79,24 +80,22 @@
 namespace Dusk
 {
   //Flags to indicate which portions to load/ save
-  const unsigned int CONTAINER_BIT = 1;
-  const unsigned int DATABASE_BIT = 1<<1;
-  const unsigned int DIALOGUE_BIT = 1<<2;
-  const unsigned int INJECTION_BIT = 1<<3;
-  const unsigned int JOURNAL_BIT = 1<<4;
-  const unsigned int LANDSCAPE_BIT = 1<<5;
-  const unsigned int NPC_BIT = 1<<6;
-  const unsigned int PROJECTILE_BIT = 1<<7;
-  const unsigned int QUEST_LOG_BIT = 1<<8;
-  const unsigned int REFERENCE_BIT = 1<<9;
-  const unsigned int RESOURCE_BIT = 1<<10;
-  const unsigned int SOUND_BIT = 1<<11;
-  const unsigned int VEHICLE_BIT = 1<<12;
-  const unsigned int WEAPON_BIT = 1<<13;
+  const unsigned int DATABASE_BIT   = 1;
+  const unsigned int DIALOGUE_BIT   = 1<<1;
+  const unsigned int INJECTION_BIT  = 1<<2;
+  const unsigned int JOURNAL_BIT    = 1<<3;
+  const unsigned int LANDSCAPE_BIT  = 1<<4;
+  const unsigned int PROJECTILE_BIT = 1<<5;
+  const unsigned int QUEST_LOG_BIT  = 1<<6;
+  const unsigned int REFERENCE_BIT  = 1<<7;
+  const unsigned int RESOURCE_BIT   = 1<<8;
+  const unsigned int SOUND_BIT      = 1<<9;
+  const unsigned int VEHICLE_BIT    = 1<<10;
+  const unsigned int WEAPON_BIT     = 1<<11;
 
-  const unsigned int ALL_BITS = CONTAINER_BIT | DATABASE_BIT | DIALOGUE_BIT |
+  const unsigned int ALL_BITS = DATABASE_BIT | DIALOGUE_BIT |
                                 INJECTION_BIT | JOURNAL_BIT | LANDSCAPE_BIT |
-                                NPC_BIT | PROJECTILE_BIT | QUEST_LOG_BIT |
+                                PROJECTILE_BIT | QUEST_LOG_BIT |
                                 REFERENCE_BIT | RESOURCE_BIT | SOUND_BIT |
                                 VEHICLE_BIT | WEAPON_BIT;
 

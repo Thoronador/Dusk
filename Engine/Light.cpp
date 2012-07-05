@@ -135,41 +135,40 @@ bool Light::saveToStream(std::ofstream& OutStream) const
     DuskLog() << "Light::saveToStream: ERROR: Stream contains errors!\n";
     return false;
   }
-  unsigned int len;
   float xyz;
 
   //write header "RefL" (reference of Light)
-  OutStream.write((char*) &cHeaderRefL, sizeof(unsigned int)); //header
+  OutStream.write((const char*) &cHeaderRefL, sizeof(uint32_t)); //header
   //write ID
-  len = ID.length();
-  OutStream.write((char*) &len, sizeof(unsigned int));
+  uint32_t len = ID.length();
+  OutStream.write((const char*) &len, sizeof(uint32_t));
   OutStream.write(ID.c_str(), len);
 
   //write position and rotation, and direction
   // -- position
   xyz = position.x;
-  OutStream.write((char*) &xyz, sizeof(float));
+  OutStream.write((const char*) &xyz, sizeof(float));
   xyz = position.y;
-  OutStream.write((char*) &xyz, sizeof(float));
+  OutStream.write((const char*) &xyz, sizeof(float));
   xyz = position.z;
-  OutStream.write((char*) &xyz, sizeof(float));
+  OutStream.write((const char*) &xyz, sizeof(float));
   // -- rotation
   xyz = m_Rotation.w;
-  OutStream.write((char*) &xyz, sizeof(float));
+  OutStream.write((const char*) &xyz, sizeof(float));
   xyz = m_Rotation.x;
-  OutStream.write((char*) &xyz, sizeof(float));
+  OutStream.write((const char*) &xyz, sizeof(float));
   xyz = m_Rotation.y;
-  OutStream.write((char*) &xyz, sizeof(float));
+  OutStream.write((const char*) &xyz, sizeof(float));
   xyz = m_Rotation.z;
-  OutStream.write((char*) &xyz, sizeof(float));
+  OutStream.write((const char*) &xyz, sizeof(float));
   //(We don't need scale for lights, so don't write it to stream.)
   // -- direction
   xyz = m_Direction.x;
-  OutStream.write((char*) &xyz, sizeof(float));
+  OutStream.write((const char*) &xyz, sizeof(float));
   xyz = m_Direction.y;
-  OutStream.write((char*) &xyz, sizeof(float));
+  OutStream.write((const char*) &xyz, sizeof(float));
   xyz = m_Direction.z;
-  OutStream.write((char*) &xyz, sizeof(float));
+  OutStream.write((const char*) &xyz, sizeof(float));
   return (OutStream.good());
 }
 
@@ -183,17 +182,17 @@ bool Light::loadFromStream(std::ifstream& InStream)
   }
   if (!InStream.good())
   {
-    DuskLog() << "DuskObject::loadFromStream: ERROR: Stream contains errors!\n";
+    DuskLog() << "Light::loadFromStream: ERROR: Stream contains errors!\n";
     return false;
   }
 
   char ID_Buffer[256];
   float f_temp;
-  unsigned int Header, len;
+  uint32_t len;
 
   //read header "RefL"
-  Header = 0;
-  InStream.read((char*) &Header, sizeof(unsigned int));
+  uint32_t Header = 0;
+  InStream.read((char*) &Header, sizeof(uint32_t));
   if (Header!=cHeaderRefL)
   {
     DuskLog() << "Light::loadFromStream: ERROR: Stream contains invalid "
@@ -201,7 +200,7 @@ bool Light::loadFromStream(std::ifstream& InStream)
     return false;
   }
   //read ID
-  InStream.read((char*) &len, sizeof(unsigned int));
+  InStream.read((char*) &len, sizeof(uint32_t));
   if (len>255)
   {
     DuskLog() << "Light::loadFromStream: ERROR: ID cannot be longer than "

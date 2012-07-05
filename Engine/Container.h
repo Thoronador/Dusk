@@ -38,6 +38,7 @@
      - 2010-11-26 (rev 260) - canCollide() added (always returns true)
      - 2010-12-01 (rev 265) - use DuskLog/Messages class for logging
      - 2012-06-30 (rev 308) - update of getObjectMesh() definition
+     - 2012-07-05 (rev 313) - update to use Database instead of ContainerBase
 
  ToDo list:
      - ???

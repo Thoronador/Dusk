@@ -28,6 +28,7 @@
  History:
      - 2012-07-01 (rev 309) - initial version (by thoronador)
      - 2012-07-02 (rev 310) - update for ItemRecord, LightRecord and ObjectRecord
+     - 2012-07-05 (rev 313) - update for ContainerRecord
 
  ToDo list:
      - ???

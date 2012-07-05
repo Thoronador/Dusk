@@ -21,11 +21,9 @@
 #include "DataLoader.h"
 #include <fstream>
 #include "InjectionManager.h"
-#include "ContainerBase.h"
 #include "Dialogue.h"
 #include "Journal.h"
 #include "Landscape.h"
-#include "NPCBase.h"
 #include "Database.h"
 #include "ObjectManager.h"
 #include "Player.h"
@@ -75,10 +73,6 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
   //determine number of records
   data_records = 0;
 
-  if ((bits & CONTAINER_BIT) !=0)
-  {
-    data_records += ContainerBase::getSingleton().numberOfContainers();
-  }
   if ((bits & DATABASE_BIT) !=0)
   {
     data_records += Database::getSingleton().getNumberOfRecords();
@@ -101,10 +95,6 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
   if ((bits & LANDSCAPE_BIT) !=0)
   {
     data_records += Landscape::getSingleton().getNumberOfRecordsAvailable();
-  }
-  if ((bits & NPC_BIT) !=0)
-  {
-    data_records += NPCBase::getSingleton().getNumberOfNPCs();
   }
 
   if ((bits & PROJECTILE_BIT) !=0)
@@ -138,19 +128,6 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
   }
   //write number of records
   output.write((char*) &data_records, sizeof(unsigned int));
-
-
-  //save containers
-  if ((bits & CONTAINER_BIT)!=0)
-  {
-    if (!ContainerBase::getSingleton().saveAllToStream(output))
-    {
-      DuskLog() << "DataLoader::saveToFile: ERROR: could not write Container "
-                << "data to file \""<<FileName<<"\".\n";
-      output.close();
-      return false;
-    }
-  }//containers
 
   //save projectiles
   if ((bits & PROJECTILE_BIT)!=0)
@@ -235,18 +212,6 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
       return false;
     }//if
   }//if landscape
-
-  //save NPCs
-  if ((bits & NPC_BIT) !=0)
-  {
-    if (!NPCBase::getSingleton().saveToStream(output))
-    {
-      DuskLog() << "DataLoader::saveToFile: ERROR: could not write NPC data to"
-                << " file \""<<FileName<<"\".\n";
-      output.close();
-      return false;
-    }//if
-  }//if NPCs
 
   //save database objects
   if ((bits & DATABASE_BIT) !=0)
@@ -365,9 +330,6 @@ bool DataLoader::loadFromFile(const std::string& FileName)
     input.seekg(-4, std::ios::cur);
     switch (Header)
     {
-      case cHeaderCont:
-           success = ContainerBase::getSingleton().loadNextContainerFromStream(input);
-           break;
       case cHeaderDial:
            success = Dialogue::getSingleton().loadNextRecordFromStream(input);
            break;
@@ -382,11 +344,10 @@ bool DataLoader::loadFromFile(const std::string& FileName)
              Landscape::getSingleton().destroyRecord(land_rec);
            }
            break;
-      case cHeaderNPC_:
-           success = NPCBase::getSingleton().loadNextRecordFromStream(input);
-           break;
+      case cHeaderCont:
       case cHeaderItem:
       case cHeaderLight:
+      case cHeaderNPC_:
       case cHeaderObjS:
            success = Database::getSingleton().loadNextRecordFromStream(input, Header);
            break;
@@ -469,11 +430,6 @@ void DataLoader::clearData(const unsigned int bits)
     InjectionManager::getSingleton().clearData();
   }//animated object and NPC references
 
-  if ((bits & CONTAINER_BIT)!=0)
-  {
-    ContainerBase::getSingleton().deleteAllContainers();
-  }//container data
-
   if ((bits & DIALOGUE_BIT)!=0)
   {
     Dialogue::getSingleton().clearData();
@@ -488,11 +444,6 @@ void DataLoader::clearData(const unsigned int bits)
   {
     Landscape::getSingleton().clearAllRecords();
   }//landscape
-
-  if ((bits & NPC_BIT)!=0)
-  {
-    NPCBase::getSingleton().clearAllNPCs();
-  }//NPC data
 
   if ((bits & PROJECTILE_BIT) != 0)
   {

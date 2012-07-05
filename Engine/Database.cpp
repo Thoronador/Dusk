@@ -19,9 +19,11 @@
 */
 
 #include "Database.h"
+#include "ContainerBase.h"
 #include "DuskConstants.h"
 #include "ItemRecord.h"
 #include "LightRecord.h"
+#include "NPCBase.h"
 #include "ObjectRecord.h"
 
 namespace Dusk
@@ -162,11 +164,17 @@ bool Database::loadNextRecordFromStream(std::ifstream& inStream, const uint32_t 
          recordPtr = new SomeRecordType;
          break;
     */
+    case cHeaderCont:
+         recordPtr = new ContainerRecord;
+         break;
     case cHeaderItem:
          recordPtr = new ItemRecord;
          break;
     case cHeaderLight:
          recordPtr = new LightRecord;
+         break;
+    case cHeaderNPC_:
+         recordPtr = new NPCRecord;
          break;
     case cHeaderObjS:
          recordPtr = new ObjectRecord;
