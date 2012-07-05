@@ -29,6 +29,7 @@
      - 2012-07-01 (rev 309) - initial version (by thoronador)
      - 2012-07-02 (rev 310) - update for ItemRecord, LightRecord and ObjectRecord
      - 2012-07-05 (rev 313) - update for ContainerRecord
+     - 2012-07-05 (rev 314) - new version of addRecord()
 
  ToDo list:
      - ???
@@ -73,6 +74,19 @@ namespace Dusk
       */
       void addRecord(DataRecord* record);
 
+      /* Adds a record to the database.
+
+         parameters:
+             record - the record
+
+         remarks:
+             If a record with the same ID already exists, the old data will be
+             replaced by the new data.
+             If the record's ID is an empty string, no data will be added.
+      */
+      template<typename recT>
+      void addRecord(const recT& record);
+
       #ifdef DUSK_EDITOR
       /* Deletes record with given ID. Returns true, if such a record was
          present (and thus deleted), false otherwise.
@@ -99,6 +113,9 @@ namespace Dusk
       */
       bool hasTypedRecord(const std::string& ID, const uint32_t type) const;
 
+      template<typename recT>
+      bool hasTypedRecord(const std::string& ID) const;
+
       /* returns the record with the given ID. If no such record is present, the
          function will throw an exception.
 
@@ -118,7 +135,7 @@ namespace Dusk
          parameters:
              recordID - ID of the requested record
       */
-      template<typename recT, const uint32_t cHead>
+      template<typename recT>
       const recT& getTypedRecord(const std::string& recordID) const;
 
       /* Removes all records. */
@@ -147,7 +164,7 @@ namespace Dusk
 
       #ifdef DUSK_EDITOR
       //iterator type for iterating through the records
-      typedef std::map<std::string, DataRecord>::const_iterator Iterator;
+      typedef std::map<std::string, DataRecord*>::const_iterator Iterator;
 
       /* helper functions to access internal map iterators - not used in-game,
          only used by Editor application.
@@ -164,7 +181,35 @@ namespace Dusk
       std::map<std::string, DataRecord*> m_Records;
   };//class
 
-  template<typename recT, const uint32_t cHead>
+  template<typename recT>
+  void Database::addRecord(const recT& record)
+  {
+    if (record.ID.empty()) return;
+    std::map<std::string, DataRecord*>::iterator iter = m_Records.find(record.ID);
+    recT * recPtr = new recT;
+    *recPtr = record;
+    if (iter==m_Records.end())
+    {
+      //just insert it
+      m_Records[record.ID] = recPtr;
+    }
+    else
+    {
+      //save old record first (for deletion)
+      DataRecord * temp = iter->second;
+      //replace it by new record
+      iter->second = recPtr;
+      delete temp;
+    }
+  }
+
+  template<typename recT>
+  bool Database::hasTypedRecord(const std::string& ID) const
+  {
+    return hasTypedRecord(ID, recT::RecordType);
+  }
+
+  template<typename recT>
   const recT& Database::getTypedRecord(const std::string& recordID) const
   {
     std::map<std::string, DataRecord*>::const_iterator iter = m_Records.find(recordID);
@@ -174,7 +219,7 @@ namespace Dusk
                 << recordID << "\" found. Exception will be thrown.\n";
       throw IDNotFound("Database", recordID);
     }
-    if (iter->second->getRecordType()==cHead)
+    if (iter->second->getRecordType()==recT::RecordType)
     {
       return static_cast<const recT&>(*(iter->second));
     }

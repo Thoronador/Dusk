@@ -45,7 +45,7 @@
 
 #include <string>
 #include <CEGUI/CEGUIEventArgs.h>
-#include "../Engine/LightBase.h"
+#include "../Engine/LightRecord.h"
 
 namespace Dusk
 {

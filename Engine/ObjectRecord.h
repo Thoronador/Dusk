@@ -92,6 +92,9 @@ namespace Dusk
     /* returns an integer value that uniquely identifies this record's type */
     virtual uint32_t getRecordType() const;
 
+    //record type identifier (usually the value returned by the above function)
+    static const uint32_t RecordType;
+
     /* Tries to save the data record to stream outStream and returns true on
        success, false otherwise.
 

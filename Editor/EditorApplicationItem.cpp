@@ -25,6 +25,7 @@
 #include "../Engine/DuskFunctions.h"
 #include "../Engine/ObjectManager.h"
 #include "../Engine/API.h"
+#include "../Engine/Database.h"
 
 namespace Dusk
 {
@@ -269,7 +270,7 @@ bool EditorApplicationItem::ItemNewFrameOKClicked(const CEGUI::EventArgs &e)
     }
 
     //check for presence of item with same ID
-    if (ItemBase::getSingleton().hasItem(std::string(id_edit->getText().c_str())))
+    if (Database::getSingleton().hasTypedRecord<ItemRecord>(std::string(id_edit->getText().c_str())))
     {
       showWarning("An Item with the given ID already exists.");
       return true;
@@ -277,6 +278,7 @@ bool EditorApplicationItem::ItemNewFrameOKClicked(const CEGUI::EventArgs &e)
 
     //finally add it to ItemBase
     ItemRecord entered_data;
+    entered_data.ID = std::string(id_edit->getText().c_str());
     entered_data.Name = std::string(name_edit->getText().c_str());
     entered_data.Mesh = std::string(mesh_edit->getText().c_str());
     entered_data.weight = StringToFloat(std::string(weight_edit->getText().c_str()), -1.0f);
@@ -292,8 +294,7 @@ bool EditorApplicationItem::ItemNewFrameOKClicked(const CEGUI::EventArgs &e)
       return true;
     }
 
-    ItemBase::getSingleton().addItem(std::string(id_edit->getText().c_str()), entered_data.Name,
-                                     entered_data.value, entered_data.weight, entered_data.Mesh);
+    Database::getSingleton().addRecord(entered_data);
     //update item catalogue
     addItemRecordToCatalogue(std::string(id_edit->getText().c_str()), entered_data);
     //destroy window
@@ -407,7 +408,7 @@ bool EditorApplicationItem::ItemConfirmIDChangeRenameClicked(const CEGUI::EventA
     ir.value = StringToInt(std::string(winmgr.getWindow("Editor/ItemEditFrame/Value_Edit")->getText().c_str()), -1);
     ir.weight = StringToFloat(std::string(winmgr.getWindow("Editor/ItemEditFrame/Weight_Edit")->getText().c_str()), -1.0f);
 
-    if (ItemBase::getSingleton().hasItem(ItemID))
+    if (Database::getSingleton().hasTypedRecord<ItemRecord>(ItemID))
     {
       showWarning("An Item with the ID \""+ItemID+"\" already exists. "
                   +"Change that one as needed or delete it before giving another"
@@ -417,7 +418,7 @@ bool EditorApplicationItem::ItemConfirmIDChangeRenameClicked(const CEGUI::EventA
 
     //"rename", i.e. create item with new ID and delete item with old ID
     ItemBase::getSingleton().addItem(ItemID, ir.Name, ir.value, ir.weight, ir.Mesh);
-    ItemBase::getSingleton().deleteItem(ID_of_item_to_edit);
+    Database::getSingleton().deleteRecord(ID_of_item_to_edit);
     //update all items
     ObjectManager::getSingleton().updateReferencesAfterIDChange(ID_of_item_to_edit, ItemID, getAPI().getOgreSceneManager());
     //add row for new item to catalogue
@@ -448,26 +449,25 @@ bool EditorApplicationItem::ItemConfirmIDChangeNewClicked(const CEGUI::EventArgs
     //close confirmation window
     winmgr.destroyWindow("Editor/ConfirmItemIDChangeFrame");
     //get the editboxes with the needed entries
-    std::string ItemID;
     ItemRecord i_rec;
 
-    ItemID = std::string(winmgr.getWindow("Editor/ItemEditFrame/ID_Edit")->getText().c_str());
+    i_rec.ID = std::string(winmgr.getWindow("Editor/ItemEditFrame/ID_Edit")->getText().c_str());
     i_rec.Mesh = std::string(winmgr.getWindow("Editor/ItemEditFrame/Mesh_Edit")->getText().c_str());
     i_rec.Name = std::string(winmgr.getWindow("Editor/ItemEditFrame/Name_Edit")->getText().c_str());
     i_rec.value = StringToInt(std::string(winmgr.getWindow("Editor/ItemEditFrame/Value_Edit")->getText().c_str()), -1);
     i_rec.weight = StringToFloat(std::string(winmgr.getWindow("Editor/ItemEditFrame/Weight_Edit")->getText().c_str()), -1.0f);
 
-    if (ItemBase::getSingleton().hasItem(ItemID))
+    if (Database::getSingleton().hasRecord(i_rec.ID))
     {
-      showWarning("An Item with the ID \""+ItemID+"\" already exists. "
+      showWarning("An data racord with the ID \""+i_rec.ID+"\" already exists. "
                   +"Change that one as needed or delete it before giving another"
                   +" item the same ID.");
       return true;
     }//if
     //add new row to catalogue
-    addItemRecordToCatalogue(ItemID, i_rec);
+    addItemRecordToCatalogue(i_rec.ID, i_rec);
     //add new object to database (ItemBase)
-    ItemBase::getSingleton().addItem(ItemID, i_rec.Name, i_rec.value, i_rec.weight, i_rec.Mesh);
+    Database::getSingleton().addRecord(i_rec);
     //close edit window
     winmgr.destroyWindow("Editor/ItemEditFrame");
     ID_of_item_to_edit = "";
@@ -477,13 +477,13 @@ bool EditorApplicationItem::ItemConfirmIDChangeNewClicked(const CEGUI::EventArgs
 
 void EditorApplicationItem::showItemEditWindow(void)
 {
-  if (ID_of_item_to_edit=="")
+  if (ID_of_item_to_edit.empty())
   {
     std::cout << "ItemEditWindow: No ID given.\n";
     return;
   }
 
-  if (!ItemBase::getSingleton().hasItem(ID_of_item_to_edit))
+  if (!Database::getSingleton().hasTypedRecord<ItemRecord>(ID_of_item_to_edit))
   {
     std::cout << "ItemEditWindow: Item not present in database.\n";
     showWarning("There seems to be no item with the ID \""+ID_of_item_to_edit
@@ -547,35 +547,30 @@ void EditorApplicationItem::showItemEditWindow(void)
 
     //editbox for ID
     button = winmgr.createWindow("TaharezLook/Editbox", "Editor/ItemEditFrame/ID_Edit");
-    button->setText(ID_of_item_to_edit);
     button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.2, 0)));
     button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.1, 0)));
     frame->addChildWindow(button);
 
     //editbox for item name
     button = winmgr.createWindow("TaharezLook/Editbox", "Editor/ItemEditFrame/Name_Edit");
-    button->setText(ItemBase::getSingleton().getItemName(ID_of_item_to_edit));
     button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.35, 0)));
     button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.1, 0)));
     frame->addChildWindow(button);
 
     //editbox for item weight
     button = winmgr.createWindow("TaharezLook/Editbox", "Editor/ItemEditFrame/Weight_Edit");
-    button->setText(FloatToString(ItemBase::getSingleton().getItemWeight(ID_of_item_to_edit)));
     button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.5, 0)));
     button->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.1, 0)));
     frame->addChildWindow(button);
 
     //editbox for item value
     button = winmgr.createWindow("TaharezLook/Editbox", "Editor/ItemEditFrame/Value_Edit");
-    button->setText(IntToString(ItemBase::getSingleton().getItemValue(ID_of_item_to_edit)));
     button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.75, 0), CEGUI::UDim(0.5, 0)));
     button->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.1, 0)));
     frame->addChildWindow(button);
 
     //editbox for item mesh
     button = winmgr.createWindow("TaharezLook/Editbox", "Editor/ItemEditFrame/Mesh_Edit");
-    button->setText(ItemBase::getSingleton().getMeshName(ID_of_item_to_edit, false));
     button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.65, 0)));
     button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.1, 0)));
     frame->addChildWindow(button);
@@ -598,6 +593,14 @@ void EditorApplicationItem::showItemEditWindow(void)
             CEGUI::Event::Subscriber(&EditorApplicationItem::ItemEditFrameCancelClicked, this));
     frame->addChildWindow(button);
   }
+  //update values
+  winmgr.getWindow("Editor/ItemEditFrame/ID_Edit")->setText(ID_of_item_to_edit);
+  const ItemRecord& irec = Database::getSingleton().getTypedRecord<ItemRecord>(ID_of_item_to_edit);
+  winmgr.getWindow("Editor/ItemEditFrame/Name_Edit")->setText(irec.Name);
+  winmgr.getWindow("Editor/ItemEditFrame/Weight_Edit")->setText(FloatToString(irec.weight));
+  winmgr.getWindow("Editor/ItemEditFrame/Value_Edit")->setText(IntToString(irec.value));
+  winmgr.getWindow("Editor/ItemEditFrame/Mesh_Edit")->setText(irec.Mesh);
+  //move frame to front
   frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.45, 0), CEGUI::UDim(0.18, 0)));
   frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.4, 0)));
   frame->moveToFront();
@@ -726,16 +729,16 @@ bool EditorApplicationItem::ItemDeleteFrameNoClicked(const CEGUI::EventArgs &e)
 
 bool EditorApplicationItem::ItemDeleteFrameYesClicked(const CEGUI::EventArgs &e)
 {
-  if (ID_of_item_to_delete == "")
+  if (ID_of_item_to_delete.empty())
   {
     showWarning("Error: item ID is empty string!");
     //delete window
     CEGUI::WindowManager::getSingleton().destroyWindow("Editor/ItemDeleteFrame");
     return true;
   }
-  if (!ItemBase::getSingleton().deleteItem(ID_of_item_to_delete))
+  if (!Database::getSingleton().deleteRecord(ID_of_item_to_delete))
   {
-    showHint("ItemBase class holds no item of the given ID ("
+    showHint("Database class holds no item of the given ID ("
              +ID_of_item_to_delete+").");
     //delete window
     CEGUI::WindowManager::getSingleton().destroyWindow("Editor/ItemDeleteFrame");

@@ -23,7 +23,7 @@
 #include "EditorApplicationBase.h"
 #include "../Engine/DuskFunctions.h"
 #include "../Engine/InjectionManager.h"
-#include "../Engine/ItemBase.h"
+#include "../Engine/Database.h"
 #include "../Engine/API.h"
 
 namespace Dusk

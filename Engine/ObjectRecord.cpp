@@ -31,6 +31,8 @@ uint32_t ObjectRecord::getRecordType() const
   return cHeaderObjS;
 }
 
+const uint32_t ObjectRecord::RecordType = cHeaderObjS;
+
 bool ObjectRecord::saveToStream(std::ofstream& outStream) const
 {
   if (!outStream.good())

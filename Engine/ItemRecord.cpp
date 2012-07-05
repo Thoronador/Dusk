@@ -26,6 +26,8 @@
 namespace Dusk
 {
 
+const uint32_t ItemRecord::RecordType = cHeaderItem;
+
 uint32_t ItemRecord::getRecordType() const
 {
   return cHeaderItem;

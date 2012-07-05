@@ -22,9 +22,11 @@
 #include "EditorApplicationBase.h"
 #include <iostream>
 #include <CEGUI/CEGUI.h>
-#include "../Engine/ObjectBase.h"
+#include "../Engine/Database.h"
+#include "../Engine/ObjectRecord.h"
 #include "../Engine/ObjectManager.h"
 #include "../Engine/DuskFunctions.h"
+#include "../Engine/DuskConstants.h"
 #include "../Engine/API.h"
 
 namespace Dusk
@@ -104,12 +106,13 @@ void EditorApplicationObject::refreshObjectList(void)
   CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/Catalogue/Tab/Object/List"));
   mcl->resetList();
 
-  ObjectBase::Iterator first = ObjectBase::getSingleton().getFirst();
-  const ObjectBase::Iterator end = ObjectBase::getSingleton().getEnd();
-  while (first != end)
+  Database::Iterator start = Database::getSingleton().getFirst();
+  const Database::Iterator end = Database::getSingleton().getEnd();
+  while (start != end)
   {
-    addObjectRecordToCatalogue(first->first, first->second.Mesh, first->second.collide);
-    ++first;
+    if (start->second->getRecordType() == cHeaderObjS)
+      addObjectRecordToCatalogue(start->first, static_cast<ObjectRecord*>(start->second)->Mesh, static_cast<ObjectRecord*>(start->second)->collide);
+    ++start;
   }//while
   return;
 }
@@ -203,7 +206,7 @@ void EditorApplicationObject::showObjectEditWindow(void)
     return;
   }
 
-  if (!ObjectBase::getSingleton().hasObject(ID_of_object_to_edit))
+  if (!Database::getSingleton().hasTypedRecord<ObjectRecord>(ID_of_object_to_edit))
   {
     std::cout << "ObjectEditWindow: Object not present in database.\n";
     showWarning("There seems to be no object with the ID \""+ID_of_object_to_edit
