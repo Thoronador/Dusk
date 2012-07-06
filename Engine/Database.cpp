@@ -19,11 +19,11 @@
 */
 
 #include "Database.h"
-#include "ContainerBase.h"
+#include "ContainerRecord.h"
 #include "DuskConstants.h"
 #include "ItemRecord.h"
 #include "LightRecord.h"
-#include "NPCBase.h"
+#include "NPCRecord.h"
 #include "ObjectRecord.h"
 
 namespace Dusk

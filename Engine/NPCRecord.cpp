@@ -18,7 +18,7 @@
  -----------------------------------------------------------------------------
 */
 
-#include "NPCBase.h"
+#include "NPCRecord.h"
 #include "Messages.h"
 #include "DuskConstants.h"
 #include "DuskExceptions.h"
@@ -48,6 +48,9 @@ const NPCTagPoints& NPCTagPoints::getNullTagPoints()
   tags.HandLeft = tags.HandRight = tags.SheathLeft = tags.SheathRight = "";
   return tags;
 }
+
+//record type identifier
+const uint32_t NPCRecord::RecordType = cHeaderNPC_;
 
 uint32_t NPCRecord::getRecordType() const
 {

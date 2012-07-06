@@ -21,7 +21,7 @@
 #include "ObjectManager.h"
 #include "DuskConstants.h"
 #include "Database.h"
-#include "ContainerBase.h"
+#include "ContainerRecord.h"
 #include "Messages.h"
 
 namespace Dusk

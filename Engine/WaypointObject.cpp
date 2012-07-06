@@ -123,7 +123,7 @@ bool WaypointObject::getPatrolMode() const
 
 const std::string& WaypointObject::getObjectMesh() const
 {
-  return Database::getSingleton().getTypedRecord<ObjectRecord, cHeaderObjS>(ID).Mesh;
+  return Database::getSingleton().getTypedRecord<ObjectRecord>(ID).Mesh;
 }
 
 ObjectTypes WaypointObject::getDuskType() const

@@ -30,7 +30,7 @@
 #include "InjectionManager.h"
 #include "Weather.h"
 #include "Player.h"
-#include "NPCBase.h"
+#include "NPCRecord.h"
 #include "WeaponBase.h"
 #include "ProjectileBase.h"
 #include "QuestLog.h"
@@ -236,17 +236,17 @@ void Scene::createGrassMesh()
         tps.HandRight = "Handle.R";
         tps.SheathLeft = "Sheath.L";
         tps.SheathRight = "Sheath.R";
-        NPCRecord * npc_ptr = new NPCRecord;
-        npc_ptr->Animations = anims;
-        npc_ptr->TagPoints = tps;
-        npc_ptr->ID = "player";
-        npc_ptr->Name = "The Player him-/herself";
-        npc_ptr->Mesh = "Sinbad.mesh";
-        npc_ptr->Level = 1;
-        npc_ptr->Attributes = NPCAttributes::getNullAttributes();
-        npc_ptr->Female = false;
-        npc_ptr->InventoryAtStart = Inventory::getEmptyInventory();
-        Database::getSingleton().addRecord(npc_ptr);
+        NPCRecord npc_rec;
+        npc_rec.Animations = anims;
+        npc_rec.TagPoints = tps;
+        npc_rec.ID = "player";
+        npc_rec.Name = "The Player him-/herself";
+        npc_rec.Mesh = "Sinbad.mesh";
+        npc_rec.Level = 1;
+        npc_rec.Attributes = NPCAttributes::getNullAttributes();
+        npc_rec.Female = false;
+        npc_rec.InventoryAtStart = Inventory::getEmptyInventory();
+        Database::getSingleton().addRecord(npc_rec);
         /*NPCBase::getSingleton().addNPC("player", "The Player him-/herself",
                         "Sinbad.mesh", 1, NPCAttributes::getNullAttributes(),
                         false, Inventory::getEmptyInventory(), anims, tps);*/
@@ -254,7 +254,7 @@ void Scene::createGrassMesh()
         {
           DuskLog() << "Debug: Database got player entry.\n";
           DuskLog() << "Debug: Tag points of \"player\":\n";
-          const NPCTagPoints& tttp = Database::getSingleton().getTypedRecord<NPCRecord, cHeaderNPC_>("player").TagPoints;
+          const NPCTagPoints& tttp = Database::getSingleton().getTypedRecord<NPCRecord>("player").TagPoints;
           DuskLog() << "  Left  hand:   \""<<tttp.HandLeft<<"\"\n"
                     << "  Right hand:   \""<<tttp.HandRight<<"\"\n"
                     << "  Left  sheath: \""<<tttp.SheathLeft<<"\"\n"

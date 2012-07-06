@@ -144,7 +144,7 @@ bool DuskObject::changeID(const std::string& newID)
 
 const std::string& DuskObject::getObjectMesh() const
 {
-  return Database::getSingleton().getTypedRecord<ObjectRecord, cHeaderObjS>(ID).Mesh;
+  return Database::getSingleton().getTypedRecord<ObjectRecord>(ID).Mesh;
 }
 
 bool DuskObject::enable(Ogre::SceneManager* scm)
@@ -212,7 +212,7 @@ bool DuskObject::canPickUp() const
 
 bool DuskObject::canCollide() const
 {
-  return Database::getSingleton().getTypedRecord<ObjectRecord, cHeaderObjS>(ID).collide;
+  return Database::getSingleton().getTypedRecord<ObjectRecord>(ID).collide;
 }
 
 bool DuskObject::isHitByRay(const Ogre::Ray& ray, Ogre::Vector3& impact) const

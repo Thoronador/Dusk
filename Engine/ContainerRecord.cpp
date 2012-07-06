@@ -18,7 +18,7 @@
  -----------------------------------------------------------------------------
 */
 
-#include "ContainerBase.h"
+#include "ContainerRecord.h"
 #include "DuskConstants.h"
 #include "Messages.h"
 #include <cstring>
@@ -119,5 +119,8 @@ uint32_t ContainerRecord::getRecordType() const
 {
   return cHeaderCont;
 }
+
+//record type identifier
+const uint32_t ContainerRecord::RecordType = cHeaderCont;
 
 }//namespace

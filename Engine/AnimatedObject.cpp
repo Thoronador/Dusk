@@ -78,7 +78,7 @@ const std::string& AnimatedObject::getObjectMesh() const
 {
   //TODO: adjust in future, if static and animated objects don't use the same
   // type of data source.
-  return Database::getSingleton().getTypedRecord<ObjectRecord, cHeaderObjS>(ID).Mesh;
+  return Database::getSingleton().getTypedRecord<ObjectRecord>(ID).Mesh;
 }
 
 bool AnimatedObject::enable(Ogre::SceneManager* scm)
@@ -173,7 +173,7 @@ bool AnimatedObject::canCollide() const
 {
   //TODO: adjust in future, if static and animated objects don't use the same
   // data source.
-  return Database::getSingleton().getTypedRecord<ObjectRecord, cHeaderObjS>(ID).collide;
+  return Database::getSingleton().getTypedRecord<ObjectRecord>(ID).collide;
 }
 
 bool AnimatedObject::isHitByRay(const Ogre::Ray& ray, Ogre::Vector3& impact) const

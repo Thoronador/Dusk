@@ -58,7 +58,7 @@ bool Light::enable(Ogre::SceneManager* scm)
   entity_name << ID << GenerateUniqueObjectID();
 
   entity = scm->createLight(entity_name.str());
-  const LightRecord& lr = Database::getSingleton().getTypedRecord<LightRecord, cHeaderLight>(ID);
+  const LightRecord& lr = Database::getSingleton().getTypedRecord<LightRecord>(ID);
   entity->setType(lr.type);
   entity->setPosition(Ogre::Vector3::ZERO);
   if (lr.type!=Ogre::Light::LT_POINT)

@@ -19,7 +19,7 @@
 */
 
 #include "Container.h"
-#include "ContainerBase.h"
+#include "ContainerRecord.h"
 #include "Database.h"
 #include "DuskConstants.h"
 #include "Messages.h"
@@ -39,7 +39,7 @@ Container::Container(const std::string& _ID, const Ogre::Vector3& pos, const Ogr
 {
   m_Changed = false;
   m_Contents.makeEmpty();
-  Database::getSingleton().getTypedRecord<ContainerRecord, cHeaderCont>(_ID).ContainerInventory.addAllItemsTo(m_Contents);
+  Database::getSingleton().getTypedRecord<ContainerRecord>(_ID).ContainerInventory.addAllItemsTo(m_Contents);
 }
 
 Container::~Container()
@@ -92,7 +92,7 @@ bool Container::canCollide() const
 
 const std::string& Container::getObjectMesh() const
 {
-  return Database::getSingleton().getTypedRecord<ContainerRecord, cHeaderCont>(ID).Mesh;
+  return Database::getSingleton().getTypedRecord<ContainerRecord>(ID).Mesh;
 }
 
 ObjectTypes Container::getDuskType() const
@@ -175,7 +175,7 @@ bool Container::loadFromStream(std::ifstream& InStream)
   else
   { //inventory was not changed, so get it from ContainerBase
     m_Contents.makeEmpty();
-    Database::getSingleton().getTypedRecord<ContainerRecord, cHeaderCont>(ID).ContainerInventory.addAllItemsTo(m_Contents);
+    Database::getSingleton().getTypedRecord<ContainerRecord>(ID).ContainerInventory.addAllItemsTo(m_Contents);
   }
   return (InStream.good());
 }

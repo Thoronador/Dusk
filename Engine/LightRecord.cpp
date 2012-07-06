@@ -107,6 +107,9 @@ uint32_t LightRecord::getRecordType() const
   return cHeaderLight;
 }
 
+//record type identifier
+const uint32_t LightRecord::RecordType = cHeaderLight;
+
 bool LightRecord::saveToStream(std::ofstream& outStream) const
 {
   if (!outStream.good())

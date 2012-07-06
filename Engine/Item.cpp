@@ -47,7 +47,7 @@ Item::~Item()
 
 const std::string& Item::getObjectMesh() const
 {
-  return Database::getSingleton().getTypedRecord<ItemRecord, cHeaderItem>(ID).Mesh;
+  return Database::getSingleton().getTypedRecord<ItemRecord>(ID).Mesh;
 }
 
 bool Item::enableWithoutSceneNode(Ogre::SceneManager* scm)
