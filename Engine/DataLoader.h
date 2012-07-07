@@ -62,6 +62,8 @@
      - 2012-07-02 (rev 310) - update to use Database instead of ItemBase,
                               LightBase and ObjectBase
      - 2012-07-02 (rev 310) - update to use Database instead of LightBase
+     - 2012-07-07 (rev 316) - update to use Database instead of ProjectileBase,
+                              ResourceBase, VehicleBase and WeaponBase
 
  ToDo list:
      - extend class when further classes for data management are added
@@ -85,19 +87,13 @@ namespace Dusk
   const unsigned int INJECTION_BIT  = 1<<2;
   const unsigned int JOURNAL_BIT    = 1<<3;
   const unsigned int LANDSCAPE_BIT  = 1<<4;
-  const unsigned int PROJECTILE_BIT = 1<<5;
-  const unsigned int QUEST_LOG_BIT  = 1<<6;
-  const unsigned int REFERENCE_BIT  = 1<<7;
-  const unsigned int RESOURCE_BIT   = 1<<8;
-  const unsigned int SOUND_BIT      = 1<<9;
-  const unsigned int VEHICLE_BIT    = 1<<10;
-  const unsigned int WEAPON_BIT     = 1<<11;
+  const unsigned int QUEST_LOG_BIT  = 1<<5;
+  const unsigned int REFERENCE_BIT  = 1<<6;
+  const unsigned int SOUND_BIT      = 1<<7;
 
-  const unsigned int ALL_BITS = DATABASE_BIT | DIALOGUE_BIT |
-                                INJECTION_BIT | JOURNAL_BIT | LANDSCAPE_BIT |
-                                PROJECTILE_BIT | QUEST_LOG_BIT |
-                                REFERENCE_BIT | RESOURCE_BIT | SOUND_BIT |
-                                VEHICLE_BIT | WEAPON_BIT;
+  const unsigned int ALL_BITS = DATABASE_BIT | DIALOGUE_BIT | INJECTION_BIT |
+                                JOURNAL_BIT | LANDSCAPE_BIT | QUEST_LOG_BIT |
+                                REFERENCE_BIT | SOUND_BIT;
 
   const unsigned int SAVE_MEAN_BITS = INJECTION_BIT | QUEST_LOG_BIT | REFERENCE_BIT;
 

@@ -28,10 +28,7 @@
 #include "ObjectManager.h"
 #include "Player.h"
 #include "QuestLog.h"
-#include "ProjectileBase.h"
-#include "ResourceBase.h"
 #include "SoundBase.h"
-#include "VehicleBase.h"
 #include "WeaponBase.h"
 #include "DuskConstants.h"
 #include "Messages.h"
@@ -96,11 +93,6 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
   {
     data_records += Landscape::getSingleton().getNumberOfRecordsAvailable();
   }
-
-  if ((bits & PROJECTILE_BIT) !=0)
-  {
-    data_records += ProjectileBase::getSingleton().getNumberOfProjectiles();
-  }
   if ((bits & QUEST_LOG_BIT) !=0)
   {
     data_records += 1;
@@ -110,60 +102,12 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
     //static objects
     data_records += ObjectManager::getSingleton().getNumberOfReferences();
   }
-  if ((bits & RESOURCE_BIT) !=0)
-  {
-    data_records += ResourceBase::getSingleton().getNumberOfResources();
-  }
   if ((bits & SOUND_BIT) !=0)
   {
     data_records += SoundBase::getSingleton().getNumberOfSounds();
   }
-  if ((bits & VEHICLE_BIT) !=0)
-  {
-    data_records += VehicleBase::getSingleton().getVehicleNumber();
-  }
-  if ((bits & WEAPON_BIT) !=0)
-  {
-    data_records += WeaponBase::getSingleton().getNumberOfWeapons();
-  }
   //write number of records
   output.write((char*) &data_records, sizeof(unsigned int));
-
-  //save projectiles
-  if ((bits & PROJECTILE_BIT)!=0)
-  {
-    if (!ProjectileBase::getSingleton().saveAllToStream(output))
-    {
-      DuskLog() << "DataLoader::saveToFile: ERROR: could not write Projectile "
-                << "data to file \""<<FileName<<"\".\n";
-      output.close();
-      return false;
-    }
-  }//projectiles
-
-  //save vehicles
-  if ((bits & VEHICLE_BIT)!=0)
-  {
-    if (!VehicleBase::getSingleton().saveAllToStream(output))
-    {
-      DuskLog() << "DataLoader::saveToFile: ERROR: could not write Vehicle "
-                << "data to file \""<<FileName<<"\".\n";
-      output.close();
-      return false;
-    }
-  }//vehicles
-
-  //save weapons
-  if ((bits & WEAPON_BIT)!=0)
-  {
-    if (!WeaponBase::getSingleton().saveAllToStream(output))
-    {
-      DuskLog() << "DataLoader::saveToFile: ERROR: could not write Weapon "
-                << "data to file \""<<FileName<<"\".\n";
-      output.close();
-      return false;
-    }
-  }//weapons
 
   //save dialogues
   if ((bits & DIALOGUE_BIT)!=0)
@@ -224,18 +168,6 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
       return false;
     }//if
   }//if database
-
-  //save resources
-  if ((bits & RESOURCE_BIT)!=0)
-  {
-    if (!ResourceBase::getSingleton().saveAllToStream(output))
-    {
-      DuskLog() << "DataLoader::saveToFile: ERROR: could not write resource "
-                << "data to file \""<<FileName<<"\".\n";
-      output.close();
-      return false;
-    }
-  }//resources
 
   //save sound data
   if ((bits & SOUND_BIT) !=0)
@@ -349,6 +281,9 @@ bool DataLoader::loadFromFile(const std::string& FileName)
       case cHeaderLight:
       case cHeaderNPC_:
       case cHeaderObjS:
+      case cHeaderRsrc:
+      case cHeaderVehi:
+      case cHeaderWeap:
            success = Database::getSingleton().loadNextRecordFromStream(input, Header);
            break;
       case cHeaderPlay:
@@ -372,17 +307,8 @@ bool DataLoader::loadFromFile(const std::string& FileName)
       case cHeaderRfWP:  //WaypointObject
            success = InjectionManager::getSingleton().loadNextFromStream(input, Header);
            break;
-      case cHeaderRsrc:
-           success = ResourceBase::getSingleton().loadNextResourceFromStream(input);
-           break;
       case cHeaderSoun:
            success = SoundBase::getSingleton().loadNextSoundFromStream(input);
-           break;
-      case cHeaderVehi:
-           success = VehicleBase::getSingleton().loadNextVehicleFromStream(input);
-           break;
-      case cHeaderWeap:
-           success = WeaponBase::getSingleton().loadNextWeaponFromStream(input);
            break;
       default:
           DuskLog() << "DataLoader::loadFromFile: ERROR: Got unexpected header "
@@ -445,36 +371,15 @@ void DataLoader::clearData(const unsigned int bits)
     Landscape::getSingleton().clearAllRecords();
   }//landscape
 
-  if ((bits & PROJECTILE_BIT) != 0)
-  {
-    ProjectileBase::getSingleton().clearAll();
-  }//projectile information
-
   if ((bits & QUEST_LOG_BIT) !=0)
   {
     QuestLog::getSingleton().clearAllData();
   }//quest log
 
-  if ((bits & RESOURCE_BIT) != 0)
-  {
-    ResourceBase::getSingleton().clearAll();
-  }//resource data
-
   if ((bits & SOUND_BIT) != 0)
   {
     SoundBase::getSingleton().clearAll();
   }//sound data
-
-  if ((bits & VEHICLE_BIT) !=0)
-  {
-    VehicleBase::getSingleton().clearAll();
-  }//vehicles
-
-  if ((bits & WEAPON_BIT) !=0)
-  {
-    WeaponBase::getSingleton().clearAll();
-  }//weapons
-
 }//clear data function
 
 bool DataLoader::loadSaveGame(const std::string& FileName)

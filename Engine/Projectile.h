@@ -40,6 +40,7 @@
      - 2010-11-30 (rev 262) - collision detection improved
      - 2010-12-03 (rev 266) - use DuskLog/Messages class for logging
      - 2012-06-30 (rev 308) - update of getObjectMesh() definition
+     - 2012-07-07 (rev 316) - update to use Database instead of ProjectileBase
 
  ToDo list:
      - Improve collision detection for projectile. Currently only collisions

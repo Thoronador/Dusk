@@ -25,6 +25,10 @@
 #include "LightRecord.h"
 #include "NPCRecord.h"
 #include "ObjectRecord.h"
+#include "ProjectileBase.h"
+#include "ResourceBase.h"
+#include "VehicleBase.h"
+#include "WeaponBase.h"
 
 namespace Dusk
 {
@@ -178,6 +182,18 @@ bool Database::loadNextRecordFromStream(std::ifstream& inStream, const uint32_t 
          break;
     case cHeaderObjS:
          recordPtr = new ObjectRecord;
+         break;
+    case cHeaderProj:
+         recordPtr = new ProjectileRecord;
+         break;
+    case cHeaderRsrc:
+         recordPtr = new ResourceRecord;
+         break;
+    case cHeaderVehi:
+         recordPtr = new VehicleRecord;
+         break;
+    case cHeaderWeap:
+         recordPtr = new WeaponRecord;
          break;
     default:
          DuskLog() << "Database::loadNextRecordFromStream: ERROR: unexpected header.\n";

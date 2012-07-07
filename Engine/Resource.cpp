@@ -20,6 +20,7 @@
 
 #include "Resource.h"
 #include "API.h"
+#include "Database.h"
 #include "DuskConstants.h"
 #include "Messages.h"
 #include "ResourceBase.h"
@@ -148,8 +149,8 @@ bool Resource::loadFromStream(std::ifstream& inStream)
 
 const std::string& Resource::getObjectMesh() const
 {
-  if (m_Spawned) return ResourceBase::getSingleton().getResourceData(ID).meshSpawned;
-  return ResourceBase::getSingleton().getResourceData(ID).meshHarvested;
+  if (m_Spawned) return Database::getSingleton().getTypedRecord<ResourceRecord>(ID).meshSpawned;
+  return Database::getSingleton().getTypedRecord<ResourceRecord>(ID).meshHarvested;
 }
 
 } //namespace

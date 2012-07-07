@@ -19,237 +19,130 @@
 */
 
 #include "ProjectileBase.h"
+#include <cstring>
 #include "DuskConstants.h"
-#include "DuskFunctions.h"
-#include "DuskExceptions.h"
 #include "Messages.h"
 
 namespace Dusk
 {
-ProjectileBase::ProjectileBase()
+
+uint32_t ProjectileRecord::getRecordType() const
 {
-  //empty
+  return cHeaderProj;
 }
 
-ProjectileBase::~ProjectileBase()
-{
-  m_Projectiles.clear();
-}
+//record type identifier
+const uint32_t ProjectileRecord::RecordType = cHeaderProj;
 
-ProjectileBase& ProjectileBase::getSingleton()
+bool ProjectileRecord::saveToStream(std::ofstream& outStream) const
 {
-  static ProjectileBase Instance;
-  return Instance;
-}
-
-void ProjectileBase::clearAll()
-{
-  m_Projectiles.clear();
-}
-
-void ProjectileBase::addProjectile(const std::string& ID, const std::string& mesh,
-                                   const float TTL, const float velocity,
-                                   const uint8 n, const uint8 dice)
-{
-  ProjectileRecord temp;
-  temp.Mesh = mesh;
-  temp.DefaultTTL = TTL;
-  temp.DefaultVelocity = velocity;
-  temp.times = n;
-  temp.dice = dice;
-  addProjectile(ID, temp);
-}
-
-void ProjectileBase::addProjectile(const std::string& ID, const ProjectileRecord& data)
-{
-  if (ID!="" and data.Mesh!="")
+  if (!outStream.good())
   {
-    m_Projectiles[ID] = data;
-    m_Projectiles[ID].Mesh = adjustDirectorySeperator(m_Projectiles[ID].Mesh);
-  }//if
-}
-
-bool ProjectileBase::hasProjectile(const std::string& ID) const
-{
-  return (m_Projectiles.find(ID) != m_Projectiles.end());
-}
-
-const std::string& ProjectileBase::getProjectileMesh(const std::string& ID, const bool UseMarkerOnError) const
-{
-  std::map<std::string, ProjectileRecord>::const_iterator iter;
-  iter = m_Projectiles.find(ID);
-  if (iter!=m_Projectiles.end())
-  {
-    return iter->second.Mesh;
-  }
-  if (UseMarkerOnError)
-  {
-    DuskLog() << "ProjectileBase::getProjectileMesh: Warning! No projectile "
-              << "with ID \""<<ID<< "\" found. Using error marker's mesh "
-              << "instead.\n";
-    return cErrorMesh;
-  }
-  DuskLog() << "ProjectileBase::getProjectileMesh: ERROR! No projectile with ID \""
-            << ID << "\" found. Throwing exception.\n";
-  throw IDNotFound("ProjectileBase", ID);
-}
-
-const ProjectileRecord& ProjectileBase::getProjectileData(const std::string& ID) const
-{
-  std::map<std::string, ProjectileRecord>::const_iterator iter;
-  iter = m_Projectiles.find(ID);
-  if (iter!=m_Projectiles.end())
-  {
-    return iter->second;
-  }
-  DuskLog() << "ProjectileBase::getProjectileData: ERROR! No projectile with ID \""
-            << ID << "\" found. Throwing exception.\n";
-  throw IDNotFound("ProjectileBase", ID);
-}
-
-bool ProjectileBase::deleteProjectile(const std::string& ID)
-{
-  std::map<std::string, ProjectileRecord>::iterator iter;
-  iter = m_Projectiles.find(ID);
-  if (iter==m_Projectiles.end())
-  {
+    DuskLog() << "ProjectileRecord::saveToStream: ERROR: stream contains errors!\n";
     return false;
   }
-  m_Projectiles.erase(iter);
-  return true;
-}
 
-unsigned int ProjectileBase::getNumberOfProjectiles() const
-{
-  return m_Projectiles.size();
-}
+  uint32_t len = 0;
 
-bool ProjectileBase::saveAllToStream(std::ofstream& OutStream) const
-{
-  if (!OutStream.good())
+  //header "Proj"
+  outStream.write((const char*) &cHeaderProj, sizeof(uint32_t));
+  //ID
+  len = ID.length();
+  outStream.write((const char*) &len, sizeof(uint32_t));
+  outStream.write(ID.c_str(), len);
+  //Mesh
+  len = Mesh.length();
+  outStream.write((const char*) &len, sizeof(uint32_t));
+  outStream.write(Mesh.c_str(), len);
+  //TTL
+  outStream.write((const char*) &DefaultTTL, sizeof(float));
+  //velocity
+  outStream.write((const char*) &DefaultVelocity, sizeof(float));
+  //times
+  outStream.write((const char*) &times, sizeof(uint8_t));
+  //dice
+  outStream.write((const char*) &dice, sizeof(uint8_t));
+  //check
+  if (!outStream.good())
   {
-    DuskLog() << "ProjectileBase::saveAllToStream: ERROR: stream contains errors!\n";
+    DuskLog() << "ProjectileRecord::saveToStream: Error while writing data to "
+              << "stream. Current projectile is \""<<ID<<"\".\n";
     return false;
   }
-  std::map<std::string, ProjectileRecord>::const_iterator iter;
-  iter = m_Projectiles.begin();
-  unsigned int len = 0;
-  while (iter!=m_Projectiles.end())
-  {
-    //header "Proj"
-    OutStream.write((char*) &cHeaderProj, sizeof(unsigned int));
-    //ID
-    len = iter->first.length();
-    OutStream.write((char*) &len, sizeof(unsigned int));
-    OutStream.write(iter->first.c_str(), len);
-    //Mesh
-    len = iter->second.Mesh.length();
-    OutStream.write((char*) &len, sizeof(unsigned int));
-    OutStream.write(iter->second.Mesh.c_str(), len);
-    //TTL
-    OutStream.write((char*) &(iter->second.DefaultTTL), sizeof(float));
-    //velocity
-    OutStream.write((char*) &(iter->second.DefaultVelocity), sizeof(float));
-    //times
-    OutStream.write((char*) &(iter->second.times), sizeof(uint8));
-    //dice
-    OutStream.write((char*) &(iter->second.dice), sizeof(uint8));
-    //check
-    if (!OutStream.good())
-    {
-      DuskLog() << "ProjectileBase::saveToStream: Error while writing data to "
-                << "stream. Current projectile is \""<<iter->first<<"\".\n";
-      return false;
-    }
-    ++iter;
-  } //while
-  return OutStream.good();
+
+  return outStream.good();
 }
 
-bool ProjectileBase::loadNextProjectileFromStream(std::ifstream& InStream)
+bool ProjectileRecord::loadFromStream(std::ifstream& inStream)
 {
-  if (!InStream.good())
+  if (!inStream.good())
   {
-    DuskLog() << "ProjectileBase::loadNextProjectileFromStream: ERROR: stream contains errors!\n";
+    DuskLog() << "ProjectileRecord::loadFromStream: ERROR: stream contains errors!\n";
     return false;
   }
-  unsigned int len = 0;
-  InStream.read((char*) &len, sizeof(unsigned int));
+  uint32_t len = 0;
+  inStream.read((char*) &len, sizeof(uint32_t));
   if (len != cHeaderProj)
   {
-    DuskLog() << "ProjectileBase::loadNextProjectileFromStream: ERROR: stream "
+    DuskLog() << "ProjectileRecord::loadFromStream: ERROR: stream "
               << "contains unexpected header!\n";
     return false;
   }
   char Buffer[256];
-  Buffer[0] = Buffer[255] = '\0';
+  memset(Buffer, 0, 256);
   //read ID
   len = 0;
-  InStream.read((char*) &len, sizeof(unsigned int));
+  inStream.read((char*) &len, sizeof(uint32_t));
   if (len>255)
   {
-    DuskLog() << "ProjectileBase::loadNextProjectileFromStream: ERROR: ID is "
+    DuskLog() << "ProjectileRecord::loadFromStream: ERROR: ID is "
               << "longer than 255 characters!\n";
     return false;
   }
-  InStream.read(Buffer, len);
-  if (!InStream.good())
+  inStream.read(Buffer, len);
+  if (!inStream.good())
   {
-    DuskLog() << "ProjectileBase::loadNextProjectileFromStream: ERROR while "
+    DuskLog() << "ProjectileRecord::loadFromStream: ERROR while "
               << "reading ID from stream!\n";
     return false;
   }
   Buffer[len] = '\0';
-  const std::string projID = std::string(Buffer);
+  ID = std::string(Buffer);
 
   //read Mesh
   len = 0;
-  InStream.read((char*) &len, sizeof(unsigned int));
+  inStream.read((char*) &len, sizeof(uint32_t));
   if (len>255)
   {
-    DuskLog() << "ProjectileBase::loadNextProjectileFromStream: ERROR: mesh "
+    DuskLog() << "ProjectileRecord::loadFromStream: ERROR: mesh "
               << "path is longer than 255 characters!\n";
     return false;
   }
-  InStream.read(Buffer, len);
-  if (!InStream.good())
+  inStream.read(Buffer, len);
+  if (!inStream.good())
   {
-    DuskLog() << "ProjectileBase::loadNextProjectileFromStream: ERROR while "
+    DuskLog() << "ProjectileRecord::loadFromStream: ERROR while "
               << "reading mesh path from stream!\n";
     return false;
   }
   Buffer[len] = '\0';
 
-  ProjectileRecord temp;
-  temp.Mesh = std::string(Buffer);
+  Mesh = std::string(Buffer);
   //TTL
-  InStream.read((char*) &(temp.DefaultTTL), sizeof(float));
+  inStream.read((char*) &DefaultTTL, sizeof(float));
   //velocity
-  InStream.read((char*) &(temp.DefaultVelocity), sizeof(float));
+  inStream.read((char*) &DefaultVelocity, sizeof(float));
   //times
-  InStream.read((char*) &(temp.times), sizeof(uint8));
+  inStream.read((char*) &times, sizeof(uint8_t));
   //dice
-  InStream.read((char*) &(temp.dice), sizeof(uint8));
-  if (!(InStream.good()))
+  inStream.read((char*) &dice, sizeof(uint8_t));
+  if (!inStream.good())
   {
-    DuskLog() << "ProjectileBase::loadNextProjectileFromStream: ERROR while "
+    DuskLog() << "ProjectileRecord::loadFromStream: ERROR while "
               << "reading projectile data from stream!\n";
     return false;
   }
-  addProjectile(projID, temp);
   return true;
 }
-
-#ifdef DUSK_EDITOR
-ProjectileBaseIterator ProjectileBase::getFirst() const
-{
-  return m_Projectiles.begin();
-}
-
-ProjectileBaseIterator ProjectileBase::getEnd() const
-{
-  return m_Projectiles.end();
-}
-#endif
 
 } //namespace

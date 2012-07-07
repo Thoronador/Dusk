@@ -246,7 +246,7 @@ void NPC::injectTime(const float SecondsPassed)
             performAttack(stLeftHand);
             //update time
             m_TimeToNextAttackLeft = m_TimeToNextAttackLeft
-                +WeaponBase::getSingleton().getWeaponData(m_EquippedLeft->getID()).TimeBetweenAttacks;
+                +Database::getSingleton().getTypedRecord<WeaponRecord>(m_EquippedLeft->getID()).TimeBetweenAttacks;
           }
         }//if
       }//time less/equal zero
@@ -264,7 +264,7 @@ void NPC::injectTime(const float SecondsPassed)
             performAttack(stRightHand);
             //update time
             m_TimeToNextAttackRight = m_TimeToNextAttackRight
-                +WeaponBase::getSingleton().getWeaponData(m_EquippedRight->getID()).TimeBetweenAttacks;
+                +Database::getSingleton().getTypedRecord<WeaponRecord>(m_EquippedRight->getID()).TimeBetweenAttacks;
           }
         }//if
       }//time less/equal zero
@@ -516,7 +516,7 @@ bool NPC::equip(const std::string& ItemID, const SlotType slot)
   {
     pItem = new Item(ItemID, Ogre::Vector3::ZERO, Ogre::Quaternion::IDENTITY, 1.0f);
   }
-  else if (WeaponBase::getSingleton().hasWeapon(ItemID))
+  else if (Database::getSingleton().hasTypedRecord<WeaponRecord>(ItemID))
   {
     pItem = new Weapon(ItemID, Ogre::Vector3::ZERO, Ogre::Quaternion::IDENTITY, 1.0f);
   }
@@ -1061,21 +1061,21 @@ void NPC::startAttackAnimation()
   {
     if (m_EquippedRight->getDuskType()==otWeapon)
     {
-      melee = WeaponBase::getSingleton().getWeaponData(m_EquippedRight->getID()).Type==wtMelee;
+      melee = Database::getSingleton().getTypedRecord<WeaponRecord>(m_EquippedRight->getID()).Type==wtMelee;
     }
   }
   else if (m_EquippedLeft!=NULL)
   {
     if (m_EquippedLeft->getDuskType()==otWeapon)
     {
-      melee = WeaponBase::getSingleton().getWeaponData(m_EquippedLeft->getID()).Type==wtMelee;
+      melee = Database::getSingleton().getTypedRecord<WeaponRecord>(m_EquippedLeft->getID()).Type==wtMelee;
     }
   }
-  if (melee and (anim.MeleeAttack!=""))
+  if (melee and (!anim.MeleeAttack.empty()))
   {
     startAnimation(anim.MeleeAttack, true);
   }
-  if (!melee and (anim.ProjectileAttack!=""))
+  if (!melee and (!anim.ProjectileAttack.empty()))
   {
     startAnimation(anim.ProjectileAttack, true);
   }
@@ -1100,11 +1100,11 @@ void NPC::performAttack(const SlotType attackSlot)
   WeaponRecord wRec;
   if (attackSlot==stRightHand)
   {
-    wRec = WeaponBase::getSingleton().getWeaponData(m_EquippedRight->getID());
+    wRec = Database::getSingleton().getTypedRecord<WeaponRecord>(m_EquippedRight->getID());
   }
   else
   {
-    wRec = WeaponBase::getSingleton().getWeaponData(m_EquippedLeft->getID());
+    wRec = Database::getSingleton().getTypedRecord<WeaponRecord>(m_EquippedLeft->getID());
   }
   if (wRec.Range<0.0f)
   {

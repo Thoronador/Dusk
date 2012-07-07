@@ -69,6 +69,7 @@
      - 2011-09-12 (rev 299) - loadNPCPart() and saveNPCPart() added
      - 2012-06-30 (rev 308) - update of getObjectMesh() definition
      - 2012-07-02 (rev 310) - update to use Database instead of ItemBase
+     - 2012-07-07 (rev 316) - update to use Database instead of WeaponBase
 
  ToDo list:
      - add possibility to equip weapons, clothes, armour, etc.

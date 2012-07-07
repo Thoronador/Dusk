@@ -20,6 +20,7 @@
 
 #include "Weapon.h"
 #include "WeaponBase.h"
+#include "Database.h"
 #include "DuskConstants.h"
 #include "Messages.h"
 
@@ -45,7 +46,7 @@ Weapon::~Weapon()
 
 const std::string& Weapon::getObjectMesh() const
 {
-  return WeaponBase::getSingleton().getWeaponMesh(ID);
+  return Database::getSingleton().getTypedRecord<WeaponRecord>(ID).Mesh;
 }
 
 ObjectTypes Weapon::getDuskType() const

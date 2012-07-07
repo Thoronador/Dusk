@@ -21,6 +21,7 @@
 #include "VehicleBase.h"
 #include "NPC.h"
 #include "DuskConstants.h"
+#include "Database.h"
 #include "Messages.h"
 
 namespace Dusk
@@ -156,7 +157,7 @@ void Vehicle::adjustPassengerPosition()
 
 unsigned int Vehicle::getTotalMountpoints() const
 {
-  return VehicleBase::getSingleton().getVehicleMountpoints(ID);
+  return Database::getSingleton().getTypedRecord<VehicleRecord>(ID).Mountpoints.size();
 }
 
 unsigned int Vehicle::getFreeMountpoints() const
@@ -183,8 +184,8 @@ bool Vehicle::mountPassengerAtIndex(const unsigned int idx, NPC* who)
   //now finally mount the NPC
   PassengerRecord temp;
   temp.who = who;
-  temp.position_offset = VehicleBase::getSingleton().getMountpointOffset(ID, idx);
-  temp.rotation_offset = VehicleBase::getSingleton().getMountpointRotation(ID, idx);
+  temp.position_offset = Database::getSingleton().getTypedRecord<VehicleRecord>(ID).Mountpoints.at(idx).offset;
+  temp.rotation_offset = Database::getSingleton().getTypedRecord<VehicleRecord>(ID).Mountpoints.at(idx).rotation;
   m_Passengers[idx] = temp;
   who->setVehicle(this);
   return true;
@@ -367,7 +368,7 @@ void Vehicle::dropAllPassengers()
 
 const std::string& Vehicle::getObjectMesh() const
 {
-  return VehicleBase::getSingleton().getVehicleMesh(ID);
+  return Database::getSingleton().getTypedRecord<VehicleRecord>(ID).Mesh;
 }
 
 } //namespace

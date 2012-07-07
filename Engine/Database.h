@@ -30,6 +30,8 @@
      - 2012-07-02 (rev 310) - update for ItemRecord, LightRecord and ObjectRecord
      - 2012-07-05 (rev 313) - update for ContainerRecord
      - 2012-07-05 (rev 314) - new version of addRecord()
+     - 2012-07-07 (rev 316) - update for ProjectileRecord, ResourceRecord,
+                              VehicleRecord and WeaponRecord
 
  ToDo list:
      - ???

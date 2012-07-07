@@ -74,7 +74,7 @@ void Inventory::addItem(const std::string& ItemID, const unsigned int count)
   else
   {
     //if there's no such item in item base, it must have been a weapon
-    m_TotalWeight = m_TotalWeight +count*WeaponBase::getSingleton().getWeaponWeight(ItemID);
+    m_TotalWeight = m_TotalWeight +count*Database::getSingleton().getTypedRecord<WeaponRecord>(ItemID).weight;
   }
 }
 
@@ -109,7 +109,7 @@ unsigned int Inventory::removeItem(const std::string& ItemID, const unsigned int
     else
     {
       //must have been a weapon instead
-      m_TotalWeight = m_TotalWeight - removed*WeaponBase::getSingleton().getWeaponWeight(ItemID);
+      m_TotalWeight = m_TotalWeight - removed*Database::getSingleton().getTypedRecord<WeaponRecord>(ItemID).weight;
     }
     return removed;
   }
@@ -165,7 +165,7 @@ int Inventory::getTotalValue() const
     }
     else
     { //it's a weapon
-      sum = sum + iter->second * WeaponBase::getSingleton().getWeaponValue(iter->first);
+      sum = sum + iter->second * Database::getSingleton().getTypedRecord<WeaponRecord>(iter->first).value;
     }
     ++iter;
   }//while

@@ -27,6 +27,7 @@
  History:
      - 2012-06-30 (rev 307) - initial version (by thoronador)
      - 2012-06-30 (rev 308) - update of getObjectMesh() definition
+     - 2012-07-07 (rev 316) - update to use Database instead of ResourceBase
 
  ToDo list:
      - ???

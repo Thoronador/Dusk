@@ -204,6 +204,7 @@ void Scene::createGrassMesh()
         w_singleton.startSnow();
         //add sword item to weapon base
         WeaponRecord wrec;
+        wrec.ID = "sword";
         wrec.DamageTimes = 2; // 2d8 damage
         wrec.DamageDice = 8;
         wrec.Mesh = "Sword.mesh";
@@ -214,15 +215,24 @@ void Scene::createGrassMesh()
         wrec.Type = wtMelee;
         wrec.value = 100;
         wrec.weight = 2.5f;
-        WeaponBase::getSingleton().addWeapon("sword", wrec);
+        Database::getSingleton().addRecord(wrec);
         //add projectile-shooting sword to weapon base
         wrec.Name = "Sword shooting swords";
         wrec.ProjectileID = "sword_projectile";
+        wrec.ID = "sword_gun";
         wrec.Type = wtGun;
-        WeaponBase::getSingleton().addWeapon("sword_gun", wrec);
+        Database::getSingleton().addRecord(wrec);
         //add projectile information
-        ProjectileBase::getSingleton().addProjectile("sword_projectile",
-                                                "Sword.mesh", 25.0, 40.0, 2, 8);
+        ProjectileRecord proj_rec;
+        proj_rec.ID = "sword_projectile";
+        proj_rec.Mesh = "Sword.mesh";
+        proj_rec.DefaultTTL = 25.0;
+        proj_rec.DefaultVelocity = 40.0;
+        proj_rec.times = 2;
+        proj_rec.dice = 8;
+        Database::getSingleton().addRecord(proj_rec);
+        /*ProjectileBase::getSingleton().addProjectile("sword_projectile",
+                                                "Sword.mesh", 25.0, 40.0, 2, 8);*/
         //add player information to NPCBase
         NPCAnimations anims;
         anims.Death = "Dance";

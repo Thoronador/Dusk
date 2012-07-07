@@ -20,6 +20,7 @@
 
 #include "Projectile.h"
 #include "ProjectileBase.h"
+#include "Database.h"
 #include "InjectionManager.h"
 #include "DuskConstants.h"
 #include "Landscape.h"
@@ -41,9 +42,9 @@ Projectile::Projectile()
 Projectile::Projectile(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Quaternion& rot, const float Scale)
   : UniformMotionObject(_ID, pos, rot, Scale)
 {
-  if (ProjectileBase::getSingleton().hasProjectile(_ID))
+  if (Database::getSingleton().hasTypedRecord<ProjectileRecord>(_ID))
   {
-    const ProjectileRecord rec = ProjectileBase::getSingleton().getProjectileData(_ID);
+    const ProjectileRecord& rec = Database::getSingleton().getTypedRecord<ProjectileRecord>(_ID);
     m_TTL = rec.DefaultTTL;
     m_Speed = rec.DefaultVelocity;
   }
@@ -198,7 +199,7 @@ void Projectile::injectTime(const float SecondsPassed)
         //projectile will hit the NPC within this frame
         // --> inflict damage
         Dusk::NPC* npc_ptr = dynamic_cast<NPC*> (hit_object);
-        const ProjectileRecord pr = ProjectileBase::getSingleton().getProjectileData(this->ID);
+        const ProjectileRecord& pr = Database::getSingleton().getTypedRecord<ProjectileRecord>(this->ID);
         switch (pr.dice)
         {
           case 4:
@@ -245,7 +246,7 @@ void Projectile::injectTime(const float SecondsPassed)
 
 const std::string& Projectile::getObjectMesh() const
 {
-  return ProjectileBase::getSingleton().getProjectileMesh(ID);
+  return Database::getSingleton().getTypedRecord<ProjectileRecord>(ID).Mesh;
 }
 
 void Projectile::travelToDestination(const Ogre::Vector3& dest)
