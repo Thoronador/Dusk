@@ -18,7 +18,7 @@
  -----------------------------------------------------------------------------
 */
 
-#include "WeaponBase.h"
+#include "WeaponRecord.h"
 #include <cstring>
 #include "DuskConstants.h"
 #include "Messages.h"

@@ -31,8 +31,8 @@
 #include "Weather.h"
 #include "Player.h"
 #include "NPCRecord.h"
-#include "WeaponBase.h"
-#include "ProjectileBase.h"
+#include "WeaponRecord.h"
+#include "ProjectileRecord.h"
 #include "QuestLog.h"
 #include "Messages.h"
 

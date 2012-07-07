@@ -19,7 +19,7 @@
 */
 
 #include "Projectile.h"
-#include "ProjectileBase.h"
+#include "ProjectileRecord.h"
 #include "Database.h"
 #include "InjectionManager.h"
 #include "DuskConstants.h"

@@ -18,7 +18,7 @@
  -----------------------------------------------------------------------------
 */
 
-#include "ProjectileBase.h"
+#include "ProjectileRecord.h"
 #include <cstring>
 #include "DuskConstants.h"
 #include "Messages.h"

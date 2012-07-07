@@ -22,7 +22,7 @@
 #include <sstream>
 #include "NPCRecord.h"
 #include "Database.h"
-#include "WeaponBase.h"
+#include "WeaponRecord.h"
 #include "Settings.h"
 #include "DuskConstants.h"
 #include "DuskFunctions.h"

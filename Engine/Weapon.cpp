@@ -19,7 +19,7 @@
 */
 
 #include "Weapon.h"
-#include "WeaponBase.h"
+#include "WeaponRecord.h"
 #include "Database.h"
 #include "DuskConstants.h"
 #include "Messages.h"

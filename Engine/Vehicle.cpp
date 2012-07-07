@@ -18,7 +18,7 @@
  -----------------------------------------------------------------------------
 */
 #include "Vehicle.h"
-#include "VehicleBase.h"
+#include "VehicleRecord.h"
 #include "NPC.h"
 #include "DuskConstants.h"
 #include "Database.h"

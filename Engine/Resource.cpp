@@ -23,7 +23,7 @@
 #include "Database.h"
 #include "DuskConstants.h"
 #include "Messages.h"
-#include "ResourceBase.h"
+#include "ResourceRecord.h"
 
 namespace Dusk
 {

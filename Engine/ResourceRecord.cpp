@@ -18,7 +18,7 @@
  -----------------------------------------------------------------------------
 */
 
-#include "ResourceBase.h"
+#include "ResourceRecord.h"
 #include "DuskConstants.h"
 #include "Messages.h"
 #include <cstring>

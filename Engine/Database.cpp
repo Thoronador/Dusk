@@ -25,10 +25,10 @@
 #include "LightRecord.h"
 #include "NPCRecord.h"
 #include "ObjectRecord.h"
-#include "ProjectileBase.h"
-#include "ResourceBase.h"
-#include "VehicleBase.h"
-#include "WeaponBase.h"
+#include "ProjectileRecord.h"
+#include "ResourceRecord.h"
+#include "VehicleRecord.h"
+#include "WeaponRecord.h"
 
 namespace Dusk
 {

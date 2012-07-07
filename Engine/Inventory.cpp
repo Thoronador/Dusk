@@ -21,7 +21,7 @@
 #include "Inventory.h"
 #include "Database.h"
 #include "ItemRecord.h"
-#include "WeaponBase.h"
+#include "WeaponRecord.h"
 #include "DuskConstants.h"
 #include "Messages.h"
 

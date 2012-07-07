@@ -29,7 +29,6 @@
 #include "Player.h"
 #include "QuestLog.h"
 #include "SoundBase.h"
-#include "WeaponBase.h"
 #include "DuskConstants.h"
 #include "Messages.h"
 
