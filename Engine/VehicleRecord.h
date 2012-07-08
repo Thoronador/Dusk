@@ -45,8 +45,8 @@
      - No known bugs. If you find one (or more), then tell me please.
  --------------------------------------------------------------------------*/
 
-#ifndef VEHICLEBASE_H
-#define VEHICLEBASE_H
+#ifndef DUSK_VEHICLERECORD_H
+#define DUSK_VEHICLERECORD_H
 
 #include <vector>
 #include <fstream>
@@ -97,4 +97,4 @@ namespace Dusk
 
 } //namespace
 
-#endif // VEHICLEBASE_H
+#endif // DUSK_VEHICLERECORD_H

@@ -58,7 +58,7 @@
 #include <CEGUI/CEGUIEventArgs.h>
 #include <CEGUI/elements/CEGUICombobox.h>
 #include <CEGUI/elements/CEGUIMultiColumnList.h>
-#include "../Engine/NPCBase.h"
+#include "../Engine/NPCRecord.h"
 
 namespace Dusk
 {

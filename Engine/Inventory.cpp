@@ -67,7 +67,7 @@ void Inventory::addItem(const std::string& ItemID, const unsigned int count)
     m_Items[ItemID] = count;
   }
   //adjust weight of inventory according to added items
-  if (Database::getSingleton().hasTypedRecord(ItemID, cHeaderItem))
+  if (Database::getSingleton().hasTypedRecord<ItemRecord>(ItemID))
   {
     m_TotalWeight = m_TotalWeight +count*Database::getSingleton().getTypedRecord<ItemRecord>(ItemID).weight;
   }
@@ -102,7 +102,7 @@ unsigned int Inventory::removeItem(const std::string& ItemID, const unsigned int
       m_Items.erase(iter);
     }
     //adjust weight of inventory according to removed items
-    if (Database::getSingleton().hasTypedRecord(ItemID, cHeaderItem))
+    if (Database::getSingleton().hasTypedRecord<ItemRecord>(ItemID))
     {
       m_TotalWeight = m_TotalWeight - removed*Database::getSingleton().getTypedRecord<ItemRecord>(ItemID).weight;
     }
@@ -159,7 +159,7 @@ int Inventory::getTotalValue() const
   iter = m_Items.begin();
   while (iter!=m_Items.end())
   {
-    if (Database::getSingleton().hasTypedRecord(iter->first, cHeaderItem))
+    if (Database::getSingleton().hasTypedRecord<ItemRecord>(iter->first))
     { //it's an item
       sum = sum + iter->second * Database::getSingleton().getTypedRecord<ItemRecord>(iter->first).value;
     }

@@ -32,6 +32,7 @@
      - 2012-07-05 (rev 314) - new version of addRecord()
      - 2012-07-07 (rev 316) - update for ProjectileRecord, ResourceRecord,
                               VehicleRecord and WeaponRecord
+     - 2012-07-08 (rev 318) - removed two-parameter version of hasTypedRecord()
 
  ToDo list:
      - ???
@@ -113,7 +114,6 @@ namespace Dusk
          parameters:
              ID - ID of the record which will be checked
       */
-      bool hasTypedRecord(const std::string& ID, const uint32_t type) const;
 
       template<typename recT>
       bool hasTypedRecord(const std::string& ID) const;
@@ -208,7 +208,12 @@ namespace Dusk
   template<typename recT>
   bool Database::hasTypedRecord(const std::string& ID) const
   {
-    return hasTypedRecord(ID, recT::RecordType);
+    const std::map<std::string, DataRecord*>::const_iterator iter = m_Records.find(ID);
+    if (iter!=m_Records.end())
+    {
+      return (iter->second->getRecordType()==recT::RecordType);
+    }
+    return false;
   }
 
   template<typename recT>

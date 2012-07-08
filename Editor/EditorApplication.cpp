@@ -22,6 +22,7 @@
 #include "EditorApplicationBase.h"
 #include "EditorCamera.h"
 #include "../Engine/API.h"
+#include "../Engine/Database.h"
 #include "../Engine/DuskConstants.h"
 #include "../Engine/DataLoader.h"
 #include "../Engine/Journal.h"
@@ -29,10 +30,10 @@
 #include "../Engine/ObjectManager.h"
 #include "../Engine/ObjectRecord.h"
 #include "../Engine/ItemRecord.h"
-#include "../Engine/ProjectileBase.h"
-#include "../Engine/VehicleBase.h"
+#include "../Engine/ProjectileRecord.h"
+#include "../Engine/VehicleRecord.h"
 #include "../Engine/Vehicle.h"
-#include "../Engine/WeaponBase.h"
+#include "../Engine/WeaponRecord.h"
 #include "../Engine/Weather.h"
 #include "../Engine/InjectionManager.h"
 #include <OgreConfigFile.h>
@@ -983,7 +984,7 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
 
         if (PlaceType==otLight)
         { //place a light
-          if (!LightBase::getSingleton().hasLight(std::string(lbi->getText().c_str())))
+          if (!Database::getSingleton().hasTypedRecord<LightRecord>(std::string(lbi->getText().c_str())))
           {
             showWarning("There is no Light with the ID \""
                         +std::string(lbi->getText().c_str())+"\", thus you can't "
@@ -993,7 +994,7 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
         }
         else if (PlaceType==otStatic)
         { //place an object
-          if (!ObjectBase::getSingleton().hasObject(std::string(lbi->getText().c_str())))
+          if (!Database::getSingleton().hasTypedRecord<ObjectRecord>(std::string(lbi->getText().c_str())))
           {
             showWarning("There is no Object with the ID \""
                         +std::string(lbi->getText().c_str())+"\", thus you can't "
@@ -1003,7 +1004,7 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
         }
         else if (PlaceType==otItem)
         { //place an item
-          if (!ItemBase::getSingleton().hasItem(std::string(lbi->getText().c_str())))
+          if (!Database::getSingleton().hasTypedRecord<ItemRecord>(std::string(lbi->getText().c_str())))
           {
             showWarning("There is no Item with the ID \""
                         +std::string(lbi->getText().c_str())+"\", thus you can't "
@@ -1013,7 +1014,7 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
         }
         else if (PlaceType==otNPC)
         { //place an NPC
-          if (!NPCBase::getSingleton().hasNPC(std::string(lbi->getText().c_str())))
+          if (!Database::getSingleton().hasTypedRecord<NPCRecord>(std::string(lbi->getText().c_str())))
           {
             showWarning("There is no NPC with the ID \""
                         +std::string(lbi->getText().c_str())+"\", thus you can't "
@@ -1023,7 +1024,7 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
         }
         else if (PlaceType==otWeapon)
         { //place a weapon
-          if (!WeaponBase::getSingleton().hasWeapon(std::string(lbi->getText().c_str())))
+          if (!Database::getSingleton().hasTypedRecord<WeaponRecord>(std::string(lbi->getText().c_str())))
           {
             showWarning("There is no weapon with the ID \""
                         +std::string(lbi->getText().c_str())+"\", thus you can't "
@@ -1033,7 +1034,7 @@ bool EditorApplication::RootMouseUp(const CEGUI::EventArgs &e)
         }
         else if (PlaceType==otVehicle)
         { //place a vehicle
-          if (!VehicleBase::getSingleton().hasVehicle(std::string(lbi->getText().c_str())))
+          if (!Database::getSingleton().hasTypedRecord<VehicleRecord>(std::string(lbi->getText().c_str())))
           {
             showWarning("There is no vehicle with the ID \""
                         +std::string(lbi->getText().c_str())+"\", thus you can't "

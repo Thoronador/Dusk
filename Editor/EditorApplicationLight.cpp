@@ -22,6 +22,7 @@
 #include "EditorApplicationBase.h"
 #include <CEGUI/CEGUI.h>
 #include <OgreLight.h>
+#include "../Engine/Database.h"
 #include "../Engine/DuskFunctions.h"
 #include "../Engine/ObjectManager.h"
 #include "../Engine/API.h"
@@ -95,11 +96,12 @@ void EditorApplicationLight::refreshLightList(void)
   CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/Catalogue/Tab/Light/List"));
   mcl->resetList();
 
-  LightBase::Iterator first = LightBase::getSingleton().getFirst();
-  const LightBase::Iterator end = LightBase::getSingleton().getEnd();
+  Database::Iterator first = Database::getSingleton().getFirst();
+  const Database::Iterator end = Database::getSingleton().getEnd();
   while (first != end)
   {
-    addLightRecordToCatalogue(first->first, first->second);
+    if (first->second->getRecordType()==LightRecord::RecordType)
+      addLightRecordToCatalogue(first->first, *static_cast<LightRecord*>(first->second));
     ++first;
   }//while
   return;
@@ -309,13 +311,13 @@ void EditorApplicationLight::showLightNewWindow(void)
 
 void EditorApplicationLight::showLightEditWindow(void)
 {
-  if (ID_of_light_to_edit=="")
+  if (ID_of_light_to_edit.empty())
   {
     std::cout << "showLightEditWindow: No ID given.\n";
     return;
   }
 
-  if (!LightBase::getSingleton().hasLight(ID_of_light_to_edit))
+  if (!Database::getSingleton().hasTypedRecord<LightRecord>(ID_of_light_to_edit))
   {
     std::cout << "showLightEditWindow: Light not present in database.\n";
     showWarning("There seems to be no light with the ID \""+ID_of_light_to_edit
@@ -466,7 +468,7 @@ void EditorApplicationLight::showLightEditWindow(void)
     frame->addChildWindow(button);
   }//else
   //fill in the data
-  LightRecord lr = LightBase::getSingleton().getLightData(ID_of_light_to_edit);
+  const LightRecord& lr = Database::getSingleton().getTypedRecord<LightRecord>(ID_of_light_to_edit);
   button = winmgr.getWindow("Editor/LightEditFrame/ID_Edit");
   button->setText(ID_of_light_to_edit);
   //colour values
@@ -635,14 +637,14 @@ bool EditorApplicationLight::LightDeleteFrameNoClicked(const CEGUI::EventArgs &e
 
 bool EditorApplicationLight::LightDeleteFrameYesClicked(const CEGUI::EventArgs &e)
 {
-  if (ID_of_light_to_delete == "")
+  if (ID_of_light_to_delete.empty())
   {
     showWarning("Error: light ID is empty string!");
     //delete window
     CEGUI::WindowManager::getSingleton().destroyWindow("Editor/LightDeleteFrame");
     return true;
   }
-  if (!LightBase::getSingleton().deleteLight(ID_of_light_to_delete))
+  if (!Database::getSingleton().deleteRecord(ID_of_light_to_delete))
   {
     showHint("LightBase class holds no item of the given ID ("
              +ID_of_light_to_delete+").");
@@ -693,19 +695,20 @@ bool EditorApplicationLight::LightNewFrameOKClicked(const CEGUI::EventArgs &e)
     CEGUI::Spinner* blue_spin = static_cast<CEGUI::Spinner*> (winmgr.getWindow("Editor/LightNewFrame/BlueSpin"));
     CEGUI::RadioButton* point_radio = static_cast<CEGUI::RadioButton*> (winmgr.getWindow("Editor/LightNewFrame/RadioPoint"));
     //make sure we have some data
-    if (id_edit->getText()=="")
+    if (id_edit->getText().empty())
     {
       showWarning("You have to enter an ID string to create a new light!");
       return true;
     }
-    //check for presence of light with same ID
-    if (LightBase::getSingleton().hasLight(std::string(id_edit->getText().c_str())))
+    //check for presence of light/record with same ID
+    if (Database::getSingleton().hasRecord(std::string(id_edit->getText().c_str())))
     {
-      showWarning("A Light with the given ID already exists!");
+      showWarning("A record with the given ID already exists!");
       return true;
     }
     //add it to LightBase
     LightRecord entered_data;
+    entered_data.ID = std::string(id_edit->getText().c_str());
     entered_data.red = red_spin->getCurrentValue();
     entered_data.green = green_spin->getCurrentValue();
     entered_data.blue = blue_spin->getCurrentValue();
@@ -719,9 +722,9 @@ bool EditorApplicationLight::LightNewFrameOKClicked(const CEGUI::EventArgs &e)
     }
     //assume radius
     entered_data.radius = 250.0f;
-    LightBase::getSingleton().addLight( std::string(id_edit->getText().c_str()), entered_data);
+    Database::getSingleton().addRecord(entered_data);
     //update item catalogue
-    addLightRecordToCatalogue(std::string(id_edit->getText().c_str()), entered_data);
+    addLightRecordToCatalogue(entered_data.ID, entered_data);
     //destroy window
     winmgr.destroyWindow("Editor/LightNewFrame");
   }
@@ -769,12 +772,12 @@ bool EditorApplicationLight::LightEditFrameSaveClicked(const CEGUI::EventArgs &e
   radio_type = static_cast<CEGUI::RadioButton*> (winmgr.getWindow("Editor/LightEditFrame/RadioPoint"));
   radius_edit = static_cast<CEGUI::Editbox*> (winmgr.getWindow("Editor/LightEditFrame/Radius_Edit"));
 
-  if (std::string(id_edit->getText().c_str())=="")
+  if (id_edit->getText().empty())
   {
     showHint("You have to enter an ID for this light!");
     return true;
   }
-  if (std::string(radius_edit->getText().c_str())=="")
+  if (radius_edit->getText().empty())
   {
     showHint("You have to enter a radius for this light!");
     return true;
@@ -792,6 +795,7 @@ bool EditorApplicationLight::LightEditFrameSaveClicked(const CEGUI::EventArgs &e
    return true;
   }
   LightRecord lr;
+  lr.ID = std::string(id_edit->getText().c_str());
   lr.red = spin_red->getCurrentValue();
   lr.green = spin_green->getCurrentValue();
   lr.blue = spin_blue->getCurrentValue();
@@ -805,13 +809,13 @@ bool EditorApplicationLight::LightEditFrameSaveClicked(const CEGUI::EventArgs &e
   }
   lr.radius = StringToFloat(std::string(radius_edit->getText().c_str()), 123.45f);
   //check if data has remained the same
-  if (lr == (LightBase::getSingleton().getLightData(ID_of_light_to_edit)))
+  if (lr == (Database::getSingleton().getTypedRecord<LightRecord>(ID_of_light_to_edit)))
   {
     showHint("You have not changed the data of this Light, thus there are no changes to be saved.");
     return true;
   }
   //save it
-  LightBase::getSingleton().addLight(ID_of_light_to_edit, lr);
+  Database::getSingleton().addRecord(lr);
   //update list
   refreshLightList();
   //reference update
@@ -824,7 +828,7 @@ bool EditorApplicationLight::LightEditFrameSaveClicked(const CEGUI::EventArgs &e
   {
     winmgr.destroyWindow("Editor/LightEditFrame");
   }
-  ID_of_light_to_edit = "";
+  ID_of_light_to_edit.clear();
   return true;
 }
 
@@ -843,9 +847,9 @@ bool EditorApplicationLight::LightConfirmIDChangeRenameClicked(const CEGUI::Even
     //get the windows with the needed entries
     std::string LightID;
     LightID = std::string(winmgr.getWindow("Editor/LightEditFrame/ID_Edit")->getText().c_str());
-    if (LightBase::getSingleton().hasLight(LightID))
+    if (Database::getSingleton().hasRecord(LightID))
     {
-      showWarning("A Light with the ID \""+LightID+"\" already exists. "
+      showWarning("A Light or other record with the ID \""+LightID+"\" already exists. "
                   +"Change that one as needed or delete it before giving another"
                   +" light the same ID.");
       return true;
@@ -860,6 +864,7 @@ bool EditorApplicationLight::LightConfirmIDChangeRenameClicked(const CEGUI::Even
     radius_edit = static_cast<CEGUI::Editbox*> (winmgr.getWindow("Editor/LightEditFrame/Radius_Edit"));
 
     LightRecord lr;
+    lr.ID = LightID;
     lr.red = spin_red->getCurrentValue();
     lr.green = spin_green->getCurrentValue();
     lr.blue = spin_blue->getCurrentValue();
@@ -873,8 +878,8 @@ bool EditorApplicationLight::LightConfirmIDChangeRenameClicked(const CEGUI::Even
       lr.type = Ogre::Light::LT_DIRECTIONAL;
     }
     //"rename", i.e. create light with new ID and delete object with old ID
-    LightBase::getSingleton().addLight(LightID, lr);
-    LightBase::getSingleton().deleteLight(ID_of_light_to_edit);
+    Database::getSingleton().addRecord(lr);
+    Database::getSingleton().deleteRecord(ID_of_light_to_edit);
     //update all lights with same ID
     ObjectManager::getSingleton().updateReferencesAfterIDChange(ID_of_light_to_edit, LightID, getAPI().getOgreSceneManager()/*mSceneMgr*/);
     //add row for new light to catalogue
@@ -887,7 +892,7 @@ bool EditorApplicationLight::LightConfirmIDChangeRenameClicked(const CEGUI::Even
     mcl->removeRow(mcl->getItemRowIndex(lb_item));
     //close edit window
     winmgr.destroyWindow("Editor/LightEditFrame");
-    ID_of_light_to_edit = "";
+    ID_of_light_to_edit.clear();
   }
   return true;
 }
@@ -906,9 +911,8 @@ bool EditorApplicationLight::LightConfirmIDChangeNewClicked(const CEGUI::EventAr
     //close confirmation window
     winmgr.destroyWindow("Editor/ConfirmLightIDChangeFrame");
     //get the editboxes/ spinners/ radio boxes with the needed entries
-    std::string LightID;
     LightRecord lr;
-    LightID = std::string(winmgr.getWindow("Editor/LightEditFrame/ID_Edit")->getText().c_str());
+    lr.ID = std::string(winmgr.getWindow("Editor/LightEditFrame/ID_Edit")->getText().c_str());
 
     CEGUI::Spinner* spin_red; CEGUI::Spinner* spin_green; CEGUI::Spinner* spin_blue;
     CEGUI::RadioButton* radio_type;
@@ -932,20 +936,20 @@ bool EditorApplicationLight::LightConfirmIDChangeNewClicked(const CEGUI::EventAr
       lr.type = Ogre::Light::LT_DIRECTIONAL;
     }
 
-    if (LightBase::getSingleton().hasLight(LightID))
+    if (Database::getSingleton().hasRecord(lr.ID))
     {
-      showWarning("A Light with the ID \""+LightID+"\" already exists. "
+      showWarning("A Light or other record with the ID \""+lr.ID+"\" already exists. "
                   +"Change that one as needed or delete it before giving another"
                   +" light the same ID.");
       return true;
     }//if
     //add new row to catalogue
-    addLightRecordToCatalogue(LightID, lr);
-    //add new object to database (ObjectBase)
-    LightBase::getSingleton().addLight(LightID, lr);
+    addLightRecordToCatalogue(lr.ID, lr);
+    //add new object to database
+    Database::getSingleton().addRecord(lr);
     //close edit window
     winmgr.destroyWindow("Editor/LightEditFrame");
-    ID_of_light_to_edit = "";
+    ID_of_light_to_edit.clear();
   }
   return true;
 }
@@ -1008,9 +1012,9 @@ void EditorApplicationLight::createLightCatalogueTab(CEGUI::WindowManager& winmg
   mcl->subscribeEvent(CEGUI::Window::EventMouseButtonUp, CEGUI::Event::Subscriber(&EditorApplicationLight::LightTabClicked, this));
 
   //sample data
-  LightBase::getSingleton().addLight("light_red", LightRecord::getRed(123.4));
-  LightBase::getSingleton().addLight("light_green", LightRecord::getGreen(23.4));
-  LightBase::getSingleton().addLight("light_blue", LightRecord::getBlue(3.4));
+  Database::getSingleton().addRecord(LightRecord::getRed("light_red", 123.4));
+  Database::getSingleton().addRecord(LightRecord::getGreen("light_green", 23.4));
+  Database::getSingleton().addRecord(LightRecord::getBlue("light_blue", 3.4));
   refreshLightList();
 }
 

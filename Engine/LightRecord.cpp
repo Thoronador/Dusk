@@ -63,18 +63,20 @@ void LightRecord::normalise()
     }
 }
 
-LightRecord LightRecord::getBlack(const float d)
+LightRecord LightRecord::getBlack(const std::string& _ID, const float d)
 {
   LightRecord temp;
+  temp.ID = _ID;
   temp.red = temp.green = temp.blue = 0.0f;
   temp.radius = (d>=0.0f) ? d : 0.0f;
   temp.type = Ogre::Light::LT_POINT;
   return temp;
 }
 
-LightRecord LightRecord::getRed(const float d)
+LightRecord LightRecord::getRed(const std::string& _ID, const float d)
 {
   LightRecord temp;
+  temp.ID = _ID;
   temp.red = 1.0f;
   temp.green = temp.blue = 0.0f;
   temp.radius = (d>=0.0f) ? d : 0.0f;
@@ -82,9 +84,10 @@ LightRecord LightRecord::getRed(const float d)
   return temp;
 }
 
-LightRecord LightRecord::getGreen(const float d)
+LightRecord LightRecord::getGreen(const std::string& _ID, const float d)
 {
   LightRecord temp;
+  temp.ID = _ID;
   temp.red = temp.blue = 0.0f;
   temp.green = 1.0f;
   temp.radius = (d>=0.0f) ? d : 0.0f;
@@ -92,9 +95,10 @@ LightRecord LightRecord::getGreen(const float d)
   return temp;
 }
 
-LightRecord LightRecord::getBlue(const float d)
+LightRecord LightRecord::getBlue(const std::string& _ID, const float d)
 {
   LightRecord temp;
+  temp.ID = _ID;
   temp.red = temp.green = 0.0f;
   temp.blue = 1.0f;
   temp.radius = (d>=0.0f) ? d : 0.0f;
@@ -195,7 +199,7 @@ bool LightRecord::loadFromStream(std::ifstream& inStream)
 
 bool operator==(const LightRecord& l, const LightRecord& r)
 {
-  return (l.red == r.red && l.green == r.green && l.blue == r.blue
+  return (l.ID == r.ID && l.red == r.red && l.green == r.green && l.blue == r.blue
           && l.type == r.type && l.radius == r.radius);
 }
 

@@ -83,30 +83,34 @@ namespace Dusk
       /* static function to get a black point light record
 
          parameters:
-             d - range of light
+             _ID - ID of the record
+             d   - range of light
       */
-      static LightRecord getBlack(const float d=0.0f);
+      static LightRecord getBlack(const std::string& _ID, const float d=0.0f);
 
       /* static function to get a red point light record
 
          parameters:
-             d - range of light
+             _ID - ID of the record
+             d   - range of light
       */
-      static LightRecord getRed(const float d=0.0f);
+      static LightRecord getRed(const std::string& _ID, const float d=0.0f);
 
       /* static function to get a green point light record
 
          parameters:
-             d - range of light
+             _ID - ID of the record
+             d   - range of light
       */
-      static LightRecord getGreen(const float d=0.0f);
+      static LightRecord getGreen(const std::string& _ID, const float d=0.0f);
 
       /* static function to get a blue point light record
 
          parameters:
-             d - range of light
+             _ID - ID of the record
+             d   - range of light
       */
-      static LightRecord getBlue(const float d=0.0f);
+      static LightRecord getBlue(const std::string& _ID, const float d=0.0f);
 
       /* returns an integer value that uniquely identifies this record's type */
       virtual uint32_t getRecordType() const;

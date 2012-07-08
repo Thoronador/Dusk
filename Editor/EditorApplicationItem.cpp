@@ -398,31 +398,30 @@ bool EditorApplicationItem::ItemConfirmIDChangeRenameClicked(const CEGUI::EventA
   {
     winmgr.destroyWindow("Editor/ConfirmItemIDChangeFrame");
     //get the editboxes with the needed entries
-    std::string ItemID;
     ItemRecord ir;
     ir.value = 0;
     ir.weight = 0.0f;
-    ItemID = std::string(winmgr.getWindow("Editor/ItemEditFrame/ID_Edit")->getText().c_str());
+    ir.ID = std::string(winmgr.getWindow("Editor/ItemEditFrame/ID_Edit")->getText().c_str());
     ir.Mesh = std::string(winmgr.getWindow("Editor/ItemEditFrame/Mesh_Edit")->getText().c_str());
     ir.Name = std::string(winmgr.getWindow("Editor/ItemEditFrame/Name_Edit")->getText().c_str());
     ir.value = StringToInt(std::string(winmgr.getWindow("Editor/ItemEditFrame/Value_Edit")->getText().c_str()), -1);
     ir.weight = StringToFloat(std::string(winmgr.getWindow("Editor/ItemEditFrame/Weight_Edit")->getText().c_str()), -1.0f);
 
-    if (Database::getSingleton().hasTypedRecord<ItemRecord>(ItemID))
+    if (Database::getSingleton().hasRecord(ir.ID))
     {
-      showWarning("An Item with the ID \""+ItemID+"\" already exists. "
+      showWarning("An record with the ID \""+ir.ID+"\" already exists. "
                   +"Change that one as needed or delete it before giving another"
-                  +" item the same ID.");
+                  +" record the same ID.");
       return true;
     }//if
 
     //"rename", i.e. create item with new ID and delete item with old ID
-    ItemBase::getSingleton().addItem(ItemID, ir.Name, ir.value, ir.weight, ir.Mesh);
+    Database::getSingleton().addRecord(ir);
     Database::getSingleton().deleteRecord(ID_of_item_to_edit);
     //update all items
-    ObjectManager::getSingleton().updateReferencesAfterIDChange(ID_of_item_to_edit, ItemID, getAPI().getOgreSceneManager());
+    ObjectManager::getSingleton().updateReferencesAfterIDChange(ID_of_item_to_edit, ir.ID, getAPI().getOgreSceneManager());
     //add row for new item to catalogue
-    addItemRecordToCatalogue(ItemID, ir);
+    addItemRecordToCatalogue(ir.ID, ir);
     //remove row of old ID
     CEGUI::MultiColumnList * mcl;
     CEGUI::ListboxItem * lb_item = NULL;
@@ -692,17 +691,21 @@ bool EditorApplicationItem::ItemEditFrameSaveClicked(const CEGUI::EventArgs &e)
    return true;
   }
   //check if data has remained the same
-  if (ir.Mesh == ItemBase::getSingleton().getMeshName(ID_of_item_to_edit, false) &&
-      ir.Name == ItemBase::getSingleton().getItemName(ID_of_item_to_edit) &&
-      ir.value == ItemBase::getSingleton().getItemValue(ID_of_item_to_edit) &&
-      ir.weight == ItemBase::getSingleton().getItemWeight(ID_of_item_to_edit))
+  bool stuffUnchanged = false;
+  if (Database::getSingleton().hasTypedRecord<ItemRecord>(ID_of_item_to_edit))
+  {
+    const ItemRecord& temp = Database::getSingleton().getTypedRecord<ItemRecord>(ID_of_item_to_edit);
+    stuffUnchanged = ((ir.Mesh == temp.Mesh) and (ir.Name==temp.Name)
+                  and (ir.value==temp.value) and (ir.weight==temp.weight));
+  }
+  if (stuffUnchanged)
   {
     showHint("You have not changed the data of this item, thus there are no changes to be saved.");
     return true;
   }
   //save it
-  ItemBase::getSingleton().addItem(std::string(id_edit->getText().c_str()),
-                                   ir.Name, ir.value, ir.weight, ir.Mesh);
+  ir.ID = std::string(id_edit->getText().c_str());
+  Database::getSingleton().addRecord(ir);
   //update list
   refreshItemList();
   //reference update
@@ -834,11 +837,12 @@ void EditorApplicationItem::refreshItemList(void)
   CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/Catalogue/Tab/Item/List"));
   mcl->resetList();
 
-  ItemBase::Iterator first = ItemBase::getSingleton().getFirst();
-  const ItemBase::Iterator end = ItemBase::getSingleton().getEnd();
+  Database::Iterator first = Database::getSingleton().getFirst();
+  const Database::Iterator end = Database::getSingleton().getEnd();
   while (first != end)
   {
-    addItemRecordToCatalogue(first->first, first->second);
+    if (first->second->getRecordType()==ItemRecord::RecordType)
+      addItemRecordToCatalogue(first->first, *static_cast<ItemRecord*>(first->second));
     ++first;
   }//while
   return;
@@ -919,12 +923,13 @@ void EditorApplicationItem::createItemCatalogueTab(CEGUI::WindowManager& winmgr,
 
   //sample data
   ItemRecord ir;
+  ir.ID = "apple";
   ir.Name = "Fresh Apple";
   ir.value = 5;
   ir.weight = 0.2;
   ir.Mesh = "food/golden_delicious.mesh";
   addItemRecordToCatalogue("apple", ir);
-  ItemBase::getSingleton().addItem("apple", ir);
+  Database::getSingleton().addRecord(ir);
 }
 
 bool EditorApplicationItem::ItemTabClicked(const CEGUI::EventArgs &e)

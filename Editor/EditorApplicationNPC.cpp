@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Editor.
-    Copyright (C) 2010, 2011 thoronador
+    Copyright (C) 2010, 2011, 2012  thoronador
 
     The Dusk Editor is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 #include <CEGUI/CEGUI.h>
 #include "EditorApplicationBase.h"
 #include "../Engine/DuskFunctions.h"
+#include "../Engine/ItemRecord.h"
 #include "../Engine/InjectionManager.h"
 #include "../Engine/Database.h"
 #include "../Engine/API.h"
@@ -53,11 +54,12 @@ void EditorApplicationNPC::refreshNPCList(void)
   mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/Catalogue/Tab/NPC/List"));
   mcl->resetList();
 
-  NPCBase::Iterator first = NPCBase::getSingleton().getFirst();
-  const NPCBase::Iterator end = NPCBase::getSingleton().getEnd();
+  Database::Iterator first = Database::getSingleton().getFirst();
+  const Database::Iterator end = Database::getSingleton().getEnd();
   while (first != end)
   {
-    addNPCRecordToCatalogue(first->first, first->second);
+    if (first->second->getRecordType()==NPCRecord::RecordType)
+      addNPCRecordToCatalogue(first->first, *static_cast<NPCRecord*>(first->second));
     ++first;
   }//while
   return;
@@ -249,20 +251,20 @@ bool EditorApplicationNPC::NPCDeleteFrameNoClicked(const CEGUI::EventArgs &e)
 
 bool EditorApplicationNPC::NPCDeleteFrameYesClicked(const CEGUI::EventArgs &e)
 {
-  if (ID_of_NPC_to_delete == "")
+  if (ID_of_NPC_to_delete.empty())
   {
     showWarning("Error: NPC ID is empty string!");
     //delete window
     CEGUI::WindowManager::getSingleton().destroyWindow("Editor/NPCDeleteFrame");
     return true;
   }
-  if (!NPCBase::getSingleton().deleteNPC(ID_of_NPC_to_delete))
+  if (!Database::getSingleton().deleteRecord(ID_of_NPC_to_delete))
   {
-    showHint("NPCBase class holds no NPC of the given ID ("
+    showHint("Database class holds no NPC of the given ID ("
              +ID_of_NPC_to_delete+").");
     //delete window
     CEGUI::WindowManager::getSingleton().destroyWindow("Editor/NPCDeleteFrame");
-    ID_of_NPC_to_delete = "";
+    ID_of_NPC_to_delete.clear();
     return true;
   }
   //kill references
@@ -282,7 +284,7 @@ bool EditorApplicationNPC::NPCDeleteFrameYesClicked(const CEGUI::EventArgs &e)
   lb_it = mcl->findColumnItemWithText(ID_of_NPC_to_delete, 0, NULL);
   mcl->removeRow(mcl->getItemRowIndex(lb_it));
   //reset ID to empty string
-  ID_of_NPC_to_delete = "";
+  ID_of_NPC_to_delete.clear();
   //delete window
   CEGUI::WindowManager::getSingleton().destroyWindow("Editor/NPCDeleteFrame");
   return true;
@@ -626,35 +628,35 @@ bool EditorApplicationNPC::NPCNewFrameOKClicked(const CEGUI::EventArgs &e)
       winmgr.isWindowPresent("Editor/NPCNewFrame/Luck_Spin") and
       winmgr.isWindowPresent("Editor/NPCNewFrame/InventoryList"))
   {
-    const std::string NPC_ID = winmgr.getWindow("Editor/NPCNewFrame/ID_Edit")->getText().c_str();
-    const std::string NPC_Name = winmgr.getWindow("Editor/NPCNewFrame/Name_Edit")->getText().c_str();
-    const std::string NPC_Mesh = winmgr.getWindow("Editor/NPCNewFrame/Mesh_Edit")->getText().c_str();
-    if (NPC_ID=="" or NPC_Name=="" or NPC_Mesh == "")
+    NPCRecord npc_rec;
+    npc_rec.ID = winmgr.getWindow("Editor/NPCNewFrame/ID_Edit")->getText().c_str();
+    npc_rec.Name = winmgr.getWindow("Editor/NPCNewFrame/Name_Edit")->getText().c_str();
+    npc_rec.Mesh = winmgr.getWindow("Editor/NPCNewFrame/Mesh_Edit")->getText().c_str();
+    if (npc_rec.ID.empty() or npc_rec.Name.empty() or npc_rec.Mesh.empty())
     {
       showHint("You have to enter an ID, Name and Mesh path for the NPC.");
       return true;
     }
-    if (NPCBase::getSingleton().hasNPC(NPC_ID))
+    if (Database::getSingleton().hasRecord(npc_rec.ID))
     {
-      showHint("An NPC with the ID \""+NPC_ID+"\" already exists. Please "
+      showHint("An NPC or other object with the ID \""+npc_rec.ID+"\" already exists. Please "
               +"choose a different ID or delete the other NPC first.\n");
       return true;
     }
-    const uint8 level = static_cast<uint8>((static_cast<CEGUI::Spinner*>(
+    npc_rec.Level = static_cast<uint8>((static_cast<CEGUI::Spinner*>(
           winmgr.getWindow("Editor/NPCNewFrame/Level_Spin")))->getCurrentValue());
-    NPCAttributes attr;
-    attr.Str = static_cast<uint8>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Str_Spin")))->getCurrentValue());
-    attr.Agi = static_cast<uint8>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Agi_Spin")))->getCurrentValue());
-    attr.Vit = static_cast<uint8>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Vit_Spin")))->getCurrentValue());
-    attr.Int = static_cast<uint8>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Int_Spin")))->getCurrentValue());
-    attr.Will = static_cast<uint8>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Will_Spin")))->getCurrentValue());
-    attr.Cha = static_cast<uint8>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Cha_Spin")))->getCurrentValue());
-    attr.Luck = static_cast<uint8>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Luck_Spin")))->getCurrentValue());
-    const bool female = (static_cast<CEGUI::RadioButton*>(winmgr.getWindow("Editor/NPCNewFrame/RadioFemale")))->isSelected();
-    const Inventory tempInv = MCLToInventory(static_cast<CEGUI::MultiColumnList*>(winmgr.getWindow("Editor/NPCNewFrame/InventoryList")));
-    NPCBase::getSingleton().addNPC(NPC_ID, NPC_Name, NPC_Mesh, level, attr,
-                                   female, tempInv, m_NewNPCAnimations,
-                                   m_NewNPCTagPoints);
+
+    npc_rec.Attributes.Str = static_cast<uint8_t>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Str_Spin")))->getCurrentValue());
+    npc_rec.Attributes.Agi = static_cast<uint8_t>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Agi_Spin")))->getCurrentValue());
+    npc_rec.Attributes.Vit = static_cast<uint8_t>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Vit_Spin")))->getCurrentValue());
+    npc_rec.Attributes.Int = static_cast<uint8_t>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Int_Spin")))->getCurrentValue());
+    npc_rec.Attributes.Will = static_cast<uint8_t>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Will_Spin")))->getCurrentValue());
+    npc_rec.Attributes.Cha = static_cast<uint8_t>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Cha_Spin")))->getCurrentValue());
+    npc_rec.Attributes.Luck = static_cast<uint8_t>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Luck_Spin")))->getCurrentValue());
+    npc_rec.Female = (static_cast<CEGUI::RadioButton*>(winmgr.getWindow("Editor/NPCNewFrame/RadioFemale")))->isSelected();
+    npc_rec.InventoryAtStart = MCLToInventory(static_cast<CEGUI::MultiColumnList*>(winmgr.getWindow("Editor/NPCNewFrame/InventoryList")));
+
+    Database::getSingleton().addRecord(npc_rec);
     winmgr.destroyWindow("Editor/NPCNewFrame");
     if (winmgr.isWindowPresent("Editor/NPCNewTagsFrame"))
     {
@@ -736,7 +738,7 @@ bool EditorApplicationNPC::InventoryListAddClicked(const CEGUI::EventArgs &e)
 bool EditorApplicationNPC::InventoryListEditClicked(const CEGUI::EventArgs &e)
 {
   //not implemented yet
-
+  #warning Not implemented yet!
   //not implemented yet
 }
 
@@ -819,13 +821,16 @@ void EditorApplicationNPC::updateItemList(CEGUI::Combobox* combo)
   {
     combo->resetList();
     CEGUI::ListboxItem* lbi = NULL;
-    ItemBase::Iterator itemFirst = ItemBase::getSingleton().getFirst();
-    const ItemBase::Iterator itemEnd = ItemBase::getSingleton().getEnd();
+    Database::Iterator itemFirst = Database::getSingleton().getFirst();
+    const Database::Iterator itemEnd = Database::getSingleton().getEnd();
     while (itemFirst!=itemEnd)
     {
-      lbi = new CEGUI::ListboxTextItem(itemFirst->first);
-      lbi->setTooltipText(itemFirst->second.Name);
-      combo->addItem(lbi);
+      if (itemFirst->second->getRecordType()==ItemRecord::RecordType)
+      {
+        lbi = new CEGUI::ListboxTextItem(itemFirst->first);
+        lbi->setTooltipText(static_cast<ItemRecord*>(itemFirst->second)->Name);
+        combo->addItem(lbi);
+      }
       ++itemFirst;
     }//while
   }

@@ -89,8 +89,6 @@
 		<Unit filename="../Engine/Celestial.h" />
 		<Unit filename="../Engine/Container.cpp" />
 		<Unit filename="../Engine/Container.h" />
-		<Unit filename="../Engine/ContainerBase.cpp" />
-		<Unit filename="../Engine/ContainerBase.h" />
 		<Unit filename="../Engine/DataLoader.cpp" />
 		<Unit filename="../Engine/DataLoader.h" />
 		<Unit filename="../Engine/Database.cpp" />
@@ -146,8 +144,9 @@
 		<Unit filename="../Engine/Messages.h" />
 		<Unit filename="../Engine/NPC.cpp" />
 		<Unit filename="../Engine/NPC.h" />
-		<Unit filename="../Engine/NPCBase.cpp" />
 		<Unit filename="../Engine/NPCBase.h" />
+		<Unit filename="../Engine/NPCRecord.cpp" />
+		<Unit filename="../Engine/NPCRecord.h" />
 		<Unit filename="../Engine/ObjectManager.cpp" />
 		<Unit filename="../Engine/ObjectManager.h" />
 		<Unit filename="../Engine/ObjectRecord.cpp" />
@@ -156,14 +155,12 @@
 		<Unit filename="../Engine/Player.h" />
 		<Unit filename="../Engine/Projectile.cpp" />
 		<Unit filename="../Engine/Projectile.h" />
-		<Unit filename="../Engine/ProjectileBase.cpp" />
-		<Unit filename="../Engine/ProjectileBase.h" />
+		<Unit filename="../Engine/ProjectileRecord.cpp" />
+		<Unit filename="../Engine/ProjectileRecord.h" />
 		<Unit filename="../Engine/QuestLog.cpp" />
 		<Unit filename="../Engine/QuestLog.h" />
 		<Unit filename="../Engine/Resource.cpp" />
 		<Unit filename="../Engine/Resource.h" />
-		<Unit filename="../Engine/ResourceBase.cpp" />
-		<Unit filename="../Engine/ResourceBase.h" />
 		<Unit filename="../Engine/Script.cpp" />
 		<Unit filename="../Engine/Script.h" />
 		<Unit filename="../Engine/Settings.cpp" />
@@ -178,16 +175,12 @@
 		<Unit filename="../Engine/UniformMotionObject.h" />
 		<Unit filename="../Engine/Vehicle.cpp" />
 		<Unit filename="../Engine/Vehicle.h" />
-		<Unit filename="../Engine/VehicleBase.cpp" />
-		<Unit filename="../Engine/VehicleBase.h" />
 		<Unit filename="../Engine/VertexDataFunc.cpp" />
 		<Unit filename="../Engine/VertexDataFunc.h" />
 		<Unit filename="../Engine/WaypointObject.cpp" />
 		<Unit filename="../Engine/WaypointObject.h" />
 		<Unit filename="../Engine/Weapon.cpp" />
 		<Unit filename="../Engine/Weapon.h" />
-		<Unit filename="../Engine/WeaponBase.cpp" />
-		<Unit filename="../Engine/WeaponBase.h" />
 		<Unit filename="../Engine/Weather.cpp" />
 		<Unit filename="../Engine/Weather.h" />
 		<Extensions>

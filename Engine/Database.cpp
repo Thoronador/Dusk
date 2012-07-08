@@ -92,16 +92,6 @@ bool Database::hasRecord(const std::string& ID) const
   return (m_Records.find(ID)!=m_Records.end());
 }
 
-bool Database::hasTypedRecord(const std::string& ID, const uint32_t type) const
-{
-  const std::map<std::string, DataRecord*>::const_iterator iter = m_Records.find(ID);
-  if (iter!=m_Records.end())
-  {
-    return (iter->second->getRecordType()==type);
-  }
-  return false;
-}
-
 const DataRecord& Database::getRecord(const std::string& recordID) const
 {
   std::map<std::string, DataRecord*>::const_iterator iter = m_Records.find(recordID);
