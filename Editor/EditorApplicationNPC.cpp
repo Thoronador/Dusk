@@ -1556,33 +1556,25 @@ void EditorApplicationNPC::showNPCEditWindow(void)
   frame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.125, 0)));
   frame->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.75, 0)));
   frame->moveToFront();
+  const NPCRecord& npc_info = Database::getSingleton().getTypedRecord<NPCRecord>(ID_of_NPC_to_edit);
   //reset animations and tagpoints, to be sure we don't use old values set
   // during a previous edit
-  m_EditNPCAnimations = NPCBase::getSingleton().getNPCAnimations(ID_of_NPC_to_edit);
-  m_EditNPCTagPoints = NPCBase::getSingleton().getNPCTagPoints(ID_of_NPC_to_edit);
+  m_EditNPCAnimations = npc_info.Animations;
+  m_EditNPCTagPoints = npc_info.TagPoints;
   // -- display NPC values --
-  const NPCBase& npc_info = NPCBase::getSingleton();
   // ---- ID
   winmgr.getWindow("Editor/NPCEditFrame/ID_Edit")->setText(ID_of_NPC_to_edit);
   // ---- name
-  winmgr.getWindow("Editor/NPCEditFrame/Name_Edit")->setText(npc_info.getNPCName(ID_of_NPC_to_edit));
+  winmgr.getWindow("Editor/NPCEditFrame/Name_Edit")->setText(npc_info.Name);
   // ---- mesh
-  winmgr.getWindow("Editor/NPCEditFrame/Mesh_Edit")->setText(npc_info.getNPCMesh(ID_of_NPC_to_edit));
+  winmgr.getWindow("Editor/NPCEditFrame/Mesh_Edit")->setText(npc_info.Mesh);
   // ---- gender
-  if (npc_info.isNPCFemale(ID_of_NPC_to_edit))
-  {
-    (static_cast<CEGUI::RadioButton*>(winmgr.getWindow("Editor/NPCEditFrame/RadioFemale")))->setSelected(true);
-    (static_cast<CEGUI::RadioButton*>(winmgr.getWindow("Editor/NPCEditFrame/RadioMale")))->setSelected(false);
-  }
-  else
-  {
-    (static_cast<CEGUI::RadioButton*>(winmgr.getWindow("Editor/NPCEditFrame/RadioMale")))->setSelected(true);
-    (static_cast<CEGUI::RadioButton*>(winmgr.getWindow("Editor/NPCEditFrame/RadioFemale")))->setSelected(false);
-  }
+  (static_cast<CEGUI::RadioButton*>(winmgr.getWindow("Editor/NPCEditFrame/RadioFemale")))->setSelected(npc_info.Female);
+  (static_cast<CEGUI::RadioButton*>(winmgr.getWindow("Editor/NPCEditFrame/RadioMale")))->setSelected(!npc_info.Female);
   // ---- level
-  (static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCEditFrame/Level_Spin")))->setCurrentValue(npc_info.getLevel(ID_of_NPC_to_edit));
+  (static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCEditFrame/Level_Spin")))->setCurrentValue(npc_info.Level);
   // ---- attributes
-  const NPCAttributes attr = npc_info.getAttributes(ID_of_NPC_to_edit);
+  const NPCAttributes attr = npc_info.Attributes;
   (static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCEditFrame/Agi_Spin")))->setCurrentValue(attr.Agi);
   (static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCEditFrame/Cha_Spin")))->setCurrentValue(attr.Cha);
   (static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCEditFrame/Int_Spin")))->setCurrentValue(attr.Int);
@@ -1593,7 +1585,7 @@ void EditorApplicationNPC::showNPCEditWindow(void)
   //inventory
   CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*>
                        (winmgr.getWindow("Editor/NPCEditFrame/InventoryList"));
-  InventoryToMCL(npc_info.getNPCInventory(ID_of_NPC_to_edit) , mcl);
+  InventoryToMCL(npc_info.InventoryAtStart , mcl);
 }
 
 void EditorApplicationNPC::createPopupMenuNPCEditFrameList(void)
@@ -1688,24 +1680,24 @@ bool EditorApplicationNPC::NPCEditFrameOKClicked(const CEGUI::EventArgs &e)
     const std::string NPC_ID = winmgr.getWindow("Editor/NPCEditFrame/ID_Edit")->getText().c_str();
     const std::string NPC_Name = winmgr.getWindow("Editor/NPCEditFrame/Name_Edit")->getText().c_str();
     const std::string NPC_Mesh = winmgr.getWindow("Editor/NPCEditFrame/Mesh_Edit")->getText().c_str();
-    if (NPC_ID=="" or NPC_Name=="" or NPC_Mesh == "")
+    if (NPC_ID.empty() or NPC_Name.empty() or NPC_Mesh.empty())
     {
       showHint("You have to enter an ID, Name and Mesh path for the NPC.");
       return true;
     }
     if (NPC_ID!=ID_of_NPC_to_edit)
     {
-      if (NPCBase::getSingleton().hasNPC(NPC_ID))
+      if (Database::getSingleton().hasRecord(NPC_ID))
       {
-        showHint("An NPC with the ID \""+NPC_ID+"\" already exists. Please "
-                +"choose a different ID or delete the other NPC first.\n");
+        showHint("An NPC or other record with the ID \""+NPC_ID+"\" already exists. Please "
+                +"choose a different ID or delete the other record first.\n");
         return true;
       }//if
     }//if
     else
     {
       //ID remained the same, but the user might have deleted the NPC.
-      if (!NPCBase::getSingleton().hasNPC(NPC_ID))
+      if (!Database::getSingleton().hasTypedRecord<NPCRecord>(NPC_ID))
       {
         showHint("An NPC with the ID \""+NPC_ID+"\" does not exist. You "
                 +"possibly deleted the NPC. Press \"Cancel\", if that is the "
@@ -1714,25 +1706,33 @@ bool EditorApplicationNPC::NPCEditFrameOKClicked(const CEGUI::EventArgs &e)
       }//if
     }
 
-    const uint8 level = static_cast<uint8>((static_cast<CEGUI::Spinner*>(
+    const uint8_t level = static_cast<uint8_t>((static_cast<CEGUI::Spinner*>(
           winmgr.getWindow("Editor/NPCEditFrame/Level_Spin")))->getCurrentValue());
     NPCAttributes attr;
-    attr.Str = static_cast<uint8>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCEditFrame/Str_Spin")))->getCurrentValue());
-    attr.Agi = static_cast<uint8>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCEditFrame/Agi_Spin")))->getCurrentValue());
-    attr.Vit = static_cast<uint8>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCEditFrame/Vit_Spin")))->getCurrentValue());
-    attr.Int = static_cast<uint8>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCEditFrame/Int_Spin")))->getCurrentValue());
-    attr.Will = static_cast<uint8>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCEditFrame/Will_Spin")))->getCurrentValue());
-    attr.Cha = static_cast<uint8>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCEditFrame/Cha_Spin")))->getCurrentValue());
-    attr.Luck = static_cast<uint8>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCEditFrame/Luck_Spin")))->getCurrentValue());
+    attr.Str = static_cast<uint8_t>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCEditFrame/Str_Spin")))->getCurrentValue());
+    attr.Agi = static_cast<uint8_t>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCEditFrame/Agi_Spin")))->getCurrentValue());
+    attr.Vit = static_cast<uint8_t>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCEditFrame/Vit_Spin")))->getCurrentValue());
+    attr.Int = static_cast<uint8_t>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCEditFrame/Int_Spin")))->getCurrentValue());
+    attr.Will = static_cast<uint8_t>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCEditFrame/Will_Spin")))->getCurrentValue());
+    attr.Cha = static_cast<uint8_t>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCEditFrame/Cha_Spin")))->getCurrentValue());
+    attr.Luck = static_cast<uint8_t>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCEditFrame/Luck_Spin")))->getCurrentValue());
     const bool female = (static_cast<CEGUI::RadioButton*>(winmgr.getWindow("Editor/NPCEditFrame/RadioFemale")))->isSelected();
     const Inventory tempInv = MCLToInventory(static_cast<CEGUI::MultiColumnList*>(winmgr.getWindow("Editor/NPCEditFrame/InventoryList")));
 
-    const bool meshChanged = NPCBase::getSingleton().getNPCMesh(ID_of_NPC_to_edit) != NPC_Mesh;
+    const bool meshChanged = Database::getSingleton().getTypedRecord<NPCRecord>(ID_of_NPC_to_edit).Mesh != NPC_Mesh;
     const bool idChanged = NPC_ID != ID_of_NPC_to_edit;
-    //get changes into NPCBase
-    NPCBase::getSingleton().addNPC(NPC_ID, NPC_Name, NPC_Mesh, level, attr,
-                                   female, tempInv, m_EditNPCAnimations,
-                                   m_EditNPCTagPoints);
+    //get changes into database
+    NPCRecord npc_rec;
+    npc_rec.ID = NPC_ID;
+    npc_rec.Name = NPC_Name;
+    npc_rec.Mesh = NPC_Mesh;
+    npc_rec.Level = level;
+    npc_rec.Attributes = attr;
+    npc_rec.Female = female;
+    npc_rec.InventoryAtStart = tempInv;
+    npc_rec.Animations = m_EditNPCAnimations;
+    npc_rec.TagPoints = m_EditNPCTagPoints;
+    Database::getSingleton().addRecord(npc_rec);
     //update enabled NPCs that are affected by changes
     unsigned int affected_references = 0;
     if (idChanged)
@@ -1795,7 +1795,7 @@ bool EditorApplicationNPC::EditInventoryListAddClicked(const CEGUI::EventArgs &e
 bool EditorApplicationNPC::EditInventoryListEditClicked(const CEGUI::EventArgs &e)
 {
   //not implemented yet
-
+  #warning Not implemented yet!
   //not implemented yet
 }
 

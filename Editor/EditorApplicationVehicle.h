@@ -29,6 +29,7 @@
  History:
      - 2011-05-18 (rev 291) - initial version (by thoronador)
      - 2011-09-29 (rev 301) - window for creating new vehicles added
+     - 2012-07-11 (rev 320) - replaced VehicleBase by Database
 
  ToDo list:
      - add possibility to create and edit vehicles

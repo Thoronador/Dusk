@@ -665,13 +665,13 @@ bool EditorApplication::StatsButtonClicked(const CEGUI::EventArgs &e)
 {
   showHint( "Current statistics:\n  Landscape records: "
            + IntToString(Landscape::getSingleton().getNumberOfRecordsAvailable())+"\n"
-           +"  Object records: "  + IntToString(ObjectBase::getSingleton().getNumberOfObjects())+"\n"
-           +"  Items: " + IntToString(ItemBase::getSingleton().getNumberOfItems())+"\n"
-           +"  Lights: " + IntToString(LightBase::getSingleton().getNumberOfLights())+"\n"
+           +"  Object records: "  + IntToString(Database::getSingleton().getNumberOfTypedRecords<ObjectRecord>())+"\n"
+           +"  Items: " + IntToString(Database::getSingleton().getNumberOfTypedRecords<ItemRecord>())+"\n"
+           +"  Lights: " + IntToString(Database::getSingleton().getNumberOfTypedRecords<LightRecord>())+"\n"
            +"    Object, Light & Item references: "+ IntToString(ObjectManager::getSingleton().getNumberOfReferences())
-           +"\n  Projectiles: " + IntToString(ProjectileBase::getSingleton().getNumberOfProjectiles())
-           +"\n  Weapons: " + IntToString(WeaponBase::getSingleton().getNumberOfWeapons())
-           +"\n  NPCs: " + IntToString(NPCBase::getSingleton().getNumberOfNPCs())
+           +"\n  Projectiles: " + IntToString(Database::getSingleton().getNumberOfTypedRecords<ProjectileRecord>())
+           +"\n  Weapons: " + IntToString(Database::getSingleton().getNumberOfTypedRecords<WeaponRecord>())
+           +"\n  NPCs: " + IntToString(Database::getSingleton().getNumberOfTypedRecords<NPCRecord>())
            +"\n    Animated Object & NPC references: "+ IntToString(InjectionManager::getSingleton().getNumberOfReferences())
            +"\n  Journal:\n"
            +"    quests: "+ IntToString(Journal::getSingleton().numberOfDistinctQuests())

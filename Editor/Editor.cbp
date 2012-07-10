@@ -89,6 +89,8 @@
 		<Unit filename="../Engine/Celestial.h" />
 		<Unit filename="../Engine/Container.cpp" />
 		<Unit filename="../Engine/Container.h" />
+		<Unit filename="../Engine/ContainerRecord.cpp" />
+		<Unit filename="../Engine/ContainerRecord.h" />
 		<Unit filename="../Engine/DataLoader.cpp" />
 		<Unit filename="../Engine/DataLoader.h" />
 		<Unit filename="../Engine/Database.cpp" />
@@ -161,6 +163,8 @@
 		<Unit filename="../Engine/QuestLog.h" />
 		<Unit filename="../Engine/Resource.cpp" />
 		<Unit filename="../Engine/Resource.h" />
+		<Unit filename="../Engine/ResourceRecord.cpp" />
+		<Unit filename="../Engine/ResourceRecord.h" />
 		<Unit filename="../Engine/Script.cpp" />
 		<Unit filename="../Engine/Script.h" />
 		<Unit filename="../Engine/Settings.cpp" />
@@ -175,12 +179,16 @@
 		<Unit filename="../Engine/UniformMotionObject.h" />
 		<Unit filename="../Engine/Vehicle.cpp" />
 		<Unit filename="../Engine/Vehicle.h" />
+		<Unit filename="../Engine/VehicleRecord.cpp" />
+		<Unit filename="../Engine/VehicleRecord.h" />
 		<Unit filename="../Engine/VertexDataFunc.cpp" />
 		<Unit filename="../Engine/VertexDataFunc.h" />
 		<Unit filename="../Engine/WaypointObject.cpp" />
 		<Unit filename="../Engine/WaypointObject.h" />
 		<Unit filename="../Engine/Weapon.cpp" />
 		<Unit filename="../Engine/Weapon.h" />
+		<Unit filename="../Engine/WeaponRecord.cpp" />
+		<Unit filename="../Engine/WeaponRecord.h" />
 		<Unit filename="../Engine/Weather.cpp" />
 		<Unit filename="../Engine/Weather.h" />
 		<Extensions>

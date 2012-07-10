@@ -21,7 +21,7 @@
 #include "InjectionManager.h"
 #include "DuskConstants.h"
 #ifdef DUSK_EDITOR
-  #include "NPCBase.h"
+  #include "NPCRecord.h"
 #endif
 #include "Messages.h"
 

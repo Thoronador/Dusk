@@ -33,6 +33,7 @@
      - 2012-07-07 (rev 316) - update for ProjectileRecord, ResourceRecord,
                               VehicleRecord and WeaponRecord
      - 2012-07-08 (rev 318) - removed two-parameter version of hasTypedRecord()
+     - 2012-07-11 (rev 320) - getNumberOfTypedRecords() added
 
  ToDo list:
      - ???
@@ -173,6 +174,19 @@ namespace Dusk
       */
       Iterator getFirst() const;
       Iterator getEnd() const;
+
+      /* Returns number of currently available records of a certain type */
+      template<typename recT>
+      unsigned int getNumberOfTypedRecords() const;
+
+      /* updates the IDs of projectile-based guns after the ID of a projectile
+         was changed in the editor
+
+         parameters:
+             oldProjID - the old ID of the projectile
+             newProjID - the new ID of the projectile
+      */
+      void updateProjectilesAfterIDChange(const std::string& oldProjID, const std::string& newProjID);
       #endif
 
     private:
@@ -235,6 +249,22 @@ namespace Dusk
               << "will be thrown.\n";
     throw IDNotFound("Database", recordID);
   }
+
+  #ifdef DUSK_EDITOR
+  template<typename recT>
+  unsigned int Database::getNumberOfTypedRecords() const
+  {
+    unsigned int result = 0;
+    std::map<std::string, DataRecord*>::const_iterator iter = m_Records.begin();
+    while (iter!=m_Records.end())
+    {
+      if (iter->second->getRecordType()==recT::RecordType)
+        ++result;
+      ++iter;
+    }//while
+    return result;
+  }
+  #endif
 
 } //namespace
 

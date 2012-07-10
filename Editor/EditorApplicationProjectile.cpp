@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Editor.
-    Copyright (C) 2011 thoronador
+    Copyright (C) 2011, 2012  thoronador
 
     The Dusk Editor is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,10 +21,11 @@
 #include "EditorApplicationProjectile.h"
 #include <CEGUI/CEGUI.h>
 #include "EditorApplicationBase.h"
-#include "../Engine/WeaponBase.h"
-#include "../Engine/ProjectileBase.h"
+#include "../Engine/WeaponRecord.h"
+#include "../Engine/ProjectileRecord.h"
 #include "../Engine/InjectionManager.h"
 #include "../Engine/DuskFunctions.h"
+#include "../Engine/Database.h"
 #include "../Engine/API.h"
 
 namespace Dusk
@@ -226,20 +227,20 @@ bool EditorApplicationProjectile::ProjectileDeleteFrameNoClicked(const CEGUI::Ev
 
 bool EditorApplicationProjectile::ProjectileDeleteFrameYesClicked(const CEGUI::EventArgs &e)
 {
-  if (ID_of_Projectile_to_delete == "")
+  if (ID_of_Projectile_to_delete.empty())
   {
     showWarning("Error: Projectile ID is empty string!");
     //delete window
     CEGUI::WindowManager::getSingleton().destroyWindow("Editor/ProjectileDeleteFrame");
     return true;
   }
-  if (!ProjectileBase::getSingleton().deleteProjectile(ID_of_Projectile_to_delete))
+  if (!Database::getSingleton().deleteRecord(ID_of_Projectile_to_delete))
   {
-    showHint("ProjectileBase class holds no Projectile of the given ID ("
+    showHint("Database class holds no Projectile of the given ID ("
              +ID_of_Projectile_to_delete+").");
     //delete window
     CEGUI::WindowManager::getSingleton().destroyWindow("Editor/ProjectileDeleteFrame");
-    ID_of_Projectile_to_delete = "";
+    ID_of_Projectile_to_delete.clear();
     return true;
   }
   //kill references
@@ -444,36 +445,37 @@ bool EditorApplicationProjectile::ProjectileNewFrameOKClicked(const CEGUI::Event
       winmgr.isWindowPresent("Editor/ProjectileNewFrame/Times_Spin") and
       winmgr.isWindowPresent("Editor/ProjectileNewFrame/Dice_Spin"))
   {
-    const std::string projID = winmgr.getWindow("Editor/ProjectileNewFrame/ID_Edit")->getText().c_str();
-    const std::string projMesh = winmgr.getWindow("Editor/ProjectileNewFrame/Mesh_Edit")->getText().c_str();
-    if ((projID=="") or (projMesh == ""))
+    ProjectileRecord proj_rec;
+    proj_rec.ID = winmgr.getWindow("Editor/ProjectileNewFrame/ID_Edit")->getText().c_str();
+    proj_rec.Mesh = winmgr.getWindow("Editor/ProjectileNewFrame/Mesh_Edit")->getText().c_str();
+    if (proj_rec.ID.empty() or proj_rec.Mesh.empty())
     {
       showHint("You have to enter an ID and Mesh path for the Projectile!");
       return true;
     }
-    if (ProjectileBase::getSingleton().hasProjectile(projID))
+    if (Database::getSingleton().hasRecord(proj_rec.ID))
     {
-      showHint("A projectile with the ID \""+projID+"\" already exists. Please "
+      showHint("A projectile or other record with the ID \""+proj_rec.ID+"\" already exists. Please "
               +"choose a different ID or delete the other projectile first.");
       return true;
     }
-    const float velocity = StringToFloat(winmgr.getWindow("Editor/ProjectileNewFrame/Velocity_Edit")->getText().c_str(), -1.0f);
-    if (velocity<=0.0f)
+    proj_rec.DefaultVelocity = StringToFloat(winmgr.getWindow("Editor/ProjectileNewFrame/Velocity_Edit")->getText().c_str(), -1.0f);
+    if (proj_rec.DefaultVelocity<=0.0f)
     {
       showHint("The velocity for the projectile has to be floating point value greater than zero!");
       return true;
     }
-    const float TTL = StringToFloat(winmgr.getWindow("Editor/ProjectileNewFrame/TTL_Edit")->getText().c_str(), -1.0f);
-    if (TTL<=0.0f)
+    proj_rec.DefaultTTL = StringToFloat(winmgr.getWindow("Editor/ProjectileNewFrame/TTL_Edit")->getText().c_str(), -1.0f);
+    if (proj_rec.DefaultTTL<=0.0f)
     {
       showHint("The TTL for the projectile has to be floating point value greater than zero!");
       return true;
     }
-    const uint8 projTimes = static_cast<uint8>((static_cast<CEGUI::Spinner*>(
+    proj_rec.times = static_cast<uint8_t>((static_cast<CEGUI::Spinner*>(
           winmgr.getWindow("Editor/ProjectileNewFrame/Times_Spin")))->getCurrentValue());
-    const uint8 projDice = static_cast<uint8>((static_cast<CEGUI::Spinner*>(
+    proj_rec.dice = static_cast<uint8_t>((static_cast<CEGUI::Spinner*>(
           winmgr.getWindow("Editor/ProjectileNewFrame/Dice_Spin")))->getCurrentValue());
-    ProjectileBase::getSingleton().addProjectile(projID, projMesh, TTL, velocity, projTimes, projDice);
+    Database::getSingleton().addRecord(proj_rec);
     winmgr.destroyWindow("Editor/ProjectileNewFrame");
     refreshProjectileList();
     return true;
@@ -497,11 +499,12 @@ void EditorApplicationProjectile::refreshProjectileList(void)
   CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/Catalogue/Tab/Projectile/List"));
   mcl->resetList();
 
-  ProjectileBaseIterator first = ProjectileBase::getSingleton().getFirst();
-  const ProjectileBaseIterator end = ProjectileBase::getSingleton().getEnd();
+  Database::Iterator first = Database::getSingleton().getFirst();
+  const Database::Iterator end = Database::getSingleton().getEnd();
   while (first != end)
   {
-    addProjectileRecordToCatalogue(first->first, first->second);
+    if (first->second->getRecordType()==ProjectileRecord::RecordType)
+      addProjectileRecordToCatalogue(first->first, *(static_cast<ProjectileRecord*>(first->second)));
     ++first;
   }//while
   return;
@@ -672,7 +675,7 @@ void EditorApplicationProjectile::showProjectileEditWindow(void)
 
   //fill data into it
 
-  const ProjectileRecord p_rec = ProjectileBase::getSingleton().getProjectileData(ID_of_Projectile_to_edit);
+  const ProjectileRecord& p_rec = Database::getSingleton().getTypedRecord<ProjectileRecord>(ID_of_Projectile_to_edit);
   // ---- ID
   winmgr.getWindow("Editor/ProjectileEditFrame/ID_Edit")->setText(ID_of_Projectile_to_edit);
   // ---- mesh
@@ -699,7 +702,7 @@ bool EditorApplicationProjectile::ProjectileEditFrameCancelClicked(const CEGUI::
   {
     winmgr.destroyWindow("Editor/ProjectileEditFrame");
   }
-  ID_of_Projectile_to_edit = "";
+  ID_of_Projectile_to_edit.clear();
   return true;
 }
 
@@ -713,36 +716,37 @@ bool EditorApplicationProjectile::ProjectileEditFrameOKClicked(const CEGUI::Even
       winmgr.isWindowPresent("Editor/ProjectileEditFrame/Times_Spin") and
       winmgr.isWindowPresent("Editor/ProjectileEditFrame/Dice_Spin"))
   {
-    const std::string projID = winmgr.getWindow("Editor/ProjectileEditFrame/ID_Edit")->getText().c_str();
-    const std::string projMesh = winmgr.getWindow("Editor/ProjectileEditFrame/Mesh_Edit")->getText().c_str();
-    if ((projID=="") or (projMesh == ""))
+    ProjectileRecord proj_rec;
+    proj_rec.ID = winmgr.getWindow("Editor/ProjectileEditFrame/ID_Edit")->getText().c_str();
+    proj_rec.Mesh = winmgr.getWindow("Editor/ProjectileEditFrame/Mesh_Edit")->getText().c_str();
+    if (proj_rec.ID.empty() or proj_rec.Mesh.empty())
     {
       showHint("You have to enter an ID and Mesh path for the Projectile!");
       return true;
     }
-    const float velocity = StringToFloat(winmgr.getWindow("Editor/ProjectileEditFrame/Velocity_Edit")->getText().c_str(), -1.0f);
-    if (velocity<=0.0f)
+    proj_rec.DefaultVelocity = StringToFloat(winmgr.getWindow("Editor/ProjectileEditFrame/Velocity_Edit")->getText().c_str(), -1.0f);
+    if (proj_rec.DefaultVelocity<=0.0f)
     {
       showHint("The velocity for the projectile has to be floating point value greater than zero!");
       return true;
     }
-    const float TTL = StringToFloat(winmgr.getWindow("Editor/ProjectileEditFrame/TTL_Edit")->getText().c_str(), -1.0f);
-    if (TTL<=0.0f)
+    proj_rec.DefaultTTL = StringToFloat(winmgr.getWindow("Editor/ProjectileEditFrame/TTL_Edit")->getText().c_str(), -1.0f);
+    if (proj_rec.DefaultTTL<=0.0f)
     {
       showHint("The TTL for the projectile has to be floating point value greater than zero!");
       return true;
     }
-    const uint8 projTimes = static_cast<uint8>((static_cast<CEGUI::Spinner*>(
+    proj_rec.times = static_cast<uint8_t>((static_cast<CEGUI::Spinner*>(
           winmgr.getWindow("Editor/ProjectileEditFrame/Times_Spin")))->getCurrentValue());
-    const uint8 projDice = static_cast<uint8>((static_cast<CEGUI::Spinner*>(
+    proj_rec.dice = static_cast<uint8_t>((static_cast<CEGUI::Spinner*>(
           winmgr.getWindow("Editor/ProjectileEditFrame/Dice_Spin")))->getCurrentValue());
 
-    const bool idChanged = (projID!=ID_of_Projectile_to_edit);
+    const bool idChanged = (proj_rec.ID!=ID_of_Projectile_to_edit);
     if (idChanged)
     {
-      if (ProjectileBase::getSingleton().hasProjectile(projID))
+      if (Database::getSingleton().hasRecord(proj_rec.ID))
       {
-        showHint("A projectile with the ID \""+projID+"\" already exists. Please "
+        showHint("A projectile or other record with the ID \""+proj_rec.ID+"\" already exists. Please "
                 +"choose a different ID or delete the other projectile first.\n");
         return true;
       }//if
@@ -750,16 +754,16 @@ bool EditorApplicationProjectile::ProjectileEditFrameOKClicked(const CEGUI::Even
     else
     {
       //ID remained the same, but the user might have deleted the projectile.
-      if (!ProjectileBase::getSingleton().hasProjectile(projID))
+      if (!Database::getSingleton().hasTypedRecord<ProjectileRecord>(proj_rec.ID))
       {
-        showHint("A projectile with the ID \""+projID+"\" does not exist. You "
+        showHint("A projectile with the ID \""+proj_rec.ID+"\" does not exist. You "
                 +"have possibly deleted the Projectile.");
         return true;
       }//if
     }
-    const bool meshChanged = ProjectileBase::getSingleton().getProjectileMesh(ID_of_Projectile_to_edit) != projMesh;
+    const bool meshChanged = Database::getSingleton().getTypedRecord<ProjectileRecord>(ID_of_Projectile_to_edit).Mesh != proj_rec.Mesh;
     //get changes into projectile base
-    ProjectileBase::getSingleton().addProjectile(projID, projMesh, TTL, velocity, projTimes, projDice);
+    Database::getSingleton().addRecord(proj_rec);
 
     //update enabled projectiles that are affected by changes
     unsigned int affected_references = 0;
@@ -767,11 +771,11 @@ bool EditorApplicationProjectile::ProjectileEditFrameOKClicked(const CEGUI::Even
     {
       //change IDs
       affected_references =
-      InjectionManager::getSingleton().updateReferencesAfterIDChange(ID_of_Projectile_to_edit, projID, getAPI().getOgreSceneManager());
+      InjectionManager::getSingleton().updateReferencesAfterIDChange(ID_of_Projectile_to_edit, proj_rec.ID, getAPI().getOgreSceneManager());
       //delete data record for old ID
-      ProjectileBase::getSingleton().deleteProjectile(ID_of_Projectile_to_edit);
+      Database::getSingleton().deleteRecord(ID_of_Projectile_to_edit);
       //update projectile information in related weapons
-      WeaponBase::getSingleton().updateProjectilesAfterIDChange(ID_of_Projectile_to_edit, projID);
+      Database::getSingleton().updateProjectilesAfterIDChange(ID_of_Projectile_to_edit, proj_rec.ID);
     }
     else if (meshChanged)
     {

@@ -310,12 +310,11 @@ unsigned int ObjectManager::reenableReferencesOfObject(const std::string& ID, Og
     DuskLog() << "ObjectManager::reenableReferencesOfObject: ERROR: Scene Manager is NULL pointer!";
     return 0;
   }
-  if (!Database::getSingleton().hasRecord(ID) and
-      !ContainerBase::getSingleton().hasContainer(ID))
+  if (!Database::getSingleton().hasRecord(ID))
   {
     DuskLog() << "ObjectManager::reenableReferencesOfObject: ERROR: there is no"
               << " record about object with the new ID \""+ID+"\" within the"
-              << "Database or ContainerBase classes. Aborting.\n";
+              << "Database or class. Aborting.\n";
     return 0;
   }
   std::map<std::string, std::vector<DuskObject*> >::iterator iter;
@@ -344,7 +343,7 @@ unsigned int ObjectManager::updateReferencesAfterIDChange(const std::string& old
 {
   unsigned int updated_references = 0;
 
-  if (oldID=="" or newID=="")
+  if (oldID.empty() or newID.empty())
   {
     DuskLog() << "ObjectManager::updateReferencesAfterIDChange: ERROR: old ID "
               << "or new ID is empty string. We don't want empty ID strings!\n";
@@ -356,12 +355,11 @@ unsigned int ObjectManager::updateReferencesAfterIDChange(const std::string& old
               << "is the same as new ID. No need to change anything here.\n";
     return 0;
   }
-  if (!Database::getSingleton().hasRecord(newID) and
-      !ContainerBase::getSingleton().hasContainer(newID))
+  if (!Database::getSingleton().hasRecord(newID))
   {
     DuskLog() << "ObjectManager::updateReferencesAfterIDChange: ERROR: there is "
               << "no record about object with the new ID \""+newID+"\" within "
-              << "the Database or ContainerBase classes. Aborting.\n";
+              << "the Database class. Aborting.\n";
     return 0;
   }
   if (scm==NULL)

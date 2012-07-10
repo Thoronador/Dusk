@@ -210,7 +210,30 @@ Database::Iterator Database::getFirst() const
 
 Database::Iterator Database::getEnd() const
 {
-  m_Records.end();
+  return m_Records.end();
+}
+
+void Database::updateProjectilesAfterIDChange(const std::string& oldProjID, const std::string& newProjID)
+{
+  if ((oldProjID.empty()) or (newProjID.empty()) or (oldProjID==newProjID))
+  {
+    //We do not want empty IDs, and we do not need to update anything, if old
+    //  and new ID are equal.
+    return;
+  }
+  //iterate through all records which are weapons and look for ID of projectile
+  std::map<std::string, DataRecord*>::iterator iter = m_Records.begin();
+  while (iter!=m_Records.end())
+  {
+    if (iter->second->getRecordType() == WeaponRecord::RecordType)
+    {
+      if (static_cast<WeaponRecord*>(iter->second)->ProjectileID == oldProjID)
+      {
+        static_cast<WeaponRecord*>(iter->second)->ProjectileID = newProjID;
+      }//if
+    }//if projectile
+    ++iter;
+  }//while
 }
 #endif
 

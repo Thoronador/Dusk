@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Editor.
-    Copyright (C) 2011 thoronador
+    Copyright (C) 2011, 2012  thoronador
 
     The Dusk Editor is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,10 +21,11 @@
 #include "EditorApplicationWeapon.h"
 #include "EditorApplicationBase.h"
 #include <CEGUI/CEGUI.h>
-#include "../Engine/WeaponBase.h"
-#include "../Engine/ProjectileBase.h"
+#include "../Engine/WeaponRecord.h"
+#include "../Engine/ProjectileRecord.h"
 #include "../Engine/ObjectManager.h"
 #include "../Engine/DuskFunctions.h"
+#include "../Engine/Database.h"
 #include "../Engine/API.h"
 
 namespace Dusk
@@ -231,20 +232,20 @@ bool EditorApplicationWeapon::WeaponDeleteFrameNoClicked(const CEGUI::EventArgs 
 
 bool EditorApplicationWeapon::WeaponDeleteFrameYesClicked(const CEGUI::EventArgs &e)
 {
-  if (ID_of_Weapon_to_delete == "")
+  if (ID_of_Weapon_to_delete.empty())
   {
     showWarning("Error: Weapon ID is empty string!");
     //delete window
     CEGUI::WindowManager::getSingleton().destroyWindow("Editor/WeaponDeleteFrame");
     return true;
   }
-  if (!WeaponBase::getSingleton().deleteWeapon(ID_of_Weapon_to_delete))
+  if (!Database::getSingleton().deleteRecord(ID_of_Weapon_to_delete))
   {
-    showHint("WeaponBase class holds no Weapon of the given ID ("
+    showHint("Database class holds no Weapon of the given ID ("
              +ID_of_Weapon_to_delete+").");
     //delete window
     CEGUI::WindowManager::getSingleton().destroyWindow("Editor/WeaponDeleteFrame");
-    ID_of_Weapon_to_delete = "";
+    ID_of_Weapon_to_delete.clear();
     return true;
   }
   //kill references
@@ -264,7 +265,7 @@ bool EditorApplicationWeapon::WeaponDeleteFrameYesClicked(const CEGUI::EventArgs
   lb_it = mcl->findColumnItemWithText(ID_of_Weapon_to_delete, 0, NULL);
   mcl->removeRow(mcl->getItemRowIndex(lb_it));
   //reset ID to empty string
-  ID_of_Weapon_to_delete = "";
+  ID_of_Weapon_to_delete.clear();
   //delete window
   CEGUI::WindowManager::getSingleton().destroyWindow("Editor/WeaponDeleteFrame");
   return true;
@@ -583,7 +584,7 @@ bool EditorApplicationWeapon::WeaponNewFrameOKClicked(const CEGUI::EventArgs &e)
         showHint("You have to enter a projectile ID for the new weapon!");
         return true;
       }
-      if (!ProjectileBase::getSingleton().hasProjectile(weapRec.ProjectileID))
+      if (!Database::getSingleton().hasTypedRecord<ProjectileRecord>(weapRec.ProjectileID))
       {
         showHint("There is no projectile with the ID \""+weapRec.ProjectileID
                  +"\"! Check the ID for proper spelling or create a new "
@@ -603,18 +604,19 @@ bool EditorApplicationWeapon::WeaponNewFrameOKClicked(const CEGUI::EventArgs &e)
       }
     }
     CEGUI::Spinner* spin = static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/WeaponNewFrame/Times_Spin"));
-    weapRec.DamageTimes = static_cast<uint8>(spin->getCurrentValue());
+    weapRec.DamageTimes = static_cast<uint8_t>(spin->getCurrentValue());
     spin = static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/WeaponNewFrame/Dice_Spin"));
-    weapRec.DamageDice = static_cast<uint8>(spin->getCurrentValue());
-    //now check for presence of such a weapon
-    if (WeaponBase::getSingleton().hasWeapon(weapID))
+    weapRec.DamageDice = static_cast<uint8_t>(spin->getCurrentValue());
+    //now check for presence of such a weapon/record
+    if (Database::getSingleton().hasRecord(weapID))
     {
-      showHint("A weapon with the ID \""+weapID+"\" already exists! Please "
-              +"choose a different ID or delete the other weapon first.");
+      showHint("A weapon or other record with the ID \""+weapID+"\" already exists! Please "
+              +"choose a different ID or delete the other record first.");
       return true;
     }
-    //add weapon to WeaponBase
-    WeaponBase::getSingleton().addWeapon(weapID, weapRec);
+    //add weapon to Database
+    weapRec.ID = weapID;
+    Database::getSingleton().addRecord(weapRec);
     // ...and to the cataogue
     addWeaponRecordToCatalogue(weapID, weapRec);
     //delete window
@@ -843,7 +845,7 @@ void EditorApplicationWeapon::showWeaponEditWindow(void)
   }
   //set fields
   winmgr.getWindow("Editor/WeaponEditFrame/ID_Edit")->setText(ID_of_Weapon_to_edit);
-  const WeaponRecord wRec = WeaponBase::getSingleton().getWeaponData(ID_of_Weapon_to_edit);
+  const WeaponRecord& wRec = Database::getSingleton().getTypedRecord<WeaponRecord>(ID_of_Weapon_to_edit);
   winmgr.getWindow("Editor/WeaponEditFrame/Name_Edit")->setText(wRec.Name);
   winmgr.getWindow("Editor/WeaponEditFrame/Mesh_Edit")->setText(wRec.Mesh);
   winmgr.getWindow("Editor/WeaponEditFrame/Value_Edit")->setText(IntToString(wRec.value));
@@ -946,7 +948,7 @@ bool EditorApplicationWeapon::WeaponEditFrameOKClicked(const CEGUI::EventArgs &e
         showHint("You have to enter a projectile ID for the weapon!");
         return true;
       }
-      if (!ProjectileBase::getSingleton().hasProjectile(weapRec.ProjectileID))
+      if (!Database::getSingleton().hasTypedRecord<ProjectileRecord>(weapRec.ProjectileID))
       {
         showHint("There is no projectile with the ID \""+weapRec.ProjectileID
                  +"\"! Check the ID for proper spelling or create a new "
@@ -966,25 +968,25 @@ bool EditorApplicationWeapon::WeaponEditFrameOKClicked(const CEGUI::EventArgs &e
       }
     }
     CEGUI::Spinner* spin = static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/WeaponEditFrame/Times_Spin"));
-    weapRec.DamageTimes = static_cast<uint8>(spin->getCurrentValue());
+    weapRec.DamageTimes = static_cast<uint8_t>(spin->getCurrentValue());
     spin = static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/WeaponEditFrame/Dice_Spin"));
-    weapRec.DamageDice = static_cast<uint8>(spin->getCurrentValue());
+    weapRec.DamageDice = static_cast<uint8_t>(spin->getCurrentValue());
 
 
     const bool idChanged = (weapID!=ID_of_Weapon_to_edit);
     if (idChanged)
     {
-      if (WeaponBase::getSingleton().hasWeapon(weapID))
+      if (Database::getSingleton().hasRecord(weapID))
       {
-        showHint("A weapon with the ID \""+weapID+"\" already exists. Please "
-                +"choose a different ID or delete the other weapon first.\n");
+        showHint("A weapon or other record with the ID \""+weapID+"\" already exists. Please "
+                +"choose a different ID or delete the other record first.\n");
         return true;
       }//if
     }//if
     else
     {
       //ID remained the same, but the user might have deleted the weapon.
-      if (!WeaponBase::getSingleton().hasWeapon(weapID))
+      if (!Database::getSingleton().hasTypedRecord<WeaponRecord>(weapID))
       {
         showHint("A weapon with the ID \""+weapID+"\" does not exist. You "
                 +"have possibly deleted the weapon.");
@@ -992,9 +994,10 @@ bool EditorApplicationWeapon::WeaponEditFrameOKClicked(const CEGUI::EventArgs &e
       }//if
     }
 
-    const bool meshChanged = WeaponBase::getSingleton().getWeaponMesh(ID_of_Weapon_to_edit) != weapRec.Mesh;
-    //get changes into weapon base
-    WeaponBase::getSingleton().addWeapon(weapID, weapRec);
+    const bool meshChanged = Database::getSingleton().getTypedRecord<WeaponRecord>(ID_of_Weapon_to_edit).Mesh != weapRec.Mesh;
+    //get changes into Database
+    weapRec.ID = weapID;
+    Database::getSingleton().addRecord(weapRec);
 
     //update enabled Weapons that are affected by changes
     unsigned int affected_references = 0;
@@ -1004,7 +1007,7 @@ bool EditorApplicationWeapon::WeaponEditFrameOKClicked(const CEGUI::EventArgs &e
       affected_references =
       ObjectManager::getSingleton().updateReferencesAfterIDChange(ID_of_Weapon_to_edit, weapID, getAPI().getOgreSceneManager());
       //delete data record for old ID
-      ProjectileBase::getSingleton().deleteProjectile(ID_of_Weapon_to_edit);
+      Database::getSingleton().deleteRecord(ID_of_Weapon_to_edit);
     }
     else if (meshChanged)
     {
@@ -1017,7 +1020,7 @@ bool EditorApplicationWeapon::WeaponEditFrameOKClicked(const CEGUI::EventArgs &e
       showHint("Changes accepted, "+IntToString(affected_references)+" references have been updated.");
     }
     winmgr.destroyWindow("Editor/WeaponEditFrame");
-    ID_of_Weapon_to_edit = "";
+    ID_of_Weapon_to_edit.clear();
     refreshWeaponList();
     return true;
   }
@@ -1039,11 +1042,12 @@ void EditorApplicationWeapon::refreshWeaponList(void)
   CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/Catalogue/Tab/Weapon/List"));
   mcl->resetList();
 
-  WeaponBaseIterator first = WeaponBase::getSingleton().getFirst();
-  const WeaponBaseIterator end = WeaponBase::getSingleton().getEnd();
+  Database::Iterator first = Database::getSingleton().getFirst();
+  const Database::Iterator end = Database::getSingleton().getEnd();
   while (first != end)
   {
-    addWeaponRecordToCatalogue(first->first, first->second);
+    if (first->second->getRecordType() == WeaponRecord::RecordType)
+      addWeaponRecordToCatalogue(first->first, *static_cast<WeaponRecord*>(first->second));
     ++first;
   }//while
   return;

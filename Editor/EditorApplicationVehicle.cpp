@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Editor.
-    Copyright (C) 2011 thoronador
+    Copyright (C) 2011, 2012  thoronador
 
     The Dusk Editor is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,8 +21,9 @@
 #include "EditorApplicationVehicle.h"
 #include "EditorApplicationBase.h"
 #include <CEGUI/CEGUI.h>
-#include "../Engine/VehicleBase.h"
+#include "../Engine/VehicleRecord.h"
 #include "../Engine/InjectionManager.h"
+#include "../Engine/Database.h"
 #include "../Engine/DuskFunctions.h"
 
 namespace Dusk
@@ -224,16 +225,16 @@ bool EditorApplicationVehicle::VehicleDeleteFrameNoClicked(const CEGUI::EventArg
 
 bool EditorApplicationVehicle::VehicleDeleteFrameYesClicked(const CEGUI::EventArgs &e)
 {
-  if (ID_of_vehicle_to_delete == "")
+  if (ID_of_vehicle_to_delete.empty())
   {
     showWarning("Error: Vehicle ID is empty string!");
     //delete window
     CEGUI::WindowManager::getSingleton().destroyWindow("Editor/VehicleDeleteFrame");
     return true;
   }
-  if (!VehicleBase::getSingleton().deleteVehicle(ID_of_vehicle_to_delete))
+  if (!Database::getSingleton().deleteRecord(ID_of_vehicle_to_delete))
   {
-    showHint("VehicleBase class holds no vehicle of the given ID ("
+    showHint("Database class holds no vehicle of the given ID ("
              +ID_of_vehicle_to_delete+").");
     //delete window
     CEGUI::WindowManager::getSingleton().destroyWindow("Editor/VehicleDeleteFrame");
@@ -290,11 +291,12 @@ void EditorApplicationVehicle::refreshVehicleList(void)
   CEGUI::MultiColumnList* mcl = static_cast<CEGUI::MultiColumnList*> (winmgr.getWindow("Editor/Catalogue/Tab/Vehicle/List"));
   mcl->resetList();
 
-  VehicleBase::Iterator first = VehicleBase::getSingleton().getFirst();
-  const VehicleBase::Iterator end = VehicleBase::getSingleton().getEnd();
+  Database::Iterator first = Database::getSingleton().getFirst();
+  const Database::Iterator end = Database::getSingleton().getEnd();
   while (first != end)
   {
-    addVehicleRecordToCatalogue(first->first, first->second);
+    if (first->second->getRecordType()==VehicleRecord::RecordType)
+      addVehicleRecordToCatalogue(first->first, *static_cast<VehicleRecord*>(first->second));
     ++first;
   }//while
   return;

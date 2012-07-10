@@ -200,26 +200,4 @@ bool WeaponRecord::loadFromStream(std::ifstream& inStream)
   return inStream.good();
 }
 
-#ifdef DUSK_EDITOR
-void WeaponBase::updateProjectilesAfterIDChange(const std::string& oldProjID, const std::string& newProjID)
-{
-  if ((oldProjID.empty()) or (newProjID.empty()) or (oldProjID==newProjID))
-  {
-    //We do not want empty IDs, and we do not need to update anything, if old
-    //  and new ID are equal.
-    return;
-  }
-  //iterate through all weapons and look for ID of projectile
-  std::map<std::string, WeaponRecord>::iterator iter = m_Weapons.begin();
-  while (iter!=m_Weapons.end())
-  {
-    if (iter->second.ProjectileID == oldProjID)
-    {
-      iter->second.ProjectileID = newProjID;
-    }//if
-    ++iter;
-  }//while
-}
-#endif
-
 } //namespace

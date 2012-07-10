@@ -110,7 +110,7 @@ void EditorApplicationObject::refreshObjectList(void)
   const Database::Iterator end = Database::getSingleton().getEnd();
   while (start != end)
   {
-    if (start->second->getRecordType() == cHeaderObjS)
+    if (start->second->getRecordType() == ObjectRecord::RecordType)
       addObjectRecordToCatalogue(start->first, static_cast<ObjectRecord*>(start->second)->Mesh, static_cast<ObjectRecord*>(start->second)->collide);
     ++start;
   }//while
@@ -256,7 +256,6 @@ void EditorApplicationObject::showObjectEditWindow(void)
 
     //editbox for mesh path
     button = winmgr.createWindow("TaharezLook/Editbox", "Editor/ObjectEditFrame/Mesh_Edit");
-    button->setText(ObjectBase::getSingleton().getMeshName(ID_of_object_to_edit,false));
     button->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.4, 0)));
     button->setSize(CEGUI::UVector2(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.1, 0)));
     frame->addChildWindow(button);
@@ -291,10 +290,10 @@ void EditorApplicationObject::showObjectEditWindow(void)
   //set data
   winmgr.getWindow("Editor/ObjectEditFrame/ID_Edit")->setText(ID_of_object_to_edit);
   winmgr.getWindow("Editor/ObjectEditFrame/Mesh_Edit")->setText(
-      ObjectBase::getSingleton().getMeshName(ID_of_object_to_edit,false));
+      Database::getSingleton().getTypedRecord<ObjectRecord>(ID_of_object_to_edit).Mesh);
   static_cast<CEGUI::Checkbox*>(winmgr.getWindow(
       "Editor/ObjectEditFrame/CollisionCheck"))->setSelected(
-          ObjectBase::getSingleton().getObjectCollision(ID_of_object_to_edit));
+          Database::getSingleton().getTypedRecord<ObjectRecord>(ID_of_object_to_edit).collide);
 }
 
 void EditorApplicationObject::showObjectConfirmDeleteWindow(void)
@@ -458,27 +457,27 @@ bool EditorApplicationObject::ObjectConfirmIDChangeRenameClicked(const CEGUI::Ev
   {
     winmgr.destroyWindow("Editor/ConfirmObjectIDChangeFrame");
     //get the editboxes with the needed entries
-    std::string ObjectID, ObjectMesh;
-    ObjectID = std::string(winmgr.getWindow("Editor/ObjectEditFrame/ID_Edit")->getText().c_str());
-    ObjectMesh = std::string(winmgr.getWindow("Editor/ObjectEditFrame/Mesh_Edit")->getText().c_str());
-    const bool collision_flag = static_cast<CEGUI::Checkbox*>(winmgr.getWindow(
+    ObjectRecord obj_rec;
+    obj_rec.ID = std::string(winmgr.getWindow("Editor/ObjectEditFrame/ID_Edit")->getText().c_str());
+    obj_rec.Mesh = std::string(winmgr.getWindow("Editor/ObjectEditFrame/Mesh_Edit")->getText().c_str());
+    obj_rec.collide = static_cast<CEGUI::Checkbox*>(winmgr.getWindow(
         "Editor/ObjectEditFrame/CollisionCheck"))->isSelected();
 
-    if (ObjectBase::getSingleton().hasObject(ObjectID))
+    if (Database::getSingleton().hasRecord(obj_rec.ID))
     {
-      showWarning("An Object with the ID \""+ObjectID+"\" already exists. "
+      showWarning("An Object or some other record with the ID \""+obj_rec.ID+"\" already exists. "
                   +"Change that one as needed or delete it before giving another"
                   +" object the same ID.");
       return true;
     }//if
 
     //"rename", i.e. create object with new ID and delete object with old ID
-    ObjectBase::getSingleton().addObject(ObjectID, ObjectMesh, collision_flag);
-    ObjectBase::getSingleton().deleteObject(ID_of_object_to_edit);
+    Database::getSingleton().addRecord(obj_rec);
+    Database::getSingleton().deleteRecord(ID_of_object_to_edit);
     //update all objects
-    ObjectManager::getSingleton().updateReferencesAfterIDChange(ID_of_object_to_edit, ObjectID, getAPI().getOgreSceneManager()/*mSceneMgr*/);
+    ObjectManager::getSingleton().updateReferencesAfterIDChange(ID_of_object_to_edit, obj_rec.ID, getAPI().getOgreSceneManager()/*mSceneMgr*/);
     //add row for new object to catalogue
-    addObjectRecordToCatalogue(ObjectID, ObjectMesh, collision_flag);
+    addObjectRecordToCatalogue(obj_rec.ID, obj_rec.Mesh, obj_rec.collide);
     //remove row of old ID
     CEGUI::MultiColumnList * mcl;
     CEGUI::ListboxItem * lb_item = NULL;
@@ -487,7 +486,7 @@ bool EditorApplicationObject::ObjectConfirmIDChangeRenameClicked(const CEGUI::Ev
     mcl->removeRow(mcl->getItemRowIndex(lb_item));
     //close edit window
     winmgr.destroyWindow("Editor/ObjectEditFrame");
-    ID_of_object_to_edit = "";
+    ID_of_object_to_edit.clear();
   }
   return true;
 }
@@ -501,26 +500,26 @@ bool EditorApplicationObject::ObjectConfirmIDChangeNewClicked(const CEGUI::Event
     //close confirmation window
     winmgr.destroyWindow("Editor/ConfirmObjectIDChangeFrame");
     //get the editboxes with the needed entries
-    std::string ObjectID, ObjectMesh;
-    ObjectID = std::string(winmgr.getWindow("Editor/ObjectEditFrame/ID_Edit")->getText().c_str());
-    ObjectMesh = std::string(winmgr.getWindow("Editor/ObjectEditFrame/Mesh_Edit")->getText().c_str());
+    ObjectRecord obj_rec;
+    obj_rec.ID = std::string(winmgr.getWindow("Editor/ObjectEditFrame/ID_Edit")->getText().c_str());
+    obj_rec.Mesh = std::string(winmgr.getWindow("Editor/ObjectEditFrame/Mesh_Edit")->getText().c_str());
 
-    if (ObjectBase::getSingleton().hasObject(ObjectID))
+    if (Database::getSingleton().hasRecord(obj_rec.ID))
     {
-      showWarning("An Object with the ID \""+ObjectID+"\" already exists. "
+      showWarning("An Object with the ID \""+obj_rec.ID+"\" already exists. "
                   +"Change that one as needed or delete it before giving another"
                   +" object the same ID.");
       return true;
     }//if
-    const bool collision_flag = static_cast<CEGUI::Checkbox*>(winmgr.getWindow(
+    obj_rec.collide = static_cast<CEGUI::Checkbox*>(winmgr.getWindow(
         "Editor/ObjectEditFrame/CollisionCheck"))->isSelected();
     //add new row to catalogue
-    addObjectRecordToCatalogue(ObjectID, ObjectMesh, collision_flag);
-    //add new object to database (ObjectBase)
-    ObjectBase::getSingleton().addObject(ObjectID, ObjectMesh, collision_flag);
+    addObjectRecordToCatalogue(obj_rec.ID, obj_rec.Mesh, obj_rec.collide);
+    //add new object to database
+    Database::getSingleton().addRecord(obj_rec);
     //close edit window
     winmgr.destroyWindow("Editor/ObjectEditFrame");
-    ID_of_object_to_edit = "";
+    ID_of_object_to_edit.clear();
   }
   return true;
 }
@@ -618,33 +617,33 @@ bool EditorApplicationObject::ObjectNewFrameOKClicked(const CEGUI::EventArgs &e)
   CEGUI::WindowManager& winmgr = CEGUI::WindowManager::getSingleton();
   if (winmgr.isWindowPresent("Editor/ObjectNewFrame"))
   {
-    const std::string id_edit_str = winmgr.getWindow("Editor/ObjectNewFrame/ID_Edit")->getText().c_str();
-    const std::string mesh_edit_str = winmgr.getWindow("Editor/ObjectNewFrame/Mesh_Edit")->getText().c_str();
+    ObjectRecord obj_rec;
+    obj_rec.ID = winmgr.getWindow("Editor/ObjectNewFrame/ID_Edit")->getText().c_str();
+    obj_rec.Mesh = winmgr.getWindow("Editor/ObjectNewFrame/Mesh_Edit")->getText().c_str();
     //make sure we have some data
-    if (id_edit_str=="")
+    if (obj_rec.ID.empty())
     {
       showWarning("You have to enter an ID string to create a new object!");
       return true;
     }
-    if (mesh_edit_str=="")
+    if (obj_rec.Mesh.empty())
     {
       showWarning("You have to enter a mesh path to create a new object!");
       return true;
     }
 
     //check for presence of object with same ID
-    if (ObjectBase::getSingleton().hasObject(id_edit_str))
+    if (Database::getSingleton().hasRecord(obj_rec.ID))
     {
       showWarning("An Object with the given ID already exists.");
       return true;
     }
-    const bool collision_flag = static_cast<CEGUI::Checkbox*>(winmgr.getWindow(
+    obj_rec.collide = static_cast<CEGUI::Checkbox*>(winmgr.getWindow(
         "Editor/ObjectNewFrame/CollisionCheck"))->isSelected();
-    //finally add it to ObjectBase
-    ObjectBase::getSingleton().addObject(id_edit_str, mesh_edit_str,
-                                         collision_flag);
+    //finally add it to database
+    Database::getSingleton().addRecord(obj_rec);
     //update catalogue
-    addObjectRecordToCatalogue(id_edit_str, mesh_edit_str, collision_flag);
+    addObjectRecordToCatalogue(obj_rec.ID, obj_rec.Mesh, obj_rec.collide);
     //destroy window
     winmgr.destroyWindow("Editor/ObjectNewFrame");
   }
@@ -679,37 +678,38 @@ bool EditorApplicationObject::ObjectEditFrameSaveClicked(const CEGUI::EventArgs 
     return true;
   }//if
 
-  const std::string id_edit_str = winmgr.getWindow("Editor/ObjectEditFrame/ID_Edit")->getText().c_str();
-  const std::string mesh_edit_str = winmgr.getWindow("Editor/ObjectEditFrame/Mesh_Edit")->getText().c_str();
+  ObjectRecord obj_rec;
+  obj_rec.ID = winmgr.getWindow("Editor/ObjectEditFrame/ID_Edit")->getText().c_str();
+  obj_rec.Mesh = winmgr.getWindow("Editor/ObjectEditFrame/Mesh_Edit")->getText().c_str();
 
-  if (id_edit_str=="")
+  if (obj_rec.ID.empty())
   {
     showHint("You have to enter an ID for this object!");
     return true;
   }
-  if (mesh_edit_str=="")
+  if (obj_rec.Mesh.empty())
   {
     showHint("You have to enter a mesh path for this object!");
     return true;
   }
-  if (id_edit_str!=ID_of_object_to_edit)
+  if (obj_rec.ID!=ID_of_object_to_edit)
   {
     //ID was changed
    showObjectEditConfirmIDChangeWindow();
    return true;
   }
-  const bool collision_flag = static_cast<CEGUI::Checkbox*>(winmgr.getWindow(
+  obj_rec.collide = static_cast<CEGUI::Checkbox*>(winmgr.getWindow(
       "Editor/ObjectEditFrame/CollisionCheck"))->isSelected();
   //check if mesh has remained the same
-  if (mesh_edit_str==ObjectBase::getSingleton().getMeshName(ID_of_object_to_edit) and
-     (collision_flag==ObjectBase::getSingleton().getObjectCollision(ID_of_object_to_edit)))
+  if (obj_rec.Mesh==Database::getSingleton().getTypedRecord<ObjectRecord>(ID_of_object_to_edit).Mesh and
+     (obj_rec.collide==Database::getSingleton().getTypedRecord<ObjectRecord>(ID_of_object_to_edit).collide))
   {
     showHint("You have not changed the data of this object, thus there are no changes to be saved.");
     return true;
   }
 
   //save it
-  ObjectBase::getSingleton().addObject(id_edit_str, mesh_edit_str, collision_flag);
+  Database::getSingleton().addRecord(obj_rec);
   //update list
   refreshObjectList();
   //update shown objects
@@ -742,7 +742,7 @@ bool EditorApplicationObject::ObjectDeleteFrameYesClicked(const CEGUI::EventArgs
     CEGUI::WindowManager::getSingleton().destroyWindow("Editor/ObjectDeleteFrame");
     return true;
   }
-  if (!ObjectBase::getSingleton().deleteObject(ID_of_object_to_delete))
+  if (!Database::getSingleton().deleteRecord(ID_of_object_to_delete))
   {
     showHint("ObjectBase class holds no object of the given ID ("
              +ID_of_object_to_delete+").");
