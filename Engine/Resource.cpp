@@ -88,7 +88,7 @@ bool Resource::saveToStream(std::ofstream& outStream) const
     return false;
   }
   //write header "RefR" (reference of Resource)
-  outStream.write((const char*) &cHeaderRefR, sizeof(unsigned int));
+  outStream.write((const char*) &cHeaderRefR, sizeof(uint32_t));
   //write all data inherited from DuskObject
   if (!saveDuskObjectPart(outStream))
   {
@@ -121,8 +121,8 @@ bool Resource::loadFromStream(std::ifstream& inStream)
     return false;
   }
   //read header "RefR"
-  unsigned int Header = 0;
-  inStream.read((char*) &Header, sizeof(unsigned int));
+  uint32_t Header = 0;
+  inStream.read((char*) &Header, sizeof(uint32_t));
   if (Header!=cHeaderRefR)
   {
     DuskLog() << "Resource::loadFromStream: ERROR: Stream contains invalid "

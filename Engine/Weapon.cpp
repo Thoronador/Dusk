@@ -73,7 +73,7 @@ bool Weapon::saveToStream(std::ofstream& OutStream) const
     return false;
   }
   //write header "RfWe" (reference of Weapon)
-  OutStream.write((char*) &cHeaderRfWe, sizeof(unsigned int));
+  OutStream.write((const char*) &cHeaderRfWe, sizeof(uint32_t));
   //write all data inherited from DuskObject
   if (!saveDuskObjectPart(OutStream))
   {
@@ -105,8 +105,8 @@ bool Weapon::loadFromStream(std::ifstream& InStream)
     return false;
   }
   //read header "RfWe"
-  unsigned int Header = 0;
-  InStream.read((char*) &Header, sizeof(unsigned int));
+  uint32_t Header = 0;
+  InStream.read((char*) &Header, sizeof(uint32_t));
   if (Header!=cHeaderRfWe)
   {
     DuskLog() << "Weapon::loadFromStream: ERROR: Stream contains invalid "

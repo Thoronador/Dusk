@@ -34,6 +34,7 @@
                               VehicleRecord and WeaponRecord
      - 2012-07-08 (rev 318) - removed two-parameter version of hasTypedRecord()
      - 2012-07-11 (rev 320) - getNumberOfTypedRecords() added
+     - 2012-07-19 (rev 321) - update for SoundRecord
 
  ToDo list:
      - ???

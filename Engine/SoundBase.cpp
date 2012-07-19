@@ -21,176 +21,96 @@
 #include "SoundBase.h"
 #include <cstring>
 #include "DuskConstants.h"
-#include "DuskExceptions.h"
 #include "Messages.h"
 
 namespace Dusk
 {
 
-SoundBase::~SoundBase()
+uint32_t SoundRecord::getRecordType() const
 {
-  m_Sounds.clear();
+  return cHeaderSoun;
 }
 
-SoundBase& SoundBase::getSingleton()
-{
-  static SoundBase instance;
-  return instance;
-}
+//record type identifier (usually the value returned by the above function)
+const uint32_t SoundRecord::RecordType = cHeaderSoun;
 
-void SoundBase::addSound(const std::string& ID, const std::string& filePath)
-{
-  if (ID.empty() or filePath.empty())
-  {
-    DuskLog() << "SoundBase::addSound: ERROR: ID or path is empty string.\n";
-    return;
-  }
-  SoundRecord temp;
-  temp.sID = ID;
-  temp.filePath = filePath;
-  m_Sounds[ID] = temp;
-}
-
-bool SoundBase::hasSound(const std::string& ID) const
-{
-  return (m_Sounds.find(ID)!=m_Sounds.end());
-}
-
-const std::string& SoundBase::getSoundPath(const std::string& sID) const
-{
-  const std::map<std::string, SoundRecord>::const_iterator iter = m_Sounds.find(sID);
-  if (iter!=m_Sounds.end())
-  {
-    return iter->second.filePath;
-  }
-  DuskLog() << "SoundBase::getSoundPath: ERROR! No object with ID \""<<sID
-            << "\" found. Throwing exception.\n";
-  throw IDNotFound("SoundBase", sID);
-}
-
-bool SoundBase::deleteSound(const std::string& ID)
-{
-  std::map<std::string, SoundRecord>::iterator iter = m_Sounds.find(ID);
-  if (iter!=m_Sounds.end())
-  {
-    m_Sounds.erase(iter);
-    return true;
-  }
-  return false;
-}
-
-void SoundBase::clearAll()
-{
-  m_Sounds.clear();
-}
-
-unsigned int SoundBase::getNumberOfSounds() const
-{
-  return m_Sounds.size();
-}
-
-bool SoundBase::saveAllToStream(std::ofstream& outStream) const
+bool SoundRecord::saveToStream(std::ofstream& outStream) const
 {
   if (!outStream.good())
   {
-     DuskLog() << "SoundBase::saveAllToStream: ERROR: Stream contains errors!\n";
+     DuskLog() << "SoundRecord::saveToStream: ERROR: Stream contains errors!\n";
      return false;
   }
 
-  std::map<std::string, SoundRecord>::const_iterator iter;
-  unsigned int len;
-  iter = m_Sounds.begin();
-  while (iter != m_Sounds.end())
+  //write header "Soun"
+  outStream.write((const char*) &cHeaderSoun, 4); //Sound
+  //write ID
+  uint32_t len = ID.length();
+  outStream.write((const char*) &len, sizeof(uint32_t));
+  outStream.write(ID.c_str(), len);
+  //write path
+  len = filePath.length();
+  outStream.write((const char*) &len, sizeof(uint32_t));
+  outStream.write(filePath.c_str(), len);
+  //check
+  if (!outStream.good())
   {
-    //write header "Soun"
-    outStream.write((char*) &cHeaderSoun, 4); //Sound
-    //write ID
-    len = iter->first.length();
-    outStream.write((char*) &len, sizeof(unsigned int));
-    outStream.write(iter->first.c_str(), len);
-    //write path
-    len = iter->second.filePath.length();
-    outStream.write((char*) &len, sizeof(unsigned int));
-    outStream.write(iter->second.filePath.c_str(), len);
-    //check
-    if (!outStream.good())
-    {
-      DuskLog() << "SoundBase::saveAllToStream: Error while writing data to "
-                << "stream. Current object is \""<<iter->first<<"\".\n";
-      return false;
-    }
-    ++iter;
-  }//while
+    DuskLog() << "SoundRecord::saveToStream: Error while writing data to "
+              << "stream. Current object is \""<<ID<<"\".\n";
+    return false;
+  }
+
   return outStream.good();
 }
 
-bool SoundBase::loadNextSoundFromStream(std::ifstream& inStream)
+bool SoundRecord::loadFromStream(std::ifstream& inStream)
 {
-  unsigned int len;
-  unsigned int Header = 0;
-  char bufferID[256], bufferPath[256];
-
+  uint32_t len = 0;
   //read header "Soun" (Sound)
-  inStream.read((char*) &Header, sizeof(unsigned int));
-  if (Header!=cHeaderSoun)
+  inStream.read((char*) &len, sizeof(uint32_t));
+  if (len!=cHeaderSoun)
   {
-    DuskLog() << "SoundBase::loadFromStream: ERROR: Stream contains invalid "
+    DuskLog() << "SoundRecord::loadFromStream: ERROR: Stream contains invalid "
               << "record header.\n";
     return false;
   }//if
   //read length of ID
-  inStream.read((char*) &len, sizeof(unsigned int));
+  inStream.read((char*) &len, sizeof(uint32_t));
   if (len>255)
   {
-    DuskLog() << "SoundBase::loadFromStream: ERROR: ID cannot be longer than "
+    DuskLog() << "SoundRecord::loadFromStream: ERROR: ID cannot be longer than "
               << "255 characters.\n";
     return false;
   }
   //read ID
-  memset(bufferID, 0, 256);
-  inStream.read(bufferID, len);
-  if (!(inStream.good()))
+  char buffer[256];
+  memset(buffer, 0, 256);
+  inStream.read(buffer, len);
+  if (!inStream.good())
   {
-    DuskLog() << "SoundBase::loadNextSoundFromStream: ERROR while reading data.\n";
+    DuskLog() << "SoundRecord::loadFromStream: ERROR while reading ID.\n";
     return false;
   }
+  ID = std::string(buffer);
   //read length of path
-  inStream.read((char*) &len, sizeof(unsigned int));
+  inStream.read((char*) &len, sizeof(uint32_t));
   if (len>255)
   {
-    DuskLog() << "SoundBase::loadNextSoundFromStream: ERROR: File path cannot "
+    DuskLog() << "SoundRecord::loadFromStream: ERROR: File path cannot "
               << "be longer than 255 characters.\n";
     return false;
   }
   //read mesh
-  memset(bufferPath, 0, 256);
-  inStream.read(bufferPath, len);
-  if (!(inStream.good()))
+  memset(buffer, 0, 256);
+  inStream.read(buffer, len);
+  if (!inStream.good())
   {
-    DuskLog() << "SoundBase::loadNextSoundFromStream: ERROR while reading data.\n";
+    DuskLog() << "SoundRecord::loadFromStream: ERROR while reading path data.\n";
     return false;
   }
-  //now add it to the data
-  addSound(std::string(bufferID), std::string(bufferPath));
-  return true;
-}
+  filePath = std::string(buffer);
 
-
-#ifdef DUSK_EDITOR
-SoundBase::Iterator SoundBase::getFirst() const
-{
-  return m_Sounds.begin();
-}
-
-SoundBase::Iterator SoundBase::getEnd() const
-{
-  return m_Sounds.end();
-}
-#endif
-
-SoundBase::SoundBase()
-{
-  //empty
+  return (!filePath.empty() and !ID.empty());
 }
 
 } //namespace

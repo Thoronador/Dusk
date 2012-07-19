@@ -28,7 +28,6 @@
 #include "ObjectManager.h"
 #include "Player.h"
 #include "QuestLog.h"
-#include "SoundBase.h"
 #include "DuskConstants.h"
 #include "Messages.h"
 
@@ -54,7 +53,7 @@ DataLoader& DataLoader::getSingleton()
 bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits) const
 {
   std::ofstream output;
-  unsigned int data_records;
+  uint32_t data_records;
 
   output.open(FileName.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
   if(!output)
@@ -65,7 +64,7 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
   }//if
 
   //write header "Dusk"
-  output.write((char*) &cHeaderDusk, sizeof(unsigned int));
+  output.write((const char*) &cHeaderDusk, sizeof(uint32_t));
   //determine number of records
   data_records = 0;
 
@@ -101,12 +100,8 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
     //static objects
     data_records += ObjectManager::getSingleton().getNumberOfReferences();
   }
-  if ((bits & SOUND_BIT) !=0)
-  {
-    data_records += SoundBase::getSingleton().getNumberOfSounds();
-  }
   //write number of records
-  output.write((char*) &data_records, sizeof(unsigned int));
+  output.write((const char*) &data_records, sizeof(uint32_t));
 
   //save dialogues
   if ((bits & DIALOGUE_BIT)!=0)
@@ -168,18 +163,6 @@ bool DataLoader::saveToFile(const std::string& FileName, const unsigned int bits
     }//if
   }//if database
 
-  //save sound data
-  if ((bits & SOUND_BIT) !=0)
-  {
-    if (!SoundBase::getSingleton().saveAllToStream(output))
-    {
-      DuskLog() << "DataLoader::saveToFile: ERROR: could not write sound "
-                << "data to file \""<<FileName<<"\".\n";
-      output.close();
-      return false;
-    }//if
-  }//if SoundBase
-
   //save animated objects/ injection objects
   if ((bits & INJECTION_BIT)!=0)
   {
@@ -227,7 +210,8 @@ bool DataLoader::loadFromFile(const std::string& FileName)
     return false;
   }//if
 
-  unsigned int file_size, Header, data_records, records_done;
+  unsigned int file_size;
+  uint32_t Header, data_records, records_done;
 
   //determine file size
   input.seekg(0, std::ios::end);
@@ -236,7 +220,7 @@ bool DataLoader::loadFromFile(const std::string& FileName)
 
   //read header "Dusk"
   Header = 0;
-  input.read((char*) &Header, sizeof(unsigned int));
+  input.read((char*) &Header, sizeof(uint32_t));
   if (Header!=cHeaderDusk)
   {
     DuskLog() << "DataLoader::loadFromFile: ERROR: File \""<<FileName
@@ -247,7 +231,7 @@ bool DataLoader::loadFromFile(const std::string& FileName)
 
   //determine number of records
   data_records = 0;
-  input.read((char*) &data_records, sizeof(unsigned int));
+  input.read((char*) &data_records, sizeof(uint32_t));
 
   //read loop
   LandscapeRecord* land_rec = NULL;
@@ -257,7 +241,7 @@ bool DataLoader::loadFromFile(const std::string& FileName)
   {
     Header = 0;
     //read next record header
-    input.read((char*) &Header, sizeof(unsigned int));
+    input.read((char*) &Header, sizeof(uint32_t));
     input.seekg(-4, std::ios::cur);
     switch (Header)
     {
@@ -281,6 +265,7 @@ bool DataLoader::loadFromFile(const std::string& FileName)
       case cHeaderNPC_:
       case cHeaderObjS:
       case cHeaderRsrc:
+      case cHeaderSoun:
       case cHeaderVehi:
       case cHeaderWeap:
            success = Database::getSingleton().loadNextRecordFromStream(input, Header);
@@ -305,9 +290,6 @@ bool DataLoader::loadFromFile(const std::string& FileName)
       case cHeaderRefV:  //Vehicles
       case cHeaderRfWP:  //WaypointObject
            success = InjectionManager::getSingleton().loadNextFromStream(input, Header);
-           break;
-      case cHeaderSoun:
-           success = SoundBase::getSingleton().loadNextSoundFromStream(input);
            break;
       default:
           DuskLog() << "DataLoader::loadFromFile: ERROR: Got unexpected header "
@@ -374,11 +356,6 @@ void DataLoader::clearData(const unsigned int bits)
   {
     QuestLog::getSingleton().clearAllData();
   }//quest log
-
-  if ((bits & SOUND_BIT) != 0)
-  {
-    SoundBase::getSingleton().clearAll();
-  }//sound data
 }//clear data function
 
 bool DataLoader::loadSaveGame(const std::string& FileName)
@@ -392,7 +369,7 @@ bool DataLoader::loadSaveGame(const std::string& FileName)
     return false;
   }//if
 
-  unsigned int Header, data_records;
+  uint32_t Header, data_records;
 
   //determine file size
   input.seekg(0, std::ios::end);
@@ -408,7 +385,7 @@ bool DataLoader::loadSaveGame(const std::string& FileName)
 
   //read header "Dusk"
   Header = 0;
-  input.read((char*) &Header, sizeof(unsigned int));
+  input.read((char*) &Header, sizeof(uint32_t));
   if (Header!=cHeaderDusk)
   {
     DuskLog() << "DataLoader::loadSaveGame: ERROR: File \""<<FileName
@@ -418,10 +395,10 @@ bool DataLoader::loadSaveGame(const std::string& FileName)
   }
   //determine number of records
   data_records = 0;
-  input.read((char*) &data_records, sizeof(unsigned int));
+  input.read((char*) &data_records, sizeof(uint32_t));
   //read header "Save"
   Header = 0;
-  input.read((char*) &Header, sizeof(unsigned int));
+  input.read((char*) &Header, sizeof(uint32_t));
   if (Header!=cHeaderSave)
   {
     DuskLog() << "DataLoader::loadSaveGame: ERROR: File \""<<FileName
@@ -432,7 +409,7 @@ bool DataLoader::loadSaveGame(const std::string& FileName)
   /*read header "Mean" (identifies save game "version", because this should
     be improved and get a different version later on) */
   Header = 0;
-  input.read((char*) &Header, sizeof(unsigned int));
+  input.read((char*) &Header, sizeof(uint32_t));
   if (Header!=cHeaderMean)
   {
     DuskLog() << "DataLoader::loadSaveGame: ERROR: File \""<<FileName
@@ -442,7 +419,7 @@ bool DataLoader::loadSaveGame(const std::string& FileName)
   }
   //read dependencies
   Header = 0;
-  input.read((char*) &Header, sizeof(unsigned int));
+  input.read((char*) &Header, sizeof(uint32_t));
   if (Header!=cHeaderDeps)
   {
     DuskLog() << "DataLoader::loadSaveGame: ERROR: File \""<<FileName
@@ -451,24 +428,24 @@ bool DataLoader::loadSaveGame(const std::string& FileName)
     return false;
   }
   //read their number
-  unsigned int depCount = 0;
-  input.read((char*) &depCount, sizeof(unsigned int));
+  uint32_t depCount = 0;
+  input.read((char*) &depCount, sizeof(uint32_t));
   if (depCount == 0 or depCount>255)
   { //no reasonable limits given
     DuskLog() << "DataLoader::loadSaveGame: ERROR: File \""<<FileName
-              << "\" has a list of required data files which is to long or to"
+              << "\" has a list of required data files which is too long or too"
               << " short (length: "<<depCount<<").\n";
     input.close();
     return false;
   }
   clearData(ALL_BITS);
   m_LoadedFiles.clear();
-  unsigned int len;
+  uint32_t len;
   char buffer[256];
   for (Header=0; Header<depCount; Header=Header+1)
   {
     len = 0;
-    input.read((char*) &len, sizeof(unsigned int));
+    input.read((char*) &len, sizeof(uint32_t));
     if (len>255)
     {
       DuskLog() << "DataLoader::loadSaveGame: ERROR while loading file \""
@@ -516,12 +493,12 @@ bool DataLoader::loadSaveGame(const std::string& FileName)
   clearData(SAVE_MEAN_BITS);
   //go on loading
   bool success = true;
-  unsigned int records_done = 0;
+  uint32_t records_done = 0;
   while ((records_done<data_records) && (input.tellg()<file_size))
   {
     Header = 0;
     //read next record header
-    input.read((char*) &Header, sizeof(unsigned int));
+    input.read((char*) &Header, sizeof(uint32_t));
     input.seekg(-4, std::ios::cur);
     switch(Header)
     {
@@ -579,24 +556,24 @@ bool DataLoader::saveGame(const std::string& FileName) const
     return false;
   }//if
   //write header "Dusk"
-  output.write((char*) &cHeaderDusk, sizeof(unsigned int));
+  output.write((const char*) &cHeaderDusk, sizeof(uint32_t));
   //determine and write number of records
-  unsigned int data_records = 1 /*QuestLog*/ + ObjectManager::getSingleton().getNumberOfReferences()
+  uint32_t data_records = 1 /*QuestLog*/ + ObjectManager::getSingleton().getNumberOfReferences()
                               + InjectionManager::getSingleton().getNumberOfReferences()
                               +1 /* Player */;
-  output.write((char*) &data_records, sizeof(unsigned int));
+  output.write((const char*) &data_records, sizeof(uint32_t));
   //write headers to identify file as save game
-  output.write((char*) &cHeaderSave, sizeof(unsigned int));
-  output.write((char*) &cHeaderMean, sizeof(unsigned int));
+  output.write((const char*) &cHeaderSave, sizeof(uint32_t));
+  output.write((const char*) &cHeaderMean, sizeof(uint32_t));
   //dependencies
-  output.write((char*) &cHeaderDeps, sizeof(unsigned int));
+  output.write((const char*) &cHeaderDeps, sizeof(uint32_t));
   data_records = m_LoadedFiles.size();
-  output.write((char*) &data_records, sizeof(unsigned int));
+  output.write((const char*) &data_records, sizeof(uint32_t));
   unsigned int i;
   for (i=0; i<m_LoadedFiles.size(); i=i+1)
   {
     data_records = m_LoadedFiles[i].length();
-    output.write((char*) &data_records, sizeof(unsigned int));
+    output.write((const char*) &data_records, sizeof(uint32_t));
     output.write(m_LoadedFiles[i].c_str(), data_records);
   }//for
   if(!output.good())

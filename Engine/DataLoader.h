@@ -64,6 +64,7 @@
      - 2012-07-02 (rev 310) - update to use Database instead of LightBase
      - 2012-07-07 (rev 316) - update to use Database instead of ProjectileBase,
                               ResourceBase, VehicleBase and WeaponBase
+     - 2012-07-19 (rev 321) - update to use Database instead of SoundBase
 
  ToDo list:
      - extend class when further classes for data management are added
@@ -73,8 +74,8 @@
      - No known bugs. If you find one (or more), then tell me please.
  --------------------------------------------------------------------------*/
 
-#ifndef DATALOADER_H
-#define DATALOADER_H
+#ifndef DUSK_DATALOADER_H
+#define DUSK_DATALOADER_H
 
 #include <string>
 #include <vector>
@@ -89,11 +90,10 @@ namespace Dusk
   const unsigned int LANDSCAPE_BIT  = 1<<4;
   const unsigned int QUEST_LOG_BIT  = 1<<5;
   const unsigned int REFERENCE_BIT  = 1<<6;
-  const unsigned int SOUND_BIT      = 1<<7;
 
   const unsigned int ALL_BITS = DATABASE_BIT | DIALOGUE_BIT | INJECTION_BIT |
                                 JOURNAL_BIT | LANDSCAPE_BIT | QUEST_LOG_BIT |
-                                REFERENCE_BIT | SOUND_BIT;
+                                REFERENCE_BIT;
 
   const unsigned int SAVE_MEAN_BITS = INJECTION_BIT | QUEST_LOG_BIT | REFERENCE_BIT;
 
@@ -146,4 +146,4 @@ class DataLoader
 
 }//namespace
 
-#endif //DATALOADER_H
+#endif //DUSK_DATALOADER_H

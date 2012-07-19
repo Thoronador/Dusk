@@ -471,7 +471,7 @@ bool AnimatedObject::saveToStream(std::ofstream& OutStream) const
     return false;
   }
   //write header "RefA" (reference of AnimatedObject)
-  OutStream.write((char*) &cHeaderRefA, sizeof(unsigned int));
+  OutStream.write((const char*) &cHeaderRefA, sizeof(uint32_t));
   //write all data inherited from DuskObject
   if (!saveDuskObjectPart(OutStream))
   {
@@ -488,19 +488,19 @@ bool AnimatedObject::saveAnimatedObjectPart(std::ofstream& OutStream) const
   // save new data members from AnimatedObject
   // -- save length
   unsigned int len = m_Anims.size();
-  OutStream.write((char*) &len, sizeof(len));
+  OutStream.write((const char*) &len, sizeof(len));
   // -- save all animations
   std::map<std::string, AnimRecord>::const_iterator cIter = m_Anims.begin();
   while (cIter != m_Anims.end())
   {
     // -- anim name
     len = cIter->first.length();
-    OutStream.write((char*) &len, sizeof(len));
+    OutStream.write((const char*) &len, sizeof(len));
     OutStream.write(cIter->first.c_str(), len);
     // -- position
-    OutStream.write((char*) &(cIter->second.position), sizeof(float));
+    OutStream.write((const char*) &(cIter->second.position), sizeof(float));
     // -- loop mode
-    OutStream.write((char*) &(cIter->second.DoLoop), sizeof(bool));
+    OutStream.write((const char*) &(cIter->second.DoLoop), sizeof(bool));
     ++cIter;
   }//while
   return OutStream.good();
@@ -520,8 +520,8 @@ bool AnimatedObject::loadFromStream(std::ifstream& InStream)
     return false;
   }
   //read header "RefA"
-  unsigned int Header = 0;
-  InStream.read((char*) &Header, sizeof(unsigned int));
+  uint32_t Header = 0;
+  InStream.read((char*) &Header, sizeof(uint32_t));
   if (Header!=cHeaderRefA)
   {
     DuskLog() << "AnimatedObject::loadFromStream: ERROR: Stream contains "

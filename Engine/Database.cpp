@@ -27,6 +27,7 @@
 #include "ObjectRecord.h"
 #include "ProjectileRecord.h"
 #include "ResourceRecord.h"
+#include "SoundBase.h"
 #include "VehicleRecord.h"
 #include "WeaponRecord.h"
 
@@ -178,6 +179,9 @@ bool Database::loadNextRecordFromStream(std::ifstream& inStream, const uint32_t 
          break;
     case cHeaderRsrc:
          recordPtr = new ResourceRecord;
+         break;
+    case cHeaderSoun:
+         recordPtr = new SoundRecord;
          break;
     case cHeaderVehi:
          recordPtr = new VehicleRecord;

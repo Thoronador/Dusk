@@ -188,7 +188,7 @@ bool Player::saveToStream(std::ofstream& OutStream) const
     return false;
   }
   //write header "Play" (Player)
-  OutStream.write((char*) &cHeaderPlay, sizeof(unsigned int));
+  OutStream.write((const char*) &cHeaderPlay, sizeof(uint32_t));
   //save stuff inherited from DuskObject
   if (!saveDuskObjectPart(OutStream))
   {
@@ -232,8 +232,8 @@ bool Player::loadFromStream(std::ifstream& InStream)
     return false;
   }
   //read header "Play"
-  unsigned int Header = 0;
-  InStream.read((char*) &Header, sizeof(unsigned int));
+  uint32_t Header = 0;
+  InStream.read((char*) &Header, sizeof(uint32_t));
   if (Header!=cHeaderPlay)
   {
     DuskLog() << "Player::loadFromStream: ERROR: Stream contains invalid "

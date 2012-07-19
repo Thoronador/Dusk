@@ -67,7 +67,7 @@ bool ResourceRecord::saveToStream(std::ofstream& outStream) const
   outStream.write((const char*) &respawnInterval, sizeof(float));
   //write harvest sound
   len = harvestSound.length();
-  outStream.write((const char*) &len, sizeof(unsigned int));
+  outStream.write((const char*) &len, sizeof(uint32_t));
   outStream.write(harvestSound.c_str(), len);
   //check
   if (!outStream.good())

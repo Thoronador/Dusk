@@ -21,41 +21,11 @@
 /*---------------------------------------------------------------------------
  Author:  thoronador
  Date:    2012-04-07
- Purpose: SoundBase Singleton class
-          Represents a look-up table for all sound "objects" within the game.
+ Purpose: SoundRecord class
+          Holds a single entry within a look-up table for all distinct sound
+          "objects" within the game.
 
- History:
-     - 2012-04-07 (rev 305) - initial version (by thoronador)
-
- ToDo list:
-     - ???
-
- Known bugs:
-     - None. If you find one (or more), then tell me please.
- --------------------------------------------------------------------------*/
-
-#ifndef SOUNDBASE_H
-#define SOUNDBASE_H
-
-#include <string>
-#include <map>
-
-namespace Dusk
-{
-
-//record type for SoundBase
-struct SoundRecord
-{
-  std::string sID;
-  std::string filePath;
-}; //struct
-
-
-/* class SoundBase
-         The purpose of this class is to hold the IDs of all distinct
-         sounds in the game, as well as their sound paths.
-
-         Think of SoundBase as a sort of look-up table, e.g.:
+          Think of SoundRecord as a row in the following table:
 
              ID      |  path
            ----------+----------------------
@@ -64,88 +34,58 @@ struct SoundRecord
            windy     | blowingInTheWind.ogg
             ...      | ...
 
-*/
-class SoundBase
+ History:
+     - 2012-04-07 (rev 305) - initial version (by thoronador)
+     - 2012-07-19 (rev 321) - update of SoundRecord to be a descendant of
+                              DataRecord
+                            - removed SoundBase (Database will handle it)
+
+ ToDo list:
+     - ???
+
+ Known bugs:
+     - None. If you find one (or more), then tell me please.
+ --------------------------------------------------------------------------*/
+
+#ifndef DUSK_SOUNDRECORD_H
+#define DUSK_SOUNDRECORD_H
+
+#include <string>
+#include "DataRecord.h"
+
+namespace Dusk
 {
-  public:
-    /* destructor */
-    ~SoundBase();
 
-    /* singleton access method */
-    static SoundBase& getSingleton();
+  //SoundRecord class
+  struct SoundRecord: public DataRecord
+  {
+    std::string filePath;
 
-    /* adds a sound with the given ID and data.
+    /* returns an integer value that uniquely identifies this record's type */
+    virtual uint32_t getRecordType() const;
+
+    //record type identifier (usually the value returned by the above function)
+    static const uint32_t RecordType;
+
+    /* Tries to save the data record to stream outStream and returns true on
+       success, false otherwise.
+
+       parameters:
+           outStream - the output stream to which the data will be saved
+    */
+    virtual bool saveToStream(std::ofstream& outStream) const;
+
+    /* Tries to load the data record from stream inStream and returns true on
+       success, false otherwise.
+
+       parameters:
+           inStream - the input stream from which the data will be read
 
        remarks:
-           This function always succeeds, except for empty ID or file path. In
-           that case, nothing is added. If a record with the same ID already
-           exists, it is overwritten by the new data.
+           The record may have inconsistent data, if the function fails.
     */
-    void addSound(const std::string& ID, const std::string& filePath);
-
-    /* returns true, if a sound with the given ID is present
-
-       parameters:
-           ID - the ID of the sound
-    */
-    bool hasSound(const std::string& ID) const;
-
-    /* Returns the file path of the sound with given ID. If no sound with the
-       given ID is present, the function will throw an exception.
-
-       parameters:
-           sID - ID of the sound
-    */
-    const std::string& getSoundPath(const std::string& sID) const;
-
-    /* deletes a sound by ID and returns true, if a sound was deleted */
-    bool deleteSound(const std::string& ID);
-
-    /* deletes all present sounds */
-    void clearAll();
-
-    /* returns the number of present sounds in the list */
-    unsigned int getNumberOfSounds() const;
-
-    /* tries to save all sounds to the stream and returns true on success
-
-       parameters:
-           outStream - the output stream that is used to save the sound data
-    */
-    bool saveAllToStream(std::ofstream& outStream) const;
-
-    /* Loads one(!) single sound record from stream; returns true on success,
-       false otherwise. The data of the last loaded sound is probably
-       inconsistent after that function failed, so don't rely on it in that
-       case.
-
-       parameters:
-           inStream - the input stream that is used to load the sound data
-    */
-    bool loadNextSoundFromStream(std::ifstream& inStream);
-
-
-    #ifdef DUSK_EDITOR
-    //constant iterator type for iterating through the sounds
-    typedef std::map<std::string, SoundRecord>::const_iterator Iterator;
-
-    /* returns constant iterator to first element in sound list*/
-    Iterator getFirst() const;
-
-    /* returns constant iterator to end of sound list*/
-    Iterator getEnd() const;
-    #endif
-  private:
-    /* constructor - singleton */
-    SoundBase();
-
-    /* private, empty copy constructor - singleton pattern */
-    SoundBase(const SoundBase& op) {}
-
-    //internal list of sounds
-    std::map<std::string, SoundRecord> m_Sounds;
-};//class
-
+    virtual bool loadFromStream(std::ifstream& inStream);
+  }; //struct
 } //namespace
 
-#endif // SOUNDBASE_H
+#endif // DUSK_SOUNDRECORD_H
