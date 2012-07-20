@@ -19,7 +19,7 @@
 */
 
 #include "CommandZoom.h"
-#include "Camera.h"
+#include "../Camera.h"
 
 namespace Dusk
 {

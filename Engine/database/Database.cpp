@@ -20,7 +20,7 @@
 
 #include "Database.h"
 #include "ContainerRecord.h"
-#include "DuskConstants.h"
+#include "../DuskConstants.h"
 #include "ItemRecord.h"
 #include "LightRecord.h"
 #include "NPCRecord.h"

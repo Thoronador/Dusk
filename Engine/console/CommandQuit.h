@@ -42,10 +42,10 @@
      - No known bugs. If you find one (or more), then tell me please.
  --------------------------------------------------------------------------*/
 
-#ifndef COMMANDQUIT_H
-#define COMMANDQUIT_H
+#ifndef DUSK_COMMANDQUIT_H
+#define DUSK_COMMANDQUIT_H
 #include "Command.h"
-#include "Scene.h"
+#include "../Scene.h"
 
 namespace Dusk
 {
@@ -63,4 +63,4 @@ namespace Dusk
 
 }//namespace
 
-#endif // COMMANDQUIT_H
+#endif // DUSK_COMMANDQUIT_H

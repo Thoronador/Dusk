@@ -19,8 +19,8 @@
 */
 
 #include "LuaBindingsNPC.h"
-#include "NPC.h"
-#include "InjectionManager.h"
+#include "../objects/NPC.h"
+#include "../InjectionManager.h"
 
 namespace Dusk
 {
@@ -236,7 +236,7 @@ int SetLevel(lua_State *L)
       }
       else
       {
-        npcPtr->setLevel(static_cast<const uint8>(level));
+        npcPtr->setLevel(static_cast<const uint8_t>(level));
       }
     }
     return 0;
@@ -264,7 +264,7 @@ int SetStrength(lua_State *L)
       }
       else
       {
-        npcPtr->setStrength(static_cast<const uint8>(str));
+        npcPtr->setStrength(static_cast<const uint8_t>(str));
       }
     }
     return 0;
@@ -292,7 +292,7 @@ int SetAgility(lua_State *L)
       }
       else
       {
-        npcPtr->setAgility(static_cast<const uint8>(agi));
+        npcPtr->setAgility(static_cast<const uint8_t>(agi));
       }
     }
     return 0;
@@ -320,7 +320,7 @@ int SetVitality(lua_State *L)
       }
       else
       {
-        npcPtr->setVitality(static_cast<const uint8>(vit));
+        npcPtr->setVitality(static_cast<const uint8_t>(vit));
       }
     }
     return 0;
@@ -348,7 +348,7 @@ int SetIntelligence(lua_State *L)
       }
       else
       {
-        npcPtr->setIntelligence(static_cast<const uint8>(intelligence));
+        npcPtr->setIntelligence(static_cast<const uint8_t>(intelligence));
       }
     }
     return 0;
@@ -376,7 +376,7 @@ int SetWillpower(lua_State *L)
       }
       else
       {
-        npcPtr->setWillpower(static_cast<const uint8>(will));
+        npcPtr->setWillpower(static_cast<const uint8_t>(will));
       }
     }
     return 0;
@@ -404,7 +404,7 @@ int SetCharisma(lua_State *L)
       }
       else
       {
-        npcPtr->setCharisma(static_cast<const uint8>(cha));
+        npcPtr->setCharisma(static_cast<const uint8_t>(cha));
       }
     }
     return 0;
@@ -432,7 +432,7 @@ int SetLuck(lua_State *L)
       }
       else
       {
-        npcPtr->setLuck(static_cast<const uint8>(luck));
+        npcPtr->setLuck(static_cast<const uint8_t>(luck));
       }
     }
     return 0;

@@ -18,11 +18,11 @@
  -----------------------------------------------------------------------------
 */
 #include "Vehicle.h"
-#include "VehicleRecord.h"
+#include "../database/VehicleRecord.h"
 #include "NPC.h"
-#include "DuskConstants.h"
-#include "Database.h"
-#include "Messages.h"
+#include "../DuskConstants.h"
+#include "../database/Database.h"
+#include "../Messages.h"
 
 namespace Dusk
 {

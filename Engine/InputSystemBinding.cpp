@@ -20,7 +20,7 @@
 
 #include "InputSystemBinding.h"
 #include <fstream>
-#include "Console.h"
+#include "console/Console.h"
 #include "Menu.h"
 #include "DuskFunctions.h"
 #include "Camera.h"

@@ -82,16 +82,16 @@
        soon as possible.
  --------------------------------------------------------------------------*/
 
-#ifndef NPC_H
-#define NPC_H
+#ifndef DUSK_NPC_H
+#define DUSK_NPC_H
 
 #include <string>
+#include <stdint.h>
 #include <OgreVector3.h>
 #include <OgreSceneManager.h>
 #include "AnimatedObject.h"
 #include "WaypointObject.h"
-#include "Inventory.h"
-#include "DuskTypes.h"
+#include "../Inventory.h"
 #include "Item.h"
 
 namespace Dusk
@@ -178,23 +178,23 @@ namespace Dusk
 
       /* ---- attribute set/get methods ---- */
       // returns the NPC's current level
-      uint8 getLevel() const;
-      uint8 getStrength() const;
-      uint8 getAgility() const;
-      uint8 getVitality() const;
-      uint8 getIntelligence() const;
-      uint8 getWillpower() const;
-      uint8 getCharisma() const;
-      uint8 getLuck() const;
+      uint8_t getLevel() const;
+      uint8_t getStrength() const;
+      uint8_t getAgility() const;
+      uint8_t getVitality() const;
+      uint8_t getIntelligence() const;
+      uint8_t getWillpower() const;
+      uint8_t getCharisma() const;
+      uint8_t getLuck() const;
       // set the NPC's current level to new_level
-      void setLevel(const uint8 new_level);
-      void setStrength(const uint8 str);
-      void setAgility(const uint8 agi);
-      void setVitality(const uint8 vit);
-      void setIntelligence(const uint8 intelligence);
-      void setCharisma(const uint8 cha);
-      void setWillpower(const uint8 wil);
-      void setLuck(const uint8 luck);
+      void setLevel(const uint8_t new_level);
+      void setStrength(const uint8_t str);
+      void setAgility(const uint8_t agi);
+      void setVitality(const uint8_t vit);
+      void setIntelligence(const uint8_t intelligence);
+      void setCharisma(const uint8_t cha);
+      void setWillpower(const uint8_t wil);
+      void setLuck(const uint8_t luck);
 
       /* returns true, if the NPC is female */
       bool isFemale() const;
@@ -373,9 +373,9 @@ namespace Dusk
       //current health
       float m_Health;
       //level
-      uint8 m_Level;
+      uint8_t m_Level;
       //attributes
-      uint8 m_Strength, m_Agility, m_Vitality, m_Intelligence, m_Willpower, m_Charisma, m_Luck;
+      uint8_t m_Strength, m_Agility, m_Vitality, m_Intelligence, m_Willpower, m_Charisma, m_Luck;
       //equipped items in left and right hand
       Item* m_EquippedLeft;
       Item* m_EquippedRight;
@@ -446,4 +446,4 @@ namespace Dusk
 
 } //namespace
 
-#endif // NPC_H
+#endif // DUSK_NPC_H

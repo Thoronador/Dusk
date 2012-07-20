@@ -48,8 +48,8 @@
 
 #include <map>
 #include "DataRecord.h"
-#include "DuskExceptions.h"
-#include "Messages.h"
+#include "../DuskExceptions.h"
+#include "../Messages.h"
 
 namespace Dusk
 {

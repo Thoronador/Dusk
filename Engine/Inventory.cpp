@@ -19,9 +19,9 @@
 */
 
 #include "Inventory.h"
-#include "Database.h"
-#include "ItemRecord.h"
-#include "WeaponRecord.h"
+#include "database/Database.h"
+#include "database/ItemRecord.h"
+#include "database/WeaponRecord.h"
 #include "DuskConstants.h"
 #include "Messages.h"
 

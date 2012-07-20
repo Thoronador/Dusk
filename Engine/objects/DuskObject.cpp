@@ -19,13 +19,13 @@
 */
 
 #include "DuskObject.h"
-#include "Database.h"
-#include "DuskConstants.h"
-#include "ObjectRecord.h"
-#include "Messages.h"
+#include "../database/Database.h"
+#include "../DuskConstants.h"
+#include "../database/ObjectRecord.h"
+#include "../Messages.h"
 #include <sstream>
 #include <OgreSceneNode.h>
-#include "VertexDataFunc.h"
+#include "../VertexDataFunc.h"
 
 namespace Dusk{
 

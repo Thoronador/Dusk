@@ -45,10 +45,10 @@
        soon as possible.
  --------------------------------------------------------------------------*/
 
-#ifndef COMMANDMOVE_H
-#define COMMANDMOVE_H
+#ifndef DUSK_COMMANDMOVE_H
+#define DUSK_COMMANDMOVE_H
 #include "Command.h"
-#include "DuskTypes.h"
+#include "../DuskTypes.h"
 
 namespace Dusk
 {
@@ -75,4 +75,4 @@ namespace Dusk
     };
 }
 
-#endif // COMMANDMOVE_H
+#endif // DUSK_COMMANDMOVE_H

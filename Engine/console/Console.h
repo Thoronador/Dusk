@@ -72,7 +72,7 @@
 #include <deque>
 #include <list>
 
-#include "Script.h"
+#include "../Script.h"
 #include "Dispatcher.h"
 
 namespace Dusk

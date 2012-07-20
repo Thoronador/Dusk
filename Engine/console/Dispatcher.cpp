@@ -19,9 +19,9 @@
 */
 
 #include "Dispatcher.h"
-#include "API.h"
+#include "../API.h"
 #include "Command.h"
-#include "Scene.h"
+#include "../Scene.h"
 namespace Dusk
 {
 

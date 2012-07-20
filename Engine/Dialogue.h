@@ -50,16 +50,15 @@
        bugs, then tell me please.
  --------------------------------------------------------------------------*/
 
-#ifndef DIALOGUE_H
-#define DIALOGUE_H
+#ifndef DUSK_DIALOGUE_H
+#define DUSK_DIALOGUE_H
 
 #include <string>
 #include <map>
 #include <vector>
 #include <fstream>
 
-#include "NPC.h"
-#include "DuskTypes.h"
+#include "objects/NPC.h"
 #include "Script.h"
 
 namespace Dusk
@@ -287,8 +286,8 @@ class Dialogue
     /* flags to indicate type of dialogue data when reading from or writhing to
        a stream
     */
-    static const uint8 cGreetingFlag;
-    static const uint8 cDialogueFlag;
+    static const uint8_t cGreetingFlag;
+    static const uint8_t cDialogueFlag;
 
     std::map<std::string, std::vector<std::string> > m_GreetingLines;
     std::map<std::string, LineRecord> m_DialogueLines;
@@ -296,4 +295,4 @@ class Dialogue
 
 } //namespace
 
-#endif // DIALOGUE_H
+#endif // DUSK_DIALOGUE_H

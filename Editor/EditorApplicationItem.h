@@ -46,7 +46,7 @@
 
 #include <CEGUI/CEGUIEventArgs.h>
 #include <string>
-#include "../Engine/ItemRecord.h"
+#include "../Engine/database/ItemRecord.h"
 
 namespace Dusk
 {

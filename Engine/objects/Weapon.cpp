@@ -19,10 +19,10 @@
 */
 
 #include "Weapon.h"
-#include "WeaponRecord.h"
-#include "Database.h"
-#include "DuskConstants.h"
-#include "Messages.h"
+#include "../database/WeaponRecord.h"
+#include "../database/Database.h"
+#include "../DuskConstants.h"
+#include "../Messages.h"
 
 namespace Dusk
 {

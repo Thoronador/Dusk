@@ -22,8 +22,8 @@
 #include "EditorApplicationBase.h"
 #include <iostream>
 #include <CEGUI/CEGUI.h>
-#include "../Engine/Database.h"
-#include "../Engine/ObjectRecord.h"
+#include "../Engine/database/Database.h"
+#include "../Engine/database/ObjectRecord.h"
 #include "../Engine/ObjectManager.h"
 #include "../Engine/DuskFunctions.h"
 #include "../Engine/DuskConstants.h"

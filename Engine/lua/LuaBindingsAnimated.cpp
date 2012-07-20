@@ -19,8 +19,8 @@
 */
 
 #include "LuaBindingsAnimated.h"
-#include "InjectionManager.h"
-#include "Player.h"
+#include "../InjectionManager.h"
+#include "../objects/Player.h"
 
 namespace Dusk
 {

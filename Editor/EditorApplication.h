@@ -33,7 +33,7 @@
 #include "EditorApplicationWeapon.h"
 #include "EditorApplicationVehicle.h"
 #include "EditorFrameListener.h"
-#include "../Engine/DuskObject.h"
+#include "../Engine/objects/DuskObject.h"
 #include "../Engine/DuskTypes.h"
 #include "../Engine/DuskFunctions.h"
 #include <OgreCEGUIRenderer.h>

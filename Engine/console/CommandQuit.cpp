@@ -19,10 +19,8 @@
 */
 
 #include "CommandQuit.h"
-#include "Messages.h"
-#include "InputSystemEditor.h"
-#include "DataLoader.h"
-#include "Weather.h"
+#include "../Messages.h"
+#include "../InputSystemEditor.h"
 
 namespace Dusk
 {

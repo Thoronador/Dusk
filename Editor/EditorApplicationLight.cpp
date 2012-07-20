@@ -22,7 +22,7 @@
 #include "EditorApplicationBase.h"
 #include <CEGUI/CEGUI.h>
 #include <OgreLight.h>
-#include "../Engine/Database.h"
+#include "../Engine/database/Database.h"
 #include "../Engine/DuskFunctions.h"
 #include "../Engine/ObjectManager.h"
 #include "../Engine/API.h"

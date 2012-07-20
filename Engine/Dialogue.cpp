@@ -20,14 +20,14 @@
 
 #include "Dialogue.h"
 #include "DuskConstants.h"
-#include "LuaEngine.h"
+#include "lua/LuaEngine.h"
 #include "Messages.h"
 
 namespace Dusk
 {
 
-const uint8 Dialogue::cGreetingFlag = 1;
-const uint8 Dialogue::cDialogueFlag = 2;
+const uint8_t Dialogue::cGreetingFlag = 1;
+const uint8_t Dialogue::cDialogueFlag = 2;
 const std::string Dialogue::LuaDialogueConditionFunction = "DialogueConditional";
 
 bool Dialogue::LineRecord::saveToStream(std::ofstream& out) const
@@ -35,27 +35,27 @@ bool Dialogue::LineRecord::saveToStream(std::ofstream& out) const
   unsigned int len, i;
   //text
   len = Text.length();
-  out.write((char*) &len, sizeof(unsigned int));
+  out.write((const char*) &len, sizeof(unsigned int));
   out.write(Text.c_str(), len);
   //conditions
   // -- NPC_ID
   len = Conditions.NPC_ID.length();
-  out.write((char*) &len, sizeof(unsigned int));
+  out.write((const char*) &len, sizeof(unsigned int));
   out.write(Conditions.NPC_ID.c_str(), len);
   // -- ItemID
   len = Conditions.ItemID.length();
-  out.write((char*) &len, sizeof(unsigned int));
+  out.write((const char*) &len, sizeof(unsigned int));
   out.write(Conditions.ItemID.c_str(), len);
   if (len>0)
   {
-    out.write((char*) &(Conditions.ItemOp), sizeof(CompareOperation));
-    out.write((char*) &(Conditions.ItemAmount), sizeof(unsigned int));
+    out.write((const char*) &(Conditions.ItemOp), sizeof(CompareOperation));
+    out.write((const char*) &(Conditions.ItemAmount), sizeof(unsigned int));
   }
   // -- ScriptedCondition
   if (Conditions.ScriptedCondition==NULL)
   {
     len = 0;
-    out.write((char*) &len, sizeof(unsigned int));
+    out.write((const char*) &len, sizeof(unsigned int));
   }
   else
   { //there is a script, write it out
@@ -65,23 +65,23 @@ bool Dialogue::LineRecord::saveToStream(std::ofstream& out) const
   }
   //choices
   len = Choices.size();
-  out.write((char*) &len, sizeof(unsigned int));
+  out.write((const char*) &len, sizeof(unsigned int));
   for (i=0; i<Choices.size(); i=i+1)
   {
     len = Choices[i].length();
-    out.write((char*) &len, sizeof(unsigned int));
+    out.write((const char*) &len, sizeof(unsigned int));
     out.write(Choices[i].c_str(), len);
   }
   //result script
   if (ResultScript==NULL)
   {
     len = 0;
-    out.write((char*) &len, sizeof(unsigned int));
+    out.write((const char*) &len, sizeof(unsigned int));
   }
   else
   {
     len = ResultScript->getStringRepresentation().length();
-    out.write((char*) &len, sizeof(unsigned int));
+    out.write((const char*) &len, sizeof(unsigned int));
     out.write(ResultScript->getStringRepresentation().c_str(), len);
   }
   return out.good();
@@ -89,7 +89,7 @@ bool Dialogue::LineRecord::saveToStream(std::ofstream& out) const
 
 bool Dialogue::LineRecord::loadFromStream(std::ifstream& inp)
 {
-  if (!(inp.good()))
+  if (!inp.good())
   {
     return false;
   }
@@ -105,7 +105,7 @@ bool Dialogue::LineRecord::loadFromStream(std::ifstream& inp)
   char buffer[512];
   inp.read(buffer, len);
   buffer[len] = '\0'; //ensure NUL-termination
-  if (!(inp.good()))
+  if (!inp.good())
   {
     DuskLog() << "LineRecord::loadFromStream: ERROR: Error while reading Text "
               << "from stream.\n";
@@ -123,7 +123,7 @@ bool Dialogue::LineRecord::loadFromStream(std::ifstream& inp)
   }
   inp.read(buffer, len);
   buffer[len] = '\0'; //ensure NUL-termination
-  if (!(inp.good()))
+  if (!inp.good())
   {
     DuskLog() << "LineRecord::loadFromStream: ERROR: Error while reading NPC_ID"
               << "from stream.\n";
@@ -140,7 +140,7 @@ bool Dialogue::LineRecord::loadFromStream(std::ifstream& inp)
   }
   inp.read(buffer, len);
   buffer[len] = '\0'; //ensure NUL-termination
-  if (!(inp.good()))
+  if (!inp.good())
   {
     DuskLog() << "LineRecord::loadFromStream: ERROR: Error while reading ItemID"
               << "from stream.\n";
@@ -151,7 +151,7 @@ bool Dialogue::LineRecord::loadFromStream(std::ifstream& inp)
   {
     inp.read((char*) &(Conditions.ItemOp), sizeof(CompareOperation));
     inp.read((char*) &(Conditions.ItemAmount), sizeof(unsigned int));
-    if (!(inp.good()))
+    if (!inp.good())
     {
       DuskLog() << "LineRecord::loadFromStream: ERROR: Error while reading "
                 << "ItemOp and ItemAmount from stream.\n";
@@ -181,7 +181,7 @@ bool Dialogue::LineRecord::loadFromStream(std::ifstream& inp)
     char* scriptData = new char[len+1];
     inp.read(scriptData, len);
     scriptData[len] = '\0';
-    if (!(inp.good()))
+    if (!inp.good())
     {
       DuskLog() << "LineRecord::loadFromStream: ERROR: Error while reading "
                 << "Script text from stream.\n";
@@ -208,7 +208,7 @@ bool Dialogue::LineRecord::loadFromStream(std::ifstream& inp)
     }
     inp.read(buffer, len);
     buffer[len] = '\0'; //ensure NUL-termination
-    if (!(inp.good()))
+    if (!inp.good())
     {
       DuskLog() << "LineRecord::loadFromStream: ERROR: Error while reading ID"
                 << "of dialogue choices from stream.\n";
@@ -236,7 +236,7 @@ bool Dialogue::LineRecord::loadFromStream(std::ifstream& inp)
     scriptData[0] = '\0';
     inp.read(scriptData, len);
     scriptData[len] = '\0';
-    if (!(inp.good()))
+    if (!inp.good())
     {
       DuskLog() << "LineRecord::loadFromStream: ERROR: Error while reading "
                 << "Result Script text from stream.\n";
@@ -596,24 +596,24 @@ bool Dialogue::saveToStream(std::ofstream& output) const
    gr_iter = m_GreetingLines.begin();
    while (gr_iter != m_GreetingLines.end())
    {
-     output.write((char*) &cHeaderDial, sizeof(unsigned int));
-     output.write((char*) &cGreetingFlag, 1);
+     output.write((const char*) &cHeaderDial, sizeof(uint32_t));
+     output.write((const char*) &cGreetingFlag, 1);
      //ID
      len = gr_iter->first.length();
-     output.write((char*) &len, sizeof(unsigned int));
+     output.write((const char*) &len, sizeof(unsigned int));
      output.write(gr_iter->first.c_str(), len);
      //number of choices
      len = gr_iter->second.size();
-     output.write((char*) &len, sizeof(unsigned int));
+     output.write((const char*) &len, sizeof(unsigned int));
      //choices
      for (count=0; count<gr_iter->second.size(); count=count+1)
      {
        len = gr_iter->second.at(count).length();
-       output.write((char*) &len, sizeof(unsigned int));
+       output.write((const char*) &len, sizeof(unsigned int));
        output.write(gr_iter->second.at(count).c_str(), len);
      } // for
 
-     if (!(output.good()))
+     if (!output.good())
      {
        DuskLog() << "Dialogue::saveToStream: ERROR while writing greeting "
                  << "lines for \""<<gr_iter->first<<"\".\n";
@@ -626,10 +626,10 @@ bool Dialogue::saveToStream(std::ofstream& output) const
    std::map<std::string, LineRecord>::const_iterator iter = m_DialogueLines.begin();
    while (iter!=m_DialogueLines.end())
    {
-     output.write((char*) &cHeaderDial, sizeof(unsigned int));
-     output.write((char*) &cDialogueFlag, 1);
+     output.write((const char*) &cHeaderDial, sizeof(uint32_t));
+     output.write((const char*) &cDialogueFlag, 1);
      len = iter->first.length();
-     output.write((char*) &len, sizeof(unsigned int));
+     output.write((const char*) &len, sizeof(unsigned int));
      output.write(iter->first.c_str(), len);
      if (!(iter->second.saveToStream(output)))
      {
@@ -644,7 +644,7 @@ bool Dialogue::saveToStream(std::ofstream& output) const
 
 bool Dialogue::loadNextRecordFromStream(std::ifstream& input)
 {
-  if (!(input.good()))
+  if (!input.good())
   {
     DuskLog() << "Dialogue::loadNextRecordFromStream: ERROR: Bad stream.\n";
     return false;
@@ -659,7 +659,7 @@ bool Dialogue::loadNextRecordFromStream(std::ifstream& input)
   }
 
   LineRecord temp_lr;
-  uint8 flag;
+  uint8_t flag;
   char buffer[256];
   input.read((char*) &flag, 1);
   if (flag == cDialogueFlag)
@@ -674,14 +674,14 @@ bool Dialogue::loadNextRecordFromStream(std::ifstream& input)
     }
     input.read(buffer, i);
     buffer[i] = '\0';
-    if (!(input.good()))
+    if (!input.good())
     {
       DuskLog() << "Dialogue::loadNextRecordFromStream: ERROR while reading ID "
                 << "from stream.\n";
       return false;
     }
     //load it
-    if (!(temp_lr.loadFromStream(input)))
+    if (!temp_lr.loadFromStream(input))
     {
       DuskLog() << "Dialogue::loadNextRecordFromStream: ERROR while loading "
                 << "line record.\n";
@@ -703,7 +703,7 @@ bool Dialogue::loadNextRecordFromStream(std::ifstream& input)
     }
     input.read(buffer, i);
     buffer[i] = '\0';
-    if (!(input.good()))
+    if (!input.good())
     {
       DuskLog() << "Dialogue::loadNextRecordFromStream: ERROR while reading "
                 << "NPC ID from stream.\n";
@@ -737,7 +737,7 @@ bool Dialogue::loadNextRecordFromStream(std::ifstream& input)
       }
       input.read(buffer, len);
       buffer[len] = '\0';
-      if (!(input.good()))
+      if (!input.good())
       {
         DuskLog() << "Dialogue::loadNextRecordFromStream: ERROR while reading "
                   << "LineID from stream.\n";

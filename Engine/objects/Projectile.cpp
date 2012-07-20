@@ -19,13 +19,13 @@
 */
 
 #include "Projectile.h"
-#include "ProjectileRecord.h"
-#include "Database.h"
-#include "InjectionManager.h"
-#include "DuskConstants.h"
-#include "Landscape.h"
-#include "DiceBox.h"
-#include "Messages.h"
+#include "../database/ProjectileRecord.h"
+#include "../database/Database.h"
+#include "../InjectionManager.h"
+#include "../DuskConstants.h"
+#include "../Landscape.h"
+#include "../DiceBox.h"
+#include "../Messages.h"
 
 namespace Dusk
 {

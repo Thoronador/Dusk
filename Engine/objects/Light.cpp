@@ -19,10 +19,10 @@
 */
 
 #include "Light.h"
-#include "LightRecord.h"
-#include "Database.h"
-#include "DuskConstants.h"
-#include "Messages.h"
+#include "../database/LightRecord.h"
+#include "../database/Database.h"
+#include "../DuskConstants.h"
+#include "../Messages.h"
 #include <sstream>
 
 namespace Dusk

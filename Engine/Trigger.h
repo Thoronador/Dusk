@@ -59,7 +59,7 @@
 
 #include <OgreAxisAlignedBox.h>
 #include <OgreSphere.h>
-#include "NPC.h"
+#include "objects/NPC.h"
 #include "Script.h"
 
 namespace Dusk

@@ -27,9 +27,9 @@
 namespace Dusk
 {
 
-const uint8 JournalRecord::FinishedFlag = 1;
-const uint8 JournalRecord::FailedFlag = 2;
-const uint8 JournalRecord::DeletedFlag = 128;
+const uint8_t JournalRecord::FinishedFlag = 1;
+const uint8_t JournalRecord::FailedFlag = 2;
+const uint8_t JournalRecord::DeletedFlag = 128;
 
 bool JournalRecord::isDeleted() const
 {
@@ -46,7 +46,7 @@ bool JournalRecord::isFinisher() const
   return ((Flags&FinishedFlag)>0);
 }
 
-std::string JournalRecord::flagsToString(const uint8 theFlags)
+std::string JournalRecord::flagsToString(const uint8_t theFlags)
 {
   std::string result = "";
   if ((theFlags&DeletedFlag)>0) result = result +"D";
@@ -80,7 +80,7 @@ Journal& Journal::getSingleton()
 
 bool Journal::setQuestName(const std::string& JID, const std::string& qName)
 {
-  if (JID=="" or qName=="")
+  if (JID.empty() or qName.empty())
   {
     DuskLog() << "Journal::setQuestName: ERROR: ID or new quest name is empty "
               << "string. No data will be added or changed.\n";
@@ -101,7 +101,7 @@ bool Journal::setQuestName(const std::string& JID, const std::string& qName)
 bool Journal::addEntry(const std::string& JID, const unsigned int jIndex,
                        const JournalRecord& jData)
 {
-  if (JID=="" or jIndex==0)
+  if (JID.empty() or jIndex==0)
   {
     DuskLog() << "Journal::addEntry: ERROR: empty ID string or zero index "
               << "given. No data will be added.\n";
@@ -124,7 +124,7 @@ bool Journal::addEntry(const std::string& JID, const unsigned int jIndex,
 }
 
 bool Journal::addEntry(const std::string& JID, const unsigned int jIndex,
-                       const std::string& jText, const uint8 jFlags)
+                       const std::string& jText, const uint8_t jFlags)
 {
   JournalRecord temp;
   temp.Text = jText;
@@ -134,7 +134,7 @@ bool Journal::addEntry(const std::string& JID, const unsigned int jIndex,
 
 bool Journal::hasEntry(const std::string& JID, const unsigned int jIndex) const
 {
-  if (JID=="" or jIndex==0)
+  if (JID.empty() or jIndex==0)
   { //we don't allow empty IDs or index zero, so we don't have them
     return false;
   }
@@ -155,7 +155,7 @@ bool Journal::hasEntry(const std::string& JID, const unsigned int jIndex) const
 
 bool Journal::hasQuest(const std::string& questID) const
 {
-  if (questID=="")
+  if (questID.empty())
   { //we don't allow empty IDs, that's why we don't have them
     return false;
   }
@@ -165,7 +165,7 @@ bool Journal::hasQuest(const std::string& questID) const
 #ifdef DUSK_EDITOR
 bool Journal::changeQuestID(const std::string& oldID, const std::string& newID)
 {
-  if (oldID=="" or newID=="" or hasQuest(newID))
+  if (oldID.empty() or newID.empty() or hasQuest(newID))
   {
     //we don't want empty IDs or change it to an existing quest ID
     return false;
@@ -196,7 +196,7 @@ bool Journal::changeQuestID(const std::string& oldID, const std::string& newID)
 
 const std::string& Journal::getText(const std::string& JID, const unsigned int jIndex) const
 {
-  if (JID=="" or jIndex==0)
+  if (JID.empty() or jIndex==0)
   { //we don't have empty IDs or index zero, so return "nothing"
     DuskLog() << "Journal::getText: ERROR: No quest with empty ID or index zero"
               << " is allowed. Throwing exception.\n";
@@ -221,14 +221,13 @@ const std::string& Journal::getText(const std::string& JID, const unsigned int j
   throw IDNotFound("Journal", JID+"["+IntToString(jIndex)+"]");
 }
 
-uint8 Journal::getFlags(const std::string& JID, const unsigned int jIndex) const
+uint8_t Journal::getFlags(const std::string& JID, const unsigned int jIndex) const
 {
-  if (JID=="" or jIndex==0)
+  if (JID.empty() or jIndex==0)
   { //we don't have empty IDs or index zero, so return zero
     return 0;
   }
-  std::map<const std::string, QuestRecord>::const_iterator iter;
-  iter = m_Entries.find(JID);
+  const std::map<const std::string, QuestRecord>::const_iterator iter = m_Entries.find(JID);
   if (iter==m_Entries.end())
   {
     return 0;
@@ -244,7 +243,7 @@ uint8 Journal::getFlags(const std::string& JID, const unsigned int jIndex) const
 
 const std::string& Journal::getQuestName(const std::string& questID) const
 {
-  if (questID=="")
+  if (questID.empty())
   { //we don't have quests with empy string as ID
     DuskLog() << "Journal::getQuestName: ERROR: No quest with empty ID is "
               << "allowed. Throwing exception.\n";
@@ -365,7 +364,7 @@ unsigned int Journal::getMaximumAvailabeIndex(const std::string& jID) const
 
 bool Journal::saveAllToStream(std::ofstream& output) const
 {
-  if (!(output.good()))
+  if (!output.good())
   {
     DuskLog() << "Journal::saveAllToStream: ERROR: bad stream!\n";
     return false;
@@ -377,21 +376,21 @@ bool Journal::saveAllToStream(std::ofstream& output) const
   while (iter!=m_Entries.end())
   {
     //write header
-    output.write((char*) &cHeaderJour, sizeof(cHeaderJour));
+    output.write((const char*) &cHeaderJour, sizeof(cHeaderJour));
     //write quest ID
     len = iter->first.length();
-    output.write((char*) &len, sizeof(unsigned int));
+    output.write((const char*) &len, sizeof(unsigned int));
     output.write(iter->first.c_str(), len);
-    if (!(output.good()))
+    if (!output.good())
     {
       DuskLog() << "Journal::saveAllToStream: ERROR while writing quest ID!\n";
       return false;
     }
     //write quest name
     len = iter->second.QuestName.length();
-    output.write((char*) &len, sizeof(unsigned int));
+    output.write((const char*) &len, sizeof(unsigned int));
     output.write(iter->second.QuestName.c_str(), len);
-    if (!(output.good()))
+    if (!output.good())
     {
       DuskLog() << "Journal::saveAllToStream: ERROR while writing quest name!\n";
       return false;
@@ -400,21 +399,21 @@ bool Journal::saveAllToStream(std::ofstream& output) const
     //now write all subordinated index records
     // --- write number of records
     len = iter->second.Indices.size();
-    output.write((char*) &len, sizeof(unsigned int));
+    output.write((const char*) &len, sizeof(unsigned int));
     // --- write records
     index_iter = iter->second.Indices.begin();
     while (index_iter!=iter->second.Indices.end())
     {
       //write index
       len = index_iter->first;
-      output.write((char*) &len, sizeof(unsigned int));
+      output.write((const char*) &len, sizeof(unsigned int));
       //write text
       len = index_iter->second.Text.length();
-      output.write((char*) &len, sizeof(unsigned int));
+      output.write((const char*) &len, sizeof(unsigned int));
       output.write(index_iter->second.Text.c_str(), len);
       //write flags
-      output.write((char*) &(index_iter->second.Flags), 1);
-      if (!(output.good()))
+      output.write((const char*) &(index_iter->second.Flags), 1);
+      if (!output.good())
       {
         DuskLog() << "Journal::saveAllToStream: ERROR while writing "
                   << "JournalRecord!\n";
@@ -429,7 +428,7 @@ bool Journal::saveAllToStream(std::ofstream& output) const
 
 bool Journal::loadNextFromStream(std::ifstream& input)
 {
-  if (!(input.good()))
+  if (!input.good())
   {
     DuskLog() << "Journal::loadNextFromStream: ERROR: bad stream!\n";
     return false;
@@ -470,7 +469,7 @@ bool Journal::loadNextFromStream(std::ifstream& input)
   buffer[0] = buffer[511] = '\0';
   input.read(buffer, len);
   buffer[len] = '\0';
-  if (!(input.good()))
+  if (!input.good())
   {
     DuskLog() << "Journal::loadNextFromStream: ERROR while reading quest name!\n";
     return false;
@@ -519,7 +518,7 @@ bool Journal::loadNextFromStream(std::ifstream& input)
     }
     input.read(buffer, len);
     buffer[len] = '\0';
-    if (!(input.good()))
+    if (!input.good())
     {
       DuskLog() << "Journal::loadNextFromStream: ERROR while reading journal "
                 << "text for quest \""<<QuestID<<"\", index "<<curIndex<<".\n";
@@ -528,7 +527,7 @@ bool Journal::loadNextFromStream(std::ifstream& input)
     tempRec.Text = std::string(buffer);
     //read flags
     input.read((char*) &(tempRec.Flags), 1);
-    if (!(input.good()))
+    if (!input.good())
     {
       DuskLog() << "Journal::loadNextFromStream: ERROR while reading journal "
                 << "flags of quest \""<<QuestID<<"\", index "<<curIndex<<".\n";

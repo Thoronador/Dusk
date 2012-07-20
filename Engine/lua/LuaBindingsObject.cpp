@@ -19,9 +19,9 @@
 */
 
 #include "LuaBindingsObject.h"
-#include "DuskObject.h"
-#include "ObjectManager.h"
-#include "API.h"
+#include "../objects/DuskObject.h"
+#include "../ObjectManager.h"
+#include "../API.h"
 
 namespace Dusk
 {

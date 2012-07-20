@@ -25,7 +25,7 @@
 #include "../Engine/DuskFunctions.h"
 #include "../Engine/ObjectManager.h"
 #include "../Engine/API.h"
-#include "../Engine/Database.h"
+#include "../Engine/database/Database.h"
 
 namespace Dusk
 {

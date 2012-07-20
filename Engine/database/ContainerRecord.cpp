@@ -19,8 +19,8 @@
 */
 
 #include "ContainerRecord.h"
-#include "DuskConstants.h"
-#include "Messages.h"
+#include "../DuskConstants.h"
+#include "../Messages.h"
 #include <cstring>
 
 namespace Dusk{

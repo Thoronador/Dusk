@@ -20,7 +20,6 @@
 
 #include "LuaEngine.h"
 #include <iostream>
-
 #include "LuaBindingsSound.h"
 #include "LuaBindingsWeather.h"
 #include "LuaBindingsObject.h"
@@ -28,7 +27,7 @@
 #include "LuaBindingsAnimated.h"
 #include "LuaBindingsNPC.h"
 #include "LuaBindingsQuestLog.h"
-#include "Messages.h"
+#include "../Messages.h"
 
 namespace Dusk
 {
@@ -249,7 +248,7 @@ unsigned int LuaEngine::processScripts(unsigned int maxEntries)
 
 void LuaEngine::registerDusk()
 {
-  registerSound(m_Lua);
+  Lua::registerSound(m_Lua);
   Lua::registerWeather(m_Lua);
   Lua::registerObject(m_Lua);
   Lua::registerMotion(m_Lua);

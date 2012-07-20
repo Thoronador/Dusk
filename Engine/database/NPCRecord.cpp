@@ -19,10 +19,9 @@
 */
 
 #include "NPCRecord.h"
-#include "Messages.h"
-#include "DuskConstants.h"
-#include "DuskExceptions.h"
-#include "DuskFunctions.h"
+#include "../Messages.h"
+#include "../DuskConstants.h"
+//#include "../DuskFunctions.h"
 
 namespace Dusk
 {
@@ -216,7 +215,7 @@ bool NPCRecord::loadFromStream(std::ifstream& input)
   buffer[0] = '\0';
   input.read(buffer, len);
   buffer[len] = '\0';
-  if (!(input.good()))
+  if (!input.good())
   {
     DuskLog() << "NPCRecord::loadFromStream: ERROR while reading NPC "
               << "mesh location from stream.\n";

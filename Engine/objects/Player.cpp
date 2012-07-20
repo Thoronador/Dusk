@@ -19,11 +19,11 @@
 */
 
 #include "Player.h"
-#include "API.h"
-#include "Messages.h"
-#include "DuskConstants.h"
+#include "../API.h"
+#include "../Messages.h"
+#include "../DuskConstants.h"
 #ifndef DUSK_EDITOR
-  #include "Camera.h"
+  #include "../Camera.h"
 #endif
 #include <OgreSkeleton.h>
 

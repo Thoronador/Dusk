@@ -19,7 +19,7 @@
 */
 
 #include "Console.h"
-#include "API.h"
+#include "../API.h"
 #include "Dispatcher.h"
 #include "Command.h"
 #include "CommandQuit.h"
@@ -37,9 +37,9 @@
 #include "CommandQuestLog.h"
 #include "CommandScreenshot.h"
 #include "CommandBindKey.h"
-#include "DuskFunctions.h"
-#include "DuskTypes.h"
-#include "Messages.h"
+#include "../DuskFunctions.h"
+#include "../DuskTypes.h"
+#include "../Messages.h"
 #include <iostream>
 #include <sstream>
 

@@ -34,12 +34,15 @@
      - Untested. If you find any bugs, then tell me please.
  --------------------------------------------------------------------------*/
 
-#ifndef LUABINDINGSSOUND_H
-#define LUABINDINGSSOUND_H
+#ifndef DUSK_LUABINDINGSSOUND_H
+#define DUSK_LUABINDINGSSOUND_H
 
 #include "LuaIncludes.h"
 
 namespace Dusk
+{
+
+namespace Lua
 {
 
 int CreateNoise(lua_State *L);
@@ -65,6 +68,8 @@ int GetSoundVolume(lua_State *L);
 //called to register all of the above functions
 void registerSound(lua_State *L);
 
-} //namespace
+} //namespace Lua
 
-#endif // LUABINDINGSSOUND_H
+} //namespace Dusk
+
+#endif // DUSK_LUABINDINGSSOUND_H

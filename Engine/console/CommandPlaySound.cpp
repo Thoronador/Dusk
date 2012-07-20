@@ -19,8 +19,8 @@
 */
 
 #include "CommandPlaySound.h"
-#include "Sound.h"
-#include "Messages.h"
+#include "../Sound.h"
+#include "../Messages.h"
 
 namespace Dusk
 {

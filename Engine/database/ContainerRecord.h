@@ -53,7 +53,7 @@
 
 #include <fstream>
 #include "DataRecord.h"
-#include "Inventory.h"
+#include "../Inventory.h"
 
 namespace Dusk
 {

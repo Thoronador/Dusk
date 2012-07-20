@@ -21,9 +21,9 @@
 #include "EditorApplicationVehicle.h"
 #include "EditorApplicationBase.h"
 #include <CEGUI/CEGUI.h>
-#include "../Engine/VehicleRecord.h"
+#include "../Engine/database/VehicleRecord.h"
 #include "../Engine/InjectionManager.h"
-#include "../Engine/Database.h"
+#include "../Engine/database/Database.h"
 #include "../Engine/DuskFunctions.h"
 
 namespace Dusk

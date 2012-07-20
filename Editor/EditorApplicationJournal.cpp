@@ -692,7 +692,7 @@ bool EditorApplicationJournal::NewQuestEntryFrameOKClicked(const CEGUI::EventArg
       showHint("Please enter the text for this entry!");
       return true;
     }
-    uint8 flags = 0;
+    uint8_t flags = 0;
     CEGUI::Checkbox* check = static_cast<CEGUI::Checkbox*> (winmgr.getWindow("Editor/NewQuestEntryFrame/Finished"));
     if (check->isSelected())
     {

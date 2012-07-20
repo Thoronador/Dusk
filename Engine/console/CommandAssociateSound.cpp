@@ -19,7 +19,7 @@
 */
 
 #include "CommandAssociateSound.h"
-#include "Sound.h"
+#include "../Sound.h"
 
 namespace Dusk
 {

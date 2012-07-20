@@ -20,20 +20,20 @@
 
 #include "NPC.h"
 #include <sstream>
-#include "NPCRecord.h"
-#include "Database.h"
-#include "ItemRecord.h"
-#include "WeaponRecord.h"
-#include "Settings.h"
-#include "DuskConstants.h"
-#include "DuskFunctions.h"
-#include "ObjectManager.h"
-#include "InjectionManager.h"
-#include "API.h"
-#include "DiceBox.h"
-#include "Landscape.h"
+#include "../database/NPCRecord.h"
+#include "../database/Database.h"
+#include "../database/ItemRecord.h"
+#include "../database/WeaponRecord.h"
+#include "../Settings.h"
+#include "../DuskConstants.h"
+#include "../DuskFunctions.h"
+#include "../ObjectManager.h"
+#include "../InjectionManager.h"
+#include "../API.h"
+#include "../DiceBox.h"
+#include "../Landscape.h"
 #include "Vehicle.h"
-#include "Messages.h"
+#include "../Messages.h"
 
 namespace Dusk
 {
@@ -333,83 +333,83 @@ bool NPC::isAlive() const
   return (m_Health>0.0f);
 }
 
-uint8 NPC::getLevel() const
+uint8_t NPC::getLevel() const
 {
   return m_Level;
 }
 
-uint8 NPC::getStrength() const
+uint8_t NPC::getStrength() const
 {
   return m_Strength;
 }
 
-uint8 NPC::getAgility() const
+uint8_t NPC::getAgility() const
 {
   return m_Strength;
 }
 
-uint8 NPC::getVitality() const
+uint8_t NPC::getVitality() const
 {
   return m_Vitality;
 }
 
-uint8 NPC::getIntelligence() const
+uint8_t NPC::getIntelligence() const
 {
   return m_Intelligence;
 }
 
-uint8 NPC::getCharisma() const
+uint8_t NPC::getCharisma() const
 {
   return m_Charisma;
 }
 
-uint8 NPC::getWillpower() const
+uint8_t NPC::getWillpower() const
 {
   return m_Willpower;
 }
 
-uint8 NPC::getLuck() const
+uint8_t NPC::getLuck() const
 {
   return m_Luck;
 }
 
-void NPC::setLevel(const uint8 new_level)
+void NPC::setLevel(const uint8_t new_level)
 {
   m_Level = new_level;
 }
 
 
-void NPC::setStrength(const uint8 str)
+void NPC::setStrength(const uint8_t str)
 {
   m_Strength = str;
 }
 
-void NPC::setAgility(const uint8 agi)
+void NPC::setAgility(const uint8_t agi)
 {
   m_Agility = agi;
 }
 
-void NPC::setVitality(const uint8 vit)
+void NPC::setVitality(const uint8_t vit)
 {
   m_Vitality = vit;
 }
 
-void NPC::setIntelligence(const uint8 intelligence)
+void NPC::setIntelligence(const uint8_t intelligence)
 {
   m_Intelligence = intelligence;
 }
 
-void NPC::setWillpower(const uint8 wil)
+void NPC::setWillpower(const uint8_t wil)
 {
   m_Willpower = wil;
 }
 
-void NPC::setCharisma(const uint8 cha)
+void NPC::setCharisma(const uint8_t cha)
 {
   m_Charisma = cha;
 }
 
-void NPC::setLuck(const uint8 luck)
+void NPC::setLuck(const uint8_t luck)
 {
   m_Luck = luck;
 }

@@ -20,8 +20,8 @@
 
 #include "ObjectRecord.h"
 #include <cstring>
-#include "DuskConstants.h"
-#include "Messages.h"
+#include "../DuskConstants.h"
+#include "../Messages.h"
 
 namespace Dusk
 {

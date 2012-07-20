@@ -48,7 +48,7 @@
 
 #include <string>
 #include <vector>
-#include "NPC.h"
+#include "objects/NPC.h"
 
 namespace Dusk
 {

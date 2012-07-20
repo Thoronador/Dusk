@@ -19,12 +19,12 @@
 */
 
 #include "AnimatedObject.h"
-#include "ObjectRecord.h" //should possibly replace this one later
-#include "Database.h"
+#include "../database/ObjectRecord.h" //should possibly replace this one later
+#include "../database/Database.h"
 #include <OgreAnimationState.h>
-#include "DuskConstants.h"
-#include "VertexDataFunc.h"
-#include "Messages.h"
+#include "../DuskConstants.h"
+#include "../VertexDataFunc.h"
+#include "../Messages.h"
 
 namespace Dusk
 {

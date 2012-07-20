@@ -20,8 +20,8 @@
 
 #include "CommandMove.h"
 #include <OgreVector3.h>
-#include "Camera.h"
-#include "Player.h"
+#include "../Camera.h"
+#include "../objects/Player.h"
 
 namespace Dusk
 {

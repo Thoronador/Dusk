@@ -64,16 +64,16 @@ namespace Dusk
  struct JournalRecord
 {
   std::string Text; //the text of the journal entry
-  uint8 Flags; //bitwise or-ed combination of flags (see below)
+  uint8_t Flags; //bitwise or-ed combination of flags (see below)
 
   /* flag to indicate that this entry finishes the quest*/
-  static const uint8 FinishedFlag;
+  static const uint8_t FinishedFlag;
 
   /* flag to indicate that this entry causes the quest to fail */
-  static const uint8 FailedFlag;
+  static const uint8_t FailedFlag;
 
   /* flag to indicate that this entry was deleted */
-  static const uint8 DeletedFlag;
+  static const uint8_t DeletedFlag;
 
   /* returns true, if DeletedFlag is set*/
   bool isDeleted() const;
@@ -85,7 +85,7 @@ namespace Dusk
   bool isFinisher() const;
 
   /* returns a string indicating the set flags */
-  static std::string flagsToString(const uint8 theFlags);
+  static std::string flagsToString(const uint8_t theFlags);
 
   /* returns a string indicating the set flags */
   std::string flagsToString() const;
@@ -170,7 +170,7 @@ class Journal
           See previous version of addEntry() above this one.
     */
     bool addEntry(const std::string& JID, const unsigned int jIndex,
-                  const std::string& jText, const uint8 jFlags=0);
+                  const std::string& jText, const uint8_t jFlags=0);
 
     /* returns true, if an entry with the given quest ID and index exists
 
@@ -216,7 +216,7 @@ class Journal
            JID    - ID if the quest
            jIndex - index of the quest entry
     */
-    uint8 getFlags(const std::string& JID, const unsigned int jIndex) const;
+    uint8_t getFlags(const std::string& JID, const unsigned int jIndex) const;
 
     /* returns the quest name of quest with ID questID, or throws an exception
        if no quest with that ID is present.

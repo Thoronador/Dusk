@@ -19,8 +19,8 @@
 */
 
 #include "CommandScreenshot.h"
-#include "API.h"
-#include "Application.h"
+#include "../API.h"
+#include "../Application.h"
 
 namespace Dusk
 {

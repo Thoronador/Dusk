@@ -19,9 +19,12 @@
 */
 
 #include "LuaBindingsSound.h"
-#include "Sound.h"
+#include "../Sound.h"
 
 namespace Dusk
+{
+
+namespace Lua
 {
 
 int CreateNoise(lua_State *L)
@@ -381,4 +384,6 @@ void registerSound(lua_State *L)
   lua_register(L, "GetSoundVolume", GetSoundVolume);
 }
 
-} //namespace
+} //namespace Lua
+
+} //namespace Dusk

@@ -19,10 +19,10 @@
 */
 
 #include "WaypointObject.h"
-#include "Database.h"
-#include "ObjectRecord.h"
-#include "DuskConstants.h"
-#include "Messages.h"
+#include "../database/Database.h"
+#include "../database/ObjectRecord.h"
+#include "../DuskConstants.h"
+#include "../Messages.h"
 
 namespace Dusk
 {

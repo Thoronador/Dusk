@@ -19,8 +19,8 @@
 */
 
 #include "VehicleRecord.h"
-#include "Messages.h"
-#include "DuskConstants.h"
+#include "../Messages.h"
+#include "../DuskConstants.h"
 
 namespace Dusk
 {

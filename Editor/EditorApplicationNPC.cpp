@@ -22,9 +22,9 @@
 #include <CEGUI/CEGUI.h>
 #include "EditorApplicationBase.h"
 #include "../Engine/DuskFunctions.h"
-#include "../Engine/ItemRecord.h"
+#include "../Engine/database/ItemRecord.h"
 #include "../Engine/InjectionManager.h"
-#include "../Engine/Database.h"
+#include "../Engine/database/Database.h"
 #include "../Engine/API.h"
 
 namespace Dusk
@@ -643,7 +643,7 @@ bool EditorApplicationNPC::NPCNewFrameOKClicked(const CEGUI::EventArgs &e)
               +"choose a different ID or delete the other NPC first.\n");
       return true;
     }
-    npc_rec.Level = static_cast<uint8>((static_cast<CEGUI::Spinner*>(
+    npc_rec.Level = static_cast<uint8_t>((static_cast<CEGUI::Spinner*>(
           winmgr.getWindow("Editor/NPCNewFrame/Level_Spin")))->getCurrentValue());
 
     npc_rec.Attributes.Str = static_cast<uint8_t>((static_cast<CEGUI::Spinner*>(winmgr.getWindow("Editor/NPCNewFrame/Str_Spin")))->getCurrentValue());

@@ -50,7 +50,7 @@
 #ifndef CONTAINER_H
 #define CONTAINER_H
 #include "DuskObject.h"
-#include "Inventory.h"
+#include "../Inventory.h"
 #include <string>
 #include <OgreVector3.h>
 

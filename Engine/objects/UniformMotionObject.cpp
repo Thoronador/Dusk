@@ -19,7 +19,7 @@
 */
 
 #include "UniformMotionObject.h"
-#include "Messages.h"
+#include "../Messages.h"
 
 namespace Dusk
 {

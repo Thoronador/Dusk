@@ -66,11 +66,11 @@
 #ifndef INJECTIONMANAGER_H
 #define INJECTIONMANAGER_H
 
-#include "Projectile.h"
-#include "AnimatedObject.h"
-#include "NPC.h"
-#include "Resource.h"
-#include "Vehicle.h"
+#include "objects/Projectile.h"
+#include "objects/AnimatedObject.h"
+#include "objects/NPC.h"
+#include "objects/Resource.h"
+#include "objects/Vehicle.h"
 #include <fstream>
 #include <vector>
 #include <map>

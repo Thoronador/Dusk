@@ -19,7 +19,7 @@
 */
 
 #include "LuaBindingsUniformMotion.h"
-#include "UniformMotionObject.h"
+#include "../objects/UniformMotionObject.h"
 
 namespace Dusk
 {

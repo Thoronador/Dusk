@@ -21,7 +21,7 @@
 #include "InjectionManager.h"
 #include "DuskConstants.h"
 #ifdef DUSK_EDITOR
-  #include "NPCRecord.h"
+  #include "database/NPCRecord.h"
 #endif
 #include "Messages.h"
 
@@ -244,7 +244,7 @@ unsigned int InjectionManager::reenableReferencesOfObject(const std::string& ID,
 
 unsigned int InjectionManager::updateReferencesAfterIDChange(const std::string& oldID, const std::string& newID, Ogre::SceneManager* scm)
 {
-  if (oldID=="" or newID=="")
+  if (oldID.empty() or newID.empty())
   {
     DuskLog() << "InjectionManager::updateReferencesAfterIDChange: ERROR: old "
               << "ID or new ID is empty string. We don't want empty ID "

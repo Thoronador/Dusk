@@ -21,11 +21,11 @@
 #include "EditorApplicationWeapon.h"
 #include "EditorApplicationBase.h"
 #include <CEGUI/CEGUI.h>
-#include "../Engine/WeaponRecord.h"
-#include "../Engine/ProjectileRecord.h"
+#include "../Engine/database/WeaponRecord.h"
+#include "../Engine/database/ProjectileRecord.h"
 #include "../Engine/ObjectManager.h"
 #include "../Engine/DuskFunctions.h"
-#include "../Engine/Database.h"
+#include "../Engine/database/Database.h"
 #include "../Engine/API.h"
 
 namespace Dusk

@@ -23,8 +23,8 @@
 #include <OgreSceneManager.h>
 #include <OgreOverlayManager.h>
 #include <OgreHardwareBufferManager.h>
-#include "Console.h"
-#include "LuaEngine.h"
+#include "console/Console.h"
+#include "lua/LuaEngine.h"
 #include "API.h"
 
 namespace Dusk

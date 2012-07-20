@@ -19,15 +19,15 @@
 */
 
 #include "FrameListener.h"
-#include "Console.h"
+#include "console/Console.h"
 #include "InputSystem.h"
 #include "API.h"
 #include "Camera.h"
 #include "InjectionManager.h"
 #include "TriggerManager.h"
 #include "Trigger.h"
-#include "LuaEngine.h"
-#include "Player.h"
+#include "lua/LuaEngine.h"
+#include "objects/Player.h"
 #include "Weather.h"
 
 namespace Dusk

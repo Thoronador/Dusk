@@ -58,7 +58,7 @@
 
 #include <string>
 #include <deque>
-#include "Script.h"
+#include "../Script.h"
 
 namespace Dusk
 {

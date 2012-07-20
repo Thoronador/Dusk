@@ -19,7 +19,7 @@
 */
 
 #include "CommandPickUp.h"
-#include "Player.h"
+#include "../objects/Player.h"
 
 namespace Dusk
 {

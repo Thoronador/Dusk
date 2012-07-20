@@ -162,7 +162,7 @@ namespace Dusk
       std::map<std::string, std::map<unsigned int, unsigned int> > m_PresentEntries;
 
       /* map for retrieving quest state without iterating through vector */
-      std::map<std::string, uint8> m_StateOfQuests;
+      std::map<std::string, uint8_t> m_StateOfQuests;
 
   }; //class Questlog
 

@@ -72,11 +72,11 @@
 #ifndef OBJECTMANAGER_H
 #define OBJECTMANAGER_H
 
-#include "DuskObject.h"
-#include "Item.h"
-#include "Light.h"
-#include "Container.h"
-#include "Weapon.h"
+#include "objects/DuskObject.h"
+#include "objects/Item.h"
+#include "objects/Light.h"
+#include "objects/Container.h"
+#include "objects/Weapon.h"
 #include <vector>
 #include <map>
 #include <fstream>

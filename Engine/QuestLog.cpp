@@ -81,7 +81,7 @@ bool QuestLog::hasQuest(const std::string& questID) const
 
 bool QuestLog::isQuestFinished(const std::string& questID) const
 {
-  std::map<std::string, uint8>::const_iterator iter = m_StateOfQuests.find(questID);
+  std::map<std::string, uint8_t>::const_iterator iter = m_StateOfQuests.find(questID);
   if (iter==m_StateOfQuests.end())
   {
     return false;
@@ -91,7 +91,7 @@ bool QuestLog::isQuestFinished(const std::string& questID) const
 
 bool QuestLog::isQuestFailed(const std::string& questID) const
 {
-  std::map<std::string, uint8>::const_iterator iter = m_StateOfQuests.find(questID);
+  std::map<std::string, uint8_t>::const_iterator iter = m_StateOfQuests.find(questID);
   if (iter==m_StateOfQuests.end())
   {
     return false;
@@ -131,7 +131,7 @@ std::vector<std::string> QuestLog::listFinishedQuests() const
 {
   std::vector<std::string> sv;
   sv.clear();
-  std::map<std::string, uint8>::const_iterator cIter = m_StateOfQuests.begin();
+  std::map<std::string, uint8_t>::const_iterator cIter = m_StateOfQuests.begin();
   while (cIter!=m_StateOfQuests.end())
   {
     if ((cIter->second & JournalRecord::FinishedFlag)>0)
@@ -147,7 +147,7 @@ std::vector<std::string> QuestLog::listFailedQuests() const
 {
   std::vector<std::string> sv;
   sv.clear();
-  std::map<std::string, uint8>::const_iterator cIter = m_StateOfQuests.begin();
+  std::map<std::string, uint8_t>::const_iterator cIter = m_StateOfQuests.begin();
   while (cIter!=m_StateOfQuests.end())
   {
     if ((cIter->second & JournalRecord::FailedFlag)>0)
@@ -163,7 +163,7 @@ std::vector<std::string> QuestLog::listActiveQuests() const
 {
   std::vector<std::string> sv;
   sv.clear();
-  std::map<std::string, uint8>::const_iterator cIter = m_StateOfQuests.begin();
+  std::map<std::string, uint8_t>::const_iterator cIter = m_StateOfQuests.begin();
   while (cIter!=m_StateOfQuests.end())
   {
     if ((cIter->second & (JournalRecord::FinishedFlag|JournalRecord::FailedFlag))==0)

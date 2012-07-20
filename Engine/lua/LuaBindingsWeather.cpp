@@ -19,7 +19,7 @@
 */
 
 #include "LuaBindingsWeather.h"
-#include "Weather.h"
+#include "../Weather.h"
 
 namespace Dusk
 {

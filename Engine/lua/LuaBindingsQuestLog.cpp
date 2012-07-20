@@ -19,7 +19,7 @@
 */
 
 #include "LuaBindingsQuestLog.h"
-#include "QuestLog.h"
+#include "../QuestLog.h"
 
 namespace Dusk
 {

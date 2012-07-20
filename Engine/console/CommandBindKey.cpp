@@ -19,9 +19,9 @@
 */
 
 #include "CommandBindKey.h"
-#include "InputSystemBinding.h"
-#include "InputSystemEditor.h"
-#include "Messages.h"
+#include "../InputSystemBinding.h"
+#include "../InputSystemEditor.h"
+#include "../Messages.h"
 
 namespace Dusk
 {

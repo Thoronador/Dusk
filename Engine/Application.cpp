@@ -21,7 +21,7 @@
 #include "Application.h"
 #include "InputSystem.h"
 #include "Scene.h"
-#include "Dispatcher.h"
+#include "console/Dispatcher.h"
 #include "API.h"
 #include "Camera.h"
 #include "Sound.h"

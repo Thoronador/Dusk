@@ -19,7 +19,7 @@
 */
 
 #include "Trigger.h"
-#include "LuaEngine.h"
+#include "lua/LuaEngine.h"
 
 namespace Dusk
 {

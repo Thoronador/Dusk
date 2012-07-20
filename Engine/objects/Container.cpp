@@ -19,10 +19,10 @@
 */
 
 #include "Container.h"
-#include "ContainerRecord.h"
-#include "Database.h"
-#include "DuskConstants.h"
-#include "Messages.h"
+#include "../database/ContainerRecord.h"
+#include "../database/Database.h"
+#include "../DuskConstants.h"
+#include "../Messages.h"
 
 namespace Dusk
 {

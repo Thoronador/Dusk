@@ -19,7 +19,7 @@
 */
 
 #include "CommandQuestLog.h"
-#include "Menu.h"
+#include "../Menu.h"
 
 namespace Dusk
 {

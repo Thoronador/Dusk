@@ -41,24 +41,32 @@
      - No known bugs. If you find one (or more), then tell me please.
  --------------------------------------------------------------------------*/
 
-#ifndef DISPATCHER_H
-#define DISPATCHER_H
-#include "Scene.h"
+#ifndef DUSK_DISPATCHER_H
+#define DUSK_DISPATCHER_H
+#include "../Scene.h"
 namespace Dusk
 {
     class Command;
     class Dispatcher
     {
     public:
+        /* singleton access */
         static Dispatcher& get();
+
+        /* destructor */
         virtual ~Dispatcher();
+
         bool executeCommand(Dusk::Command* command);
     protected:
     private:
         Dusk::Scene* m_Scene;
+
+        /* constructor */
         Dispatcher();
+
+        /* copy constructor - empty due to singleton pattern */
         Dispatcher(const Dispatcher& op){}
     };
 } // namespace
 
-#endif // DISPATCHER_H
+#endif // DUSK_DISPATCHER_H

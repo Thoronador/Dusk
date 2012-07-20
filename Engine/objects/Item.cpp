@@ -19,11 +19,11 @@
 */
 
 #include "Item.h"
-#include "Database.h"
-#include "DuskConstants.h"
-#include "ItemRecord.h"
-#include "API.h"
-#include "Messages.h"
+#include "../database/Database.h"
+#include "../DuskConstants.h"
+#include "../database/ItemRecord.h"
+#include "../API.h"
+#include "../Messages.h"
 
 namespace Dusk
 {
