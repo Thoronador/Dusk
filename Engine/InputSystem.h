@@ -34,6 +34,7 @@
      - 2010-02-01 (rev 162) - two utility functions added (by thoronador)
      - 2010-11-10 (rev 250) - minor optimization on includes
      - 2010-12-21 (rev 274) - key code <-> string conversion updated
+     - 2012-07-20 (rev 326) - InputEvent removed (unused anyway)
 
  ToDo list:
      - ???
@@ -48,8 +49,6 @@
 #include <OgreRenderWindow.h>
 #include <OgreRoot.h>
 #include <OIS/OIS.h>
-
-#include "InputEvent.h"
 
 namespace Dusk
 {

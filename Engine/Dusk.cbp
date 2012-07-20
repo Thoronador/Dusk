@@ -124,8 +124,6 @@
 		<Unit filename="FrameListener.h" />
 		<Unit filename="InjectionManager.cpp" />
 		<Unit filename="InjectionManager.h" />
-		<Unit filename="InputEvent.cpp" />
-		<Unit filename="InputEvent.h" />
 		<Unit filename="InputSystem.cpp" />
 		<Unit filename="InputSystem.h" />
 		<Unit filename="InputSystemBinding.cpp" />
