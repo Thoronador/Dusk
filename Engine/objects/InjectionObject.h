@@ -1,20 +1,20 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010, 2012  thoronador
+    Copyright (C) 2010, 2012, 2013  Thoronador
 
-    The Dusk Engine is free software: you can redistribute it and/or modify
+    This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    The Dusk Engine is distributed in the hope that it will be useful,
+    This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with the Dusk Engine.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------
 */
 
@@ -31,6 +31,7 @@
      - 2010-08-31 (rev 239) - naming convention from coding guidelines enforced
      - 2010-11-26 (rev 260) - canCollide() added (abstract)
      - 2012-06-30 (rev 308) - update of getObjectMesh() definition
+     - 2013-04-08           - alternative constructor
 
  ToDo list:
      - ???
@@ -53,6 +54,16 @@ class InjectionObject: virtual public DuskObject
   public:
     /* constructor */
     InjectionObject();
+
+    /* constructor with parameter list
+
+       parameters:
+           _ID   - the object's ID
+           pos   - position of the object
+           rot   - rotation of the object
+           Scale - scaling factor of the object
+    */
+    InjectionObject(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Quaternion& rot, const float Scale);
 
     /* interface function to inject time for animation/ movement */
     virtual void injectTime(const float SecondsPassed) = 0;

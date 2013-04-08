@@ -1,20 +1,20 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2013  Thoronador
 
-    The Dusk Engine is free software: you can redistribute it and/or modify
+    This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    The Dusk Engine is distributed in the hope that it will be useful,
+    This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with the Dusk Engine.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------
 */
 
@@ -24,37 +24,24 @@
 namespace Dusk
 {
 
+//ctor
 UniformMotionObject::UniformMotionObject()
+: InjectionObject(),
+  m_Direction(Ogre::Vector3::ZERO),
+  m_Destination(Ogre::Vector3::ZERO),
+  m_Speed(0.0f),
+  m_Travel(false)
 {
-  //ctor
-  ID = "";
-  position = Ogre::Vector3::ZERO;
-  m_Rotation = Ogre::Quaternion::IDENTITY;
-  m_Scale = 1.0f;
-  entity = NULL;
-  m_Direction = Ogre::Vector3::ZERO;
-  m_Destination = Ogre::Vector3::ZERO;
-  m_Speed = 0.0f;
-  m_Travel = false;
 }
 
 /* constructor with parameter list */
 UniformMotionObject::UniformMotionObject(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Quaternion& rot, const float Scale)
+: InjectionObject(_ID, pos, rot, Scale),
+  m_Direction(Ogre::Vector3::ZERO),
+  m_Destination(Ogre::Vector3::ZERO),
+  m_Speed(0.0f),
+  m_Travel(false)
 {
-  ID = _ID;
-  position = pos;
-  m_Rotation = rot;
-  if (m_Scale>0.0f)
-  {
-    m_Scale = Scale;
-  } else {
-    m_Scale = 1.0f;
-  }
-  entity = NULL;
-  m_Direction = Ogre::Vector3::ZERO;
-  m_Destination = Ogre::Vector3::ZERO;
-  m_Speed = 0.0f;
-  m_Travel = false;
 }
 
 UniformMotionObject::~UniformMotionObject()

@@ -36,7 +36,7 @@
 				<Option compiler="gcc" />
 				<Option parameters="plugins-windows-debug.cfg" />
 				<Compiler>
-					<Add option="-O2" />
+					<Add option="-O3" />
 					<Add option="-DWIN32" />
 					<Add option="-D_WINDOWS" />
 					<Add directory="$(OGRE_HOME)/include" />
@@ -79,7 +79,7 @@
 				<Option compiler="gcc" />
 				<Option parameters="plugins-linux.cfg" />
 				<Compiler>
-					<Add option="-O2" />
+					<Add option="-O3" />
 					<Add option="`pkg-config --cflags OGRE`" />
 				</Compiler>
 				<Linker>

@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2013  thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -25,6 +25,12 @@ namespace Dusk
 
 InjectionObject::InjectionObject()
 : DuskObject()
+{
+  //empty
+}
+
+InjectionObject::InjectionObject(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Quaternion& rot, const float Scale)
+: DuskObject(_ID, pos, rot, Scale)
 {
   //empty
 }

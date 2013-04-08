@@ -1,20 +1,20 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010, 2012  thoronador
+    Copyright (C) 2010, 2012, 2013  Thoronador
 
-    The Dusk Engine is free software: you can redistribute it and/or modify
+    This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    The Dusk Engine is distributed in the hope that it will be useful,
+    This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with the Dusk Engine.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------
 */
 #include "Vehicle.h"
@@ -28,19 +28,17 @@ namespace Dusk
 {
 
 Vehicle::Vehicle()
- : AnimatedObject("", Ogre::Vector3::ZERO, Ogre::Quaternion::IDENTITY, 1.0f)
-
+ : AnimatedObject("", Ogre::Vector3::ZERO, Ogre::Quaternion::IDENTITY, 1.0f),
+   WaypointObject("", Ogre::Vector3::ZERO, Ogre::Quaternion::IDENTITY, 1.0f),
+   m_Passengers(std::map<unsigned int, PassengerRecord>())
 {
-  WaypointObject::WaypointObject("", Ogre::Vector3::ZERO, Ogre::Quaternion::IDENTITY, 1.0f);
-  ID = "";
-  m_Passengers.clear();
 }
 
 Vehicle::Vehicle(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Quaternion& rot, const float Scale)
-: AnimatedObject(_ID, pos, rot, Scale)
+: AnimatedObject(_ID, pos, rot, Scale),
+  WaypointObject::WaypointObject(_ID, pos, rot, Scale),
+  m_Passengers(std::map<unsigned int, PassengerRecord>())
 {
-  WaypointObject::WaypointObject(_ID, pos, rot, Scale);
-  m_Passengers.clear();
 }
 
 Vehicle::~Vehicle()

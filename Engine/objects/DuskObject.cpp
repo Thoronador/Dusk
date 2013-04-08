@@ -1,20 +1,20 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2007, 2009, 2010, 2012  ssj5000, thoronador
+    Copyright (C) 2007, 2009, 2010, 2012, 2013  ssj5000, thoronador
 
-    The Dusk Engine is free software: you can redistribute it and/or modify
+    This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    The Dusk Engine is distributed in the hope that it will be useful,
+    This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with the Dusk Engine.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------
 */
 
@@ -37,28 +37,25 @@ unsigned int GenerateUniqueObjectID()
   return m_genUID++;
 }
 
+//ctor
 DuskObject::DuskObject()
+: Ogre::UserDefinedObject(),
+  ID(""),
+  entity(NULL),
+  position(Ogre::Vector3::ZERO),
+  m_Rotation(Ogre::Quaternion::IDENTITY),
+  m_Scale(1.0f)
 {
-  //ctor
-  ID = "";
-  position = Ogre::Vector3::ZERO;
-  m_Rotation = Ogre::Quaternion::IDENTITY;
-  m_Scale = 1.0f;
-  entity = NULL;
 }
 
 DuskObject::DuskObject(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Quaternion& rot, const float Scale)
+: Ogre::UserDefinedObject(),
+  ID(_ID),
+  entity(NULL),
+  position(pos),
+  m_Rotation(rot),
+  m_Scale( (Scale>0.0f) ? Scale : 1.0f)
 {
-  ID = _ID;
-  position = pos;
-  m_Rotation = rot;
-  if (m_Scale>0.0f)
-  {
-    m_Scale = Scale;
-  } else {
-    m_Scale = 1.0f;
-  }
-  entity = NULL;
 }
 
 DuskObject::~DuskObject()
@@ -79,7 +76,7 @@ const Ogre::Quaternion& DuskObject::getRotation() const
 
 void DuskObject::setPosition(const Ogre::Vector3& pos)
 {
-  if(entity!=NULL)
+  if (entity!=NULL)
   {
     if (entity->getParentSceneNode()!=NULL)
     {
@@ -294,7 +291,7 @@ bool DuskObject::saveToStream(std::ofstream& OutStream) const
     return false;
   }
   //write header "RefO" (reference of Object)
-  OutStream.write((char*) &cHeaderRefO, sizeof(unsigned int)); //header
+  OutStream.write((const char*) &cHeaderRefO, sizeof(uint32_t)); //header
   //write all data members, i.e. ID, position and rotation, and scale
   return saveDuskObjectPart(OutStream);
 }
@@ -303,28 +300,28 @@ bool DuskObject::saveDuskObjectPart(std::ofstream& output) const
 {
   //write ID
   const unsigned int len = ID.length();
-  output.write((char*) &len, sizeof(unsigned int));
+  output.write((const char*) &len, sizeof(unsigned int));
   output.write(ID.c_str(), len);
 
   //write position and rotation, and scale
   // -- position
   float xyz = position.x;
-  output.write((char*) &xyz, sizeof(float));
+  output.write((const char*) &xyz, sizeof(float));
   xyz = position.y;
-  output.write((char*) &xyz, sizeof(float));
+  output.write((const char*) &xyz, sizeof(float));
   xyz = position.z;
-  output.write((char*) &xyz, sizeof(float));
+  output.write((const char*) &xyz, sizeof(float));
   // -- rotation
   xyz = m_Rotation.w;
-  output.write((char*) &xyz, sizeof(float));
+  output.write((const char*) &xyz, sizeof(float));
   xyz = m_Rotation.x;
-  output.write((char*) &xyz, sizeof(float));
+  output.write((const char*) &xyz, sizeof(float));
   xyz = m_Rotation.y;
-  output.write((char*) &xyz, sizeof(float));
+  output.write((const char*) &xyz, sizeof(float));
   xyz = m_Rotation.z;
-  output.write((char*) &xyz, sizeof(float));
+  output.write((const char*) &xyz, sizeof(float));
   // -- scale
-  output.write((char*) &m_Scale, sizeof(float));
+  output.write((const char*) &m_Scale, sizeof(float));
   return output.good();
 }
 
@@ -342,11 +339,11 @@ bool DuskObject::loadFromStream(std::ifstream& InStream)
     return false;
   }
 
-  unsigned int Header;
+  uint32_t Header;
 
   //read header "RefO"
   Header = 0;
-  InStream.read((char*) &Header, sizeof(unsigned int));
+  InStream.read((char*) &Header, sizeof(uint32_t));
   if (Header!=cHeaderRefO)
   {
     DuskLog() << "DuskObject::loadFromStream: ERROR: Stream contains invalid "
