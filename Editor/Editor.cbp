@@ -140,8 +140,8 @@
 		<Unit filename="../Engine/database/ProjectileRecord.h" />
 		<Unit filename="../Engine/database/ResourceRecord.cpp" />
 		<Unit filename="../Engine/database/ResourceRecord.h" />
-		<Unit filename="../Engine/database/SoundBase.cpp" />
-		<Unit filename="../Engine/database/SoundBase.h" />
+		<Unit filename="../Engine/database/SoundRecord.cpp" />
+		<Unit filename="../Engine/database/SoundRecord.h" />
 		<Unit filename="../Engine/database/VehicleRecord.cpp" />
 		<Unit filename="../Engine/database/VehicleRecord.h" />
 		<Unit filename="../Engine/database/WeaponRecord.cpp" />

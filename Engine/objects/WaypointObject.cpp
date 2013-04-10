@@ -1,20 +1,20 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010, 2012  thoronador
+    Copyright (C) 2010, 2012, 2013  Thoronador
 
-    The Dusk Engine is free software: you can redistribute it and/or modify
+    This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    The Dusk Engine is distributed in the hope that it will be useful,
+    This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with the Dusk Engine.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------
 */
 
@@ -27,46 +27,23 @@
 namespace Dusk
 {
 
+//ctor
 WaypointObject::WaypointObject()
+: UniformMotionObject(),
+  m_WaypointTravel(false),
+  m_Patrol(false),
+  m_Waypoints(std::vector<Ogre::Vector3>()),
+  m_currentWaypoint(0)
 {
-  //ctor
-  ID = "";
-  position = Ogre::Vector3::ZERO;
-  m_Rotation = Ogre::Quaternion::IDENTITY;
-  m_Scale = 1.0f;
-  entity = NULL;
-  m_Direction = Ogre::Vector3::ZERO;
-  m_Destination = Ogre::Vector3::ZERO;
-  m_Speed = 0.0f;
-  m_Travel = false;
-
-  m_WaypointTravel = false;
-  m_Waypoints.clear();
-  m_currentWaypoint = 0;
-  m_Patrol = false;
 }
 
 WaypointObject::WaypointObject(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Quaternion& rot, const float Scale)
+: UniformMotionObject(_ID, pos, rot, Scale),
+  m_WaypointTravel(false),
+  m_Patrol(false),
+  m_Waypoints(std::vector<Ogre::Vector3>()),
+  m_currentWaypoint(0)
 {
-  ID = _ID;
-  position = pos;
-  m_Rotation = rot;
-  if (m_Scale>0.0f)
-  {
-    m_Scale = Scale;
-  } else {
-    m_Scale = 1.0f;
-  }
-  entity = NULL;
-  m_Direction = Ogre::Vector3::ZERO;
-  m_Destination = Ogre::Vector3::ZERO;
-  m_Speed = 0.0f;
-  m_Travel = false;
-
-  m_WaypointTravel = false;
-  m_Waypoints.clear();
-  m_currentWaypoint = 0;
-  m_Patrol = false;
 }
 
 WaypointObject::~WaypointObject()
@@ -200,26 +177,26 @@ bool WaypointObject::saveWaypointObjectPart(std::ofstream& OutStream) const
   // save data members from WaypointObject
   //waypoint data
   // -- waypoint travel enabled?
-  OutStream.write((char*) &m_WaypointTravel, sizeof(bool));
+  OutStream.write((const char*) &m_WaypointTravel, sizeof(bool));
   // -- patrol mode?
-  OutStream.write((char*) &m_Patrol, sizeof(bool));
+  OutStream.write((const char*) &m_Patrol, sizeof(bool));
   // -- current waypoint
-  OutStream.write((char*) &m_currentWaypoint, sizeof(m_currentWaypoint));
+  OutStream.write((const char*) &m_currentWaypoint, sizeof(m_currentWaypoint));
   // -- waypoints themselves
   // ---- number of WPs
   unsigned int len = m_Waypoints.size();
-  OutStream.write((char*) &len, sizeof(unsigned int));
+  OutStream.write((const char*) &len, sizeof(unsigned int));
   // ---- waypoint data
   float xyz;
   unsigned int i;
   for (i=0; i<len; i=i+1)
   {
     xyz = m_Waypoints.at(i).x;
-    OutStream.write((char*) &xyz, sizeof(float));
+    OutStream.write((const char*) &xyz, sizeof(float));
     xyz = m_Waypoints.at(i).y;
-    OutStream.write((char*) &xyz, sizeof(float));
+    OutStream.write((const char*) &xyz, sizeof(float));
     xyz = m_Waypoints.at(i).z;
-    OutStream.write((char*) &xyz, sizeof(float));
+    OutStream.write((const char*) &xyz, sizeof(float));
   } //for
   return OutStream.good();
 }

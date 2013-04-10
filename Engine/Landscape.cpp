@@ -52,17 +52,17 @@ unsigned int GenerateUniqueID()
 // ++ created or manipulated directly by the application.
 // ++++
 LandscapeRecord::LandscapeRecord()
-{
-  m_Loaded = false;
+: m_Highest(0.0),
+  m_Lowest(0.0),
+  m_OffsetX(0.0f),
+  m_OffsetY(0.0f),
+  m_Stride(cDefaultStride),
+  m_Loaded(false),
+  m_RecordID(GenerateUniqueID())
   #ifndef NO_OGRE_IN_LANDSCAPE
-  m_OgreObject = NULL;
+  , m_OgreObject(NULL)
   #endif
-  m_RecordID = GenerateUniqueID();
-  m_OffsetX = 0.0;
-  m_OffsetY = 0.0;
-  m_Stride = cDefaultStride;
-  m_Highest = 0.0;
-  m_Lowest = 0.0;
+{
 }
 
 LandscapeRecord::~LandscapeRecord()
@@ -200,16 +200,16 @@ bool LandscapeRecord::saveToStream(std::ofstream &AStream) const
     return false;
   }
   //write header "Land"
-  AStream.write((char*) &cHeaderLand, sizeof(unsigned int));
+  AStream.write((const char*) &cHeaderLand, sizeof(unsigned int));
   //write offsets
-  AStream.write((char*) &m_OffsetX, sizeof(float));
-  AStream.write((char*) &m_OffsetY, sizeof(float));
+  AStream.write((const char*) &m_OffsetX, sizeof(float));
+  AStream.write((const char*) &m_OffsetY, sizeof(float));
   //stride
-  AStream.write((char*) &m_Stride, sizeof(float));
+  AStream.write((const char*) &m_Stride, sizeof(float));
   //height data
-  AStream.write((char*) &Height[0][0], cRecordWidth*cRecordWidth*sizeof(float));
+  AStream.write((const char*) &Height[0][0], cRecordWidth*cRecordWidth*sizeof(float));
   //colour data
-  AStream.write((char*) &Colour[0][0][0], cRecordWidth*cRecordWidth*3);
+  AStream.write((const char*) &Colour[0][0][0], cRecordWidth*cRecordWidth*3);
   if (!AStream.good())
   {
     DuskLog() << "LandscapeRecord::saveToStream: Error while writing record to"
@@ -855,13 +855,13 @@ unsigned int LandscapeRecord::getID() const
 // ++ data.
 // ++++
 Landscape::Landscape()
-{
-  m_RecordList = NULL;
-  m_numRec = 0;
-  m_Capacity = 0;
+: m_RecordList(NULL),
+  m_numRec(0),
+  m_Capacity(0)
   #ifndef NO_OGRE_IN_LANDSCAPE
-  m_RecordsForUpdate.clear();
+  , m_RecordsForUpdate(std::vector<LandscapeRecord*>())
   #endif
+{
 }
 
 Landscape::~Landscape()
@@ -980,8 +980,8 @@ bool Landscape::saveToFile(const std::string& FileName) const
   }//if
 
   //write header "Dusk"
-  output.write((char*) &cHeaderDusk, sizeof(unsigned int));
-  output.write((char*) &m_numRec, sizeof(unsigned int));
+  output.write((const char*) &cHeaderDusk, sizeof(unsigned int));
+  output.write((const char*) &m_numRec, sizeof(unsigned int));
 
   unsigned int i;
 

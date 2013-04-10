@@ -1,20 +1,20 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010, 2011, 2012  thoronador
+    Copyright (C) 2009, 2010, 2011, 2012, 2013  Thoronador
 
-    The Dusk Engine is free software: you can redistribute it and/or modify
+    This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    The Dusk Engine is distributed in the hope that it will be useful,
+    This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with the Dusk Engine.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------
 */
 
@@ -44,25 +44,40 @@ const unsigned char NPC::Flag_CanRightAttack = 2;
 const unsigned char NPC::Flag_CanLeftAttack = 4;
 
 NPC::NPC()
-  : AnimatedObject("", Ogre::Vector3::ZERO, Ogre::Quaternion::IDENTITY, 1.0f)
-{
+  : AnimatedObject(), WaypointObject(),
   //assume some random data
   //all attributes to one
-  m_Strength=m_Agility=m_Vitality=m_Intelligence=m_Willpower=m_Charisma=m_Luck=1;
-  m_Level = 1; //assume level 1
-  m_Inventory.makeEmpty(); //empty inventory
-  m_Health = getMaxHealth();
-  m_EquippedLeft = NULL;
-  m_EquippedRight = NULL;
-  m_TimeToNextAttackLeft = m_TimeToNextAttackRight = 0.0f;
-  m_AttackFlags = 0;
-  m_JumpVelocity = 0.0f;
-  m_Jump = false;
-  m_Vehicle = NULL;
+  m_Strength(1),
+  m_Agility(1),
+  m_Vitality(1),
+  m_Intelligence(1),
+  m_Willpower(1),
+  m_Charisma(1),
+  m_Luck(1),
+  m_Level(1), //assume level 1
+  m_Health(getMaxHealth()),
+  m_Inventory(Inventory()), //empty inventory
+  m_EquippedLeft(NULL),
+  m_EquippedRight(NULL),
+  m_TimeToNextAttackLeft(0.0f),
+  m_TimeToNextAttackRight(0.0f),
+  m_AttackFlags(0),
+  m_JumpVelocity(0.0f),
+  m_Jump(false),
+  m_Vehicle(NULL)
+{
 }
 
 NPC::NPC(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Quaternion& rot, const float Scale)
- : AnimatedObject(_ID, pos, rot, Scale)
+: AnimatedObject(_ID, pos, rot, Scale), WaypointObject(_ID, pos, rot, Scale),
+  m_EquippedLeft(NULL),
+  m_EquippedRight(NULL),
+  m_TimeToNextAttackLeft(0.0f),
+  m_TimeToNextAttackRight(0.0f),
+  m_AttackFlags(0),
+  m_JumpVelocity(0.0f),
+  m_Jump(false),
+  m_Vehicle(NULL)
 {
   if (Database::getSingleton().hasRecord(ID))
   {
@@ -88,13 +103,6 @@ NPC::NPC(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Quaternio
     m_Inventory.makeEmpty(); //empty inventory
   }
   m_Health = getMaxHealth();
-  m_EquippedLeft = NULL;
-  m_EquippedRight = NULL;
-  m_TimeToNextAttackLeft = m_TimeToNextAttackRight = 0.0f;
-  m_AttackFlags = 0;
-  m_JumpVelocity = 0.0f;
-  m_Jump = false;
-  m_Vehicle = NULL;
 }
 
 NPC::~NPC()

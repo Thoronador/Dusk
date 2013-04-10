@@ -1,20 +1,20 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010, 2011 thoronador
+    Copyright (C) 2009, 2010, 2011, 2013  Thoronador
 
-    The Dusk Engine is free software: you can redistribute it and/or modify
+    This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    The Dusk Engine is distributed in the hope that it will be useful,
+    This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with the Dusk Engine.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------
 */
 
@@ -53,7 +53,7 @@
                               LandscapeRecord to allow random terrain generation
 
  ToDo list:
-     - implement LoadRecordFromStream() for Landscape class
+     - implement loadRecordFromStream() for Landscape class
      - try to get rid of getRecordByPosition(), if it's not used anymore by any
        other files in Engine and Editor
      - complete history (see above)
@@ -326,7 +326,6 @@ namespace Dusk
       // prefix for names of all ManualObjects created during landscape enabling
       static const std::string cLandscapeNamePrefix;
     private:
-      static unsigned int m_genID;
       //not part of actual data, but calculated during loading process
       float m_Highest, m_Lowest;
       float m_OffsetX, m_OffsetY; //shift of land via x and z axis
@@ -457,6 +456,7 @@ namespace Dusk
       */
       unsigned int updateRecords(const bool WireFrame);
       #endif
+
       /* returns the height of the landscape at a given point, i.e. the y-value
          of the point (x,y,z), where (x,y,z) is directly at the landscape's
          surface. If no landscape data for the given point is present, 0.0 will

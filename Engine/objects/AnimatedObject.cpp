@@ -54,9 +54,9 @@ AnimatedObject::AnimatedObject(const std::string& _ID, const Ogre::Vector3& pos,
 {
 }
 
+//dtor
 AnimatedObject::~AnimatedObject()
 {
-  //dtor
   disable();
 }
 
@@ -203,7 +203,7 @@ bool AnimatedObject::isHitByRay(const Ogre::Ray& ray, Ogre::Vector3& impact) con
     #endif
   #else
     #error OGRE_VERSION_MAJOR and OGRE_VERSION_MINOR are not defined!
-    #error Are you sure you the Ogre headers are included?
+    #error Are you sure the Ogre headers are included?
   #endif
                              entity->getParentNode()->_getDerivedScale());
   // test for hitting individual triangles on the mesh
@@ -240,7 +240,7 @@ bool AnimatedObject::isHitByRay(const Ogre::Ray& ray, Ogre::Vector3& impact) con
 
 bool AnimatedObject::startAnimation(const std::string& AnimName, const bool DoLoop)
 {
-  if (AnimName=="")
+  if (AnimName.empty())
     return false;
   if (entity!=NULL)
   {
@@ -268,7 +268,7 @@ bool AnimatedObject::stopAnimation(const std::string& AnimName)
 {
   if (entity==NULL)  // no entitiy -> no animation, so basically
     return true;     //   the animation is already "stopped" :P
-  if (AnimName=="")
+  if (AnimName.empty())
     return false;
 
   const Ogre::AnimationStateSet * anim_set = entity->getAllAnimationStates();
@@ -323,7 +323,7 @@ bool AnimatedObject::isAnimationActive(const std::string& AnimName) const
 {
   if (entity==NULL)  // no entitiy -> no animation, so basically
     return false;     //   the animation is already "stopped" :P
-  if (AnimName=="")
+  if (AnimName.empty())
     return false;
   const Ogre::AnimationStateSet * anim_set = entity->getAllAnimationStates();
   if (anim_set!=NULL)

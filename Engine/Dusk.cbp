@@ -215,8 +215,8 @@
 		<Unit filename="database/ProjectileRecord.h" />
 		<Unit filename="database/ResourceRecord.cpp" />
 		<Unit filename="database/ResourceRecord.h" />
-		<Unit filename="database/SoundBase.cpp" />
-		<Unit filename="database/SoundBase.h" />
+		<Unit filename="database/SoundRecord.cpp" />
+		<Unit filename="database/SoundRecord.h" />
 		<Unit filename="database/VehicleRecord.cpp" />
 		<Unit filename="database/VehicleRecord.h" />
 		<Unit filename="database/WeaponRecord.cpp" />

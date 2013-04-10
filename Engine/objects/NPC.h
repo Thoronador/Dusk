@@ -1,20 +1,20 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010, 2011, 2012  thoronador
+    Copyright (C) 2009, 2010, 2011, 2012, 2013  Thoronador
 
-    The Dusk Engine is free software: you can redistribute it and/or modify
+    This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    The Dusk Engine is distributed in the hope that it will be useful,
+    This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with the Dusk Engine.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------
 */
 
@@ -368,14 +368,14 @@ namespace Dusk
       */
       bool unequip(const SlotType slot);
 
-      //the NPC's inventory
-      Inventory m_Inventory;
-      //current health
-      float m_Health;
-      //level
-      uint8_t m_Level;
       //attributes
       uint8_t m_Strength, m_Agility, m_Vitality, m_Intelligence, m_Willpower, m_Charisma, m_Luck;
+      //level
+      uint8_t m_Level;
+      //current health
+      float m_Health;
+      //the NPC's inventory
+      Inventory m_Inventory;
       //equipped items in left and right hand
       Item* m_EquippedLeft;
       Item* m_EquippedRight;
