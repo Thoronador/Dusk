@@ -2,6 +2,9 @@
 *.depend
 *.layout
 
+# log files (Ogre, Dusk, CEGUI)
+*.log
+
 # object and binary directories
 bin/
 obj/
