@@ -39,8 +39,7 @@ unsigned int GenerateUniqueObjectID()
 
 //ctor
 DuskObject::DuskObject()
-: Ogre::UserDefinedObject(),
-  ID(""),
+: ID(""),
   entity(NULL),
   position(Ogre::Vector3::ZERO),
   m_Rotation(Ogre::Quaternion::IDENTITY),
@@ -49,8 +48,7 @@ DuskObject::DuskObject()
 }
 
 DuskObject::DuskObject(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Quaternion& rot, const float Scale)
-: Ogre::UserDefinedObject(),
-  ID(_ID),
+: ID(_ID),
   entity(NULL),
   position(pos),
   m_Rotation(rot),
@@ -166,7 +164,7 @@ bool DuskObject::enable(Ogre::SceneManager* scm)
   //rotation
   ent_node->setOrientation(m_Rotation);
   //set user defined object to this object as reverse link
-  entity->setUserObject(this);
+  entity->setUserAny(Ogre::Any(this));
   return (entity!=NULL);
 }
 

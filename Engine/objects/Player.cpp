@@ -1,20 +1,20 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010, 2011, 2012  thoronador
+    Copyright (C) 2010, 2011, 2012, 2013  thoronador
 
-    The Dusk Engine is free software: you can redistribute it and/or modify
+    This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    The Dusk Engine is distributed in the hope that it will be useful,
+    This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with the Dusk Engine.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------
 */
 
@@ -26,6 +26,7 @@
   #include "../Camera.h"
 #endif
 #include <OgreSkeleton.h>
+#include "AnyConversion.h"
 
 namespace Dusk
 {
@@ -79,10 +80,9 @@ bool Player::pickUpNearest()
   Ogre::SceneQueryResultMovableList::iterator iter = result.movables.begin();
   while (iter!=result.movables.end())
   {
-    Ogre::UserDefinedObject* udo = (*iter)->getUserObject();
-    if (udo!=NULL)
+    if (!((*iter)->getUserAny().isEmpty()))
     {
-      DuskObject* obj_ptr = static_cast<DuskObject*>(udo);
+      DuskObject* obj_ptr = AnyToObjectPtr((*iter)->getUserAny());
       if (obj_ptr->canPickUp())
       {
         const float sd = position.squaredDistance(obj_ptr->getPosition());

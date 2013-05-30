@@ -34,6 +34,7 @@
 #include "../Landscape.h"
 #include "Vehicle.h"
 #include "../Messages.h"
+#include "AnyConversion.h"
 
 namespace Dusk
 {
@@ -183,7 +184,7 @@ void NPC::move(const float SecondsPassed)
     {
       //No need to check for landscape here, that has been handled by Landscape's
       // getHeightAtPosition() already.
-      DuskObject* obj = static_cast<DuskObject*>(result.at(i).movable->getUserObject());
+      DuskObject* obj = AnyToObjectPtr(result.at(i).movable->getUserAny());
       if (obj!=NULL and obj!=this and obj->canCollide()
          and ((obj->getDuskType()!=otWeapon and obj->getDuskType()!=otItem)
               or !static_cast<Item*>(obj)->isEquipped())
@@ -1160,9 +1161,9 @@ void NPC::performAttack(const SlotType attackSlot)
   Ogre::SceneQueryResultMovableList::iterator iter = result.movables.begin();
   while (iter!=result.movables.end())
   {
-    if ((*iter)->getUserObject()!=NULL)
+    if (!((*iter)->getUserAny().isEmpty()))
     {
-      obj_ptr = static_cast<DuskObject*>((*iter)->getUserObject());
+      obj_ptr = AnyToObjectPtr((*iter)->getUserAny());
       if (obj_ptr->getDuskType()==otNPC)
       {
         //We've found an NPC!

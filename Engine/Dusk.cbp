@@ -241,6 +241,8 @@
 		<Unit filename="main.cpp" />
 		<Unit filename="objects/AnimatedObject.cpp" />
 		<Unit filename="objects/AnimatedObject.h" />
+		<Unit filename="objects/AnyConversion.cpp" />
+		<Unit filename="objects/AnyConversion.h" />
 		<Unit filename="objects/Container.cpp" />
 		<Unit filename="objects/Container.h" />
 		<Unit filename="objects/DuskObject.cpp" />

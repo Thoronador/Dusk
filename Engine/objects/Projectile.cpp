@@ -26,6 +26,7 @@
 #include "../Landscape.h"
 #include "../DiceBox.h"
 #include "../Messages.h"
+#include "AnyConversion.h"
 
 namespace Dusk
 {
@@ -141,7 +142,7 @@ void Projectile::injectTime(const float SecondsPassed)
         }//if movalbe is landscape record
         else
         { //no landscape, so it must be a DuskObject (or derived type)
-          DuskObject* obj = static_cast<DuskObject*>(result.at(i).movable->getUserObject());
+          DuskObject* obj = AnyToObjectPtr(result.at(i).movable->getUserAny());
           if (obj!=NULL and obj!=m_Emitter and obj->canCollide())
           {
             Ogre::Vector3 vec_i(0.0, 0.0, 0.0);

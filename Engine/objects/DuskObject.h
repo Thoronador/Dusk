@@ -1,20 +1,20 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2007, 2009, 2010, 2012  ssj5000, thoronador
+    Copyright (C) 2007, 2009, 2010, 2012, 2013  ssj5000, thoronador
 
-    The Dusk Engine is free software: you can redistribute it and/or modify
+    This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    The Dusk Engine is distributed in the hope that it will be useful,
+    This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with the Dusk Engine.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------
 */
 
@@ -82,6 +82,7 @@
      - 2012-06-30 (rev 308) - update of getObjectMesh() definition
      - 2012-07-02 (rev 310) - update of getObjectMesh() and canCollide() to use
                               Database instead of ObjectBase
+     - 2013-05-30           - remove OgreUserDefinedObject dependency
 
  ToDo list:
      - ???
@@ -95,7 +96,6 @@
 
 #include <string>
 #include <fstream>
-#include <OgreUserDefinedObject.h>
 #include <OgreEntity.h>
 #include <OgreSceneManager.h>
 #include <OgreQuaternion.h>
@@ -110,7 +110,7 @@ enum ObjectTypes {otUndefined, otStatic, otItem, otAnimated, otWaypoint,
 
 unsigned int GenerateUniqueObjectID();
 
-class DuskObject: public Ogre::UserDefinedObject
+class DuskObject
 {
     public:
         /* default constructor */

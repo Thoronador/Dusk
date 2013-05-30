@@ -165,6 +165,8 @@
 		<Unit filename="../Engine/lua/LuaIncludes.h" />
 		<Unit filename="../Engine/objects/AnimatedObject.cpp" />
 		<Unit filename="../Engine/objects/AnimatedObject.h" />
+		<Unit filename="../Engine/objects/AnyConversion.cpp" />
+		<Unit filename="../Engine/objects/AnyConversion.h" />
 		<Unit filename="../Engine/objects/Container.cpp" />
 		<Unit filename="../Engine/objects/Container.h" />
 		<Unit filename="../Engine/objects/DuskObject.cpp" />

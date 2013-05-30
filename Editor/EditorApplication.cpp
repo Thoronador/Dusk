@@ -3,18 +3,18 @@
     This file is part of the Dusk Editor.
     Copyright (C) 2009, 2010, 2011 thoronador
 
-    The Dusk Editor is free software: you can redistribute it and/or modify
+    This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    The Dusk Editor is distributed in the hope that it will be useful,
+    This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with the Dusk Editor.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------
 */
 
@@ -36,6 +36,7 @@
 #include "../Engine/database/WeaponRecord.h"
 #include "../Engine/Weather.h"
 #include "../Engine/InjectionManager.h"
+#include "../Engine/objects/AnyConversion.h"
 #include <OgreConfigFile.h>
 #include <OgreVector3.h>
 #include <CEGUI/CEGUI.h>
@@ -1557,9 +1558,9 @@ DuskObject* EditorApplication::getObjectAtMouse(const CEGUI::Point& pt)
                    << rsq_iter->distance << " units.\n";
          if (rsq_iter->distance>0.1f)
          { //try moving/rotating it?
-           if ( rsq_iter->movable->getUserObject() != NULL)
+           if (!rsq_iter->movable->getUserAny().isEmpty())
            {
-              DuskObject * d_obj = static_cast<DuskObject*> (rsq_iter->movable->getUserObject());
+              DuskObject * d_obj = AnyToObjectPtr(rsq_iter->movable->getUserAny());
               std::cout << "DEBUG: found object of ID \""<< d_obj->getID() <<"\" at position ("
                         << d_obj->getPosition().x<<","<< d_obj->getPosition().y<<","
                         << d_obj->getPosition().z<<")\n";

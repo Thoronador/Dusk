@@ -86,13 +86,9 @@ bool AnimatedObject::enable(Ogre::SceneManager* scm)
   Ogre::SceneNode* ent_node = scm->getRootSceneNode()->createChildSceneNode(entity_name.str(), position);
   ent_node->attachObject(entity);
   ent_node->scale(m_Scale, m_Scale, m_Scale);
-  /*//not sure whether this is the best one for rotation
-  ent_node->rotate(Ogre::Vector3::UNIT_X, Ogre::Degree(rotation.x));
-  ent_node->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(rotation.y));
-  ent_node->rotate(Ogre::Vector3::UNIT_Z, Ogre::Degree(rotation.z));*/
   ent_node->setOrientation(m_Rotation);
   //set user defined object to this object as reverse link
-  entity->setUserObject(this);
+  entity->setUserAny(Ogre::Any(this));
   //restore saved or queued animations
   if (!(m_Anims.empty()))
   {
