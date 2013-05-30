@@ -49,7 +49,7 @@
 
 #include <OgreRenderWindow.h>
 #include <OgreRoot.h>
-#include <ois/OIS.h>
+#include <OIS/OIS.h>
 
 namespace Dusk
 {
