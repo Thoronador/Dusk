@@ -51,6 +51,7 @@
      - 2011-06-13 (rev 293) - improvements to get rid of some compiler warnings
      - 2011-08-28 (rev 298) - function generateByDiamondSquare() added to
                               LandscapeRecord to allow random terrain generation
+     - 2013-05-30           - minor fixes to eliminate some compiler warnings
 
  ToDo list:
      - implement loadRecordFromStream() for Landscape class

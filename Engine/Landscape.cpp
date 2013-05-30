@@ -1,20 +1,20 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2009, 2010, 2011 thoronador
+    Copyright (C) 2009, 2010, 2011, 2013  Thoronador
 
-    The Dusk Engine is free software: you can redistribute it and/or modify
+    This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    The Dusk Engine is distributed in the hope that it will be useful,
+    This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with the Dusk Engine.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------
 */
 
@@ -517,10 +517,10 @@ bool LandscapeRecord::setColourRadial(const float x, const float z, const unsign
      && radius>0.0f)
   {
     //get indices at center
-    const int x_idx = static_cast<int>((x-m_OffsetX)/m_Stride);
-    const int y_idx = static_cast<int>((z-m_OffsetY)/m_Stride);
+    const unsigned int x_idx = static_cast<unsigned int>((x-m_OffsetX)/m_Stride);
+    const unsigned int y_idx = static_cast<unsigned int>((z-m_OffsetY)/m_Stride);
     //get range of radius by means of indices
-    const int range = static_cast<int>(radius/m_Stride);
+    const unsigned int range = static_cast<unsigned int>(radius/m_Stride);
     //calculate minimum indices that are affected
     unsigned int x_min, y_min;
     if (range>=x_idx)
@@ -553,7 +553,7 @@ bool LandscapeRecord::setColourRadial(const float x, const float z, const unsign
     unsigned int i, j;
     for (i=x_min; i<=x_max; ++i)
     {
-      for (j=y_min; j<=y_max; ++j);
+      for (j=y_min; j<=y_max; ++j)
       {
         Colour[i][j][0] = r;
         Colour[i][j][1] = g;
