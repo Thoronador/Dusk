@@ -4,7 +4,7 @@ compiler:
   - gcc
 before_install:
   - cat /etc/issue.net
-  - sudo apt-get install -y libogre-dev libois-dev libopenal-dev libvorbis-dev liblua5.1-dev liblua50-dev
+  - sudo apt-get install -y libogre-dev libois-dev libopenal-dev libvorbis-dev liblua5.1-dev liblua50-dev libvorbis-dev
 script:
   - mkdir ./Build
   - cd ./Build

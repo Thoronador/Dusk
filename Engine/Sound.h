@@ -86,14 +86,18 @@
 #include <vector>
 #if defined(_WIN32)
   #include <windows.h>
+  #include "openal/al.h" //OpenAL header
+  #include "openal/alc.h"  //OpenAL header
+  #include "oggvorbis/vorbisfile.h" //Vorbis header
 #elif defined(__linux__) || defined(linux)
   #include <dlfcn.h>
+  #include <AL/al.h> //OpenAL header
+  #include <AL/alc.h> //OpenAL header
+  #include <vorbis/vorbisfile.h> //Vorbis header
 #else
   #error "Unknown operating system!"
 #endif
-#include "openal/al.h" //OpenAL header
-#include "openal/alc.h"  //OpenAL header
-#include "oggvorbis/vorbisfile.h" //Vorbis header
+
 
 //Types for wave format:
 struct TRiffChunk
