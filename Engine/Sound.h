@@ -1,20 +1,20 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2008, 2009, 2010, 2011 thoronador, walljumper, ssj5000
+    Copyright (C) 2008, 2009, 2010, 2011, 2013 thoronador, walljumper, ssj5000
 
-    The Dusk Engine is free software: you can redistribute it and/or modify
+    This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    The Dusk Engine is distributed in the hope that it will be useful,
+    This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with the Dusk Engine.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------
 */
 
@@ -70,6 +70,7 @@
      - 2011-08-05 (rev 295) - functions to retrieve device names added
      - 2011-08-05 (rev 296) - function to retrieve default device name added
      - 2011-08-13 (rev 297) - minor fix in getAvailableDevices() function
+     - 2013-05-30           - adjustment of some types for non-32bit-architectures
 
  ToDo list:
      - ???
@@ -98,24 +99,24 @@
 struct TRiffChunk
 {
   char Riff[4];
-  unsigned long len; //32 bit unsigned int; file size-8
+  uint32_t len; //32 bit unsigned int; file size-8
   char Wave[4];
 };
 struct TFmtChunk
 {
   char fmt_[4];
-  unsigned long chunk_size;//32 bit unsigned int;
-  unsigned short FormatTag;//16 bit unsigned int;
-  unsigned short Channels;
-  unsigned long SamplesPerSecond;
-  unsigned long BytesPerSecond;
-  unsigned short BlockAlign;
-  unsigned short BitsPerSample;
+  uint32_t chunk_size;//32 bit unsigned int;
+  uint16_t FormatTag;//16 bit unsigned int;
+  uint16_t Channels;
+  uint32_t SamplesPerSecond;
+  uint32_t BytesPerSecond;
+  uint16_t BlockAlign;
+  uint16_t BitsPerSample;
 };
 struct TDataChunk
 {
   char data[4];
-  unsigned long length_of_data;
+  uint32_t length_of_data;
 };
 
 //buffer management type

@@ -1,20 +1,20 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2013  Thoronador
 
-    The Dusk Engine is free software: you can redistribute it and/or modify
+    This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    The Dusk Engine is distributed in the hope that it will be useful,
+    This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with the Dusk Engine.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------
 */
 
@@ -63,19 +63,7 @@ bool Messages::isOutput() const
   return mOutput;
 }
 
-Messages& Messages::operator<<(const unsigned int n)
-{
-  Log(IntToString(n));
-  return *this;
-}
-
-Messages& Messages::operator<<(const int n)
-{
-  Log(IntToString(n));
-  return *this;
-}
-
-Messages& Messages::operator<<(const unsigned long int n)
+Messages& Messages::operator<<(const uint16_t n)
 {
   mStream<<n;
   mStream.flush();
@@ -86,7 +74,40 @@ Messages& Messages::operator<<(const unsigned long int n)
   return *this;
 }
 
-Messages& Messages::operator<<(const long int n)
+Messages& Messages::operator<<(const int16_t n)
+{
+  mStream<<n;
+  mStream.flush();
+  if (mOutput)
+  {
+    std::cout << n;
+  }
+  return *this;
+}
+
+Messages& Messages::operator<<(const uint32_t n)
+{
+  mStream<<n;
+  mStream.flush();
+  if (mOutput)
+  {
+    std::cout << n;
+  }
+  return *this;
+}
+
+Messages& Messages::operator<<(const int32_t n)
+{
+  mStream<<n;
+  mStream.flush();
+  if (mOutput)
+  {
+    std::cout << n;
+  }
+  return *this;
+}
+
+Messages& Messages::operator<<(const uint64_t n)
 {
   mStream<<n;
   mStream.flush();
@@ -98,6 +119,28 @@ Messages& Messages::operator<<(const long int n)
 }
 
 Messages& Messages::operator<<(const int64_t n)
+{
+  mStream<<n;
+  mStream.flush();
+  if (mOutput)
+  {
+    std::cout << n;
+  }
+  return *this;
+}
+
+Messages& Messages::operator<<(const unsigned long n)
+{
+  mStream<<n;
+  mStream.flush();
+  if (mOutput)
+  {
+    std::cout << n;
+  }
+  return *this;
+}
+
+Messages& Messages::operator<<(const long n)
 {
   mStream<<n;
   mStream.flush();
