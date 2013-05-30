@@ -1,20 +1,20 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2012  thoronador
+    Copyright (C) 2012, 2013  Thoronador
 
-    The Dusk Engine is free software: you can redistribute it and/or modify
+    This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    The Dusk Engine is distributed in the hope that it will be useful,
+    This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with the Dusk Engine.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------
 */
 
@@ -26,6 +26,7 @@
 
  History:
      - 2012-07-01 (rev 309) - initial version (by thoronador)
+     - 2013-05-30           - add virtual destructor
 
  ToDo list:
      - ???
@@ -47,6 +48,12 @@ struct DataRecord
 {
   public:
     std::string ID;
+
+    /* destructor */
+    virtual ~DataRecord()
+    {
+      //empty
+    }
 
     /* returns an integer value that uniquely identifies this record's type */
     virtual uint32_t getRecordType() const = 0;
