@@ -1,20 +1,20 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2013 thoronador
 
-    The Dusk Engine is free software: you can redistribute it and/or modify
+    This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    The Dusk Engine is distributed in the hope that it will be useful,
+    This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with the Dusk Engine.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------
 */
 
@@ -36,6 +36,7 @@
      - 2010-12-17 (rev 269) - obsolete macro removed
      - 2010-12-17 (rev 270) - obsolete macro removed
      - 2010-12-17 (rev 271) - last obsolete compatibility macro removed
+     - 2013-05-31           - adjust includes for Windows
 
  ToDo list:
      - ???
@@ -54,9 +55,9 @@ extern "C" {
     /* We use Lua 5.1 on Windows platforms, since 5.0 does not seem to be
        available for download on SF any more.
     */
-    #include "lua51/lua.h"
-    #include "lua51/lualib.h"
-    #include "lua51/lauxlib.h"
+    #include "../lua51/lua.h"
+    #include "../lua51/lualib.h"
+    #include "../lua51/lauxlib.h"
     #define DUSK_LUA51
   #elif defined(__linux__) || defined(linux)
     /* We use Lua 5.0 on Linux platforms.
