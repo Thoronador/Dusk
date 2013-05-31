@@ -1,20 +1,20 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010, 2011 thoronador
+    Copyright (C) 2010, 2011, 2013  Thoronador
 
-    The Dusk Engine is free software: you can redistribute it and/or modify
+    This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    The Dusk Engine is distributed in the hope that it will be useful,
+    This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with the Dusk Engine.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------
 */
 
@@ -42,6 +42,7 @@
                                can now be stored in trigger)
      - 2010-11-12 (rev 252) - checkForRemoval() added
      - 2011-10-28 (rev 302) - fixed spelling error
+     - 2013-05-31           - remove Trigger::compLesser(), function is unused
 
  ToDo list:
      - provide a way for scripts of ScriptedTrigger to access the related
@@ -128,7 +129,6 @@ class Trigger
     //calls onWithin() for every object within the trigger
     void processObjects();
   protected:
-    bool compLesser(const TriggerObject* a, const TriggerObject* b) const;
     std::set<TriggerObject*> m_ObjectList;
 
     /*checks if objects within the trigger could be removed, because they moved
