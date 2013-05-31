@@ -30,7 +30,7 @@
                             - unneccessary member functions removed
                             - operator << overloaded for use with Messages
      - 2011-02-06 (rev 279) - minor error fixed
-     - 2013-05-30           - better int types
+     - 2013-05-30/31        - better operator << for int types
 
  ToDo list:
      - ???
@@ -44,9 +44,8 @@
 #define MESSAGES_H
 
 #include <string>
+#include <iostream>
 #include <fstream>
-#include <deque>
-#include <stdint.h>
 
 namespace Dusk
 {
@@ -78,14 +77,8 @@ class Messages
     /* returns true, if logged messages are also written to standard output */
     bool isOutput() const;
 
-    Messages& operator<<(const uint16_t n);
-    Messages& operator<<(const int16_t n);
-    Messages& operator<<(const uint32_t n);
-    Messages& operator<<(const int32_t n);
-    Messages& operator<<(const uint64_t n);
-    Messages& operator<<(const int64_t n);
-    Messages& operator<<(const long int n);
-    Messages& operator<<(const unsigned long int n);
+    template<typename MrT>
+    Messages& operator<<(const MrT& n);
     Messages& operator<<(const float f);
     Messages& operator<<(const double d);
     Messages& operator<<(const std::string& str);
@@ -107,6 +100,18 @@ class Messages
     /* empty copy constructor due to singleton pattern */
     Messages(const Messages& op) {}
 };//class
+
+template<typename MrT>
+Messages& Messages::operator<<(const MrT& n)
+{
+  mStream<<n;
+  mStream.flush();
+  if (mOutput)
+  {
+    std::cout << n;
+  }
+  return *this;
+}
 
 inline void DuskLog(const std::string& text)
 {
