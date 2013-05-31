@@ -433,8 +433,8 @@ class Sound
     LPALCISEXTENSIONPRESENT alcIsExtensionPresent;
     /* Disabled for now
     LPALCGETPROCADDRESS alcGetProcAddress;
-    LPALCGETENUMVALUE alcGetEnumValue;
     */
+    LPALCGETENUMVALUE alcGetEnumValue;
 
     //**** Query functions
     LPALCGETSTRING alcGetString;

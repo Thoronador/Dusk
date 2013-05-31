@@ -163,6 +163,7 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
   alcCloseDevice = (LPALCCLOSEDEVICE) GetProcAddress(libHandleAL, "alcCloseDevice");
   alcGetError = (LPALCGETERROR) GetProcAddress(libHandleAL, "alcGetError");
   alcIsExtensionPresent = (LPALCISEXTENSIONPRESENT) GetProcAddress(libHandleAL, "alcIsExtensionPresent");
+  alcGetEnumValue = (LPALCGETENUMVALUE) GetProcAddress(libHandleAL, "alcGetEnumValue");
   alcGetString = (LPALCGETSTRING) GetProcAddress(libHandleAL, "alcGetString");
   alcGetIntegerv = (LPALCGETINTEGERV) GetProcAddress(libHandleAL, "alcGetIntegerv");
   #else
@@ -171,6 +172,7 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
   alcCloseDevice = (LPALCCLOSEDEVICE) dlsym(libHandleAL, "alcCloseDevice");
   alcGetError = (LPALCGETERROR) dlsym(libHandleAL, "alcGetError");
   alcIsExtensionPresent = (LPALCISEXTENSIONPRESENT) dlsym(libHandleAL, "alcIsExtensionPresent");
+  alcGetEnumValue = (LPALCGETENUMVALUE) dlsym(libHandleAL, "alcGetEnumValue");
   alcGetString = (LPALCGETSTRING) dlsym(libHandleAL, "alcGetString");
   alcGetIntegerv = (LPALCGETINTEGERV) dlsym(libHandleAL, "alcGetIntegerv");
   #endif
@@ -196,6 +198,12 @@ bool Sound::init(std::string PathToLib_AL, std::string PathToLib_Vorbisfile, con
   if (alcIsExtensionPresent == NULL)
   {
     DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alcIsExtensionPresent\" address.\n";
+    InitInProgress = false;
+    return false;
+  }
+  if (alcGetEnumValue == NULL)
+  {
+    DuskLog() << "Sound::Init: ERROR: Could not retrieve \"alcGetEnumValue\" address.\n";
     InitInProgress = false;
     return false;
   }
@@ -3852,7 +3860,7 @@ bool Sound::getDefaultDeviceName(std::string& result) const
   if (alcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT"))
   {
     //use extension-provided name
-    ptrName = alcGetString(pDevice, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
+    ptrName = alcGetString(pDevice, alcGetEnumValue(pDevice, "ALC_DEFAULT_ALL_DEVICES_SPECIFIER"));
   }
   else
   {
@@ -3890,7 +3898,7 @@ bool Sound::getAvailableDevices(std::vector<std::string>& result) const
   if (alcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT"))
   {
     //use extension
-    ptrName = alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
+    ptrName = alcGetString(NULL, alcGetEnumValue(pDevice, "ALC_ALL_DEVICES_SPECIFIER"));
   }
   else if (alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT"))
   {
@@ -3938,8 +3946,8 @@ void Sound::AllFuncPointersToNULL(void)
   //****Extension handling functions (ALC)
   alcIsExtensionPresent = NULL;
   /* Disabled for now
-  alcGetProcAddress = NULL;
-  alcGetEnumValue = NULL;  */
+  alcGetProcAddress = NULL;  */
+  alcGetEnumValue = NULL;
   //****Query functions
   alcGetString = NULL;
   alcGetIntegerv = NULL;
