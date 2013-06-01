@@ -4,11 +4,10 @@ compiler:
   - gcc
 before_install:
   - cat /etc/issue.net
-  - sudo apt-get install -y libogre-dev libois-dev libopenal-dev libvorbis-dev liblua5.1-dev liblua50-dev liblualib50-dev libvorbis-dev
+  - sudo apt-get install -y libogre-dev libois-dev libopenal-dev libvorbis-dev liblua5.1-dev liblua50-dev liblualib50-dev libvorbis-dev bash
 script:
-  - mkdir ./Build
-  - cd ./Build
-  - cmake ../
-  - make -j`nproc`
+  - cd ./Engine/build_scripts
+  - chmod a+x ./buildDusk.sh
+  - ./buildDusk.sh
 notifications:
   email: false
