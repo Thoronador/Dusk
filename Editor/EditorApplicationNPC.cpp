@@ -1,20 +1,20 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Editor.
-    Copyright (C) 2010, 2011, 2012  thoronador
+    Copyright (C) 2010, 2011, 2012, 2013  Thoronador
 
-    The Dusk Editor is free software: you can redistribute it and/or modify
+    This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    The Dusk Editor is distributed in the hope that it will be useful,
+    This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with the Dusk Editor.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------
 */
 
@@ -31,10 +31,13 @@ namespace Dusk
 {
 
 EditorApplicationNPC::EditorApplicationNPC()
+: ID_of_NPC_to_delete(""),
+  ID_of_NPC_to_edit(""),
+  m_NewNPCTagPoints(NPCTagPoints::getNullTagPoints()),
+  m_NewNPCAnimations(NPCAnimations::getNullAnimations()),
+  m_EditNPCTagPoints(NPCTagPoints::getNullTagPoints()),
+  m_EditNPCAnimations(NPCAnimations::getNullAnimations())
 {
-  ID_of_NPC_to_delete = ID_of_NPC_to_edit = "";
-  m_NewNPCTagPoints = m_EditNPCTagPoints = NPCTagPoints::getNullTagPoints();
-  m_NewNPCAnimations = m_EditNPCAnimations = NPCAnimations::getNullAnimations();
 }
 
 EditorApplicationNPC::~EditorApplicationNPC()
@@ -124,7 +127,7 @@ bool EditorApplicationNPC::NPCTabClicked(const CEGUI::EventArgs &e)
     const CEGUI::MouseEventArgs& mea = static_cast<const CEGUI::MouseEventArgs&> (e);
     if (mea.button == CEGUI::RightButton)
     {
-      const CEGUI::Rect mcl_rect = winmgr.getWindow("Editor/Catalogue/Tab/NPC/List")->getPixelRect();
+      const CEGUI::Rect mcl_rect = winmgr.getWindow("Editor/Catalogue/Tab/NPC/List")->getOuterRectClipper();
       const float pu_x = (mea.position.d_x-mcl_rect.d_left)/mcl_rect.getWidth();
       const float pu_y = (mea.position.d_y-mcl_rect.d_top)/mcl_rect.getHeight();
       popup->setPosition(CEGUI::UVector2(CEGUI::UDim(pu_x, 0), CEGUI::UDim(pu_y, 0)));
@@ -715,7 +718,7 @@ bool EditorApplicationNPC::NPCNewFrameInventoryListClicked(const CEGUI::EventArg
     const CEGUI::MouseEventArgs& mea = static_cast<const CEGUI::MouseEventArgs&> (e);
     if (mea.button == CEGUI::RightButton)
     {
-      const CEGUI::Rect mcl_rect = winmgr.getWindow("Editor/NPCNewFrame/InventoryList")->getPixelRect();
+      const CEGUI::Rect mcl_rect = winmgr.getWindow("Editor/NPCNewFrame/InventoryList")->getOuterRectClipper();
       const float pu_x = (mea.position.d_x-mcl_rect.d_left)/mcl_rect.getWidth();
       const float pu_y = (mea.position.d_y-mcl_rect.d_top)/mcl_rect.getHeight();
       popup->setPosition(CEGUI::UVector2(CEGUI::UDim(pu_x, 0), CEGUI::UDim(pu_y, 0)));
@@ -1624,7 +1627,7 @@ bool EditorApplicationNPC::NPCEditFrameInventoryListClicked(const CEGUI::EventAr
     const CEGUI::MouseEventArgs& mea = static_cast<const CEGUI::MouseEventArgs&> (e);
     if (mea.button == CEGUI::RightButton)
     {
-      const CEGUI::Rect mcl_rect = winmgr.getWindow("Editor/NPCEditFrame/InventoryList")->getPixelRect();
+      const CEGUI::Rect mcl_rect = winmgr.getWindow("Editor/NPCEditFrame/InventoryList")->getOuterRectClipper();
       const float pu_x = (mea.position.d_x-mcl_rect.d_left)/mcl_rect.getWidth();
       const float pu_y = (mea.position.d_y-mcl_rect.d_top)/mcl_rect.getHeight();
       popup->setPosition(CEGUI::UVector2(CEGUI::UDim(pu_x, 0), CEGUI::UDim(pu_y, 0)));
