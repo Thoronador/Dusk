@@ -23,7 +23,7 @@
 #include <cmath> //needed for rotation calculations
 #include <cstdio> //required for opening files for Ogg (since it's a C lib)
 #include <fstream>
-#include "Messages.h"
+#include "../Messages.h"
 
 namespace Dusk
 {

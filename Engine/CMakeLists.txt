@@ -10,7 +10,7 @@ set(Dusk_sources API.cpp Application.cpp Camera.cpp Celestial.cpp DataLoader.cpp
                  FrameListener.cpp InjectionManager.cpp InputSystem.cpp InputSystemBinding.cpp
                  InputSystemEditor.cpp Inventory.cpp Journal.cpp Landscape.cpp
                  Menu.cpp Messages.cpp ObjectManager.cpp QuestLog.cpp Scene.cpp
-                 Script.cpp Settings.cpp Sound.cpp Sun.cpp Trigger.cpp
+                 Script.cpp Settings.cpp Sun.cpp Trigger.cpp
                  TriggerManager.cpp VertexDataFunc.cpp Weather.cpp
                  console/Command.cpp console/CommandAssociateSound.cpp
                  console/CommandAttack.cpp console/CommandBindKey.cpp
@@ -37,6 +37,7 @@ set(Dusk_sources API.cpp Application.cpp Camera.cpp Celestial.cpp DataLoader.cpp
                  objects/Light.cpp objects/NPC.cpp objects/Player.cpp
                  objects/Projectile.cpp objects/Resource.cpp objects/UniformMotionObject.cpp
                  objects/Vehicle.cpp objects/WaypointObject.cpp objects/Weapon.cpp
+                 sound/Sound.cpp
                  main.cpp)
 
 message ( "CMAKE_CXX_COMPILER is set to ${CMAKE_CXX_COMPILER}." )
@@ -46,10 +47,8 @@ if (CMAKE_COMPILER_IS_GNUCC)
 endif (CMAKE_COMPILER_IS_GNUCC)
 
 add_definitions(`pkg-config --cflags OGRE`)
-#add_definitions(`pkg-config --cflags OIS`)
 
 execute_process(COMMAND pkg-config --libs OGRE OUTPUT_VARIABLE OGRE_PKC)
-#execute_process(COMMAND pkg-config --libs OIS  OUTPUT_VARIABLE OIS_PKC)
 
 add_definitions(${OGRE_PKC})
 

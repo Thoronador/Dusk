@@ -45,7 +45,7 @@ function compile()
 }
 
 
-required_dirs=($obj_dir $obj_dir./console $obj_dir./database $obj_dir./lua $obj_dir./objects)
+required_dirs=($obj_dir $obj_dir./console $obj_dir./database $obj_dir./lua $obj_dir./objects $obj_dir./sound)
 
 for dir in `echo ${required_dirs[@]}`
 do
@@ -84,7 +84,6 @@ QuestLog
 Scene
 Script
 Settings
-Sound
 Sun
 Trigger
 TriggerManager
@@ -142,7 +141,8 @@ objects/Resource
 objects/UniformMotionObject
 objects/Vehicle
 objects/WaypointObject
-objects/Weapon)
+objects/Weapon
+sound/Sound)
 
 total=${#all_files[@]}
 declare -i total

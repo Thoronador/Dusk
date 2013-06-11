@@ -24,7 +24,7 @@
 #include "console/Dispatcher.h"
 #include "API.h"
 #include "Camera.h"
-#include "Sound.h"
+#include "sound/Sound.h"
 #include "Settings.h"
 #include "DuskFunctions.h"
 #include "Messages.h"

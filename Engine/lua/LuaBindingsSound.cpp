@@ -19,7 +19,7 @@
 */
 
 #include "LuaBindingsSound.h"
-#include "../Sound.h"
+#include "../sound/Sound.h"
 
 namespace Dusk
 {
