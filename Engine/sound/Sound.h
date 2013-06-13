@@ -82,15 +82,16 @@
 #ifndef SOUND_H
 #define SOUND_H
 
+#include <map>
 #include <string>
 #include <vector>
 #if defined(_WIN32)
-  #include <windows.h>
+  //#include <windows.h>
   #include "openal/al.h" //OpenAL header
   #include "openal/alc.h"  //OpenAL header
   #include "oggvorbis/vorbisfile.h" //Vorbis header
 #elif defined(__linux__) || defined(linux)
-  #include <dlfcn.h>
+  //#include <dlfcn.h>
   #include <AL/al.h> //OpenAL header
   #include <AL/alc.h> //OpenAL header
   #include <vorbis/vorbisfile.h> //Vorbis header
@@ -98,62 +99,8 @@
   #error "Unknown operating system!"
 #endif
 
-
-//Types for wave format:
-struct TRiffChunk
-{
-  char Riff[4];
-  uint32_t len; //32 bit unsigned int; file size-8
-  char Wave[4];
-};
-struct TFmtChunk
-{
-  char fmt_[4];
-  uint32_t chunk_size;//32 bit unsigned int;
-  uint16_t FormatTag;//16 bit unsigned int;
-  uint16_t Channels;
-  uint32_t SamplesPerSecond;
-  uint32_t BytesPerSecond;
-  uint16_t BlockAlign;
-  uint16_t BitsPerSample;
-};
-struct TDataChunk
-{
-  char data[4];
-  uint32_t length_of_data;
-};
-
-//buffer management type
-struct TMediaRec
-{
-  std::string MediaName; //unique name, case sensitive
-  std::string FileName; //pro forma, not really needed after file is loaded
-  ALuint num_buffers;
-  ALuint * buffers;
-  std::vector<std::string> attached_to;
-  TMediaRec * next;
-};
-
-//source management type
-struct TNoiseRec
-{
-  std::string NoiseName; //unique name, case sensitive
-  ALuint sourceID;
-  TMediaRec * attachedMedia;
-  TNoiseRec * next;
-};
-
-//type declaration for OggVorbis function pointers
-typedef int (*P_ov_clear)(OggVorbis_File *vf);
-typedef vorbis_comment* (*P_ov_comment)(OggVorbis_File *vf,int link);
-typedef vorbis_info* (*P_ov_info)(OggVorbis_File *vf,int link);
-typedef int (*P_ov_open_callbacks)(void *datasource, OggVorbis_File *vf, char *initial, long ibytes, ov_callbacks callbacks);
-typedef ogg_int64_t (*P_ov_pcm_total)(OggVorbis_File *vf,int i);
-typedef long (*P_ov_read)(OggVorbis_File *vf, char *buffer, int length, int bigendianp, int word, int sgned, int *bitstream);
-typedef long (*P_ov_streams)(OggVorbis_File *vf);
-typedef double (*P_ov_time_total)(OggVorbis_File *vf,int i);
-
-const unsigned int MaxMediaSize_MB = 30;
+#include "Source.h"
+#include "Media.h"
 
 namespace Dusk
 {
@@ -186,30 +133,31 @@ class Sound
     /* Returns true, if Sound is initialised. */
     bool isInitialized() const;
 
-    /* Returns true, if the OggVorbis functions are loaded
-
-       remarks:
-           If this function returns false, you will not be able to load any
-           OggVorbis files. However, you still might be able to load Wave files,
-           depending on the return value of isInitialized().
-    */
-    bool hasVorbis() const;
-
     // **presence checks**
-    /* Returns true, if a Media named MediaIdentifier is present */
-    bool isMediaPresent(const std::string& MediaIdentifier) const;
+    /* Returns true, if a Media named mediaIdentifier is present */
+    bool isMediaPresent(const std::string& mediaIdentifier) const;
 
-    /* Returns true, if a Noise named NoiseIdentifier is present */
-    bool isNoisePresent(const std::string& NoiseIdentifier) const;
+    /* Returns true, if a Source named sourceIdentifier is present */
+    bool isSourcePresent(const std::string& sourceIdentifier) const;
 
-    /* Returns the list of all currently present noises.
+    /* returns reference to the requested media, if present.
+       If the media is not present, the function will throw an exception.
+    */
+    Media & getMedia(const std::string& mediaIdentifier) const;
+
+    /* returns reference to the requested source, if present.
+       If the source is not present, the function will throw an exception.
+    */
+    Source & getSource(const std::string& sourceIdentifier) const;
+
+    /* Returns the list of all currently present sources.
 
        parameters:
            with_attached_media - if set to true, the list also contains the
-                                 names of the media attached to each noise. (If
+                                 names of the media attached to each source. (If
                                  no media is attached, this is an empty string.)
     */
-    std::vector<std::string> getNoiseList(const bool with_attached_media = false) const;
+    std::vector<std::string> getSourceList(const bool with_attached_media = false) const;
 
     /* Returns the list of all currently loaded media.
 
@@ -220,80 +168,11 @@ class Sound
     std::vector<std::string> getMediaList(const bool with_file_names = false) const;
 
     // **noise management routines**
-    /* Created a new Noise named NoiseIdentifier and returns true on success */
-    bool createNoise(const std::string& NoiseIdentifier);
+    /* Creates a new Source named identifier and returns it on success */
+    bool createSource(const std::string& identifier);
 
-    /* Destroys the Noise named NoiseIdentifier and returns true on success */
-    bool destroyNoise(const std::string& NoiseIdentifier);
-    //   Attach: associates existing Noise with a Media
-    bool attach(const std::string& NoiseIdentifier, const std::string& MediaIdentifier);
-    //   Detach: revokes association between Noise and its attached Media
-    bool detach(const std::string& NoiseIdentifier);
-    //   noise playback management
-    /* Starts playback of media attached to the Noise named NoiseIdentifier, and
-       returns true on success.
-
-      remarks:
-          Before you can call this function, you have to load a audio file to
-          a media and attach that media to the noise. Assuming that all function
-          calls return true, the following lines are needed to play a file named
-          "loud.ogg":
-
-          Sound::get().Init(); // <-- only once at the very beginning
-          Sound::get().CreateNoise("This Noise");
-          Sound::get().CreateMedia("Some Media", "loud.ogg");
-          Sound::get().Attach("This Noise", "Some Media");
-          Sound::get().PlayNoise("This Noise");
-    */
-    bool playNoise(const std::string& NoiseIdentifier);
-
-    /* Pauses a playing noise and returns true on success.
-       Pausing a noise that is either paused or stopped is a legal no-op,
-       trying to pause a non-existing noise is an no-op and will return false
-       and print a warning/hint.
-    */
-    bool pauseNoise(const std::string& NoiseIdentifier);
-
-    /* Resumes a previously paused noise and returns true on success..
-       Unpausing a playing or stopped noise is legal no-op, which will return
-       true.
-    */
-    bool unPauseNoise(const std::string& NoiseIdentifier);
-
-    /* Stops a playing noise and returns true on success, false on failure/error.
-       Stopping an already stopped noise is legal no-op and will return true.
-    */
-    bool stopNoise(const std::string& NoiseIdentifier);
-
-    /* Sets a noise into looping mode if DoLoop==true, otherwise it gets the
-       noise out of looping mode. Returns true on success, false otherwise.
-    */
-    bool loopNoise(const std::string& NoiseIdentifier, const bool DoLoop = true);
-
-    /* Sets the offset of noise NoiseIdentifier to the given amount of seconds
-       and returns true on success. Trying to set an offset beyond the length of
-       the attached media will result in failure.
-    */
-    bool setNoiseOffset(const std::string& NoiseIdentifier, const float seconds);
-
-    /* Retrieves noise offset in seconds. On error, -1.0 is returned. */
-    float getNoiseOffset(const std::string& NoiseIdentifier) const;
-
-    //   state retrieval functions
-    /* Returns true if the noise NoiseIdentifier is currently playing. */
-    bool isPlayingNoise(const std::string& NoiseIdentifier) const;
-
-    /* Returns true if the noise NoiseIdentifier is in looping mode. */
-    bool isLoopingNoise(const std::string& FileName) const;
-    //   noise volume functions
-    bool setNoiseVolume(const std::string& NoiseIdentifier, const float volume = 1.0f);
-    float getNoiseVolume(const std::string& NoiseIdentifier, const bool consider_MinMax = false) const;
-    //   position of noises
-    bool setNoisePosition(const std::string& NoiseIdentifier, const float x, const float y, const float z);
-    std::vector<float> getNoisePosition(const std::string& NoiseIdentifier) const;
-    //   velocity of noises
-    bool SetNoiseVelocity(const std::string& NoiseIdentifier, const float x, const float y, const float z);
-    std::vector<float> GetNoiseVelocity(const std::string& NoiseIdentifier) const;
+    /* Destroys the Source named identifier and returns true on success */
+    bool destroySource(const std::string& identifier);
 
 
     // **media management routines**
@@ -325,16 +204,16 @@ class Sound
     bool setSpeedOfSound(const float new_value);
 
     // **listener management functions**
-      //   positioning
-      bool setListenerPostion(const float x, const float y, const float z);
-      std::vector<float> getListenerPosition() const;
-      bool translateListenerPostion(const float delta_x, const float delta_y, const float delta_z);
-      //   velocity
-      bool setListenerVelocity(const float x, const float y, const float z);
-      std::vector<float> getListenerVelocity() const;
-      //   orientation of listener
-      std::vector<float> getListenerOrientation() const;
-      bool rotateListener(const float x_axis, const float y_axis=0.0f, const float z_axis=0.0f);
+    //   positioning
+    bool setListenerPostion(const float x, const float y, const float z);
+    std::vector<float> getListenerPosition() const;
+    bool translateListenerPostion(const float delta_x, const float delta_y, const float delta_z);
+    //   velocity
+    bool setListenerVelocity(const float x, const float y, const float z);
+    std::vector<float> getListenerVelocity() const;
+    //   orientation of listener
+    std::vector<float> getListenerOrientation() const;
+    bool rotateListener(const float x_axis, const float y_axis=0.0f, const float z_axis=0.0f);
 
     //device query functions
     /* tries to return the current device's name in result and returns true, if
@@ -357,8 +236,6 @@ class Sound
 
     //singleton access method
     static Sound& get();
-  protected:
-
   private:
     /* constructor - private due to singleton pattern */
     Sound();
@@ -366,202 +243,13 @@ class Sound
     /* empty copy constructor */
     Sound(const Sound& op){}
 
-    /* tries to load a RIFF Wave file into the buffers and returns true on
-       success
-
-       parameters:
-           MediaIdentifier - identifier of the new media
-           PathToMedia     - path to the Wave file
-    */
-    bool createWAVMedia(const std::string& MediaIdentifier, const std::string& PathToMedia);
-
-    /* tries to load an Ogg-Vorbis file into the buffers and returns true on
-       success, false on failure
-
-       parameters:
-           MediaIdentifier - identifier of the new media
-           PathToMedia     - path to the Ogg-Vorbis file
-    */
-    bool createOggMedia(const std::string& MediaIdentifier, const std::string& PathToMedia);
-
-    /* Initialises all internal function pointers with NULL.
-
-      remarks:
-         Never ever call this one manually, or you might render the whole
-         class inoperative!
-    */
-    void AllFuncPointersToNULL(void);
-
-    TMediaRec * pMediaList;
-    TNoiseRec * pNoiseList;
+    std::map<std::string, Media*> m_MediaList;
+    std::map<std::string, Source*> m_SourceList;
 
     ALCdevice *pDevice;
     ALCcontext *pContext;
     bool AL_Ready;
-    bool Vorbis_Ready;
     bool InitInProgress;
-
-    #if defined(_WIN32)
-      HINSTANCE libHandleAL; //handle to OpenAL dynamic library
-      HINSTANCE libHandleOV; //handle to OggVorbis dynamic library
-    #elif defined(__linux__) || defined(linux)
-      void * libHandleAL; //handle to OpenAL dynamic library
-      void * libHandleOV; //handle to OggVorbis dynamic library
-    #else
-      #error "Unknown operating system!"
-    #endif
-    //****
-    //**OpenAL function pointers
-    //**** alc.h: AL context functions
-    //**** Context Management
-    LPALCCREATECONTEXT alcCreateContext;
-    LPALCMAKECONTEXTCURRENT alcMakeContextCurrent;
-    LPALCPROCESSCONTEXT alcProcessContext;
-    LPALCSUSPENDCONTEXT alcSuspendContext;
-    LPALCDESTROYCONTEXT alcDestroyContext;
-    LPALCGETCURRENTCONTEXT alcGetCurrentContext;
-    LPALCGETCONTEXTSDEVICE alcGetContextsDevice;
-
-    //**** Device Management
-    LPALCOPENDEVICE alcOpenDevice;
-    LPALCCLOSEDEVICE alcCloseDevice;
-
-    //**** Error handling
-    LPALCGETERROR alcGetError;
-
-    //**** Extension handling functions (ALC)
-    LPALCISEXTENSIONPRESENT alcIsExtensionPresent;
-    /* Disabled for now
-    LPALCGETPROCADDRESS alcGetProcAddress;
-    */
-    LPALCGETENUMVALUE alcGetEnumValue;
-
-    //**** Query functions
-    LPALCGETSTRING alcGetString;
-    LPALCGETINTEGERV alcGetIntegerv;
-
-    //****al.h: AL functions
-    //**** Renderer State management
-    LPALENABLE alEnable;
-    LPALDISABLE alDisable;
-    LPALISENABLED alIsEnabled;
-
-    //**** State retrieval
-    LPALGETSTRING alGetString;
-    LPALGETBOOLEANV alGetBooleanv;
-    LPALGETINTEGERV alGetIntegerv;
-    LPALGETFLOATV alGetFloatv;
-    LPALGETDOUBLEV alGetDoublev;
-    LPALGETBOOLEAN alGetBoolean;
-    LPALGETINTEGER alGetInteger;
-    LPALGETFLOAT alGetFloat;
-    LPALGETDOUBLE alGetDouble;
-
-    //***** Error handling
-    LPALGETERROR alGetError;
-
-    //**** Extension handling func (AL)
-    LPALISEXTENSIONPRESENT alIsExtensionPresent;
-    LPALGETPROCADDRESS alGetProcAddress;
-    LPALGETENUMVALUE alGetEnumValue;
-
-    //**** Set Listener parameters
-    LPALLISTENERF alListenerf;
-    LPALLISTENER3F alListener3f;
-    LPALLISTENERFV alListenerfv;
-    LPALLISTENERI alListeneri;
-    LPALLISTENER3I alListener3i;
-    LPALLISTENERIV alListeneriv;
-
-    //**** Get Listener parameters
-    LPALGETLISTENERF alGetListenerf;
-    LPALGETLISTENER3F alGetListener3f;
-    LPALGETLISTENERFV alGetListenerfv;
-    LPALGETLISTENERI alGetListeneri;
-    LPALGETLISTENER3I alGetListener3i;
-    LPALGETLISTENERIV alGetListeneriv;
-
-    //**** Create Source objects
-    LPALGENSOURCES alGenSources;
-    //**** Delete Source objects
-    LPALDELETESOURCES alDeleteSources;
-    //***Verify a handle is a valid source
-    LPALISSOURCE alIsSource;
-
-    //**** Set Source parameters
-    LPALSOURCEF alSourcef;
-    LPALSOURCE3F alSource3f;
-    LPALSOURCEFV alSourcefv;
-    LPALSOURCEI alSourcei;
-    LPALSOURCE3I alSource3i;
-    LPALSOURCEIV alSourceiv;
-
-    //**** Get Source parameters
-    LPALGETSOURCEF alGetSourcef;
-    LPALGETSOURCE3F alGetSource3f;
-    LPALGETSOURCEFV alGetSourcefv;
-    LPALGETSOURCEI alGetSourcei;
-    LPALGETSOURCE3I alGetSource3i;
-    LPALGETSOURCEIV alGetSourceiv;
-
-    //**** Source vector based playback calls
-    LPALSOURCEPLAYV alSourcePlayv; // Play, replay, or resume (if paused) a list of Sources
-    LPALSOURCESTOPV alSourceStopv; // Stop a list of Sources
-    LPALSOURCEREWINDV alSourceRewindv; // Rewind a list of Sources
-    LPALSOURCEPAUSEV alSourcePausev; // Pause a list of Sources
-
-    //**** Source based playback calls
-    LPALSOURCEPLAY alSourcePlay; // Play, replay, or resume a Source
-    LPALSOURCESTOP alSourceStop; // Stop a Source
-    LPALSOURCEREWIND alSourceRewind; // Rewind a Source (set playback postiton to beginning)
-    LPALSOURCEPAUSE alSourcePause; // Pause a Source
-
-    //**** Source Queuing
-    LPALSOURCEQUEUEBUFFERS alSourceQueueBuffers;
-    LPALSOURCEUNQUEUEBUFFERS alSourceUnqueueBuffers;
-
-    //**** Create Buffer objects
-    LPALGENBUFFERS alGenBuffers;
-    //**** Delete Buffer objects
-    LPALDELETEBUFFERS alDeleteBuffers;
-    //**** Verify a handle is a valid Buffer
-    LPALISBUFFER alIsBuffer;
-    //**** Specify the data to be copied into a buffer
-    LPALBUFFERDATA alBufferData;
-
-    //**** Set Buffer parameters
-    LPALBUFFERF alBufferf;
-    LPALBUFFER3F alBuffer3f;
-    LPALBUFFERFV alBufferfv;
-    LPALBUFFERI alBufferi;
-    LPALBUFFER3I alBuffer3i;
-    LPALBUFFERIV alBufferiv;
-
-    //**** Get Buffer parameters
-    LPALGETBUFFERF alGetBufferf;
-    LPALGETBUFFER3F alGetBuffer3f;
-    LPALGETBUFFERFV alGetBufferfv;
-    LPALGETBUFFERI alGetBufferi;
-    LPALGETBUFFER3I alGetBuffer3i;
-    LPALGETBUFFERIV alGetBufferiv;
-
-    //**** Global Parameters
-    /* Partially disabled for now
-    LPALDOPPLERFACTOR alDopplerFactor;
-    LPALDOPPLERVELOCITY alDopplerVelocity;*/
-    LPALSPEEDOFSOUND alSpeedOfSound;
-    /*LPALDISTANCEMODEL alDistanceModel;
-    */
-
-    //**** OggVorbis function pointers
-    P_ov_clear ov_clear;
-    P_ov_comment ov_comment;
-    P_ov_info ov_info;
-    P_ov_open_callbacks ov_open_callbacks;
-    P_ov_pcm_total ov_pcm_total;
-    P_ov_read ov_read;
-    P_ov_streams ov_streams;
-    P_ov_time_total ov_time_total;
 };//class Sound
 
 } //namespace

@@ -37,7 +37,8 @@ set(Dusk_sources API.cpp Application.cpp Camera.cpp Celestial.cpp DataLoader.cpp
                  objects/Light.cpp objects/NPC.cpp objects/Player.cpp
                  objects/Projectile.cpp objects/Resource.cpp objects/UniformMotionObject.cpp
                  objects/Vehicle.cpp objects/WaypointObject.cpp objects/Weapon.cpp
-                 sound/Sound.cpp
+                 sound/Media.cpp sound/MediaOggVorbis.cpp sound/MediaWave.cpp
+                 sound/Sound.cpp sound/Source.cpp
                  main.cpp)
 
 message ( "CMAKE_CXX_COMPILER is set to ${CMAKE_CXX_COMPILER}." )
@@ -64,6 +65,15 @@ if (OPENGL_FOUND)
 else ()
   message ( FATAL_ERROR "OpenGL was not found!" )
 endif (OPENGL_FOUND)
+
+# OpenAL
+find_package (OpenAL)
+if (OPENAL_FOUND)
+  include_directories(${OPENAL_INCLUDE_DIRS})
+  target_link_libraries (Dusk ${OPENAL_LIBRARIES})
+else ()
+  message ( FATAL_ERROR "OpenAL was not found!" )
+endif (OPENAL_FOUND)
 
 # Lua
 find_package (Lua51)

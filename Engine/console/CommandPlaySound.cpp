@@ -39,22 +39,23 @@ namespace Dusk
 
     bool CommandPlaySound::execute(Dusk::Scene* scene, int count)
     {
+      Source & src = Sound::get().getSource(m_Noise);
       switch(m_operation)
       {
         case sopPlay:
-          return Sound::get().playNoise(m_Noise);
+          return src.play();
         case sopPause:
-          return Sound::get().pauseNoise(m_Noise);
+          return src.pause();
         case sopUnPause:
-          return Sound::get().unPauseNoise(m_Noise);
+          return src.unPause();
         case sopStop:
-          return Sound::get().stopNoise(m_Noise);
+          return src.stop();
         case sopReplay:
           //New version of Sound has no Replay method yet. Instead we are using
           //a combination of Stop and Play to simulate the former Replay method.
-          if (Sound::get().stopNoise(m_Noise))
+          if (src.stop())
           {
-            return Sound::get().playNoise(m_Noise);
+            return src.play();
           }
           return false;
       }//switch

@@ -1,20 +1,20 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2013  Thoronador
 
-    The Dusk Engine is free software: you can redistribute it and/or modify
+    This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    The Dusk Engine is distributed in the hope that it will be useful,
+    This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with the Dusk Engine.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------
 */
 
@@ -32,7 +32,7 @@ int CreateNoise(lua_State *L)
   const int top = lua_gettop(L);
   if (top==1)
   {
-    if (Sound::get().createNoise(lua_tostring(L, 1)))
+    if (Sound::get().createSource(lua_tostring(L, 1)))
     { //push result
       lua_pushboolean(L, 1);
     }
@@ -52,7 +52,7 @@ int DestroyNoise(lua_State *L)
   const int top = lua_gettop(L);
   if (top==1)
   {
-    const bool success = Sound::get().destroyNoise(lua_tostring(L, 1));
+    const bool success = Sound::get().destroySource(lua_tostring(L, 1));
     //push result
     if (success)
     {
@@ -118,16 +118,10 @@ int AttachMediaToNoise(lua_State *L)
   const int top = lua_gettop(L);
   if (top==2)
   {
-    const bool success = Sound::get().attach(lua_tostring(L, 1), lua_tostring(L, 2));
+    Source & src = Sound::get().getSource(lua_tostring(L, 1));
+    Media & m = Sound::get().getMedia(lua_tostring(L, 2));
     //push result
-    if (success)
-    {
-      lua_pushboolean(L, 1);
-    }
-    else
-    {
-      lua_pushboolean(L, 0);
-    }
+    lua_pushboolean(L, src.attach(m) ? 1 : 0);
     return 1;
   }
   lua_pushstring(L, "AttachMediaToNoise expects exactly two arguments!\n");
@@ -140,16 +134,9 @@ int DetachMediaFromNoise(lua_State *L)
   const int top = lua_gettop(L);
   if (top==1)
   {
-    const bool success = Sound::get().detach(lua_tostring(L, 1));
+    const bool success = Sound::get().getSource(lua_tostring(L, 1)).detach();
     //push result
-    if (success)
-    {
-      lua_pushboolean(L, 1);
-    }
-    else
-    {
-      lua_pushboolean(L, 0);
-    }
+    lua_pushboolean(L, success ? 1 : 0);
     return 1;
   }
   lua_pushstring(L, "DetachMediaFromNoise expects exactly one argument!\n");
@@ -162,16 +149,9 @@ int PlaySound(lua_State *L)
   const int top = lua_gettop(L);
   if (top==1)
   {
-    const bool success = Sound::get().playNoise(lua_tostring(L, 1));
+    const bool success = Sound::get().getSource(lua_tostring(L, 1)).play();
     //push result
-    if (success)
-    {
-      lua_pushboolean(L, 1);
-    }
-    else
-    {
-      lua_pushboolean(L, 0);
-    }
+    lua_pushboolean(L, success ? 1 : 0);
     return 1;
   }
   lua_pushstring(L, "PlaySound expects exactly one argument!\n");
@@ -184,16 +164,9 @@ int PauseSound(lua_State *L)
   const int top = lua_gettop(L);
   if (top==1)
   {
-    const bool success = Sound::get().pauseNoise(lua_tostring(L, 1));
+    const bool success = Sound::get().getSource(lua_tostring(L, 1)).pause();
     //push result
-    if (success)
-    {
-      lua_pushboolean(L, 1);
-    }
-    else
-    {
-      lua_pushboolean(L, 0);
-    }
+    lua_pushboolean(L, success ? 1 : 0);
     return 1;
   }
   lua_pushstring(L, "PauseSound expects exactly one argument!\n");
@@ -206,16 +179,9 @@ int UnPauseSound(lua_State *L)
   const int top = lua_gettop(L);
   if (top==1)
   {
-    const bool success = Sound::get().unPauseNoise(lua_tostring(L, 1));
+    const bool success = Sound::get().getSource(lua_tostring(L, 1)).unPause();
     //push result
-    if (success)
-    {
-      lua_pushboolean(L, 1);
-    }
-    else
-    {
-      lua_pushboolean(L, 0);
-    }
+    lua_pushboolean(L, success ? 1 : 0);
     return 1;
   }
   lua_pushstring(L, "UnPauseSound expects exactly one argument!\n");
@@ -228,16 +194,9 @@ int StopSound(lua_State *L)
   const int top = lua_gettop(L);
   if (top==1)
   {
-    const bool success = Sound::get().stopNoise(lua_tostring(L, 1));
+    const bool success = Sound::get().getSource(lua_tostring(L, 1)).stop();
     //push result
-    if (success)
-    {
-      lua_pushboolean(L, 1);
-    }
-    else
-    {
-      lua_pushboolean(L, 0);
-    }
+    lua_pushboolean(L, success ? 1 : 0);
     return 1;
   }
   lua_pushstring(L, "StopSound expects exactly one argument!\n");
@@ -251,9 +210,10 @@ int ReplaySound(lua_State *L)
   if (top==1)
   {
     //use combination of Stop and Play
-    if (Sound::get().stopNoise(lua_tostring(L, 1)))
+    Source & src = Sound::get().getSource(lua_tostring(L, 1));
+    if (src.stop())
     {
-      if (Sound::get().playNoise(lua_tostring(L, 1)))
+      if (src.play())
       {
         lua_pushboolean(L, 1);
         return 1;
@@ -272,16 +232,9 @@ int LoopSound(lua_State *L)
   const int top = lua_gettop(L);
   if (top==2)
   {
-    const bool success = Sound::get().loopNoise(lua_tostring(L, 1), lua_toboolean(L, 2)!=0);
+    const bool success = Sound::get().getSource(lua_tostring(L, 1)).loop(lua_toboolean(L, 2)!=0);
     //push result
-    if (success)
-    {
-      lua_pushboolean(L, 1);
-    }
-    else
-    {
-      lua_pushboolean(L, 0);
-    }
+    lua_pushboolean(L, success ? 1 : 0);
     return 1;
   }
   lua_pushstring(L, "LoopSound expects exactly two arguments!\n");
@@ -294,12 +247,7 @@ int SoundIsPlaying(lua_State *L)
   const int top = lua_gettop(L);
   if (top==1)
   {
-    if (Sound::get().isPlayingNoise(lua_tostring(L, 1)))
-    {
-      lua_pushboolean(L, 1);
-      return 1;
-    }
-    lua_pushboolean(L, 0);
+    lua_pushboolean(L, Sound::get().getSource(lua_tostring(L, 1)).isPlaying() ? 1 : 0);
     return 1;
   }
   lua_pushstring(L, "SoundIsPlaying expects exactly one argument!\n");
@@ -312,12 +260,7 @@ int SoundIsLooping(lua_State *L)
   const int top = lua_gettop(L);
   if (top==1)
   {
-    if (Sound::get().isLoopingNoise(lua_tostring(L, 1)))
-    {
-      lua_pushboolean(L, 1);
-      return 1;
-    }
-    lua_pushboolean(L, 0);
+    lua_pushboolean(L, Sound::get().getSource(lua_tostring(L, 1)).isLooping() ? 1 : 0);
     return 1;
   }
   lua_pushstring(L, "SoundIsLooping expects exactly one argument!\n");
@@ -330,16 +273,9 @@ int SetSoundVolume(lua_State *L)
   const int top = lua_gettop(L);
   if (top==2)
   {
-    const bool success = Sound::get().setNoiseVolume(lua_tostring(L, 1), lua_tonumber(L, 2));
+    const bool success = Sound::get().getSource(lua_tostring(L, 1)).setVolume(lua_tonumber(L, 2));
     //push result
-    if (success)
-    {
-      lua_pushboolean(L, 1);
-    }
-    else
-    {
-      lua_pushboolean(L, 0);
-    }
+    lua_pushboolean(L, success ? 1 : 0);
     return 1;
   }
   lua_pushstring(L, "SetSoundVolume expects exactly two arguments!\n");
@@ -352,7 +288,7 @@ int GetSoundVolume(lua_State *L)
   const int top = lua_gettop(L);
   if (top==1)
   {
-    lua_pushnumber(L, Sound::get().getNoiseVolume(lua_tostring(L, 1)));
+    lua_pushnumber(L, Sound::get().getSource(lua_tostring(L, 1)).getVolume());
     return 1;
   }
   lua_pushstring(L, "GetSoundVolume expects exactly one argument!\n");

@@ -23,11 +23,11 @@
 
 namespace Dusk
 {
-  // **** command for associating noise with media ****
+  // **** command for associating source with media ****
   //constructor
-  CommandAssociateSoundMedia::CommandAssociateSoundMedia(const std::string& NoiseID, const std::string& MediaID)
+  CommandAssociateSoundMedia::CommandAssociateSoundMedia(const std::string& SourceID, const std::string& MediaID)
   : Command(),
-    m_Noise(NoiseID),
+    m_Source(SourceID),
     m_Media(MediaID)
   {
   }
@@ -40,14 +40,16 @@ namespace Dusk
 
   bool CommandAssociateSoundMedia::execute(Dusk::Scene* scene, int count)
   {
-    return Sound::get().attach(m_Noise, m_Media);
+    Source & src = Sound::get().getSource(m_Source);
+    Media & m = Sound::get().getMedia(m_Media);
+    return src.attach(m);
   }
 
-  // **** command for revoking associating between noise and media ****
+  // **** command for revoking associating between source and media ****
   //constructor
-  CommandDeassociateSoundMedia::CommandDeassociateSoundMedia(const std::string& NoiseID)
+  CommandDeassociateSoundMedia::CommandDeassociateSoundMedia(const std::string& SourceID)
   : Command(),
-    m_Noise(NoiseID)
+    m_Source(SourceID)
   {
   }
 
@@ -59,6 +61,7 @@ namespace Dusk
 
   bool CommandDeassociateSoundMedia::execute(Dusk::Scene* scene, int count)
   {
-    return Sound::get().detach(m_Noise);
+    Source & src = Sound::get().getSource(m_Source);
+    return src.detach();
   }
 }

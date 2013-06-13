@@ -24,9 +24,9 @@
 namespace Dusk
 {
   //constructor
-  CommandLoopSound::CommandLoopSound(const std::string& NoiseID, const bool Looping)
+  CommandLoopSound::CommandLoopSound(const std::string& SourceID, const bool Looping)
   : Command(),
-    m_Noise(NoiseID),
+    m_Source(SourceID),
     m_DoLoop(Looping)
   {
   }
@@ -39,6 +39,7 @@ namespace Dusk
 
   bool CommandLoopSound::execute(Dusk::Scene* scene, int count)
   {
-    return Sound::get().loopNoise(m_Noise, m_DoLoop);
+    Source & src = Sound::get().getSource(m_Source);
+    return src.loop(m_DoLoop);
   }
 }

@@ -22,7 +22,7 @@ E_COMPILE_ERROR=2
 
 obj_dir=obj/
 src_dir=../
-compiler_includes="`pkg-config --cflags OGRE` `pkg-config --cflags gl` `pkg-config --cflags OIS` `pkg-config --cflags lua50` `pkg-config --cflags lualib50`"
+compiler_includes="`pkg-config --cflags OGRE` `pkg-config --cflags gl` `pkg-config --cflags OIS` `pkg-config --cflags lua50` `pkg-config --cflags lualib50` `pkg-config --cflags openal` `pkg-config --cflags vorbisfile`"
 
 function compile_real()
 {
@@ -142,7 +142,11 @@ objects/UniformMotionObject
 objects/Vehicle
 objects/WaypointObject
 objects/Weapon
-sound/Sound)
+sound/Media
+sound/MediaOggVorbis
+sound/MediaWave
+sound/Sound
+sound/Source)
 
 total=${#all_files[@]}
 declare -i total
@@ -152,7 +156,7 @@ declare -i current
 echo "Info: $total element(s) listed for compilation."
 echo
 
-linker_libs="`pkg-config --libs OGRE` `pkg-config --libs gl` `pkg-config --libs OIS` `pkg-config --libs lua50` `pkg-config --libs lualib50`"
+linker_libs="`pkg-config --libs OGRE` `pkg-config --libs gl` `pkg-config --libs OIS` `pkg-config --libs lua50` `pkg-config --libs lualib50` `pkg-config --libs openal` `pkg-config --libs vorbisfile`"
 linker_objects=""
 compiler_files=""
 

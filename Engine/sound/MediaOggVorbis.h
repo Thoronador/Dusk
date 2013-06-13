@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2008, 2009, 2010, 2013  Thoronador
+    Copyright (C) 2013  Thoronador
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,27 +18,26 @@
  -----------------------------------------------------------------------------
 */
 
-#include "CommandSoundVolume.h"
-#include "../sound/Sound.h"
+#ifndef SOUND_MEDIAOGGVORBIS_H_INCLUDED
+#define SOUND_MEDIAOGGVORBIS_H_INCLUDED
+
+#include "Media.h"
 
 namespace Dusk
 {
-  //constructor
-  CommandSoundVolume::CommandSoundVolume(const std::string& NoiseID, const float vol)
-  : Command(),
-    m_Noise(NoiseID),
-    m_Volume(vol)
-  {
-  }
 
-  //destructor
-  CommandSoundVolume::~CommandSoundVolume()
-  {
-    //empty
-  }
+class MediaOggVorbis: public Media
+{
+  public:
+    /* constructor
 
-  bool CommandSoundVolume::execute(Dusk::Scene* scene, int count)
-  {
-    return Sound::get().getSource(m_Noise).setVolume(m_Volume);
-  }
-}
+       parameters:
+           identifier  - unique identifier
+           PathToMedia - path to the Ogg Vorbis file
+    */
+    MediaOggVorbis(const std::string& identifier, const std::string& PathToMedia);
+}; //class MediaOggVorbis
+
+} //namespace
+
+#endif // SOUND_MEDIAOGGVORBIS_H_INCLUDED
