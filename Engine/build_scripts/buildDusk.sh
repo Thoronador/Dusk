@@ -29,7 +29,7 @@ function compile_real()
   local cxx=$1
   local cxxflags=$2
   local src_file=$3
-  
+
   echo "Compiling $src_file.cpp..."
   $cxx $cxxflags $src_dir$src_file.cpp -c -o $obj_dir$src_file.o
   if [[ $? -ne 0 ]]
