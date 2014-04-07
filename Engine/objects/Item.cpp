@@ -29,15 +29,15 @@ namespace Dusk
 {
 
 Item::Item()
-  : DuskObject()
+  : DuskObject(),
+    m_Equipped(false)
 {
-
 }
 
 Item::Item(const std::string& _ID, const Ogre::Vector3& pos, const Ogre::Quaternion& rot, const float Scale)
-  : DuskObject(_ID, pos, rot, Scale)
+  : DuskObject(_ID, pos, rot, Scale),
+    m_Equipped(false)
 {
-
 }
 
 Item::~Item()

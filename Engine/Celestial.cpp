@@ -37,7 +37,7 @@ Celestial::~Celestial()
 
 void Celestial::setStartTime(const float s)
 {
-  if (s<24.0f or s>=0.0f)
+  if (s<24.0f and s>=0.0f)
   {
     m_Start = s;
   }
@@ -50,7 +50,7 @@ float Celestial::getStartTime() const
 
 void Celestial::setEndTime(const float e)
 {
-  if (e<24.0f or e>=0.0f)
+  if (e<24.0f and e>=0.0f)
   {
     m_End = e;
   }

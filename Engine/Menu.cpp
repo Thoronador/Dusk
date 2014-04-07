@@ -183,7 +183,7 @@ bool Menu::startDialogueWithNPC(NPC* who)
     sv.push_back(Dialogue::getSingleton().getText(temp.Choices[i]));
     m_OptionIDs.push_back(temp.Choices[i]);
   }//for
-  if (temp.Choices.size()==0)
+  if (temp.Choices.empty())
   {
     sv.push_back("[End of Dialogue]");
     m_OptionIDs.push_back("");
@@ -212,7 +212,7 @@ bool Menu::nextDialogueChoice(const unsigned int chosenOption)
     return true;
   }
   //end of dialogue met?
-  if (chosenOption == 1 and m_OptionIDs.size()>0)
+  if (chosenOption == 1 and !m_OptionIDs.empty())
   {
     if (m_OptionIDs[0]=="")
     {
@@ -233,7 +233,7 @@ bool Menu::nextDialogueChoice(const unsigned int chosenOption)
   Dialogue::Handle tempHandle = Dialogue::getSingleton().getDialogueLine(
                                   m_OptionIDs[chosenOption-1], m_DialoguePartner);
   Dialogue::getSingleton().processResultScript(m_OptionIDs[chosenOption-1]);
-  if (tempHandle.Choices.size()==0)
+  if (tempHandle.Choices.empty())
   {
     //no more lines here... quit dialogue
     hideDialogue();
@@ -254,7 +254,7 @@ bool Menu::nextDialogueChoice(const unsigned int chosenOption)
     sv.push_back(Dialogue::getSingleton().getText(tempHandle.Choices[i]));
     m_OptionIDs.push_back(tempHandle.Choices[i]);
   }//for
-  if (tempHandle.Choices.size()==0)
+  if (tempHandle.Choices.empty())
   {
     sv.push_back("[End of Dialogue]");
     m_OptionIDs.push_back("");
@@ -365,7 +365,7 @@ void Menu::showQuestLogEntries()
     return;
   }//if
   std::vector<QLogEntry> entries = QuestLog::getSingleton().listQuestEntries(m_QuestLogOffset, cQuestLogEntriesPerPage);
-  if (m_QuestLogOffset>0 and entries.size()==0)
+  if (m_QuestLogOffset>0 and entries.empty())
   { //reset offset, because we've gone too far, and fetch entries again
     m_QuestLogOffset = 0;
     entries = QuestLog::getSingleton().listQuestEntries(m_QuestLogOffset, cQuestLogEntriesPerPage);

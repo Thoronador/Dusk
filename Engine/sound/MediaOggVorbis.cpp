@@ -175,7 +175,7 @@ MediaOggVorbis::MediaOggVorbis(const std::string& identifier, const std::string&
 
   if (bytes_read<0)
   {
-    delete buffer;
+    delete[] buffer;
     ov_clear(&ov);
     throw MediaCreationException();
   }
@@ -186,7 +186,7 @@ MediaOggVorbis::MediaOggVorbis(const std::string& identifier, const std::string&
     DuskLog() << "MediaOggVorbis::MediaOggVorbis: ERROR: Size miscalculations in file \""
                 << PathToMedia << "\". Read "<<total_read<<" bytes, but assumed"
                 <<" "<<data_size<<" bytes. Aborting.\n";
-    delete buffer;
+    delete[] buffer;
     ov_clear(&ov);
     throw MediaCreationException();
   }//if
@@ -232,7 +232,7 @@ MediaOggVorbis::MediaOggVorbis(const std::string& identifier, const std::string&
                     <<(int)error_state<<".\n"; break;
     }//swi
     ov_clear(&ov);
-    delete buffer;
+    delete[] buffer;
     alDeleteBuffers(1, buffers);
     free(buffers);
     buffers = NULL;
@@ -262,7 +262,7 @@ MediaOggVorbis::MediaOggVorbis(const std::string& identifier, const std::string&
                     <<(int)error_state<<".\n"; break;
     }//swi
     ov_clear(&ov);
-    delete buffer;
+    delete[] buffer;
     alDeleteBuffers(1, buffers);
     free(buffers);
     buffers = NULL;
@@ -270,7 +270,7 @@ MediaOggVorbis::MediaOggVorbis(const std::string& identifier, const std::string&
   }
 
   //finally, we are through
-  delete buffer;
+  delete[] buffer;
   ov_clear(&ov);
 }
 

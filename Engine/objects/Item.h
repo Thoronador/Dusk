@@ -171,7 +171,7 @@ class Item: public DuskObject
     */
     bool loadItemPart(std::ifstream& input);
 
-    //indicates whether a NPC has this item equipped
+    //indicates whether an NPC has this item equipped
     bool m_Equipped;
 }; //class
 

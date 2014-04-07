@@ -91,7 +91,7 @@ int Console::processScripts (int maxEntries)
         std::vector<std::string> lines = script.explodeCommands();
 
         std::vector<std::string>::iterator it;
-        for (it = lines.begin(); it != lines.end(); it++)
+        for (it = lines.begin(); it != lines.end(); ++it)
             executeCommand(*it);
         maxEntries--;
     }
@@ -109,7 +109,7 @@ int Console::executeCommand(const std::string& p_string)
     //divide string into vector of strings
     if(p_string != "")
     {
-        for(iter = p_string.begin();iter != p_string.end();iter++)
+        for(iter = p_string.begin(); iter != p_string.end(); ++iter)
         {
             if(*iter != ' ')
                 tmp += *iter;
@@ -125,7 +125,7 @@ int Console::executeCommand(const std::string& p_string)
     {
         return 1; // Error
     }
-    if(command.size())
+    if(!command.empty())
     {
         //this is going to get big :/
         if (command[0] == "quit")

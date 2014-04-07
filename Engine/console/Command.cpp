@@ -24,6 +24,7 @@ namespace Dusk
 {
 
     Command::Command()
+    : m_Count(1)
     {
         //ctor
     }
