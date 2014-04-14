@@ -397,7 +397,7 @@ void Menu::showQuestLogEntries()
   }//for
   m_QuestLogEntryCount = entries.size();
   //show notification, if no elements are present yet
-  if (entries.size()==0)
+  if (entries.empty())
   {
     text_elem = static_cast<Ogre::TextAreaOverlayElement*>(
                     om->createOverlayElement("TextArea", cQuestLogOverlay+"/0"));
