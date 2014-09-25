@@ -5,41 +5,94 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/)
 
 project(Dusk)
 
-set(Dusk_sources API.cpp Application.cpp Camera.cpp Celestial.cpp DataLoader.cpp
-                 Dialogue.cpp DiceBox.cpp DuskExceptions.cpp DuskFunctions.cpp
-                 FrameListener.cpp InjectionManager.cpp InputSystem.cpp InputSystemBinding.cpp
-                 InputSystemEditor.cpp Inventory.cpp Journal.cpp Landscape.cpp
-                 Menu.cpp Messages.cpp ObjectManager.cpp QuestLog.cpp Scene.cpp
-                 Script.cpp Settings.cpp Sun.cpp Trigger.cpp
-                 TriggerManager.cpp VertexDataFunc.cpp Weather.cpp
-                 console/Command.cpp console/CommandAssociateSound.cpp
-                 console/CommandAttack.cpp console/CommandBindKey.cpp
-                 console/CommandLoopSound.cpp console/CommandMediaSound.cpp
-                 console/CommandMove.cpp console/CommandNoiseSound.cpp
-                 console/CommandPickUp.cpp console/CommandPlaySound.cpp
-                 console/CommandQuestLog.cpp console/CommandQuit.cpp
-                 console/CommandScreenshot.cpp console/CommandSoundVolume.cpp
-                 console/CommandWeather.cpp console/CommandZoom.cpp
-                 console/Console.cpp console/Dispatcher.cpp
-                 database/ContainerRecord.cpp database/Database.cpp
-                 database/ItemRecord.cpp database/LightRecord.cpp
-                 database/NPCRecord.cpp database/ObjectRecord.cpp
-                 database/ProjectileRecord.cpp database/ResourceRecord.cpp
-                 database/SoundRecord.cpp database/VehicleRecord.cpp
-                 database/WeaponRecord.cpp
-                 lua/LuaBindingsAnimated.cpp lua/LuaBindingsNPC.cpp
-                 lua/LuaBindingsObject.cpp lua/LuaBindingsQuestLog.cpp
-                 lua/LuaBindingsSound.cpp lua/LuaBindingsUniformMotion.cpp
-                 lua/LuaBindingsWeather.cpp lua/LuaEngine.cpp
-                 objects/AnyConversion.cpp
-                 objects/AnimatedObject.cpp objects/Container.cpp
-                 objects/DuskObject.cpp objects/InjectionObject.cpp objects/Item.cpp
-                 objects/Light.cpp objects/NPC.cpp objects/Player.cpp
-                 objects/Projectile.cpp objects/Resource.cpp objects/UniformMotionObject.cpp
-                 objects/Vehicle.cpp objects/WaypointObject.cpp objects/Weapon.cpp
-                 sound/Media.cpp sound/MediaOggVorbis.cpp sound/MediaWave.cpp
-                 sound/Sound.cpp sound/Source.cpp
-                 main.cpp)
+set(Dusk_sources
+    API.cpp
+    Application.cpp
+    Camera.cpp
+    Celestial.cpp
+    DataLoader.cpp
+    Dialogue.cpp
+    DiceBox.cpp
+    DuskExceptions.cpp
+    DuskFunctions.cpp
+    FrameListener.cpp
+    InjectionManager.cpp
+    InputSystem.cpp
+    InputSystemBinding.cpp
+    InputSystemEditor.cpp
+    Inventory.cpp
+    Journal.cpp
+    Landscape.cpp
+    Menu.cpp
+    Messages.cpp
+    ObjectManager.cpp
+    QuestLog.cpp
+    Scene.cpp
+    Script.cpp
+    Settings.cpp
+    Sun.cpp
+    Trigger.cpp
+    TriggerManager.cpp
+    VertexDataFunc.cpp
+    Weather.cpp
+    console/Command.cpp
+    console/CommandAssociateSound.cpp
+    console/CommandAttack.cpp
+    console/CommandBindKey.cpp
+    console/CommandLoopSound.cpp
+    console/CommandMediaSound.cpp
+    console/CommandMove.cpp
+    console/CommandNoiseSound.cpp
+    console/CommandPickUp.cpp
+    console/CommandPlaySound.cpp
+    console/CommandQuestLog.cpp
+    console/CommandQuit.cpp
+    console/CommandScreenshot.cpp
+    console/CommandSoundVolume.cpp
+    console/CommandWeather.cpp
+    console/CommandZoom.cpp
+    console/Console.cpp
+    console/Dispatcher.cpp
+    database/ContainerRecord.cpp
+    database/Database.cpp
+    database/ItemRecord.cpp
+    database/LightRecord.cpp
+    database/NPCRecord.cpp
+    database/ObjectRecord.cpp
+    database/ProjectileRecord.cpp
+    database/ResourceRecord.cpp
+    database/SoundRecord.cpp
+    database/VehicleRecord.cpp
+    database/WeaponRecord.cpp
+    lua/LuaBindingsAnimated.cpp
+    lua/LuaBindingsNPC.cpp
+    lua/LuaBindingsObject.cpp
+    lua/LuaBindingsQuestLog.cpp
+    lua/LuaBindingsSound.cpp
+    lua/LuaBindingsUniformMotion.cpp
+    lua/LuaBindingsWeather.cpp
+    lua/LuaEngine.cpp
+    objects/AnimatedObject.cpp
+    objects/AnyConversion.cpp
+    objects/Container.cpp
+    objects/DuskObject.cpp
+    objects/InjectionObject.cpp
+    objects/Item.cpp
+    objects/Light.cpp
+    objects/NPC.cpp
+    objects/Player.cpp
+    objects/Projectile.cpp
+    objects/Resource.cpp
+    objects/UniformMotionObject.cpp
+    objects/Vehicle.cpp
+    objects/WaypointObject.cpp
+    objects/Weapon.cpp
+    sound/Media.cpp
+    sound/MediaOggVorbis.cpp
+    sound/MediaWave.cpp
+    sound/Sound.cpp
+    sound/Source.cpp
+    main.cpp)
 
 message ( "CMAKE_CXX_COMPILER is set to ${CMAKE_CXX_COMPILER}." )
 
