@@ -7,10 +7,22 @@ before_install:
   - sudo apt-get update
   - sudo apt-get install -y libogre-dev libois-dev libopenal-dev libvorbis-dev liblua5.1-dev liblua50-dev liblualib50-dev bash
 script:
-  - mkdir ./build
-  - cd ./build
-  - cmake ..
-  - nproc
-  - make -j4
+  - echo "coverity stuff should be done by now."
 notifications:
   email: false
+
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "h840oFVWEukN7n3nZ7vwqQe4weN5stkxPJIv2V4n/79ZdAQ45eotbazX3Pu8OXcF1TtXF43eksysDuVBxS+vMNJdEFcOezICipcnk5/LrpnCLyfjKG2hl3Pzli7zEaWhIu79bypXoS+G1wOU98T9KYypXXDBTkimSy2k4IWmXPw="
+
+addons:
+  coverity_scan:
+    project:
+      name: "Thoronador/Dusk"
+      description: "Dusk"
+    notification_email: thoronador@users.sourceforge.net
+    build_command_prepend: "cmake ./"
+    build_command:   "make"
+    branch_pattern: coverity_scan
