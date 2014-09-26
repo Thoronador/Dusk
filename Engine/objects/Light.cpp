@@ -31,6 +31,7 @@ namespace Dusk
 //constructor
 Light::Light()
   : DuskObject(),
+    entity(NULL),
     m_Direction(Ogre::Vector3::ZERO)
 {
 }
@@ -38,6 +39,7 @@ Light::Light()
 //constructor
 Light::Light(const std::string& ID, const Ogre::Vector3& pos, const Ogre::Vector3& dir)
   : DuskObject(ID, pos, Ogre::Quaternion::IDENTITY, 1.0f),
+    entity(NULL),
     m_Direction(dir)
 {
 }
@@ -76,7 +78,7 @@ bool Light::enable(Ogre::SceneManager* scm)
   ent_node->setOrientation(m_Rotation);
   //set user defined object to this object as reverse link
   entity->setUserAny(Ogre::Any(this));
-  return (entity!=NULL);
+  return true;
 }
 
 bool Light::disable()
