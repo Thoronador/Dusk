@@ -72,6 +72,7 @@ set(Dusk_sources
     lua/LuaBindingsUniformMotion.cpp
     lua/LuaBindingsWeather.cpp
     lua/LuaEngine.cpp
+    main.cpp
     objects/AnimatedObject.cpp
     objects/AnyConversion.cpp
     objects/Container.cpp
@@ -91,8 +92,7 @@ set(Dusk_sources
     sound/MediaOggVorbis.cpp
     sound/MediaWave.cpp
     sound/Sound.cpp
-    sound/Source.cpp
-    main.cpp)
+    sound/Source.cpp)
 
 message ( "CMAKE_CXX_COMPILER is set to ${CMAKE_CXX_COMPILER}." )
 
@@ -100,13 +100,13 @@ if (CMAKE_COMPILER_IS_GNUCC)
     add_definitions (-Wall -O3 -fexceptions)
 endif (CMAKE_COMPILER_IS_GNUCC)
 
-add_definitions(`pkg-config --cflags OGRE`)
+# add_definitions(`pkg-config --cflags OGRE`)
 
-execute_process(COMMAND pkg-config --libs OGRE OUTPUT_VARIABLE OGRE_PKC)
+# execute_process(COMMAND pkg-config --libs OGRE OUTPUT_VARIABLE OGRE_PKC)
 
-add_definitions(${OGRE_PKC})
+# add_definitions(${OGRE_PKC})
 
-set( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} -s ${OGRE_PKC}" )
+# set( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} -s ${OGRE_PKC}" )
 
 add_executable(Dusk ${Dusk_sources})
 
@@ -122,11 +122,20 @@ endif (OPENGL_FOUND)
 # OpenAL
 find_package (OpenAL)
 if (OPENAL_FOUND)
-  include_directories(${OPENAL_INCLUDE_DIRS})
-  target_link_libraries (Dusk ${OPENAL_LIBRARIES})
+  include_directories(${OPENAL_INCLUDE_DIR})
+  target_link_libraries (Dusk ${OPENAL_LIBRARY})
 else ()
   message ( FATAL_ERROR "OpenAL was not found!" )
 endif (OPENAL_FOUND)
+
+# OggVorbis
+find_package (vorbisfile)
+if (VORBISFILE_FOUND)
+  #include_directories(${VORBISFILE_INCLUDE_DIRS})
+  target_link_libraries (Dusk ${VORBISFILE_LIBRARIES})
+else ()
+  message ( FATAL_ERROR "vorbisfile was not found!" )
+endif (VORBISFILE_FOUND)
 
 # Lua
 find_package (Lua51)
@@ -136,6 +145,15 @@ if (LUA51_FOUND)
 else ()
   message ( FATAL_ERROR "Lua 5.1 was not found!" )
 endif (LUA51_FOUND)
+
+find_package (lualib50)
+if (LUALIB50_FOUND)
+  include_directories(${LUALIB50_INCLUDE_DIRS})
+  target_link_libraries (Dusk ${LUALIB50_LIBRARIES})
+else ()
+  message ( FATAL_ERROR "LuaLib 5.0 was not found!" )
+endif (LUALIB50_FOUND)
+
 
 # OIS
 find_package (OIS)
@@ -147,10 +165,10 @@ else ()
 endif (OIS_FOUND)
 
 # Ogre
-#find_package (OGRE)
-#if (OGRE_FOUND)
-#  include_directories(${OGRE_INCLUDE_DIRS})
-#  target_link_libraries (Dusk ${OGRE_LIBRARIES})
-#else ()
-#  message ( FATAL_ERROR "OGRE was not found!" )
-#endif (OGRE_FOUND)
+find_package (OGRE)
+if (OGRE_FOUND)
+  include_directories(${OGRE_INCLUDE_DIR})
+  target_link_libraries (Dusk ${OGRE_LIBRARIES})
+else ()
+  message ( FATAL_ERROR "OGRE was not found!" )
+endif (OGRE_FOUND)
