@@ -3,18 +3,18 @@
     This file is part of the Dusk Editor.
     Copyright (C) 2009, 2010, 2011 thoronador
 
-    The Dusk Editor is free software: you can redistribute it and/or modify
+    This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    The Dusk Editor is distributed in the hope that it will be useful,
+    This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with the Dusk Editor.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------
 */
 
@@ -36,7 +36,7 @@
 #include "../Engine/objects/DuskObject.h"
 #include "../Engine/DuskTypes.h"
 #include "../Engine/DuskFunctions.h"
-#include <OgreCEGUIRenderer.h>
+#include <CEGUI/RendererModules/Ogre/CEGUIOgreRenderer.h>
 #include <CEGUI/CEGUIEventArgs.h>
 #include <CEGUI/CEGUISystem.h>
 #include <CEGUI/CEGUIVector.h>
@@ -81,7 +81,7 @@ protected:
     Ogre::RenderWindow* mWindow;
 
 	CEGUI::System *mSystem;
-    CEGUI::OgreCEGUIRenderer *mRenderer;
+    CEGUI::OgreRenderer *mRenderer;
 
     //application specific
     std::string LoadedDataFile;
