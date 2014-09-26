@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2014  Thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -29,6 +29,17 @@ namespace Dusk
 const uint8_t Dialogue::cGreetingFlag = 1;
 const uint8_t Dialogue::cDialogueFlag = 2;
 const std::string Dialogue::LuaDialogueConditionFunction = "DialogueConditional";
+
+
+Dialogue::ConditionRecord::ConditionRecord()
+: NPC_ID(""),
+  ItemID(""),
+  ItemOp(copEqual),
+  ItemAmount(0),
+  ScriptedCondition(NULL)
+{
+}
+
 
 bool Dialogue::LineRecord::saveToStream(std::ofstream& out) const
 {
@@ -440,7 +451,7 @@ bool Dialogue::processResultScript(const std::string& LineID)
 bool Dialogue::isConditionFulfilled(const ConditionRecord& cond, const NPC* who) const
 {
   //only check if ID is set. Unset ID matches every NPC.
-  if (cond.NPC_ID!="")
+  if (!cond.NPC_ID.empty())
   {
     if (who!=NULL)
     {
@@ -456,7 +467,7 @@ bool Dialogue::isConditionFulfilled(const ConditionRecord& cond, const NPC* who)
   }//NPC_ID
 
   //ItemID
-  if (cond.ItemID!="")
+  if (!cond.ItemID.empty())
   {
     if (who==NULL)
     {

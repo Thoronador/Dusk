@@ -90,6 +90,9 @@ class Dialogue
        CompareOperation ItemOp;
        unsigned int ItemAmount;
        Script* ScriptedCondition;
+
+       /// constructor
+       ConditionRecord();
        //more to come
     };
 
