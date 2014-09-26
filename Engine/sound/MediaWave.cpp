@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2013  Thoronador
+    Copyright (C) 2013, 2014  Thoronador
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -216,7 +216,8 @@ MediaWave::MediaWave(const std::string& identifier, const std::string& PathToMed
            break;
       default:
            DuskLog()<<"    Unknown error occured. Error code: "
-                    <<(int)error_state<<".\n"; break;
+                    <<(int)error_state<<".\n";
+           break;
     }//swi
     dat.close();
     alDeleteBuffers(buffer_num, buffers);
@@ -231,11 +232,14 @@ MediaWave::MediaWave(const std::string& identifier, const std::string& PathToMed
     switch(fmt_c.Channels)
     {
       case 4:
-        format_type = alGetEnumValue("AL_FORMAT_QUAD16"); break;
+        format_type = alGetEnumValue("AL_FORMAT_QUAD16");
+        break;
       case 2:
-        format_type = AL_FORMAT_STEREO16; break;
+        format_type = AL_FORMAT_STEREO16;
+        break;
       case 1:
-        format_type = AL_FORMAT_MONO16; break;
+        format_type = AL_FORMAT_MONO16;
+        break;
       default:
         DuskLog() << "MediaWave::MediaWave: ERROR: File \"" <<PathToMedia
                   <<"\" seems to have "<<fmt_c.Channels<<" channels. However, "
@@ -254,11 +258,14 @@ MediaWave::MediaWave(const std::string& identifier, const std::string& PathToMed
     switch(fmt_c.Channels)
     {
       case 4:
-        format_type = alGetEnumValue("AL_FORMAT_QUAD8"); break;
+        format_type = alGetEnumValue("AL_FORMAT_QUAD8");
+        break;
       case 2:
-        format_type = AL_FORMAT_STEREO8; break;
+        format_type = AL_FORMAT_STEREO8;
+        break;
       case 1:
         format_type = AL_FORMAT_MONO8;
+        break;
       default:
         DuskLog() << "MediaWave::MediaWave: ERROR: File \"" <<PathToMedia
                   <<"\" seems to have "<<fmt_c.Channels<<" channels. However, "
@@ -310,15 +317,19 @@ MediaWave::MediaWave(const std::string& identifier, const std::string& PathToMed
       switch (error_state)
       {
         case AL_INVALID_ENUM:
-             DuskLog() <<"    The specified format does not exist.\n"; break;
+             DuskLog() <<"    The specified format does not exist.\n";
+             break;
         case AL_INVALID_VALUE:
              DuskLog() <<"    The size parameter is not valid for the given format"
-                       <<" or the buffer is already in use.\n"; break;
+                       <<" or the buffer is already in use.\n";
+             break;
         case AL_OUT_OF_MEMORY:
-             DuskLog() <<"    Not enough memory to create the buffer.\n"; break;
+             DuskLog() <<"    Not enough memory to create the buffer.\n";
+             break;
         default:
              DuskLog() <<"    Unknown error. Error code: "<<(int)error_state
-             <<".\n"; break;
+                       <<".\n";
+             break;
       }//swi
       dat.close();
       free(temp);
@@ -341,12 +352,15 @@ MediaWave::MediaWave(const std::string& identifier, const std::string& PathToMed
     switch (error_state)
     {
       case AL_INVALID_ENUM:
-           DuskLog() <<"    The specified format does not exist.\n"; break;
+           DuskLog() <<"    The specified format does not exist.\n";
+           break;
       case AL_INVALID_VALUE:
            DuskLog() <<"    The size parameter is not valid for the given format"
-                     <<" or the buffer is already in use.\n"; break;
+                     <<" or the buffer is already in use.\n";
+           break;
       case AL_OUT_OF_MEMORY:
-           DuskLog() <<"    Not enough memory to create the buffer.\n"; break;
+           DuskLog() <<"    Not enough memory to create the buffer.\n";
+           break;
       default:
            DuskLog() <<"    Unknown error. Error code: "<<(int)error_state<<".\n";
            break;
