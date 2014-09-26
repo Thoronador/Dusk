@@ -160,7 +160,6 @@ namespace Dusk
 
             /* default distance between camera and ground/ landscape */
             static const float cAboveGroundLevel;
-        protected:
         private:
             /* constructor
 

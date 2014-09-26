@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2008, 2009, 2010 walljumper, thoronador
+    Copyright (C) 2008, 2009, 2010, 2014  walljumper, thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -68,11 +68,12 @@ namespace Dusk
     }
 
     Camera::Camera(Ogre::SceneManager* scn)
+    : m_Camera(NULL),
+      m_Primary(NULL),
+      m_Secondary(NULL),
+      m_RotationPerSecond(0.0f)
     {
         //ctor
-        m_Primary = NULL;
-        m_Secondary = NULL;
-        m_Camera = NULL;
         if (scn!=NULL)
         {
           setupCamera(scn);
