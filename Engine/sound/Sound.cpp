@@ -601,14 +601,18 @@ std::vector<float> Sound::getListenerPosition() const
     switch(error_state)
     {
       case AL_INVALID_OPERATION:
-           DuskLog() << "    There is no current context.\n"; break;
+           DuskLog() << "    There is no current context.\n";
+           break;
       case AL_INVALID_ENUM: //should not happen here
-           DuskLog() << "    Invalid enumeration value.\n"; break;
+           DuskLog() << "    Invalid enumeration value.\n";
+           break;
       case AL_INVALID_VALUE:
            DuskLog() << "    Invalid pointer values.\n";
+           break;
       default:
            DuskLog() << "    Unknown error. Error code: "<<(int)error_state
-                     << ".\n"; break;
+                     << ".\n";
+           break;
     }//swi
     //Normally we would return "false" here, but since there is no bool, we can
     //use the content of the result vector as well.
@@ -854,14 +858,18 @@ bool Sound::rotateListener(const float x_axis, const float y_axis, const float z
     switch(error_state)
     {
       case AL_INVALID_OPERATION:
-           DuskLog() << "    There is no current context.\n"; break;
+           DuskLog() << "    There is no current context.\n";
+           break;
       case AL_INVALID_ENUM:
-           DuskLog() << "    The enum parameter is invalid.\n"; break;
+           DuskLog() << "    The enum parameter is invalid.\n";
+           break;
       case AL_INVALID_VALUE:
            DuskLog() << "    Invalid pointer value.\n";
+           break;
       default:
            DuskLog() << "    Unknown error. Error code: "<<(int)error_state
-                     << ".\n"; break;
+                     << ".\n";
+           break;
     }//swi
     return false;
   }//if
