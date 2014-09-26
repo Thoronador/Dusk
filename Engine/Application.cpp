@@ -1,7 +1,7 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2007, 2008, 2009, 2010 ssj5000, walljumper, DaSteph, thoronador
+    Copyright (C) 2007, 2008, 2009, 2010, 2014  ssj5000, walljumper, DaSteph, thoronador
 
     The Dusk Engine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -38,7 +38,12 @@ namespace Dusk
     *
     */
     Application::Application()
-            : m_Root(0)
+            : m_Root(0),
+              m_Camera(NULL),
+              m_SceneManager(NULL),
+              m_Window(NULL),
+              m_FrameListener(NULL),
+              m_ScreenshotType(ssfPNG)
     {
         //ctor
         getAPI().setApplication(this);
