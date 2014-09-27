@@ -62,7 +62,7 @@ void Container::transferAllItemsTo(Inventory& target)
 
 void Container::addItem(const std::string& ItemID, const unsigned int count)
 {
-  if (count==0 or ItemID=="")
+  if (count==0 or ItemID.empty())
   {
     return;
   }
@@ -72,7 +72,7 @@ void Container::addItem(const std::string& ItemID, const unsigned int count)
 
 unsigned int Container::removeItem(const std::string& ItemID, const unsigned int count)
 {
-  if (count==0 or ItemID=="")
+  if (count==0 or ItemID.empty())
   {
     return 0;
   }
@@ -118,7 +118,7 @@ bool Container::saveToStream(std::ofstream& OutStream) const
   //write inventory
   // -- flags
   OutStream.write((const char*) &m_Changed, sizeof(bool));
-  // -- inventory (only if neccessary)
+  // -- inventory (only if necessary)
   if (m_Changed)
   {
     if (!m_Contents.saveToStream(OutStream))

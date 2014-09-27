@@ -153,7 +153,7 @@ bool Player::enable(Ogre::SceneManager* scm)
     DuskLog() << "Info: Player animation state available: "<<as[i]<<"\n";
   }//for
   // -- bones of skeleton
-  if ( entity->hasSkeleton())
+  if (entity->hasSkeleton())
   {
     Ogre::SkeletonInstance* skelInst = entity->getSkeleton();
     DuskLog() << "Info: Player animation bones available: "<< skelInst->getNumBones()<< "\n";
@@ -175,7 +175,7 @@ bool Player::enable(Ogre::SceneManager* scm)
   entity->attachObjectToBone("Sheath.R", ent_sword);
   ent_sword = scm->createEntity(entity_name.str()+"_sword.Left", "Sword.mesh");
   entity->attachObjectToBone("Sheath.L", ent_sword);
-  return (entity!=NULL);
+  return true;
 }
 
 bool Player::saveToStream(std::ofstream& OutStream) const

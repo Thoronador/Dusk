@@ -165,7 +165,7 @@ bool DuskObject::enable(Ogre::SceneManager* scm)
   ent_node->setOrientation(m_Rotation);
   //set user defined object to this object as reverse link
   entity->setUserAny(Ogre::Any(this));
-  return (entity!=NULL);
+  return true;
 }
 
 bool DuskObject::disable()

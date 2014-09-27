@@ -52,7 +52,7 @@ const std::string& Item::getObjectMesh() const
 
 bool Item::enableWithoutSceneNode(Ogre::SceneManager* scm)
 {
-  //We basically use the exact code from the DuskObject Enable() function here,
+  //We basically use the exact code from the DuskObject enable() function here,
   // just with the difference of not creating a scene node for it.
   if (entity!=NULL)
   {
@@ -73,7 +73,7 @@ bool Item::enableWithoutSceneNode(Ogre::SceneManager* scm)
   ent_node->scale(m_Scale, m_Scale, m_Scale); */
   //set user defined object to this object as reverse link
   entity->setUserAny(Ogre::Any(this));
-  return (entity!=NULL);
+  return true;
 }
 
 bool Item::disable()
@@ -83,7 +83,7 @@ bool Item::disable()
     return true;
   }
   Ogre::SceneNode* ent_node = entity->getParentSceneNode();
-  Ogre::SceneManager * scm;
+  Ogre::SceneManager * scm = NULL;
   if (ent_node!=NULL)
   {
     scm = ent_node->getCreator();

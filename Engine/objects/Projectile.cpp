@@ -194,35 +194,38 @@ void Projectile::injectTime(const float SecondsPassed)
         InjectionManager::getSingleton().requestDeletion(this);
         return;
       }
-      //Is object an NPC nad not the one who shot the projectile?
+      //Is object an NPC and not the one who shot the projectile?
       else if (ho_type==otNPC and hit_object!=m_Emitter)
       {
         //projectile will hit the NPC within this frame
         // --> inflict damage
         Dusk::NPC* npc_ptr = dynamic_cast<NPC*> (hit_object);
-        const ProjectileRecord& pr = Database::getSingleton().getTypedRecord<ProjectileRecord>(this->ID);
-        switch (pr.dice)
+        if (npc_ptr!=NULL)
         {
-          case 4:
-               npc_ptr->inflictDamage(DiceBox::getSingleton().d4(pr.times));
-               break;
-          case 6:
-               npc_ptr->inflictDamage(DiceBox::getSingleton().d6(pr.times));
-               break;
-          case 8:
-               npc_ptr->inflictDamage(DiceBox::getSingleton().d8(pr.times));
-               break;
-          case 10:
-               npc_ptr->inflictDamage(DiceBox::getSingleton().d10(pr.times));
-               break;
-          case 20:
-               npc_ptr->inflictDamage(DiceBox::getSingleton().d20(pr.times));
-               break;
-          default:
-               DuskLog() << "Projectile::injectTime: ERROR: projectile \""<<ID
-                         << "\" has invalid die number ("<<pr.dice<<").\n";
-                         break;
-        }//switch
+          const ProjectileRecord& pr = Database::getSingleton().getTypedRecord<ProjectileRecord>(this->ID);
+          switch (pr.dice)
+          {
+            case 4:
+                 npc_ptr->inflictDamage(DiceBox::getSingleton().d4(pr.times));
+                 break;
+            case 6:
+                 npc_ptr->inflictDamage(DiceBox::getSingleton().d6(pr.times));
+                 break;
+            case 8:
+                 npc_ptr->inflictDamage(DiceBox::getSingleton().d8(pr.times));
+                 break;
+            case 10:
+                 npc_ptr->inflictDamage(DiceBox::getSingleton().d10(pr.times));
+                 break;
+            case 20:
+                 npc_ptr->inflictDamage(DiceBox::getSingleton().d20(pr.times));
+                 break;
+            default:
+                 DuskLog() << "Projectile::injectTime: ERROR: projectile \""<<ID
+                           << "\" has invalid die number ("<<pr.dice<<").\n";
+                           break;
+          }//switch
+        }//if
         // --> request projectile deletetion
         InjectionManager::getSingleton().requestDeletion(this);
         return;

@@ -75,7 +75,7 @@ bool AnimatedObject::enable(Ogre::SceneManager* scm)
   }
   if (scm==NULL)
   {
-    DuskLog("AnimatedObject::Enable: ERROR: no scene manager present.\n");
+    DuskLog("AnimatedObject::enable: ERROR: no scene manager present.\n");
     return false;
   }
   //generate unique entity name
@@ -90,7 +90,7 @@ bool AnimatedObject::enable(Ogre::SceneManager* scm)
   //set user defined object to this object as reverse link
   entity->setUserAny(Ogre::Any(this));
   //restore saved or queued animations
-  if (!(m_Anims.empty()))
+  if (!m_Anims.empty())
   {
     const Ogre::AnimationStateSet* anim_set = entity->getAllAnimationStates();
     std::map<std::string, AnimRecord>::iterator iter;
@@ -119,7 +119,7 @@ bool AnimatedObject::enable(Ogre::SceneManager* scm)
       }
     }//while
   }//animations queued
-  return (entity!=NULL);
+  return true;
 }
 
 bool AnimatedObject::disable()
@@ -136,7 +136,7 @@ bool AnimatedObject::disable()
   scm = ent_node->getCreator();
   if (scm==NULL)
   {
-    DuskLog("AnimatedObject::Disable: ERROR: got NULL for scene manager.\n");
+    DuskLog("AnimatedObject::disable: ERROR: got NULL for scene manager.\n");
     return false;
   }
   ent_node->detachObject(entity);

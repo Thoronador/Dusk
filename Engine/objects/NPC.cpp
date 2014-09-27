@@ -1168,7 +1168,7 @@ void NPC::performAttack(const SlotType attackSlot)
       {
         //We've found an NPC!
         NPC* NPC_Ptr = dynamic_cast<NPC*>(obj_ptr);
-        if (NPC_Ptr!=this)
+        if ((NPC_Ptr!=this) && (NPC_Ptr != NULL))
         {
           //calculate damage
           unsigned int times;
