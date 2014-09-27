@@ -1,20 +1,20 @@
 /*
  -----------------------------------------------------------------------------
     This file is part of the Dusk Engine.
-    Copyright (C) 2010 thoronador
+    Copyright (C) 2010, 2014  Thoronador
 
-    The Dusk Engine is free software: you can redistribute it and/or modify
+    This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    The Dusk Engine is distributed in the hope that it will be useful,
+    This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with the Dusk Engine.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------
 */
 
@@ -77,13 +77,13 @@ void Menu::showDialogue(const std::string& first, const std::vector<std::string>
     std::cout << "create(overlay)\n";
     dialOverlay = om.create(cDialogueOverlay);
   }
-  Ogre::OverlayContainer* dialCont;
+  Ogre::OverlayContainer* dialCont = NULL;
   std::cout << "getOE(Box)\n";
   dialCont = static_cast<Ogre::OverlayContainer*> (om.getOverlayElement(cDialogueOverlay+"/Box"));
-  if ( dialCont == NULL)
+  if (dialCont == NULL)
   {
     std::cout << "createOE(Box)\n";
-    Ogre::OverlayContainer* dialCont = static_cast<Ogre::OverlayContainer*>
+    dialCont = static_cast<Ogre::OverlayContainer*>
                     (om.createOverlayElement("Panel", cDialogueOverlay+"/Box"));
     dialCont->setPosition(0.0, 0.75);
     dialCont->setDimensions(1.0, 0.25);
