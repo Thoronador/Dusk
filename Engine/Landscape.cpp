@@ -1185,7 +1185,11 @@ bool Landscape::sendToEngine(Ogre::SceneManager * scm, const bool WireFrame)
   unsigned int i;
   for (i=0; i<m_numRec; i++)
   {
-    m_RecordList[i]->enable(scm, WireFrame);
+    if (!m_RecordList[i]->enable(scm, WireFrame))
+    {
+      DuskLog() << "Landscape::sendToEngine: ERROR: At least one landscape record could not be enabled.\n";
+      return false;
+    }
   }//for
   return true;
 }
